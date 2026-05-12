@@ -3,7 +3,7 @@ export default function PrivateSailingExperience() {
     <main className="bg-white text-black overflow-hidden">
 
       {/* HERO */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black text-white">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#1C2A36] text-white">
 
         <img
           src="https://www.portovenere.com/wp-content/uploads/2026/02/352.webp"
@@ -262,7 +262,7 @@ export default function PrivateSailingExperience() {
       </section>
 
       {/* ON BOARD */}
-      <section className="py-32 px-6 bg-black text-white">
+      <section className="py-32 px-6 bg-[#1C2A36] text-white">
 
         <div className="max-w-7xl mx-auto">
 
@@ -431,7 +431,7 @@ export default function PrivateSailingExperience() {
             All included.
           </p>
 
-          <button className="bg-black text-white px-10 py-5 rounded-full text-lg hover:bg-neutral-800 transition-all duration-300">
+         <button className="bg-[#1C2A36] text-white px-10 py-5 rounded-full text-lg hover:bg-[#243444] transition-all duration-300">
             Request Private Booking
           </button>
 
@@ -478,7 +478,7 @@ export default function PrivateSailingExperience() {
       </section>
 
       {/* CONTACT */}
-      <section className="py-32 px-6 bg-black text-white text-center">
+      <section className="py-32 px-6 bg-[#1C2A36] text-white text-center">
 
         <div className="max-w-4xl mx-auto">
 
