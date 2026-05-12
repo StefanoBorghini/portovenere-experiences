@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const protectedRoutes: Record<string, string> = {
-  "/private-sailing-experience": "medsea2026",
-  "/sunset-yacht": "goldenhour",
+  "/private-sailing-experience": "sailing2026",
 };
 
 export function middleware(request: NextRequest) {
@@ -24,7 +23,12 @@ export function middleware(request: NextRequest) {
     const [user, password] = decoded.split(":");
 
     if (password === requiredPassword) {
-      return NextResponse.next();
+
+      const response = NextResponse.next();
+
+      response.cookies.set("clientName", user);
+
+      return response;
     }
   }
 

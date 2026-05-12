@@ -1,10 +1,11 @@
-export default function PrivateSailingExperience({
-  searchParams,
-}: {
-  searchParams: { client?: string };
-}) {
+import { cookies } from "next/headers";
 
-  const clientName = searchParams.client || "Private Guest";
+export default async function PrivateSailingExperience() {
+
+  const cookieStore = await cookies();
+
+  const clientName =
+    cookieStore.get("clientName")?.value || "Private Guest";
 
   return (
     <main className="bg-white text-black overflow-hidden">
@@ -253,6 +254,7 @@ export default function PrivateSailingExperience({
         </div>
 
       </section>
+
     </main>
   );
 }
