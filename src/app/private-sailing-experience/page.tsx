@@ -254,19 +254,19 @@ export default async function PrivateSailingExperience() {
           <div className="grid md:grid-cols-3 gap-8">
 
             <img
-              src=""
+              src="https://www.giornirubati.it/wp-content/uploads/2020/06/la-caletta-1280x640.jpg"
               alt="Cove"
               className="rounded-3xl h-[350px] object-cover w-full"
             />
 
             <img
-              src=""
+              src="https://lericicoast.it/wp-content/uploads/2023/12/castello-di-lerici-1.jpg"
               alt="Sailing"
               className="rounded-3xl h-[350px] object-cover w-full"
             />
 
             <img
-              src=""
+              src="https://rete.comuni-italiani.it/foto/2009/wp-content/uploads/2009/06/14488-800x600.jpg"
               alt="Village"
               className="rounded-3xl h-[350px] object-cover w-full"
             />
@@ -405,19 +405,19 @@ export default async function PrivateSailingExperience() {
           <div className="grid md:grid-cols-3 gap-8">
 
             <img
-              src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1974&auto=format&fit=crop"
+              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/566855192_17868352479463102_7956891347193934971_n.jpg?stp=dst-jpegr_e35_p1080x1080_tt6&_nc_cat=103&ig_cache_key=Mzc0NzU2NTk4NDAwNjMxNDk0Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=2p4ZCQFnnDsQ7kNvwFeO-dG&_nc_oc=Ado-TKkZjx9XKsUQ_tUbQDHw_YArrqBDiUBH-ECkjkvyfrmTq7a8Hl_DnKBexpo3Vvc&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af60uEgSN8NdKGqg3rR-vANowOcY62c_Z4jcVF07ziKojA&oe=6A08C3B5"
               alt="Food"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
             <img
-              src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1974&auto=format&fit=crop"
+              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/567423493_17868352560463102_1706763758481305001_n.jpg?stp=dst-jpegr_e35_tt6&_nc_cat=108&ig_cache_key=Mzc0NzU2NTk4NDAyMzA3MDE2Mg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=0djtjAQ8fgEQ7kNvwHmS4mj&_nc_oc=AdqDPLPRnuBMEd9s-sxicm2KkYu0wo3rj6FhhhFca0coBxPfiGrSPTF-RSF902SqMoQ&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af4XG41nuGM3D7IAp3a1jsRwwe1xFYsamMnVSkGr952KTg&oe=6A08E812"
               alt="Seafood"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
             <img
-              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1974&auto=format&fit=crop"
+              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/567529567_17868352635463102_3862182791428772486_n.jpg?stp=dst-jpegr_e35_tt6&_nc_cat=110&ig_cache_key=Mzc0NzU2NTk4Mzk4MTEzMzI0MA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=XduhxOb3_xEQ7kNvwFBNdlv&_nc_oc=AdqcpesIgpxZiiwRKTnEH6hQvrJdSaquUbX9FFzSbUdqhsT9KIdi3IPy8f1ECF34_rM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af7R5dVK9PkyyxUigRDY5u_yDV3DeFj3SX9fCxvBTSvUIg&oe=6A08C21D"
               alt="Dinner"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
