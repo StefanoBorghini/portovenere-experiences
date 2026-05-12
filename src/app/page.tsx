@@ -25,6 +25,7 @@ export default function HomePage() {
           autoPlay
           muted
           loop
+          poster="/videos/Instantanea.png"
           playsInline
           className="absolute inset-0 w-full h-full object-cover scale-105"
         >
