@@ -466,7 +466,7 @@ export default async function PrivateSailingExperience() {
     </p>
 
     <button className="bg-[#1C2A36] text-white px-10 py-5 rounded-full text-lg hover:bg-[#243444] transition-all duration-300">
-      Request Private Booking
+      <a href="mailto:info@portovenere.com">Request Private Booking</a>
     </button>
 
   </div>
