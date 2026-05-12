@@ -1,6 +1,6 @@
 export default function HomePage() {
   return (
-    <main className="bg-black text-white overflow-hidden">
+    <main className="bg-white text-black overflow-hidden">
       {/* HERO */}
       <section className="relative h-screen flex items-center justify-center">
         <video
@@ -8,7 +8,7 @@ export default function HomePage() {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
         >
           <source
             src="https://cdn.coverr.co/videos/coverr-sailing-on-the-sea-1569184094317?download=1080p"
@@ -16,15 +16,18 @@ export default function HomePage() {
           />
         </video>
 
+        {/* OVERLAY */}
         <div className="absolute inset-0 bg-black/50" />
 
         {/* NAVBAR */}
-        <nav className="absolute top-0 left-0 w-full z-20 px-8 py-6 flex items-center justify-between">
-          <div className="text-sm tracking-[0.4em] uppercase">
+        <nav className="absolute top-0 left-0 w-full z-20 px-6 md:px-10 py-6 flex items-center justify-between">
+          {/* LOGO */}
+          <div className="text-sm tracking-[0.4em] uppercase text-white">
             Portovenere Experiences
           </div>
 
-          <div className="hidden md:flex gap-10 text-sm text-zinc-300">
+          {/* DESKTOP MENU */}
+          <div className="hidden md:flex gap-10 text-sm text-zinc-200">
             <a href="#experiences" className="hover:text-white transition">
               Experiences
             </a>
@@ -37,6 +40,13 @@ export default function HomePage() {
               Contact
             </a>
           </div>
+
+          {/* MOBILE HAMBURGER */}
+          <button className="md:hidden flex flex-col gap-1.5">
+            <span className="w-6 h-[1px] bg-white"></span>
+            <span className="w-6 h-[1px] bg-white"></span>
+            <span className="w-6 h-[1px] bg-white"></span>
+          </button>
         </nav>
 
         {/* HERO CONTENT */}
@@ -45,7 +55,7 @@ export default function HomePage() {
             Mediterranean Lifestyle Experiences
           </p>
 
-          <h1 className="text-6xl md:text-8xl font-light leading-[0.95] mb-10">
+          <h1 className="text-6xl md:text-8xl font-light leading-[0.95] text-white mb-10">
             Private
             <br />
             Mediterranean
@@ -53,7 +63,7 @@ export default function HomePage() {
             Experiences
           </h1>
 
-          <p className="max-w-2xl mx-auto text-zinc-300 text-lg md:text-xl leading-relaxed">
+          <p className="max-w-2xl mx-auto text-zinc-200 text-lg md:text-xl leading-relaxed">
             A curated collection of cinematic experiences between sailing,
             atmosphere, storytelling and authentic Mediterranean lifestyle.
           </p>
@@ -68,7 +78,7 @@ export default function HomePage() {
 
             <a
               href="#contact"
-              className="border border-white px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all duration-500"
+              className="border border-white text-white px-8 py-4 rounded-full hover:bg-white hover:text-black transition-all duration-500"
             >
               Request Private Access
             </a>
@@ -76,14 +86,14 @@ export default function HomePage() {
         </div>
 
         {/* SCROLL */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-400 text-sm tracking-[0.3em] uppercase">
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-300 text-sm tracking-[0.3em] uppercase">
           Scroll
         </div>
       </section>
 
       {/* AUTHORITY STRIP */}
-      <section className="border-y border-zinc-900 py-6 overflow-hidden">
-        <div className="flex gap-20 whitespace-nowrap animate-pulse text-zinc-500 uppercase tracking-[0.3em] text-sm justify-center">
+      <section className="border-y border-zinc-200 py-6 overflow-hidden bg-white">
+        <div className="flex gap-20 whitespace-nowrap text-zinc-500 uppercase tracking-[0.3em] text-sm justify-center">
           <span>Private Productions</span>
           <span>Mediterranean Storytelling</span>
           <span>Luxury Experiences</span>
@@ -101,7 +111,7 @@ export default function HomePage() {
             Experiences
           </p>
 
-          <h2 className="text-5xl md:text-7xl font-light">
+          <h2 className="text-5xl md:text-7xl font-light leading-tight">
             Curated
             <br />
             Mediterranean Moments
@@ -119,7 +129,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end p-10 text-white">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Sailing Experience
               </p>
@@ -130,7 +140,7 @@ export default function HomePage() {
                 Experience
               </h3>
 
-              <p className="text-zinc-300 leading-relaxed mb-8">
+              <p className="text-zinc-200 leading-relaxed mb-8">
                 Golden hour navigation, slow Mediterranean atmosphere and
                 cinematic storytelling across the Gulf of Poets.
               </p>
@@ -154,7 +164,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end p-10 text-white">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Underwater Storytelling
               </p>
@@ -165,7 +175,7 @@ export default function HomePage() {
                 Visual Experience
               </h3>
 
-              <p className="text-zinc-300 leading-relaxed mb-8">
+              <p className="text-zinc-200 leading-relaxed mb-8">
                 Immersive visual experiences between sea, silence, movement and
                 cinematic underwater storytelling.
               </p>
@@ -186,7 +196,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end p-10 text-white">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Sunset Dinner
               </p>
@@ -197,7 +207,7 @@ export default function HomePage() {
                 Sunset Dinner
               </h3>
 
-              <p className="text-zinc-300 leading-relaxed mb-8">
+              <p className="text-zinc-200 leading-relaxed mb-8">
                 Private tables, authentic Ligurian cuisine and unforgettable
                 atmosphere by the sea.
               </p>
@@ -213,7 +223,7 @@ export default function HomePage() {
       {/* MANIFESTO */}
       <section
         id="manifesto"
-        className="py-40 px-6 border-t border-zinc-900"
+        className="py-40 px-6 bg-black text-white"
       >
         <div className="max-w-5xl mx-auto text-center">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-10">
@@ -240,7 +250,7 @@ export default function HomePage() {
       </section>
 
       {/* SCARCITY */}
-      <section className="py-24 px-6 bg-zinc-950">
+      <section className="py-24 px-6 bg-zinc-100">
         <div className="max-w-4xl mx-auto text-center">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
             Limited Availability
@@ -252,7 +262,7 @@ export default function HomePage() {
             Private access only.
           </h2>
 
-          <p className="text-zinc-400 text-lg leading-relaxed">
+          <p className="text-zinc-600 text-lg leading-relaxed">
             Each experience is produced in limited sessions to preserve intimacy,
             atmosphere and authenticity.
           </p>
@@ -262,7 +272,7 @@ export default function HomePage() {
       {/* FINAL CTA */}
       <section
         id="contact"
-        className="py-40 px-6 text-center border-t border-zinc-900"
+        className="py-40 px-6 text-center border-t border-zinc-200 bg-white"
       >
         <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
           Private Access
@@ -274,14 +284,14 @@ export default function HomePage() {
           Invitation
         </h2>
 
-        <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed mb-12">
+        <p className="max-w-2xl mx-auto text-zinc-600 text-lg leading-relaxed mb-12">
           Access curated Mediterranean experiences designed for selected guests,
           private collaborations and cinematic storytelling productions.
         </p>
 
         <a
           href="mailto:info@portovenere.com"
-          className="inline-block bg-white text-black px-10 py-5 rounded-full hover:scale-105 transition-all duration-500"
+          className="inline-block bg-black text-white px-10 py-5 rounded-full hover:scale-105 transition-all duration-500"
         >
           Contact Us
         </a>
