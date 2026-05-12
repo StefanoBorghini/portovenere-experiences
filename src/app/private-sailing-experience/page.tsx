@@ -21,7 +21,7 @@ export default function PrivateSailingExperience() {
           </h1>
 
           <p className="text-xl md:text-2xl text-neutral-300 leading-relaxed max-w-3xl mx-auto">
-            Tailored sailing experiences designed for an authentic
+            Tailored sailing experiences designed for an authentic<br></br>
             and unforgettable day at sea.
           </p>
         </div>
