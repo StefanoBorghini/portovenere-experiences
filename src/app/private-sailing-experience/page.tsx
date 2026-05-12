@@ -5,7 +5,7 @@ export default function PrivateSailingExperience() {
       {/* HERO */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black text-white">
         <img
-          src="https://www.portovenere.com/wp-content/uploads/2026/03/352-300x200-1.jpg"
+          src="https://www.portovenere.com/wp-content/uploads/2026/02/352.webp"
           alt="Portovenere Sailing"
           className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
