@@ -110,7 +110,16 @@ export default async function PrivateSailingExperience() {
       </section>
 
       {/* DETAILS */}
-      <section className="py-32 px-6 bg-neutral-100">
+     {/* DETAILS */}
+<section
+  className="py-32 px-6 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+  style={{
+    backgroundImage: `
+      linear-gradient(rgba(245,245,245,0.94), rgba(245,245,245,0.94)),
+      url("https://www.portovenere.com/wp-content/uploads/2026/05/topography-bg.png")
+    `,
+  }}
+>
 
         <div className="max-w-7xl mx-auto">
 
@@ -428,31 +437,41 @@ export default async function PrivateSailingExperience() {
 
       </section>
 
-      {/* PRICE */}
-      <section className="py-32 px-6 bg-neutral-100 text-center">
+     {/* PRICE */}
+<section
+  className="py-32 px-6 text-center bg-cover bg-center bg-no-repeat relative overflow-hidden"
+  style={{
+    backgroundImage: `
+      linear-gradient(rgba(245,245,245,0.92), rgba(245,245,245,0.92)),
+      url("https://www.portovenere.com/wp-content/uploads/2026/05/topography-bg.png")
+    `,
+  }}
+>
 
-        <div className="max-w-4xl mx-auto">
+  <div className="absolute inset-0 opacity-20 pointer-events-none" />
 
-          <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
-            Private Experience
-          </p>
+  <div className="max-w-4xl mx-auto relative z-10">
 
-          <h2 className="text-7xl md:text-8xl font-light mb-8">
-            €1690
-          </h2>
+    <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+      Private Experience
+    </p>
 
-          <p className="text-xl text-neutral-700 leading-9 mb-12">
-            Private curated experience for 2 guests <br />
-            All included.
-          </p>
+    <h2 className="text-7xl md:text-8xl font-light mb-8">
+      €1690
+    </h2>
 
-          <button className="bg-[#1C2A36] text-white px-10 py-5 rounded-full text-lg hover:bg-[#243444] transition-all duration-300">
-            Request Private Booking
-          </button>
+    <p className="text-xl text-neutral-700 leading-9 mb-12">
+      Private curated experience for 2 guests <br />
+      All included.
+    </p>
 
-        </div>
+    <button className="bg-[#1C2A36] text-white px-10 py-5 rounded-full text-lg hover:bg-[#243444] transition-all duration-300">
+      Request Private Booking
+    </button>
 
-      </section>
+  </div>
+
+</section>
 
       {/* NOTE */}
       <section className="py-24 px-6">
