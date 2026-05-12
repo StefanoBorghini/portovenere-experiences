@@ -30,7 +30,7 @@ export default function HomePage() {
           className="absolute inset-0 w-full h-full object-cover scale-105"
         >
           <source
-            src="/videos/vernazza.mp4"
+            src="/videos/verna.mp4"
             type="video/mp4"
           />
         </video>
