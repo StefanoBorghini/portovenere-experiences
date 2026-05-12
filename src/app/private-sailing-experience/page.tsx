@@ -98,7 +98,7 @@ export default async function PrivateSailingExperience() {
             />
 
             <img
-              src="https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1974&auto=format&fit=crop"
+              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681890741_18100545587475803_125703852981375846_n.webp?_nc_cat=103&ig_cache_key=Mzg4MjM2NzI3NzYxMDA5MTI5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=81hoSxA4chsQ7kNvwGQjFeT&_nc_oc=Ado2tkmzQCxA8dU4FltJ7bqD-TQsfRFxTVwcxCjo3OmxEJZielMKqzADHRKE2E8-DxY&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=YewZbXMysbvIWnbQeDYuXg&_nc_ss=7a22e&oh=00_Af5zyUBhtsiqobIWtWSXEvEsbe7bnENfs54p5JQ05KU_pg&oe=6A08B69D"
               alt="Boat"
               className="rounded-3xl h-[500px] object-cover w-full mt-16"
             />
@@ -242,7 +242,7 @@ export default async function PrivateSailingExperience() {
             <div>
 
               <img
-                src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1974&auto=format&fit=crop"
+                src="https://www.hotelsanterenzo.it/wp-content/uploads/2021/04/palmaria-tino-tinetto.png"
                 alt="Sea"
                 className="rounded-3xl w-full h-[750px] object-cover"
               />
