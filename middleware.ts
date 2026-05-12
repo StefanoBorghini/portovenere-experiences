@@ -2,18 +2,20 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const basicAuth = request.headers.get("authorization");
+  const auth = request.headers.get("authorization");
 
-  if (basicAuth) {
-    const authValue = basicAuth.split(" ")[1];
-    const [user, password] = atob(authValue).split(":");
+  if (auth) {
+    const encoded = auth.split(" ")[1];
+    const decoded = atob(encoded);
+
+    const [user, password] = decoded.split(":");
 
     if (user === "vip" && password === "portovenere") {
       return NextResponse.next();
     }
   }
 
-  return new NextResponse("Authentication required", {
+  return new NextResponse("Access denied", {
     status: 401,
     headers: {
       "WWW-Authenticate": 'Basic realm="Secure Area"',
@@ -22,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/:path*"],
+  matcher: "/:path*",
 };
