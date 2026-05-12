@@ -1,91 +1,150 @@
+"use client";
+
+import { useState } from "react";
+
 export default function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <main className="bg-white text-black overflow-hidden">
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-  {/* VIDEO BG */}
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source
-      src="https://cdn.coverr.co/videos/coverr-sailing-on-the-sea-1569184094317?download=1080p"
-      type="video/mp4"
-    />
-  </video>
+        {/* VIDEO BACKGROUND */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source
+            src="https://cdn.coverr.co/videos/coverr-sailing-on-the-sea-1569184094317?download=1080p"
+            type="video/mp4"
+          />
+        </video>
 
-  {/* OVERLAY */}
-  <div className="absolute inset-0 bg-black/55" />
+        {/* DARK OVERLAY */}
+        <div className="absolute inset-0 bg-black/55" />
 
-  {/* NAVBAR */}
-  <nav className="absolute top-0 left-0 w-full z-30 px-6 py-6 flex items-center justify-between">
-    {/* LOGO */}
-    <div className="text-white text-[11px] tracking-[0.25em] uppercase leading-tight">
-      Portovenere
-      <br />
-      Experiences
-    </div>
+        {/* NAVBAR */}
+        <nav className="absolute top-0 left-0 w-full z-50 px-6 md:px-10 py-6 flex items-center justify-between">
+          {/* LOGO */}
+          <div className="text-white text-[11px] md:text-xs tracking-[0.25em] uppercase leading-tight">
+            Portovenere
+            <br />
+            Experiences
+          </div>
 
-    {/* DESKTOP MENU */}
-    <div className="hidden md:flex gap-10 text-sm text-zinc-200">
-      <a href="#experiences">Experiences</a>
-      <a href="#manifesto">Manifesto</a>
-      <a href="#contact">Contact</a>
-    </div>
+          {/* DESKTOP MENU */}
+          <div className="hidden md:flex gap-10 text-sm text-zinc-200">
+            <a
+              href="#experiences"
+              className="hover:text-white transition"
+            >
+              Experiences
+            </a>
 
-    {/* MOBILE HAMBURGER */}
-    <button className="md:hidden flex flex-col gap-1.5">
-      <span className="w-6 h-[1px] bg-white"></span>
-      <span className="w-6 h-[1px] bg-white"></span>
-      <span className="w-6 h-[1px] bg-white"></span>
-    </button>
-  </nav>
+            <a
+              href="#manifesto"
+              className="hover:text-white transition"
+            >
+              Manifesto
+            </a>
 
-  {/* HERO CONTENT */}
-  <div className="relative z-20 text-center px-6 max-w-5xl pt-24">
-    <p className="uppercase tracking-[0.3em] text-zinc-300 text-[11px] md:text-sm mb-6">
-      Mediterranean Lifestyle Experiences
-    </p>
+            <a
+              href="#contact"
+              className="hover:text-white transition"
+            >
+              Contact
+            </a>
+          </div>
 
-    <h1 className="text-[56px] leading-[0.9] md:text-8xl font-light text-white mb-8">
-      Private
-      <br />
-      Mediterranean
-      <br />
-      Experiences
-    </h1>
+          {/* MOBILE HAMBURGER */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden flex flex-col gap-1.5 z-50"
+          >
+            <span className="w-6 h-[1px] bg-white"></span>
+            <span className="w-6 h-[1px] bg-white"></span>
+            <span className="w-6 h-[1px] bg-white"></span>
+          </button>
+        </nav>
 
-    <p className="max-w-xl mx-auto text-zinc-200 text-lg md:text-xl leading-relaxed">
-      A curated collection of cinematic experiences between sailing,
-      atmosphere, storytelling and authentic Mediterranean lifestyle.
-    </p>
+        {/* MOBILE MENU */}
+        <div
+          className={`fixed inset-0 bg-black z-40 flex flex-col items-center justify-center gap-10 transition-all duration-500 ${
+            menuOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+        >
+          <a
+            href="#experiences"
+            onClick={() => setMenuOpen(false)}
+            className="text-white text-4xl font-light"
+          >
+            Experiences
+          </a>
 
-    {/* CTA */}
-    <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
-      <a
-        href="#experiences"
-        className="bg-white text-black px-8 py-4 rounded-full text-sm uppercase tracking-wide"
-      >
-        Explore Experiences
-      </a>
+          <a
+            href="#manifesto"
+            onClick={() => setMenuOpen(false)}
+            className="text-white text-4xl font-light"
+          >
+            Manifesto
+          </a>
 
-      <a
-        href="#contact"
-        className="border border-white text-white px-8 py-4 rounded-full text-sm uppercase tracking-wide"
-      >
-        Request Access
-      </a>
-    </div>
-  </div>
+          <a
+            href="#contact"
+            onClick={() => setMenuOpen(false)}
+            className="text-white text-4xl font-light"
+          >
+            Contact
+          </a>
+        </div>
 
-  {/* SCROLL */}
-  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-300 text-[10px] tracking-[0.4em] uppercase">
-    Scroll
-  </div>
-</section>
+        {/* HERO CONTENT */}
+        <div className="relative z-20 text-center px-6 max-w-5xl pt-24">
+          <p className="uppercase tracking-[0.3em] text-zinc-300 text-[11px] md:text-sm mb-6">
+            Mediterranean Lifestyle Experiences
+          </p>
+
+          <h1 className="text-[56px] leading-[0.9] md:text-8xl font-light text-white mb-8">
+            Private
+            <br />
+            Mediterranean
+            <br />
+            Experiences
+          </h1>
+
+          <p className="max-w-xl mx-auto text-zinc-200 text-lg md:text-xl leading-relaxed">
+            A curated collection of cinematic experiences between sailing,
+            atmosphere, storytelling and authentic Mediterranean lifestyle.
+          </p>
+
+          {/* CTA */}
+          <div className="flex flex-col md:flex-row gap-4 justify-center mt-10">
+            <a
+              href="#experiences"
+              className="bg-white text-black px-8 py-4 rounded-full text-sm uppercase tracking-wide hover:scale-105 transition-all duration-500"
+            >
+              Explore Experiences
+            </a>
+
+            <a
+              href="#contact"
+              className="border border-white text-white px-8 py-4 rounded-full text-sm uppercase tracking-wide hover:bg-white hover:text-black transition-all duration-500"
+            >
+              Request Access
+            </a>
+          </div>
+        </div>
+
+        {/* SCROLL */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-zinc-300 text-[10px] tracking-[0.4em] uppercase">
+          Scroll
+        </div>
+      </section>
 
       {/* AUTHORITY STRIP */}
       <section className="border-y border-zinc-200 py-6 overflow-hidden bg-white">
