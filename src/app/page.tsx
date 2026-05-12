@@ -29,7 +29,7 @@ export default function HomePage() {
           className="absolute inset-0 w-full h-full object-cover scale-105"
         >
           <source
-            src="https://cdn.coverr.co/videos/coverr-sailing-on-the-sea-1569184094317?download=1080p"
+            src="public/videos/vernazza.mp4"
             type="video/mp4"
           />
         </video>
