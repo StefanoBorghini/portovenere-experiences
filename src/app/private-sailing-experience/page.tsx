@@ -389,13 +389,13 @@ export default async function PrivateSailingExperience() {
           <div className="grid md:grid-cols-2 gap-8 mb-8">
 
             <img
-              src="https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1974&auto=format&fit=crop"
+              src="https://swite-uplimages.r1-it.storage.cloud.it/98794/5954435/src.png?z=1776149117"
               alt="Restaurant"
               className="rounded-3xl h-[500px] object-cover w-full"
             />
 
             <img
-              src="https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=1974&auto=format&fit=crop"
+              src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/87/46/68/il-nostro-giardino.jpg?w=900&h=500&s=1"
               alt="Lunch"
               className="rounded-3xl h-[500px] object-cover w-full"
             />
