@@ -116,7 +116,7 @@ export default async function PrivateSailingExperience() {
   style={{
     backgroundImage: `
       linear-gradient(rgba(245,245,245,0.94), rgba(245,245,245,0.94)),
-      url("https://www.portovenere.com/wp-content/uploads/2026/05/topography-bg.png")
+      url("https://www.portovenere.com/wp-content/uploads/2020/04/topography.svg")
     `,
   }}
 >
@@ -443,7 +443,7 @@ export default async function PrivateSailingExperience() {
   style={{
     backgroundImage: `
       linear-gradient(rgba(245,245,245,0.92), rgba(245,245,245,0.92)),
-      url("https://www.portovenere.com/wp-content/uploads/2026/05/topography-bg.png")
+      url("https://www.portovenere.com/wp-content/uploads/2020/04/topography.svg")
     `,
   }}
 >
