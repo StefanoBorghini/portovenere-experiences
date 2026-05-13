@@ -17,7 +17,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="bg-[#0B0F14] text-white overflow-hidden">
+    <main className="bg-[#111315] text-white overflow-hidden">
       {/* HERO */}
       <section className="relative min-h-screen overflow-hidden">
         {/* DESKTOP VIDEO */}
