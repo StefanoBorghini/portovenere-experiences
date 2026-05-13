@@ -17,7 +17,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="bg-black text-white overflow-hidden">
+    <main className="bg-[#0F1117] text-white overflow-hidden">
       {/* HERO */}
       <section className="relative min-h-screen overflow-hidden">
         {/* DESKTOP VIDEO */}
@@ -66,8 +66,7 @@ export default function HomePage() {
         </video>
 
         {/* OVERLAY */}
-        <div className="absolute inset-0 bg-black/60 z-10" />
-
+<div className="absolute inset-0 bg-black/45" />
         {/* GRAIN */}
         <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
 
@@ -75,7 +74,7 @@ export default function HomePage() {
         <nav
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
             scrolled
-              ? "bg-black/70 backdrop-blur-xl"
+              ? "bg-[#0F1117]/80 backdrop-blur-xl"
               : "bg-transparent"
           }`}
         >
