@@ -7,12 +7,16 @@ export default function CraftYourExperience() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: "",
-    guests: "",
-    mood: "",
-    experience: "",
-    budget: "",
-  });
+  name: "",
+  email: "",
+  guests: "",
+  mood: "",
+  experience: "",
+  budget: "",
+  termsAccepted: false,
+});
+
+const [errors, setErrors] = useState<string[]>([]);
 
   const handleSelect = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -21,14 +25,36 @@ export default function CraftYourExperience() {
     }));
   };
 
-  const handleSubmit = () => {
-    localStorage.setItem(
-      "experienceData",
-      JSON.stringify(formData)
-    );
+ const handleSubmit = () => {
+  const isValid = validateForm();
 
-    router.push("/results/proposal");
-  };
+  if (!isValid) return;
+
+  localStorage.setItem(
+    "experienceData",
+    JSON.stringify(formData)
+  );
+
+  router.push("/results/proposal");
+};
+
+  const validateForm = () => {
+  const newErrors = [];
+
+  if (!formData.name) newErrors.push("name");
+  if (!formData.email) newErrors.push("email");
+  if (!formData.experience) newErrors.push("experience");
+  if (!formData.mood) newErrors.push("mood");
+  if (!formData.guests) newErrors.push("guests");
+  if (!formData.budget) newErrors.push("budget");
+
+  if (!formData.termsAccepted)
+    newErrors.push("terms");
+
+  setErrors(newErrors);
+
+  return newErrors.length === 0;
+};
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-24">
@@ -73,6 +99,30 @@ export default function CraftYourExperience() {
             />
           </div>
 
+          {/* EMAIL */}
+<div>
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Email Address
+  </p>
+
+  <input
+    type="email"
+    placeholder="Enter your email"
+    value={formData.email}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        email: e.target.value,
+      })
+    }
+    className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+      errors.includes("email")
+        ? "border border-red-500 bg-red-500/10"
+        : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
+    }`}
+  />
+</div>
+
           {/* EXPERIENCE */}
           <div>
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
@@ -94,7 +144,7 @@ export default function CraftYourExperience() {
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
                     formData.experience === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -122,7 +172,7 @@ export default function CraftYourExperience() {
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
                     formData.mood === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -147,7 +197,7 @@ export default function CraftYourExperience() {
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
                     formData.guests === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -176,7 +226,7 @@ export default function CraftYourExperience() {
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
                     formData.budget === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -184,6 +234,41 @@ export default function CraftYourExperience() {
               ))}
             </div>
           </div>
+
+      
+{/* TERMS */}
+<div className="flex items-start gap-4">
+  <input
+    type="checkbox"
+    checked={formData.termsAccepted}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        termsAccepted: e.target.checked,
+      })
+    }
+    className="mt-1"
+  />
+
+  <p className="text-sm text-zinc-400 leading-relaxed">
+    I accept the{" "}
+    <a
+      href="/terms"
+      target="_blank"
+      className="underline"
+    >
+      Terms & Conditions
+    </a>{" "}
+    and understand that reservation deposits may
+    be required to secure curated experiences.
+  </p>
+</div>
+
+{errors.includes("terms") && (
+  <p className="text-red-500 text-sm mt-2">
+    Please accept the Terms & Conditions
+  </p>
+)}
 
           {/* SUBMIT */}
           <div className="pt-10 text-center">
