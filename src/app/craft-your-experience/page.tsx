@@ -18,12 +18,16 @@ export default function CraftYourExperience() {
 
 const [errors, setErrors] = useState<string[]>([]);
 
-  const handleSelect = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+ const handleSelect = (field: string, value: string) => {
+  setFormData((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+
+  setErrors((prev) =>
+    prev.filter((error) => error !== field)
+  );
+};
 
  const handleSubmit = () => {
   const isValid = validateForm();
@@ -39,10 +43,15 @@ const [errors, setErrors] = useState<string[]>([]);
 };
 
   const validateForm = () => {
-  const newErrors = [];
+  const newErrors: string[] = [];
 
   if (!formData.name) newErrors.push("name");
-  if (!formData.email) newErrors.push("email");
+  if (
+  !formData.email ||
+  !/\S+@\S+\.\S+/.test(formData.email)
+) {
+  newErrors.push("email");
+}
   if (!formData.experience) newErrors.push("experience");
   if (!formData.mood) newErrors.push("mood");
   if (!formData.guests) newErrors.push("guests");
@@ -85,18 +94,26 @@ const [errors, setErrors] = useState<string[]>([]);
               Your Name
             </p>
 
-            <input
-              type="text"
-              placeholder="Enter your full name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  name: e.target.value,
-                })
-              }
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none focus:border-white/40 transition"
-            />
+           <input
+  type="text"
+  placeholder="Enter your full name"
+  value={formData.name}
+ onChange={(e) => {
+  setFormData({
+    ...formData,
+    name: e.target.value,
+  });
+
+  setErrors((prev) =>
+    prev.filter((error) => error !== "name")
+  );
+}}
+  className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+    errors.includes("name")
+      ? "border border-red-500 bg-red-500/10"
+      : "border border-white/10 bg-white/5 focus:border-white/40"
+  }`}
+/>
           </div>
 
           {/* EMAIL */}
@@ -109,12 +126,16 @@ const [errors, setErrors] = useState<string[]>([]);
     type="email"
     placeholder="Enter your email"
     value={formData.email}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        email: e.target.value,
-      })
-    }
+    onChange={(e) => {
+  setFormData({
+    ...formData,
+    email: e.target.value,
+  });
+
+  setErrors((prev) =>
+    prev.filter((error) => error !== "email")
+  );
+}}
     className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
       errors.includes("email")
         ? "border border-red-500 bg-red-500/10"
@@ -129,7 +150,13 @@ const [errors, setErrors] = useState<string[]>([]);
               Select Your Experience
             </p>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div
+  className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+    errors.includes("experience")
+      ? "border border-red-500"
+      : ""
+  }`}
+>
               {[
                 "Private Sailing",
                 "Underwater Experience",
@@ -137,14 +164,15 @@ const [errors, setErrors] = useState<string[]>([]);
                 "Luxury Escape",
               ].map((item) => (
                 <button
-                  key={item}
+                 type="button"
+  key={item}
                   onClick={() =>
                     handleSelect("experience", item)
                   }
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
+                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
                     formData.experience === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -159,7 +187,13 @@ const [errors, setErrors] = useState<string[]>([]);
               Desired Atmosphere
             </p>
 
-            <div className="grid md:grid-cols-2 gap-4">
+            <div
+  className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+    errors.includes("mood")
+      ? "border border-red-500"
+      : ""
+  }`}
+>
               {[
                 "Romantic",
                 "Cinematic",
@@ -167,12 +201,13 @@ const [errors, setErrors] = useState<string[]>([]);
                 "Luxury",
               ].map((item) => (
                 <button
-                  key={item}
+                  type="button"
+  key={item}
                   onClick={() => handleSelect("mood", item)}
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
+                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
                     formData.mood === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -187,17 +222,24 @@ const [errors, setErrors] = useState<string[]>([]);
               Number of Guests
             </p>
 
-            <div className="grid md:grid-cols-4 gap-4">
+           <div
+  className={`grid md:grid-cols-4 gap-4 rounded-3xl p-2 ${
+    errors.includes("guests")
+      ? "border border-red-500"
+      : ""
+  }`}
+>
               {["2", "4", "6", "8+"].map((item) => (
                 <button
-                  key={item}
+                  type="button"
+  key={item}
                   onClick={() =>
                     handleSelect("guests", item)
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.guests === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -212,21 +254,27 @@ const [errors, setErrors] = useState<string[]>([]);
               Estimated Investment
             </p>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              {[
+<div
+  className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
+    errors.includes("budget")
+      ? "border border-red-500"
+      : ""
+  }`}
+>              {[
                 "€500 - €1000",
                 "€1000 - €3000",
                 "€3000+",
               ].map((item) => (
                 <button
-                  key={item}
+                  type="button"
+  key={item}
                   onClick={() =>
                     handleSelect("budget", item)
                   }
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
+                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
                     formData.budget === item
                       ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40 hover:border-white/40"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -241,19 +289,23 @@ const [errors, setErrors] = useState<string[]>([]);
   <input
     type="checkbox"
     checked={formData.termsAccepted}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        termsAccepted: e.target.checked,
-      })
-    }
-    className="mt-1"
+   onChange={(e) => {
+  setFormData({
+    ...formData,
+    termsAccepted: e.target.checked,
+  });
+
+  setErrors((prev) =>
+    prev.filter((error) => error !== "terms")
+  );
+}}
+    className="mt-1 h-5 w-5 accent-white cursor-pointer"
   />
 
   <p className="text-sm text-zinc-400 leading-relaxed">
     I accept the{" "}
     <a
-      href="/terms"
+      href="https://www.portovenere.com/terms-conditions/"
       target="_blank"
       className="underline"
     >
@@ -273,7 +325,8 @@ const [errors, setErrors] = useState<string[]>([]);
           {/* SUBMIT */}
           <div className="pt-10 text-center">
             <button
-              onClick={handleSubmit}
+  type="button"
+  onClick={handleSubmit}
               className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
             >
               Generate Private Proposal
