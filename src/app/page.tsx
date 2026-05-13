@@ -438,13 +438,7 @@ export default function HomePage() {
         </a>
       </section>
 
-      {/* WHATSAPP */}
-      <a
-        href="https://wa.me/393000000000"
-        className="fixed bottom-6 right-6 z-50 bg-white text-black px-6 py-4 rounded-full shadow-2xl uppercase tracking-[0.25em] text-[10px] hover:scale-105 transition-all duration-300"
-      >
-        Concierge
-      </a>
+     
     </main>
   );
 }
