@@ -75,8 +75,8 @@ export default function HomePage() {
         <nav
           className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
             scrolled
-              ? "bg-black/70 backdrop-blur-xl border-b border-white/10"
-              : "bg-transparent"
+             ? "bg-black/70 backdrop-blur-xl"
+  : "bg-transparent"
           }`}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
