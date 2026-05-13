@@ -226,7 +226,7 @@ export default function HomePage() {
       {/* EXPERIENCES */}
       <section
         id="experiences"
-        className="py-24 md:py-32 px-6 max-w-7xl mx-auto"
+        className="py-24 md:py-32 -120px max-w-7xl mx-auto"
       >
         <div className="text-center mb-24">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-5">
