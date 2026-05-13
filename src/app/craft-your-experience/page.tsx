@@ -66,7 +66,7 @@ const [errors, setErrors] = useState<string[]>([]);
 };
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-24">
+    <main className="min-h-screen bg-[#0C0C0C] text-white px-6 py-24">
       <div className="max-w-4xl mx-auto">
         {/* TOP */}
         <div className="text-center mb-20">
