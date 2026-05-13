@@ -17,7 +17,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="bg-[#0C0C0C] text-white overflow-hidden">
+    <main className="bg-[#0C0C0C] text-[#EDEBE7] overflow-hidden">
       {/* HERO */}
       <section className="relative min-h-screen overflow-hidden">
         {/* DESKTOP VIDEO */}
@@ -80,7 +80,7 @@ export default function HomePage() {
         >
           <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
             {/* LOGO */}
-            <div className="text-white text-[11px] md:text-xs uppercase tracking-[0.35em] leading-tight">
+            <div className="text-[#EDEBE7] text-[11px] md:text-xs uppercase tracking-[0.35em] leading-tight">
               Portovenere
               <br />
               Experiences
@@ -88,21 +88,21 @@ export default function HomePage() {
 
             {/* DESKTOP MENU */}
             <div className="hidden md:flex items-center gap-10 text-sm text-zinc-300">
-              <a href="#experiences" className="hover:text-white transition">
+              <a href="#experiences" className="hover:text-[#EDEBE7] transition">
                 Experiences
               </a>
 
-              <a href="#manifesto" className="hover:text-white transition">
+              <a href="#manifesto" className="hover:text-[#EDEBE7] transition">
                 Manifesto
               </a>
 
-              <a href="#contact" className="hover:text-white transition">
+              <a href="#contact" className="hover:text-[#EDEBE7] transition">
                 Contact
               </a>
 
               <a
                 href="/craft-your-experience"
-                className="bg-white text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
+                className="bg-[#EDEBE7] text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
               >
                 Craft Experience
               </a>
@@ -113,9 +113,9 @@ export default function HomePage() {
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden flex flex-col gap-1.5 z-50"
             >
-              <span className="w-6 h-[1px] bg-white"></span>
-              <span className="w-6 h-[1px] bg-white"></span>
-              <span className="w-6 h-[1px] bg-white"></span>
+              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
+              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
+              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
             </button>
           </div>
         </nav>
@@ -131,7 +131,7 @@ export default function HomePage() {
           <a
             href="#experiences"
             onClick={() => setMenuOpen(false)}
-            className="text-white text-5xl font-light"
+            className="text-[#EDEBE7] text-5xl font-light"
           >
             Experiences
           </a>
@@ -139,7 +139,7 @@ export default function HomePage() {
           <a
             href="#manifesto"
             onClick={() => setMenuOpen(false)}
-            className="text-white text-5xl font-light"
+            className="text-[#EDEBE7] text-5xl font-light"
           >
             Manifesto
           </a>
@@ -147,7 +147,7 @@ export default function HomePage() {
           <a
             href="#contact"
             onClick={() => setMenuOpen(false)}
-            className="text-white text-5xl font-light"
+            className="text-[#EDEBE7] text-5xl font-light"
           >
             Contact
           </a>
@@ -155,7 +155,7 @@ export default function HomePage() {
           <a
             href="/craft-your-experience"
             onClick={() => setMenuOpen(false)}
-            className="mt-4 bg-white text-black px-8 py-4 rounded-full uppercase tracking-[0.2em] text-xs"
+            className="mt-4 bg-[#EDEBE7] text-black px-8 py-4 rounded-full uppercase tracking-[0.2em] text-xs"
           >
             Craft Experience
           </a>
@@ -183,14 +183,14 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row justify-center gap-5 mt-12">
               <a
                 href="/craft-your-experience"
-                className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+                className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
               >
                 Craft Your Experience
               </a>
 
               <a
                 href="#experiences"
-                className="border border-white/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-white hover:text-black transition-all duration-500"
+                className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Explore Experiences
               </a>
@@ -213,7 +213,7 @@ export default function HomePage() {
       </section>
 
       {/* AUTHORITY */}
-      <section className="border-y border-white/10 py-6 bg-black">
+      <section className="border-y border-[#EDEBE7]/10 py-6 bg-black">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-10 uppercase tracking-[0.35em] text-[10px] md:text-xs text-zinc-500 px-6 text-center">
           <span>Private Productions</span>
           <span>Mediterranean Lifestyle</span>
@@ -253,7 +253,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Limited Access
             </div>
 
@@ -275,7 +275,7 @@ export default function HomePage() {
 
               <a
                 href="/private-sailing-experience"
-                className="w-fit border border-white/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-500"
+                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Discover Experience
               </a>
@@ -292,7 +292,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Selected Guests
             </div>
 
@@ -314,7 +314,7 @@ export default function HomePage() {
 
               <a
                 href="/underwater-experience"
-                className="w-fit border border-white/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-500"
+                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Explore
               </a>
@@ -331,7 +331,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Private Dinner
             </div>
 
@@ -353,7 +353,7 @@ export default function HomePage() {
 
               <a
                 href="/sunset-dinner"
-                className="w-fit border border-white/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-500"
+                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 View Experience
               </a>
@@ -365,7 +365,7 @@ export default function HomePage() {
       {/* MANIFESTO */}
       <section
         id="manifesto"
-        className="py-40 px-6 border-t border-white/10"
+        className="py-40 px-6 border-t border-[#EDEBE7]/10"
       >
         <div className="max-w-5xl mx-auto text-center">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-8">
@@ -388,7 +388,7 @@ export default function HomePage() {
       </section>
 
       {/* SCARCITY */}
-      <section className="py-28 px-6 bg-wheat text-black">
+      <section className="py-28 px-6 bg-[#EDEBE7] text-black">
         <div className="max-w-4xl mx-auto text-center">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
             Limited Availability
@@ -410,7 +410,7 @@ export default function HomePage() {
       {/* FINAL CTA */}
       <section
         id="contact"
-        className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-white/10"
+        className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-[#EDEBE7]/10"
       >
         <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
           Private Access
@@ -431,7 +431,7 @@ export default function HomePage() {
 
         <a
           href="/craft-your-experience"
-          className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+          className="inline-block bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
         >
           Craft Your Experience
         </a>
