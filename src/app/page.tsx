@@ -172,7 +172,7 @@ export default function HomePage() {
             <h1 className="text-[58px] leading-[0.9] md:text-[140px] font-light tracking-tight mb-10">
               Beyond
               <br />
-              Cinque Terre.
+              Cinque Terre
             </h1>
 
             <p className="max-w-2xl mx-auto text-zinc-200 text-lg md:text-2xl leading-relaxed">
