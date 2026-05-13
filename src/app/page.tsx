@@ -388,7 +388,7 @@ export default function HomePage() {
       </section>
 
       {/* SCARCITY */}
-      <section className="py-28 px-6 bg-white text-black">
+      <section className="py-28 px-6 bg-weat text-black">
         <div className="max-w-4xl mx-auto text-center">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
             Limited Availability
