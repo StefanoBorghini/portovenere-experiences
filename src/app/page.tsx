@@ -410,7 +410,7 @@ export default function HomePage() {
       {/* FINAL CTA */}
       <section
         id="contact"
-        className="py-40 px-6 text-center bg-[#0F1117] border-t border-white/10"
+        className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-white/10"
       >
         <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
           Private Access
