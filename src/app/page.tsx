@@ -15,10 +15,11 @@ export default function HomePage() {
           muted
           loop
           playsInline
+          poster="/videos/Hero/Istantanea.png"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source
-            src="/videos/hero/hero-main.mp4"
+            src="/videos/Hero/verna.mp4"
             type="video/mp4"
           />
         </video>
