@@ -102,7 +102,7 @@ export default function HomePage() {
               </a>
 
               <a
-                href="/configurator"
+                href="/craft-your-experience"
                 className="bg-white text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
               >
                 Craft Experience
@@ -154,7 +154,7 @@ export default function HomePage() {
           </a>
 
           <a
-            href="/configurator"
+            href="/craft-your-experience"
             onClick={() => setMenuOpen(false)}
             className="mt-4 bg-white text-black px-8 py-4 rounded-full uppercase tracking-[0.2em] text-xs"
           >
@@ -183,7 +183,7 @@ export default function HomePage() {
             {/* CTA */}
             <div className="flex flex-col md:flex-row justify-center gap-5 mt-12">
               <a
-                href="/configurator"
+                href="/craft-your-experience"
                 className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
               >
                 Craft Your Experience
@@ -431,7 +431,7 @@ export default function HomePage() {
         </p>
 
         <a
-          href="/configurator"
+          href="/craft-your-experience"
           className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
         >
           Craft Your Experience
