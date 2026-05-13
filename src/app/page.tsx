@@ -26,7 +26,7 @@ export default function HomePage() {
           muted
           loop
           playsInline
-          poster="/videos/Hero/poster-desktop.jpg"
+          poster="/videos/Hero/poster-desktop.png"
           className="hidden lg:block absolute inset-0 w-full h-full object-cover scale-105"
         >
           <source
@@ -45,7 +45,7 @@ export default function HomePage() {
           className="hidden md:block lg:hidden absolute inset-0 w-full h-full object-cover"
         >
           <source
-            src="/videos/Hero/hero-tablet.mp4"
+            src="/videos/Hero/hero-mobile.mp4"
             type="video/mp4"
           />
         </video>
