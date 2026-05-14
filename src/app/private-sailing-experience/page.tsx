@@ -521,7 +521,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
     `,
   }}>
 
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto text-[#0C0C0C]">
 
           <p className="uppercase tracking-[0.3em] text-sm  mb-6">
             Portovenere.com
