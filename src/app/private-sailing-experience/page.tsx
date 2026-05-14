@@ -514,7 +514,12 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
       </section>
 
       {/* CONTACT */}
-      <section className="py-32 px-6 bg-[#1C2A36] text-white text-center">
+      <section className="py-32 px-6 bg-[#1C2A36] text-white text-center" style={{
+    backgroundImage: `
+      linear-gradient(rgba(245,245,245,0.94), rgba(245,245,245,0.94)),
+      url("https://www.portovenere.com/wp-content/uploads/2020/04/topography.svg")
+    `,
+  }}>
 
         <div className="max-w-4xl mx-auto">
 
