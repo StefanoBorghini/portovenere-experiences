@@ -380,11 +380,11 @@ export default async function PrivateSailingExperience() {
           <div className="max-w-4xl mx-auto text-center space-y-8 text-lg leading-9 text-neutral-700 mb-24">
 
             <p>
-              Explore the crystal-clear waters of Palmaria Island and the hidden coves of the Gulf of Poets directly from the boat.
+              Explore the crystal-clear waters of Palmaria Island <br></br>and the hidden coves of the Gulf of Poets directly from the boat.
             </p>
 
             <p>
-              Snorkeling equipment will be available on board for guests who wish to enjoy a more immersive connection with the sea and the coastline.
+              Snorkeling equipment will be available on board for guests <br></br>who wish to enjoy a more immersive connection with the sea and the coastline.
             </p>
 
             <p>
