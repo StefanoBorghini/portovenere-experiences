@@ -56,7 +56,7 @@ export default async function PrivateSailingExperience() {
 
           <div>
 
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+            <p className="uppercase tracking-[0.3em] text-sm  mb-6">
               The Experience
             </p>
 
@@ -125,7 +125,7 @@ export default async function PrivateSailingExperience() {
 
           <div className="text-center mb-24">
 
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+            <p className="uppercase tracking-[0.3em] text-sm  mb-6">
               Experience Details
             </p>
 
@@ -190,7 +190,7 @@ export default async function PrivateSailingExperience() {
 
           <div className="text-center mb-24">
 
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+            <p className="uppercase tracking-[0.3em] text-sm  mb-6">
               Itinerary
             </p>
 
@@ -367,7 +367,7 @@ export default async function PrivateSailingExperience() {
 
           <div className="text-center mb-20">
 
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+            <p className="uppercase tracking-[0.3em] text-sm  mb-6">
             Snorkeling Equipment Available
             </p>
 
@@ -449,7 +449,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
 
   <div className="max-w-4xl mx-auto relative z-10">
 
-    <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
+    <p className="uppercase tracking-[0.3em] text-sm  mb-6">
       Private Experience
     </p>
 
