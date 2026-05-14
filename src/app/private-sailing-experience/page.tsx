@@ -412,19 +412,19 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
 
             <img
               src="https://www.portovenere.com/wp-content/uploads/2026/05/Copia-di-Copia-di-DSC_3604-Edit-scaled.jpg"
-              alt="Food"
+         
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
             <img
               src="https://res.cloudinary.com/manawa/image/private/f_auto,c_limit,w_640,q_auto/4824d77984686d9a25268e49a3c336f3"
-              alt="Seafood"
+          
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
             <img
-              src="https://www.arbaspaa.com/it/tour/snorkeling-e-sea-watching-nellarea-marina-protetta-di-porto-venere"
-              alt="Dinner"
+              src="https://www.arbaspaa.com/wp-content/uploads/2017/03/27855534972_f8dc4b5370_o.jpg"
+            
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
