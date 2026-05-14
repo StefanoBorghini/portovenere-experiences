@@ -449,15 +449,15 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
 
   <div className="max-w-4xl mx-auto relative z-10">
 
-    <p className="uppercase tracking-[0.3em] text-sm  mb-6">
+    <p className="uppercase tracking-[0.3em] text-sm  mb-6 text-[#0C0C0C]">
       Private Experience
     </p>
 
-    <h2 className="text-7xl md:text-8xl font-light mb-8">
+    <h2 className="text-7xl md:text-8xl font-light mb-8 text-[#0C0C0C]">
       €1690
     </h2>
 
-    <p className="text-xl  leading-9 mb-12">
+    <p className="text-xl text-[#0C0C0C] leading-9 mb-12">
       Private curated experience for 2 guests <br />
       All included.
     </p>
