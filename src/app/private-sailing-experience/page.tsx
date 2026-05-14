@@ -50,9 +50,17 @@ export default async function PrivateSailingExperience() {
       </section>
 
       {/* INTRO */}
-      <section className="py-32 px-6">
+  <section className="py-20 md:py-32 px-5 md:px-6">
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20 items-center">
+        <div className="
+max-w-7xl
+mx-auto
+grid
+lg:grid-cols-2
+gap-16
+lg:gap-20
+items-center
+">
 
           <div>
 
@@ -89,18 +97,35 @@ export default async function PrivateSailingExperience() {
 
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 items-start">
 
             <img
               src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681709376_18100545614475803_3585021078207847429_n.webp?_nc_cat=109&ig_cache_key=Mzg4MjM2NzI3NzgyODE1NjEwNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuNDAwMC5zZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=PP7nK0_j6F4Q7kNvwGOiSRD&_nc_oc=AdqUEm0E40bFSNv3p90cuxYj2wbVBzCJXkeZtfzRkHMjMeWi2L6b0wW5Po0YjLtGBEw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=YewZbXMysbvIWnbQeDYuXg&_nc_ss=7a22e&oh=00_Af5XtRyJipwZOEJOOZwHJYaMokzP00q_Xgi-3KqwMQl1Jg&oe=6A08E177"
               alt="Sea"
-              className="rounded-3xl h-[500px] object-cover w-full"
+              className="
+rounded-[2rem]
+h-[320px]
+sm:h-[420px]
+md:h-[500px]
+object-cover
+w-full
+"
             />
 
             <img
               src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681890741_18100545587475803_125703852981375846_n.webp?_nc_cat=103&ig_cache_key=Mzg4MjM2NzI3NzYxMDA5MTI5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=81hoSxA4chsQ7kNvwGQjFeT&_nc_oc=Ado2tkmzQCxA8dU4FltJ7bqD-TQsfRFxTVwcxCjo3OmxEJZielMKqzADHRKE2E8-DxY&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=YewZbXMysbvIWnbQeDYuXg&_nc_ss=7a22e&oh=00_Af5zyUBhtsiqobIWtWSXEvEsbe7bnENfs54p5JQ05KU_pg&oe=6A08B69D"
               alt="Boat"
-              className="rounded-3xl h-[500px] object-cover w-full mt-16"
+              className="
+rounded-[2rem]
+h-[320px]
+sm:h-[420px]
+md:h-[500px]
+object-cover
+w-full
+mt-0
+sm:mt-12
+md:mt-16
+"
             />
 
           </div>
