@@ -23,11 +23,11 @@ export default async function PrivateSailingExperience() {
 
         <div className="relative z-10 text-center px-6 max-w-6xl">
 
-          <p className="uppercase tracking-[0.45em] text-sm text-neutral-300 mb-6">
+          <p className="uppercase tracking-[0.45em] text-sm  mb-6">
             Portovenere & Gulf of Poets
           </p>
 
-          <p className="uppercase tracking-[0.35em] text-sm text-neutral-300 mb-4">
+          <p className="uppercase tracking-[0.35em] text-sm  mb-4">
             Private Proposal Prepared For
           </p>
 
@@ -40,7 +40,7 @@ export default async function PrivateSailingExperience() {
             Experience
           </h1>
 
-          <p className="text-xl md:text-2xl text-neutral-300 leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl  leading-relaxed max-w-3xl mx-auto">
             Tailored sailing experiences designed for an authentic
             and unforgettable day at sea.
           </p>
@@ -293,7 +293,7 @@ export default async function PrivateSailingExperience() {
 
           <div className="text-center mb-24">
 
-            <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-6">
+            <p className="uppercase tracking-[0.3em] text-sm  mb-6">
               On Board Experience
             </p>
 
@@ -305,7 +305,7 @@ export default async function PrivateSailingExperience() {
 
           <div className="grid md:grid-cols-2 gap-20 items-center mb-20">
 
-            <div className="space-y-8 text-lg leading-9 text-neutral-300">
+            <div className="space-y-8 text-lg leading-9 ">
 
               <p>
                 Selection of local Ligurian wines and seasonal specialties.
@@ -513,7 +513,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
 
         <div className="max-w-4xl mx-auto">
 
-          <p className="uppercase tracking-[0.3em] text-sm text-neutral-400 mb-6">
+          <p className="uppercase tracking-[0.3em] text-sm  mb-6">
             Portovenere.com
           </p>
 
@@ -521,11 +521,11 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
             Stefano
           </h2>
 
-          <p className="text-xl text-neutral-300 leading-9 mb-12">
+          <p className="text-xl  leading-9 mb-12">
             I’ll personally assist you throughout the experience.
           </p>
 
-          <div className="space-y-4 text-lg text-neutral-300">
+          <div className="space-y-4 text-lg ">
 
             <p>WhatsApp: +39 348 714 0722</p>
 
