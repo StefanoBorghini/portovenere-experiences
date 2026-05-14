@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const protectedRoutes: Record<string, string> = {
-  "/private-sailing-experience-with-snorkeling": "sailing2026",
+  "/private-sailing-experience-with-snorkeling": "sailing2026@",
 };
 
 export function middleware(request: NextRequest) {
