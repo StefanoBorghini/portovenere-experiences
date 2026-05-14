@@ -287,7 +287,12 @@ export default async function PrivateSailingExperience() {
       </section>
 
       {/* ON BOARD */}
-      <section className="py-32 px-6 bg-[#1C2A36] text-white">
+      <section className="py-32 px-6 bg-[#1C2A36] text-white" style={{
+    backgroundImage: `
+      linear-gradient(rgba(245,245,245,0.94), rgba(245,245,245,0.94)),
+      url("https://www.portovenere.com/wp-content/uploads/2020/04/topography.svg")
+    `,
+  }}>
 
         <div className="max-w-7xl mx-auto">
 
