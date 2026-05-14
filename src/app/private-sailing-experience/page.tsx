@@ -152,7 +152,7 @@ export default async function PrivateSailingExperience() {
                 Departure
               </h3>
 
-              <p className=" leading-8">
+              <p className=" leading-8 text-[#0C0C0C] ">
                 Porto delle Grazie – Portovenere.
               </p>
             </div>
@@ -162,7 +162,7 @@ export default async function PrivateSailingExperience() {
                 Yacht
               </h3>
 
-              <p className=" leading-8">
+              <p className=" text-[#0C0C0C]  leading-8">
                 Private 40ft sailing yacht with local crew.
               </p>
             </div>
@@ -172,7 +172,7 @@ export default async function PrivateSailingExperience() {
                 Guests
               </h3>
 
-              <p className=" leading-8">
+              <p className=" text-[#0C0C0C]  leading-8">
                 Curated private experience for 2 guests.
               </p>
             </div>
