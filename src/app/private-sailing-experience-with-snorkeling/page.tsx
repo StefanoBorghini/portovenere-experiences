@@ -24,7 +24,7 @@ export default async function PrivateSailingExperience() {
         <div className="relative z-10 text-center px-6 max-w-6xl">
 
           <p className="uppercase tracking-[0.45em] text-sm  mb-6">
-            Portovenere & Gulf of Poets
+            Portovenere
           </p>
 
           <p className="uppercase tracking-[0.35em] text-sm  mb-4">
