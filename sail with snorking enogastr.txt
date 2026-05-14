@@ -50,7 +50,7 @@ export default async function PrivateSailingExperience() {
       </section>
 
       {/* INTRO */}
-      <section className="py-32 px-6">
+  <section className="py-20 md:py-32 px-5 md:px-6">
 
         <div className="
 max-w-7xl
@@ -198,7 +198,7 @@ md:mt-16
               </h3>
 
               <p className=" text-[#0C0C0C]  leading-8">
-                Curated private experience for 4 guests.
+                Curated private experience for 2 guests.
               </p>
             </div>
 
@@ -488,7 +488,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
     </h2>
 
     <p className="text-xl text-[#0C0C0C] leading-9 mb-12">
-      Private curated experience for 4 guests <br />
+      Private curated experience for 2 guests <br />
       All included.
     </p>
 
