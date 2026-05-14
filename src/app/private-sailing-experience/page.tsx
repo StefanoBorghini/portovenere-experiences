@@ -64,7 +64,7 @@ export default async function PrivateSailingExperience() {
               Discover the Gulf of Poets from a unique perspective at sea.
             </h2>
 
-            <div className="space-y-8 text-lg text-[#EDEBE7] leading-9 text-neutral-700">
+            <div className="space-y-8 text-lg text-[#EDEBE7] leading-9 ">
 
               <p>
                 Sail through one of the most breathtaking stretches of the
@@ -142,7 +142,7 @@ export default async function PrivateSailingExperience() {
                 Duration
               </h3>
 
-              <p className="text-neutral-700 text-[#0C0C0C] leading-8">
+              <p className=" text-[#0C0C0C] leading-8">
                 7 hours private sailing experience.
               </p>
             </div>
@@ -152,7 +152,7 @@ export default async function PrivateSailingExperience() {
                 Departure
               </h3>
 
-              <p className="text-neutral-700 leading-8">
+              <p className=" leading-8">
                 Porto delle Grazie – Portovenere.
               </p>
             </div>
@@ -162,7 +162,7 @@ export default async function PrivateSailingExperience() {
                 Yacht
               </h3>
 
-              <p className="text-neutral-700 leading-8">
+              <p className=" leading-8">
                 Private 40ft sailing yacht with local crew.
               </p>
             </div>
@@ -172,7 +172,7 @@ export default async function PrivateSailingExperience() {
                 Guests
               </h3>
 
-              <p className="text-neutral-700 leading-8">
+              <p className=" leading-8">
                 Curated private experience for 2 guests.
               </p>
             </div>
@@ -209,7 +209,7 @@ export default async function PrivateSailingExperience() {
                   Panoramic Sailing
                 </h3>
 
-                <p className="text-lg leading-9 text-[#EDEBE7] text-neutral-700">
+                <p className="text-lg leading-9 text-[#EDEBE7] ">
                   Navigation through Portovenere, Palmaria, Tino,
                   Tinetto, Lerici and Tellaro.
                 </p>
@@ -220,7 +220,7 @@ export default async function PrivateSailingExperience() {
                   Swimming Stops
                 </h3>
 
-                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 ">
                   Swim in crystal-clear bays and hidden coves accessible only by sea.
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default async function PrivateSailingExperience() {
                   Relaxed Exploration
                 </h3>
 
-                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 ">
                   Slow navigation along dramatic cliffs and picturesque Mediterranean villages.
                 </p>
               </div>
@@ -240,7 +240,7 @@ export default async function PrivateSailingExperience() {
                   Optional Land Stops
                 </h3>
 
-                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 ">
                   Possibility to stop in Portovenere, Lerici or Tellaro,
                   depending on sea conditions.
                 </p>
@@ -377,7 +377,7 @@ export default async function PrivateSailingExperience() {
 
           </div>
 
-          <div className="max-w-4xl mx-auto text-center text-[#EDEBE7] space-y-8 text-lg leading-9 text-neutral-700 mb-24">
+          <div className="max-w-4xl mx-auto text-center text-[#EDEBE7] space-y-8 text-lg leading-9  mb-24">
 
             <p>
               Explore the crystal-clear waters of Palmaria Island <br></br>and the hidden coves of the Gulf of Poets directly from the boat.
@@ -457,7 +457,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
       €1690
     </h2>
 
-    <p className="text-xl text-neutral-700 leading-9 mb-12">
+    <p className="text-xl  leading-9 mb-12">
       Private curated experience for 2 guests <br />
       All included.
     </p>
@@ -479,7 +479,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
             Important Note
           </h2>
 
-          <div className="space-y-8 text-lg leading-9 text-neutral-700">
+          <div className="space-y-8 text-lg leading-9 ">
 
             <p>
               This experience is operated by a fully authorized professional
