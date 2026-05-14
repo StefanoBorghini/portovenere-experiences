@@ -368,11 +368,11 @@ export default async function PrivateSailingExperience() {
           <div className="text-center mb-20">
 
             <p className="uppercase tracking-[0.3em] text-sm text-neutral-500 mb-6">
-              Palmaria Island Lunch Experience
+            Snorkeling Equipment Available
             </p>
 
             <h2 className="text-5xl md:text-7xl font-light leading-tight mb-10">
-              Waterfront dining reachable directly by boat.
+              SNORKELING EXPERIENCE
             </h2>
 
           </div>
@@ -380,18 +380,15 @@ export default async function PrivateSailingExperience() {
           <div className="max-w-4xl mx-auto text-center space-y-8 text-lg leading-9 text-neutral-700 mb-24">
 
             <p>
-              During the sailing experience, guests will stop at one of Palmaria
-              Island’s most authentic waterfront restaurants.
+              Explore the crystal-clear waters of Palmaria Island and the hidden coves of the Gulf of Poets directly from the boat.
             </p>
 
             <p>
-              Enjoy fresh local seafood, Ligurian specialties and selected regional wines
-              surrounded by the unique atmosphere of the Gulf of Poets.
+              Snorkeling equipment will be available on board for guests who wish to enjoy a more immersive connection with the sea and the coastline.
             </p>
 
             <p>
-              Restaurant reservation and coordination are included within the experience.
-            </p>
+A simple and authentic way to experience the Mediterranean atmosphere surrounding Portovenere.            </p>
 
           </div>
 
