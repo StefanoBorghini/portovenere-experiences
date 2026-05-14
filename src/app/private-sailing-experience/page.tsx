@@ -8,7 +8,7 @@ export default async function PrivateSailingExperience() {
     cookieStore.get("clientName")?.value || "Private Guest";
 
   return (
-    <main className="bg-white text-black overflow-hidden">
+    <main className="bg-[#0C0C0C] text-[#EDEBE7] overflow-hidden">
 
       {/* HERO */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-[#1C2A36] text-white">
