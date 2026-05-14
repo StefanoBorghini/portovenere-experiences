@@ -395,13 +395,13 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
           <div className="grid md:grid-cols-2 gap-8 mb-8">
 
             <img
-              src="https://swite-uplimages.r1-it.storage.cloud.it/98794/5954435/src.png?z=1776149117"
+              src="https://images.pexels.com/photos/29648747/pexels-photo-29648747.jpeg"
               alt="Restaurant"
               className="rounded-3xl h-[500px] object-cover w-full"
             />
 
             <img
-              src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/87/46/68/il-nostro-giardino.jpg?w=900&h=500&s=1"
+              src="https://images.pexels.com/photos/15585758/pexels-photo-15585758.jpeg"
               alt="Lunch"
               className="rounded-3xl h-[500px] object-cover w-full"
             />
@@ -417,13 +417,13 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
             />
 
             <img
-              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/567423493_17868352560463102_1706763758481305001_n.jpg?stp=dst-jpegr_e35_tt6&_nc_cat=108&ig_cache_key=Mzc0NzU2NTk4NDAyMzA3MDE2Mg%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=0djtjAQ8fgEQ7kNvwHmS4mj&_nc_oc=AdqDPLPRnuBMEd9s-sxicm2KkYu0wo3rj6FhhhFca0coBxPfiGrSPTF-RSF902SqMoQ&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af4XG41nuGM3D7IAp3a1jsRwwe1xFYsamMnVSkGr952KTg&oe=6A08E812"
+              src="https://res.cloudinary.com/manawa/image/private/f_auto,c_limit,w_640,q_auto/4824d77984686d9a25268e49a3c336f3"
               alt="Seafood"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
 
             <img
-              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/567529567_17868352635463102_3862182791428772486_n.jpg?stp=dst-jpegr_e35_tt6&_nc_cat=110&ig_cache_key=Mzc0NzU2NTk4Mzk4MTEzMzI0MA%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=XduhxOb3_xEQ7kNvwFBNdlv&_nc_oc=AdqcpesIgpxZiiwRKTnEH6hQvrJdSaquUbX9FFzSbUdqhsT9KIdi3IPy8f1ECF34_rM&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af7R5dVK9PkyyxUigRDY5u_yDV3DeFj3SX9fCxvBTSvUIg&oe=6A08C21D"
+              src="https://www.arbaspaa.com/it/tour/snorkeling-e-sea-watching-nellarea-marina-protetta-di-porto-venere"
               alt="Dinner"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
