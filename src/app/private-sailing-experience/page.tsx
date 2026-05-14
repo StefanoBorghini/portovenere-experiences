@@ -411,7 +411,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
           <div className="grid md:grid-cols-3 gap-8">
 
             <img
-              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/566855192_17868352479463102_7956891347193934971_n.jpg?stp=dst-jpegr_e35_p1080x1080_tt6&_nc_cat=103&ig_cache_key=Mzc0NzU2NTk4NDAwNjMxNDk0Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5oZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=2p4ZCQFnnDsQ7kNvwFeO-dG&_nc_oc=Ado-TKkZjx9XKsUQ_tUbQDHw_YArrqBDiUBH-ECkjkvyfrmTq7a8Hl_DnKBexpo3Vvc&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=aC4e89QTkoAntEE72D26gw&_nc_ss=7a22e&oh=00_Af60uEgSN8NdKGqg3rR-vANowOcY62c_Z4jcVF07ziKojA&oe=6A08C3B5"
+              src="https://www.portovenere.com/wp-content/uploads/2026/05/Copia-di-Copia-di-DSC_3604-Edit-scaled.jpg"
               alt="Food"
               className="rounded-3xl h-[320px] object-cover w-full"
             />
