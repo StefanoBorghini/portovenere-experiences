@@ -294,7 +294,7 @@ export default async function PrivateSailingExperience() {
     `,
   }}>
 
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto text-[#0C0C0C]">
 
           <div className="text-center mb-24">
 
