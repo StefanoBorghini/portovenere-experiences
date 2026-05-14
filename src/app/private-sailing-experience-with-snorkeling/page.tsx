@@ -484,7 +484,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
     </p>
 
     <h2 className="text-7xl md:text-8xl font-light mb-8 text-[#0C0C0C]">
-      €1690
+      €1700
     </h2>
 
     <p className="text-xl text-[#0C0C0C] leading-9 mb-12">
