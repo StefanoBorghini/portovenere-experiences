@@ -531,6 +531,10 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
               Designed for couples and travelers seeking an authentic
               and refined experience in Liguria.
             </p>
+<p>
+             This curated proposal is reserved for the next 48 hours.
+            </p>
+
 
           </div>
 
