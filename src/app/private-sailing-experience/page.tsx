@@ -64,7 +64,7 @@ export default async function PrivateSailingExperience() {
               Discover the Gulf of Poets from a unique perspective at sea.
             </h2>
 
-            <div className="space-y-8 text-lg leading-9 text-neutral-700">
+            <div className="space-y-8 text-lg text-[#EDEBE7] leading-9 text-neutral-700">
 
               <p>
                 Sail through one of the most breathtaking stretches of the
@@ -129,7 +129,7 @@ export default async function PrivateSailingExperience() {
               Experience Details
             </p>
 
-            <h2 className="text-5xl md:text-7xl font-light">
+            <h2 className="text-5xl text-[#0C0C0C] md:text-7xl  font-light">
               Curated private sailing.
             </h2>
 
@@ -138,17 +138,17 @@ export default async function PrivateSailingExperience() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
 
             <div className="bg-white rounded-3xl p-10">
-              <h3 className="text-2xl font-light mb-6">
+              <h3 className="text-2xl text-[#0C0C0C] font-light mb-6">
                 Duration
               </h3>
 
-              <p className="text-neutral-700 leading-8">
+              <p className="text-neutral-700 text-[#0C0C0C] leading-8">
                 7 hours private sailing experience.
               </p>
             </div>
 
             <div className="bg-white rounded-3xl p-10">
-              <h3 className="text-2xl font-light mb-6">
+              <h3 className="text-2xl text-[#0C0C0C] font-light mb-6">
                 Departure
               </h3>
 
@@ -158,7 +158,7 @@ export default async function PrivateSailingExperience() {
             </div>
 
             <div className="bg-white rounded-3xl p-10">
-              <h3 className="text-2xl font-light mb-6">
+              <h3 className="text-2xl text-[#0C0C0C] font-light mb-6">
                 Yacht
               </h3>
 
@@ -168,7 +168,7 @@ export default async function PrivateSailingExperience() {
             </div>
 
             <div className="bg-white rounded-3xl p-10">
-              <h3 className="text-2xl font-light mb-6">
+              <h3 className="text-2xl text-[#0C0C0C] font-light mb-6">
                 Guests
               </h3>
 
@@ -209,7 +209,7 @@ export default async function PrivateSailingExperience() {
                   Panoramic Sailing
                 </h3>
 
-                <p className="text-lg leading-9 text-neutral-700">
+                <p className="text-lg leading-9 text-[#EDEBE7] text-neutral-700">
                   Navigation through Portovenere, Palmaria, Tino,
                   Tinetto, Lerici and Tellaro.
                 </p>
@@ -220,7 +220,7 @@ export default async function PrivateSailingExperience() {
                   Swimming Stops
                 </h3>
 
-                <p className="text-lg leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
                   Swim in crystal-clear bays and hidden coves accessible only by sea.
                 </p>
               </div>
@@ -230,7 +230,7 @@ export default async function PrivateSailingExperience() {
                   Relaxed Exploration
                 </h3>
 
-                <p className="text-lg leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
                   Slow navigation along dramatic cliffs and picturesque Mediterranean villages.
                 </p>
               </div>
@@ -240,7 +240,7 @@ export default async function PrivateSailingExperience() {
                   Optional Land Stops
                 </h3>
 
-                <p className="text-lg leading-9 text-neutral-700">
+                <p className="text-lg text-[#EDEBE7] leading-9 text-neutral-700">
                   Possibility to stop in Portovenere, Lerici or Tellaro,
                   depending on sea conditions.
                 </p>
@@ -377,7 +377,7 @@ export default async function PrivateSailingExperience() {
 
           </div>
 
-          <div className="max-w-4xl mx-auto text-center space-y-8 text-lg leading-9 text-neutral-700 mb-24">
+          <div className="max-w-4xl mx-auto text-center text-[#EDEBE7] space-y-8 text-lg leading-9 text-neutral-700 mb-24">
 
             <p>
               Explore the crystal-clear waters of Palmaria Island <br></br>and the hidden coves of the Gulf of Poets directly from the boat.
