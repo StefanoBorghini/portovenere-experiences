@@ -588,10 +588,11 @@ traveling_with_children:
 
               {[
                 "Romantic",
-                "Relaxed",
-                "Adventure",
-                "Authentic",
                 "Cinematic",
+                "Authentic",
+                "Adventure",
+                
+                
               ].map((item) => (
 
                 <button
