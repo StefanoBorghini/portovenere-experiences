@@ -118,7 +118,7 @@ const minDate =
         );
 
     
-        return prev;
+      
       }
 
       else if(formData.moods.length >= max)   { 
@@ -127,7 +127,7 @@ const minDate =
             ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
         );
-           return prev;
+           
       }
 
       // SELECT
