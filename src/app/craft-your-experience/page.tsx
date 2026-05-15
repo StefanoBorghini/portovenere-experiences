@@ -919,7 +919,7 @@ traveling_with_children:
                   )
                 );
               }}
-              className="mt-1 h-5 w-5 accent-white cursor-pointer shrink-0"
+              className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
             />
 
             <p className="text-sm text-zinc-400 leading-relaxed">
