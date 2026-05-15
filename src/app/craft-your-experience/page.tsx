@@ -90,7 +90,7 @@ export default function CraftYourExperience() {
 
         setSelectionWarning(
           field === "experiences"
-            ? "Maximum 3 experiences allowed"
+            ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
         );
 
@@ -505,7 +505,7 @@ traveling_with_children:
             <div className="flex items-center justify-between mb-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                Select up to 3 experiences
+                Select up to 2 experiences
               </p>
 
               <p className="text-zinc-500 text-sm">
@@ -540,7 +540,7 @@ traveling_with_children:
                     handleMultiSelect(
                       "experiences",
                       item,
-                      3
+                      2
                     )
                   }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
