@@ -13,13 +13,13 @@ export const experiences = [
     gallery: {
       "Sailing Escape": [
         "https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681890741_18100545587475803_125703852981375846_n.webp?_nc_cat=103&ig_cache_key=Mzg4MjM2NzI3NzYxMDA5MTI5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=X4n3DmOmbhwQ7kNvwFGAcpK&_nc_oc=AdoSCTju62PCJ0t9ehRg7JMuFND-kO0uKP-orOClYreWNzzj5F1bYKvLH_UHjiTY9js&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=1uRtMzI6SCVpSSncUT6SCA&_nc_ss=7a22e&oh=00_Af6-7ZnOcqZN5wFKnd9O93L2YCvF1fZaH7Fcdjy_bGBBHA&oe=6A0D1B9D",
-        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
-        "https://images.unsplash.com/photo-1512100356356-de1b84283e18?q=80&w=1200"
+        "https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681709376_18100545614475803_3585021078207847429_n.webp?_nc_cat=109&ig_cache_key=Mzg4MjM2NzI3NzgyODE1NjEwNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuNDAwMC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=gN5XCQiQQ8wQ7kNvwGL3-mz&_nc_oc=Adrq0XbjsDot9IvZDiDw9cUPHJ1nOLHJeWZ4ZbjUtZJkL7QoFlhRdxohBoNqlPqyx4U&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=1uRtMzI6SCVpSSncUT6SCA&_nc_ss=7a22e&oh=00_Af4Hx7991C89Mad6yl0wy6XGej-ct3S20TWX1eGlJlALIQ&oe=6A0D4677",
+        "https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/680906430_18100545635475803_8390082691320931653_n.webp?_nc_cat=111&ig_cache_key=Mzg4MjM2NzI3NzcwMjM1MTM1Mw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuNDAwMC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=YyrnscHu3CQQ7kNvwF_VQVG&_nc_oc=Ado6VkQ_n5vdrguLSYXG7H8zsi5XgOz3dpTMwsSHdQIVL2JEWrH8tb8fRWrpTTjn0U4&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=1uRtMzI6SCVpSSncUT6SCA&_nc_ss=7a22e&oh=00_Af6wqOqBK1rhXrPNzLGr1jxflyRFXqFRwNAALIJc7GVWdg&oe=6A0D1E57"
       ],
       "Luxury Yachting": [
-        "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?q=80&w=1200",
-        "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?q=80&w=1200",
-        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200"
+        "https://www.velamica.eu/sites/default/files/styles/1170x600_imbarcazioni_dettaglio/public/imbarcazioni/cantiere_piantoni_48_fly.jpeg?itok=qPYWglsb",
+        "https://www.velamica.eu/sites/default/files/styles/1170x600_imbarcazioni_dettaglio/public/imbarcazioni/velamica-01_0.jpeg?itok=9ipUlkz1",
+        "https://www.velamica.eu/sites/default/files/styles/1170x600_imbarcazioni_dettaglio/public/imbarcazioni/cantiere_piantoni_48_fly_3.png?itok=Mku097Wc"
       ]
     },
     description: "A private sailing journey across the Gulf of Poets with hidden coves and Mediterranean atmosphere.",
