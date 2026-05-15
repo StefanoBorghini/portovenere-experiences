@@ -160,16 +160,19 @@ export default async function ProposalPage({
 
   // PROPOSAL PAYLOAD
 
-  const proposalPayload = {
-    heroTitle,
-    price,
-    heroImage,
-    experience: lead.experience,
-    mood: lead.mood,
-    guests: lead.guests,
-    budget: lead.budget,
-  };
+ const proposalPayload = {
+  name: lead.name,
+  email: lead.email,
 
+  heroTitle,
+  price,
+  heroImage,
+
+  experience: lead.experience,
+  mood: lead.mood,
+  guests: lead.guests,
+  budget: lead.budget,
+};
   // CHECK IF PROPOSAL ALREADY EXISTS
 
   const { data: existingProposal } = await supabase
