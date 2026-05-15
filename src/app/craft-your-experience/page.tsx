@@ -515,7 +515,7 @@ traveling_with_children:
             </div>
 
             <div
-              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2 ${
                 errors.includes(
                   "experiences"
                 )
@@ -587,7 +587,7 @@ traveling_with_children:
             </div>
 
             <div
-              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2 ${
                 errors.includes(
                   "moods"
                 )
