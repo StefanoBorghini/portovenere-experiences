@@ -6,99 +6,192 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CraftYourExperience() {
+
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-  name: "",
-  email: "",
-  guests: "",
-  mood: "",
-  experience: "",
-  budget: "",
-  termsAccepted: false,
-});
+    name: "",
+    email: "",
+    guests: "",
+    mood: "",
+    experience: "",
+    budget: "",
+    termsAccepted: false,
+  });
 
-const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] = useState<string[]>([]);
 
- const handleSelect = (field: string, value: string) => {
-  setFormData((prev) => ({
-    ...prev,
-    [field]: value,
-  }));
+  const handleSelect = (
+    field: string,
+    value: string
+  ) => {
 
-  setErrors((prev) =>
-    prev.filter((error) => error !== field)
-  );
-};
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
 
-const handleSubmit = async () => {
-  const isValid = validateForm();
-
-  if (!isValid) return;
-
-  try {
-    if (!supabase) {
-  console.error("Supabase not configured");
-  return;
-}
-
-const { data, error } = await supabase
-      .from("leads")
-      .insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          guests: formData.guests,
-          mood: formData.mood,
-          experience: formData.experience,
-          budget: formData.budget,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Supabase error:", error);
-      return;
-    }
-
-    console.log("Lead salvato:", data);
-
-    router.push(`/results/proposal/${data.slug}`);
-
-  } catch (err) {
-    console.error("Unexpected error:", err);
-  }
-};
+    setErrors((prev) =>
+      prev.filter(
+        (error) => error !== field
+      )
+    );
+  };
 
   const validateForm = () => {
-  const newErrors: string[] = [];
 
-  if (!formData.name) newErrors.push("name");
-  if (
-  !formData.email ||
-  !/\S+@\S+\.\S+/.test(formData.email)
-) {
-  newErrors.push("email");
-}
-  if (!formData.experience) newErrors.push("experience");
-  if (!formData.mood) newErrors.push("mood");
-  if (!formData.guests) newErrors.push("guests");
-  if (!formData.budget) newErrors.push("budget");
+    const newErrors: string[] = [];
 
-  if (!formData.termsAccepted)
-    newErrors.push("terms");
+    if (!formData.name)
+      newErrors.push("name");
 
-  setErrors(newErrors);
+    if (
+      !formData.email ||
+      !/\S+@\S+\.\S+/.test(
+        formData.email
+      )
+    ) {
+      newErrors.push("email");
+    }
 
-  return newErrors.length === 0;
-};
+    if (!formData.experience)
+      newErrors.push("experience");
+
+    if (!formData.mood)
+      newErrors.push("mood");
+
+    if (!formData.guests)
+      newErrors.push("guests");
+
+    if (!formData.budget)
+      newErrors.push("budget");
+
+    if (!formData.termsAccepted)
+      newErrors.push("terms");
+
+    setErrors(newErrors);
+
+    return newErrors.length === 0;
+  };
+
+  const handleSubmit = async () => {
+
+    const isValid = validateForm();
+
+    if (!isValid) return;
+
+    try {
+
+      if (!supabase) {
+        console.error(
+          "Supabase not configured"
+        );
+        return;
+      }
+
+      // SAVE LEAD
+
+      const {
+        data: leadData,
+        error: leadError,
+      } = await supabase
+        .from("leads")
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            guests: formData.guests,
+            mood: formData.mood,
+            experience:
+              formData.experience,
+            budget: formData.budget,
+          },
+        ])
+        .select()
+        .single();
+
+      if (
+        leadError ||
+        !leadData
+      ) {
+        console.error(
+          "Lead error:",
+          leadError
+        );
+        return;
+      }
+
+      // CREATE SLUG
+
+      const slug =
+        `${formData.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")}-${formData.experience
+          .toLowerCase()
+          .replace(/\s+/g, "-")}`;
+
+      // SAVE PROPOSAL
+
+      const {
+        data: proposalData,
+        error: proposalError,
+      } = await supabase
+        .from("Proposal")
+        .insert([
+          {
+            lead_id: leadData.id,
+
+            slug,
+
+            proposal_data: {
+              name: formData.name,
+              email: formData.email,
+              guests: formData.guests,
+              mood: formData.mood,
+              experience:
+                formData.experience,
+              budget: formData.budget,
+            },
+
+            total_price: 0,
+          },
+        ])
+        .select()
+        .single();
+
+      if (
+        proposalError ||
+        !proposalData
+      ) {
+        console.error(
+          "Proposal error:",
+          proposalError
+        );
+        return;
+      }
+
+      // REDIRECT
+
+      router.push(
+        `/results/proposal/${proposalData.slug}`
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Unexpected error:",
+        err
+      );
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#0C0C0C] text-white px-6 py-24">
+
       <div className="max-w-4xl mx-auto">
-        {/* TOP */}
+
         <div className="text-center mb-20">
+
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
             Private Experience Curation
           </p>
@@ -110,9 +203,9 @@ const { data, error } = await supabase
           </h1>
 
           <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
-            Answer a few questions to receive a curated proposal tailored to
-            your ideal Riviera experience.
+            Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
           </p>
+
         </div>
 
         {/* FORM */}
