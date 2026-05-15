@@ -96,9 +96,7 @@ export default function HomePage() {
                 Manifesto
               </a>
 
-              <a href="#contact" className="hover:text-[#EDEBE7] transition">
-                Contact
-              </a>
+              
 
               <a
                 href="/craft-your-experience"
