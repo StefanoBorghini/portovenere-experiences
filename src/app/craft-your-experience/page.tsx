@@ -126,7 +126,7 @@ const minDate =
           field === "moods"
             ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
-        ); return prev;
+        );
 
       // SELECT
 
