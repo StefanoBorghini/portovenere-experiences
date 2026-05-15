@@ -9,9 +9,6 @@ export const experiences = [
 
     basePrice: 1200,
 
-    heroVideo:
-  "/videos/private-sailing/hero.mp4",
-
     moods: [
       "Romantic",
       "Relaxed",

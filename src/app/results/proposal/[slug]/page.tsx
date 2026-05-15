@@ -72,18 +72,11 @@ export default async function ProposalPage({
   const heroImage =
     generatedProposal.heroImage;
 
-    
-
   const featuredExperience =
     generatedProposal.featuredExperience;
 
-    const heroVideo =
-  featuredExperience.heroVideo;
-
   const scoredExperiences =
     generatedProposal.scoredExperiences;
-
-
 
   // PRICING ENGINE
 
@@ -124,41 +117,13 @@ export default async function ProposalPage({
 
       {/* HERO */}
 
-     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-
-  {/* VIDEO BACKGROUND */}
-
-  {heroVideo ? (
-
-     <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source
-      src={heroVideo}
-      type="video/mp4"
-    />
-  </video>
-    
-
-  ) : (
-
-    <div
-      className="absolute inset-0 bg-cover bg-center"
-      style={{
-        backgroundImage:
-          `url(${heroImage})`,
-      }}
-    />
-
-  )}
-
-  {/* DARK OVERLAY */}
-
-  <div className="absolute inset-0 bg-black/50" />
+      <section
+        className="relative h-screen bg-cover bg-center flex items-center justify-center"
+        style={{
+          backgroundImage:
+            `url(${heroImage})`,
+        }}
+      >
 
         <div className="absolute inset-0 bg-black/50" />
 
