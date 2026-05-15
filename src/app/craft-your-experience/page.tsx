@@ -560,6 +560,16 @@ traveling_with_children:
 
           </div>
 
+          {/* WARNING */}
+
+          {selectionWarning && (
+
+            <p className="text-amber-400 text-sm">
+              {selectionWarning}
+            </p>
+
+          )}{/* WARNING */}
+
           {/* MOODS */}
 
           <div id="moods-section">
@@ -630,7 +640,9 @@ traveling_with_children:
               {selectionWarning}
             </p>
 
-          )}
+          )}{/* WARNING */}
+
+         
 
           {/* GUESTS */}
 
