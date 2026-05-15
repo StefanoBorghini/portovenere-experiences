@@ -1,4 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { generateProposal } from "@/lib/generateProposal";
+
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface ProposalPageProps {
@@ -21,15 +23,17 @@ export default async function ProposalPage({
     );
   }
 
-  // GET LEAD
+  // GET PROPOSAL
 
- const { data: proposal, error } = await supabase
-  .from("Proposal")
-  .select("*")
-  .eq("slug", slug)
-  .single();
+  const { data: proposal, error } =
+    await supabase
+      .from("Proposal")
+      .select("*")
+      .eq("slug", slug)
+      .single();
 
-const lead = proposal?.proposal_data;
+  const lead = proposal?.proposal_data;
+
   if (error || !lead) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -38,178 +42,94 @@ const lead = proposal?.proposal_data;
     );
   }
 
-  // EXPERIENCE TYPES
+  // GENERATE PROPOSAL
 
-  const isLuxury =
-    lead.budget === "€3000+";
+  const generatedProposal =
+    generateProposal({
 
-  const isRomantic =
-    lead.mood === "Romantic";
+      experiencesSelected:
+        lead.experiences || [],
 
-  const isSailing =
-    lead.experience === "Private Sailing";
+      moodsSelected:
+        lead.moods || [],
 
-  const isUnderwater =
-    lead.experience === "Underwater Experience";
+      budget:
+        lead.budget,
 
-  const isSunset =
-    lead.experience === "Sunset Dinner";
+      travelingWithChildren:
+        lead.traveling_with_children || false,
+    });
 
-  // HERO TITLE
+  // DYNAMIC CONTENT
 
-  let heroTitle = "Mediterranean Escape";
+  const heroTitle =
+    generatedProposal.heroTitle;
 
-  if (isSailing && isRomantic) {
-    heroTitle = "Romantic Sailing Escape";
-  }
+  const heroImage =
+    generatedProposal.heroImage;
 
-  if (isLuxury) {
-    heroTitle = "Ultra Luxury Riviera Experience";
-  }
+  const featuredExperience =
+    generatedProposal.featuredExperience;
 
-  if (isUnderwater) {
-    heroTitle = "Private Underwater Adventure";
-  }
-
-  if (isSunset) {
-    heroTitle = "Sunset Riviera Experience";
-  }
+  const scoredExperiences =
+    generatedProposal.scoredExperiences;
 
   // PRICING ENGINE
 
   let basePrice = 2400;
 
-  // EXPERIENCE
-
-  if (isUnderwater) {
-    basePrice = 3200;
-  }
-
-  if (isSunset) {
-    basePrice = 1900;
-  }
-
-  if (isLuxury) {
-    basePrice = 5200;
-  }
-
-  // GUESTS
-
-  if (lead.guests === "4") {
-    basePrice += 600;
-  }
-
-  if (lead.guests === "6") {
-    basePrice += 1200;
-  }
-
-  if (lead.guests === "8+") {
+  if (
+    lead.budget === "€3000+"
+  ) {
     basePrice += 2500;
   }
 
-  // MOOD
-
-  if (isRomantic) {
-    basePrice += 400;
+  if (
+    lead.guests === "6-10"
+  ) {
+    basePrice += 1500;
   }
 
-  if (lead.mood === "Cinematic") {
+  if (
+    lead.guests === "11+"
+  ) {
+    basePrice += 3500;
+  }
+
+  if (
+    lead.moods?.includes(
+      "Luxury"
+    )
+  ) {
+    basePrice += 2000;
+  }
+
+  if (
+    lead.moods?.includes(
+      "Cinematic"
+    )
+  ) {
     basePrice += 700;
   }
 
-  if (lead.mood === "Luxury") {
-    basePrice += 1500;
+  if (
+    lead.traveling_with_children
+  ) {
+    basePrice += 500;
   }
-
-  // HIGH-END ADDONS
-
-  if (isLuxury && lead.guests === "8+") {
-    basePrice += 1500;
-  }
-
-  // FINAL PRICE
 
   const price =
     `€${basePrice.toLocaleString()}`;
 
-  // HERO IMAGE
-
-  let heroImage =
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
-
-  if (isSailing) {
-    heroImage =
-      "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?q=80&w=2070";
-  }
-
-  if (isLuxury) {
-    heroImage =
-      "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?q=80&w=2070";
-  }
-
-  if (isUnderwater) {
-    heroImage =
-      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070";
-  }
-
-  if (isSunset) {
-    heroImage =
-      "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=2070";
-  }
-
   // WHATSAPP CTA
 
-  const whatsappMessage = encodeURIComponent(
-    `Hi Stefano, I'd like to confirm my ${lead.experience} experience proposal for ${lead.guests} guests.`
-  );
+  const whatsappMessage =
+    encodeURIComponent(
+      `Hi Stefano, I'd like to confirm my ${featuredExperience.title} experience proposal for ${lead.guests} guests.`
+    );
 
   const whatsappUrl =
     `https://wa.me/393487140722?text=${whatsappMessage}`;
-
-  // PROPOSAL PAYLOAD
-
-  const proposalPayload = {
-    name: lead.name,
-    email: lead.email,
-
-    heroTitle,
-    price,
-    heroImage,
-
-    experience: lead.experience,
-    mood: lead.mood,
-    guests: lead.guests,
-    budget: lead.budget,
-  };
-
-  // CHECK IF PROPOSAL EXISTS
-
-  const { data: existingProposal } = await supabase
-    .from("Proposal")
-    .select("id")
-    .eq("lead_id", lead.id)
-    .maybeSingle();
-
-  // SAVE ONLY ONCE
-
-  if (!existingProposal) {
-
-    await supabase
-      .from("Proposal")
-      .insert([
-        {
-          lead_id: lead.id,
-
-          slug: `${lead.name
-            .toLowerCase()
-            .replace(/\s+/g, "-")}-${Date.now()}`,
-
-          proposal_data: proposalPayload,
-
-          total_price: basePrice,
-        },
-      ]);
-  }
 
   return (
     <main
@@ -222,7 +142,8 @@ const lead = proposal?.proposal_data;
       <section
         className="relative h-screen bg-cover bg-center flex items-center justify-center"
         style={{
-          backgroundImage: `url(${heroImage})`,
+          backgroundImage:
+            `url(${heroImage})`,
         }}
       >
 
@@ -275,7 +196,7 @@ const lead = proposal?.proposal_data;
           </p>
 
           <h2 className="text-4xl md:text-6xl font-light leading-tight">
-            Crafted for unforgettable moments along the Italian Riviera.
+            Crafted around your personal travel style and Riviera atmosphere.
           </h2>
 
         </div>
@@ -295,28 +216,32 @@ const lead = proposal?.proposal_data;
             </p>
 
             <h2 className="text-3xl md:text-7xl font-light leading-tight">
-              Designed around your travel style.
+              Designed around your travel profile.
             </h2>
 
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
 
+            {/* EXPERIENCE */}
+
             <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                Experience
+                Featured Experience
               </p>
 
               <h2 className="text-4xl font-light mb-6">
-                {lead.experience}
+                {featuredExperience.title}
               </h2>
 
               <p className="text-zinc-400 leading-8">
-                A curated Mediterranean experience inspired by your desired atmosphere, preferred pace and ideal level of exclusivity.
+                {featuredExperience.description}
               </p>
 
             </div>
+
+            {/* PROFILE */}
 
             <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
@@ -324,22 +249,48 @@ const lead = proposal?.proposal_data;
                 Guest Profile
               </p>
 
-              <div className="space-y-4 text-lg">
+              <div className="space-y-5 text-lg">
 
                 <p>
-                  Mood: {lead.mood}
+                  Experiences:
+                  {" "}
+                  {lead.experiences?.join(", ")}
                 </p>
 
                 <p>
-                  Guests: {lead.guests}
+                  Atmosphere:
+                  {" "}
+                  {lead.moods?.join(", ")}
                 </p>
 
                 <p>
-                  Budget: {lead.budget}
+                  Guests:
+                  {" "}
+                  {lead.guests}
                 </p>
 
                 <p>
-                  Email: {lead.email}
+                  Budget:
+                  {" "}
+                  {lead.budget}
+                </p>
+
+                <p>
+                  Travel Dates:
+                  {" "}
+                  {lead.start_date}
+                  {" "}
+                  —
+                  {" "}
+                  {lead.end_date}
+                </p>
+
+                <p>
+                  Children:
+                  {" "}
+                  {lead.traveling_with_children
+                    ? "Yes"
+                    : "No"}
                 </p>
 
               </div>
@@ -365,19 +316,19 @@ const lead = proposal?.proposal_data;
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Private skipper & crew
+              Private curated itinerary
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Fuel & navigation
+              Personalized concierge assistance
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Premium onboard aperitivo
+              Premium Mediterranean atmosphere
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Snorkeling equipment
+              Tailored local experiences
             </div>
 
           </div>
@@ -406,23 +357,18 @@ const lead = proposal?.proposal_data;
 
           <div className="grid md:grid-cols-3 gap-6">
 
-            <img
-              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200"
-              alt="Mediterranean"
-              className="rounded-3xl h-[500px] w-full object-cover"
-            />
+            {scoredExperiences
+              .slice(0, 3)
+              .map((experience) => (
 
-            <img
-              src="https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200"
-              alt="Luxury"
-              className="rounded-3xl h-[500px] w-full object-cover"
-            />
+                <img
+                  key={experience.id}
+                  src={experience.heroImage}
+                  alt={experience.title}
+                  className="rounded-3xl h-[500px] w-full object-cover"
+                />
 
-            <img
-              src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200"
-              alt="Experience"
-              className="rounded-3xl h-[500px] w-full object-cover"
-            />
+            ))}
 
           </div>
 
