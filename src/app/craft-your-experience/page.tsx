@@ -64,7 +64,7 @@ const { data, error } = await supabase
 
     console.log("Lead salvato:", data);
 
-    router.push("/results/proposal");
+    router.push(`/results/proposal?id=${data.id}`);
 
   } catch (err) {
     console.error("Unexpected error:", err);
