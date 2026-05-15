@@ -19,8 +19,16 @@ export default function CraftYourExperience() {
     guests: "",
     budget: "",
 
+    
+  startDate: "",
+  endDate: "",
+
+  travelingWithChildren: false,
+
     termsAccepted: false,
   });
+
+  
 
   const [errors, setErrors] =
     useState<string[]>([]);
