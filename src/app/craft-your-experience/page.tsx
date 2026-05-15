@@ -327,6 +327,9 @@ export default function CraftYourExperience() {
                 "Cinematic",
                 "Relaxed",
                 "Luxury",
+                "Adventure",
+                "Authentic",
+                "Family",
               ].map((item) => (
                 <button
                   type="button"
