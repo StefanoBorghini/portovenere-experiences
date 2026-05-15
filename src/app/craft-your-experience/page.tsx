@@ -48,15 +48,6 @@ const minDate =
 
   
 
-  const [errors, setErrors] =
-    useState<string[]>([]);
-
-  const [selectionWarning, setSelectionWarning] =
-    useState("");
-
-    
-  const [selectionWarningTwo, setSelectionWarningTwo] =
-    useState("");
 
 
   // SINGLE SELECT
@@ -79,73 +70,73 @@ const minDate =
   };
 
   // MULTI SELECT
+const [errors, setErrors] =
+  useState<string[]>([]);
 
-  const handleMultiSelect = (
-    field: "experiences" | "moods",
-    value: string,
-    max: number
-  ) => {
+const [selectionWarning, setSelectionWarning] =
+  useState("");
 
-    setSelectionWarning("");
+// MULTI SELECT
 
-    setFormData((prev) => {
+const handleMultiSelect = (
+  field: "experiences" | "moods",
+  value: string,
+  max: number
+) => {
 
-      const currentValues = prev[field];
+  setSelectionWarning("");
 
-      const alreadySelected =
-        currentValues.includes(value);
+  setFormData((prev) => {
 
-      // DESELECT
+    const currentValues = prev[field];
 
-      if (alreadySelected) {
+    const alreadySelected =
+      currentValues.includes(value);
 
-        return {
-          ...prev,
-          [field]: currentValues.filter(
-            (item) => item !== value
-          ),
-        };
-      }
+    // DESELECT
 
-      // LIMIT REACHED
-
-      if (formData.experiences.length >= max) {
-
-        setSelectionWarning(
-          field === "experiences"
-            ? "Maximum 2 experiences allowed"
-            : "Maximum 2 atmosphere selections allowed"
-        );
-
-    
-        return prev;
-      }
-
-      else if(formData.moods.length >= max)   { 
-       setSelectionWarningTwo(
-          field === "moods"
-            ? "Maximum 2 experiences allowed"
-            : "Maximum 2 atmosphere selections allowed"
-        );
-      }
-
-      // SELECT
+    if (alreadySelected) {
 
       return {
         ...prev,
-        [field]: [
-          ...currentValues,
-          value,
-        ],
+        [field]: currentValues.filter(
+          (item) => item !== value
+        ),
       };
-    });
+    }
 
-    setErrors((prev) =>
-      prev.filter(
-        (error) => error !== field
-      )
-    );
-  };
+    // LIMIT REACHED
+
+    if (currentValues.length >= max) {
+
+      setSelectionWarning(
+
+        field === "experiences"
+          ? "Maximum 2 experiences allowed"
+          : "Maximum 2 atmosphere selections allowed"
+
+      );
+
+      return prev;
+    }
+
+    // SELECT
+
+    return {
+      ...prev,
+      [field]: [
+        ...currentValues,
+        value,
+      ],
+    };
+  });
+
+  setErrors((prev) =>
+    prev.filter(
+      (error) => error !== field
+    )
+  );
+};
 
   // VALIDATION
 
@@ -665,16 +656,7 @@ traveling_with_children:
 
           </div>
 
-          {/* WARNING */}
-
-          {selectionWarningTwo && (
-
-            <p className="text-amber-400 text-sm">
-              {selectionWarningTwo}
-            </p>
-
-          )}{/* WARNING */}
-
+          
          
 
           {/* GUESTS */}
