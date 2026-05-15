@@ -162,9 +162,11 @@ export default function CraftYourExperience() {
     try {
 
       if (!supabase) {
+
         console.error(
           "Supabase not configured"
         );
+
         return;
       }
 
@@ -178,6 +180,7 @@ export default function CraftYourExperience() {
         .insert([
           {
             name: formData.name,
+
             email: formData.email,
 
             experiences:
@@ -186,9 +189,11 @@ export default function CraftYourExperience() {
             moods:
               formData.moods,
 
-            guests: formData.guests,
+            guests:
+              formData.guests,
 
-            budget: formData.budget,
+            budget:
+              formData.budget,
           },
         ])
         .select()
@@ -207,16 +212,28 @@ export default function CraftYourExperience() {
         return;
       }
 
-      // CREATE SLUG
+      // SAFE SLUG
+
+      const primaryExperience =
+        formData.experiences[0]
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(
+            /[^a-z0-9-]/g,
+            ""
+          );
+
+      const safeName =
+        formData.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(
+            /[^a-z0-9-]/g,
+            ""
+          );
 
       const slug =
-        `${formData.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")}-${
-          formData.experiences[0]
-            .toLowerCase()
-            .replace(/\s+/g, "-")
-        }`;
+        `${safeName}-${primaryExperience}`;
 
       // SAVE PROPOSAL
 
@@ -232,8 +249,12 @@ export default function CraftYourExperience() {
             slug,
 
             proposal_data: {
-              name: formData.name,
-              email: formData.email,
+
+              name:
+                formData.name,
+
+              email:
+                formData.email,
 
               experiences:
                 formData.experiences,
@@ -241,9 +262,11 @@ export default function CraftYourExperience() {
               moods:
                 formData.moods,
 
-              guests: formData.guests,
+              guests:
+                formData.guests,
 
-              budget: formData.budget,
+              budget:
+                formData.budget,
             },
 
             total_price: 0,
@@ -634,7 +657,7 @@ export default function CraftYourExperience() {
                   )
                 );
               }}
-              className="mt-1 h-5 w-5 accent-black cursor-pointer"
+              className="mt-1 h-5 w-5 accent-white cursor-pointer shrink-0"
             />
 
             <p className="text-sm text-zinc-400 leading-relaxed">
