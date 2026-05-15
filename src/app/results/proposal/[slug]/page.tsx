@@ -473,7 +473,7 @@ const lead = proposal?.proposal_data;
               </p>
 
               <p>
-                projects@stefanoborghinidesign.it
+                info@portovenere.com
               </p>
 
               <p>
