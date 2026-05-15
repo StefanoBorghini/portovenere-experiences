@@ -2,7 +2,7 @@ export const experiences = [
 
   {
     id: "private-sailing",
-    title: "Private Sailing",
+    title: "Sea Escape",
     category: "sea",
     basePrice: 1200,
     moods: ["Romantic", "Relaxed", "Authentic", "Cinematic"],
