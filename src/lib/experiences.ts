@@ -10,7 +10,7 @@ export const experiences = [
     basePrice: 1200,
 
     heroVideo:
-  "https://experiences.portovenere.com/assets/experiences/private-sailing/hero.mp4",
+  "/assets/experiences/private-sailing/hero.mp4",
 
     moods: [
       "Romantic",
