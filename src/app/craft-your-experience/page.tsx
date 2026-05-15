@@ -731,10 +731,7 @@ traveling_with_children:
       <input
   type="date"
   value={formData.startDate}
-  min={minimumBookingDate.setDate(
-  minimumBookingDate.getDate() + 10
-)}
-  
+  min={minDate}
   style={{
     colorScheme: "dark",
   }}
@@ -748,7 +745,7 @@ traveling_with_children:
     setErrors((prev) =>
       prev.filter(
         (error) =>
-          error !== "startDate"
+          error !== "minDate"
       )
     );
   }}
