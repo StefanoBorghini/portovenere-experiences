@@ -12,14 +12,23 @@ export default function CraftYourExperience() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+
+    experiences: [] as string[],
+    moods: [] as string[],
+
     guests: "",
-    mood: "",
-    experience: "",
     budget: "",
+
     termsAccepted: false,
   });
 
-  const [errors, setErrors] = useState<string[]>([]);
+  const [errors, setErrors] =
+    useState<string[]>([]);
+
+  const [selectionWarning, setSelectionWarning] =
+    useState("");
+
+  // SINGLE SELECT
 
   const handleSelect = (
     field: string,
@@ -38,6 +47,68 @@ export default function CraftYourExperience() {
     );
   };
 
+  // MULTI SELECT
+
+  const handleMultiSelect = (
+    field: "experiences" | "moods",
+    value: string,
+    max: number
+  ) => {
+
+    setSelectionWarning("");
+
+    setFormData((prev) => {
+
+      const currentValues = prev[field];
+
+      const alreadySelected =
+        currentValues.includes(value);
+
+      // DESELECT
+
+      if (alreadySelected) {
+
+        return {
+          ...prev,
+          [field]: currentValues.filter(
+            (item) => item !== value
+          ),
+        };
+      }
+
+      // LIMIT REACHED
+
+      if (currentValues.length >= max) {
+
+        setSelectionWarning(
+          field === "experiences"
+            ? "Maximum 4 experiences allowed"
+            : "Maximum 3 atmosphere selections allowed"
+        );
+
+        return prev;
+      }
+
+      // SELECT
+
+      return {
+        ...prev,
+        [field]: [
+          ...currentValues,
+          value,
+        ],
+      };
+    });
+
+    setErrors((prev) =>
+      prev.filter(
+        (error) => error !== field
+      )
+    );
+  };
+
+  // VALIDATION
+
   const validateForm = () => {
 
     const newErrors: string[] = [];
@@ -54,11 +125,17 @@ export default function CraftYourExperience() {
       newErrors.push("email");
     }
 
-    if (!formData.experience)
-      newErrors.push("experience");
+    if (
+      formData.experiences.length === 0
+    ) {
+      newErrors.push("experiences");
+    }
 
-    if (!formData.mood)
-      newErrors.push("mood");
+    if (
+      formData.moods.length === 0
+    ) {
+      newErrors.push("moods");
+    }
 
     if (!formData.guests)
       newErrors.push("guests");
@@ -73,6 +150,8 @@ export default function CraftYourExperience() {
 
     return newErrors.length === 0;
   };
+
+  // SUBMIT
 
   const handleSubmit = async () => {
 
@@ -100,10 +179,15 @@ export default function CraftYourExperience() {
           {
             name: formData.name,
             email: formData.email,
+
+            experiences:
+              formData.experiences,
+
+            moods:
+              formData.moods,
+
             guests: formData.guests,
-            mood: formData.mood,
-            experience:
-              formData.experience,
+
             budget: formData.budget,
           },
         ])
@@ -114,10 +198,12 @@ export default function CraftYourExperience() {
         leadError ||
         !leadData
       ) {
+
         console.error(
           "Lead error:",
           leadError
         );
+
         return;
       }
 
@@ -126,9 +212,11 @@ export default function CraftYourExperience() {
       const slug =
         `${formData.name
           .toLowerCase()
-          .replace(/\s+/g, "-")}-${formData.experience
-          .toLowerCase()
-          .replace(/\s+/g, "-")}`;
+          .replace(/\s+/g, "-")}-${
+          formData.experiences[0]
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+        }`;
 
       // SAVE PROPOSAL
 
@@ -146,10 +234,15 @@ export default function CraftYourExperience() {
             proposal_data: {
               name: formData.name,
               email: formData.email,
+
+              experiences:
+                formData.experiences,
+
+              moods:
+                formData.moods,
+
               guests: formData.guests,
-              mood: formData.mood,
-              experience:
-                formData.experience,
+
               budget: formData.budget,
             },
 
@@ -163,10 +256,12 @@ export default function CraftYourExperience() {
         proposalError ||
         !proposalData
       ) {
+
         console.error(
           "Proposal error:",
           proposalError
         );
+
         return;
       }
 
@@ -190,6 +285,8 @@ export default function CraftYourExperience() {
 
       <div className="max-w-4xl mx-auto">
 
+        {/* TOP */}
+
         <div className="text-center mb-20">
 
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
@@ -209,119 +306,171 @@ export default function CraftYourExperience() {
         </div>
 
         {/* FORM */}
+
         <div className="space-y-16">
+
           {/* NAME */}
+
           <div>
+
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Your Name
             </p>
 
-           <input
-  type="text"
-  placeholder="Enter your full name"
-  value={formData.name}
- onChange={(e) => {
-  setFormData({
-    ...formData,
-    name: e.target.value,
-  });
+            <input
+              type="text"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => {
 
-  setErrors((prev) =>
-    prev.filter((error) => error !== "name")
-  );
-}}
-  className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-    errors.includes("name")
-      ? "border border-red-500 bg-red-500/10"
-      : "border border-white/10 bg-white/5 focus:border-white/40"
-  }`}
-/>
+                setFormData({
+                  ...formData,
+                  name: e.target.value,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "name"
+                  )
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("name")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 focus:border-white/40"
+              }`}
+            />
+
           </div>
 
           {/* EMAIL */}
-<div>
-  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-    Email Address
-  </p>
 
-  <input
-    type="email"
-    placeholder="Enter your email"
-    value={formData.email}
-    onChange={(e) => {
-  setFormData({
-    ...formData,
-    email: e.target.value,
-  });
-
-  setErrors((prev) =>
-    prev.filter((error) => error !== "email")
-  );
-}}
-    className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-      errors.includes("email")
-        ? "border border-red-500 bg-red-500/10"
-        : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
-    }`}
-  />
-</div>
-
-          {/* EXPERIENCE */}
           <div>
+
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Select up to 4 experiences
+              Email Address
             </p>
 
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={(e) => {
+
+                setFormData({
+                  ...formData,
+                  email: e.target.value,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "email"
+                  )
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("email")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
+              }`}
+            />
+
+          </div>
+
+          {/* EXPERIENCES */}
+
+          <div>
+
+            <div className="flex items-center justify-between mb-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                Select up to 4 experiences
+              </p>
+
+              <p className="text-zinc-500 text-sm">
+                {formData.experiences.length}/4 selected
+              </p>
+
+            </div>
+
             <div
-  className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
-    errors.includes("experience")
-      ? "border border-red-500"
-      : ""
-  }`}
->
+              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+                errors.includes(
+                  "experiences"
+                )
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
               {[
                 "Private Sailing",
                 "Luxury Yachting",
+                "Underwater Adventure",
                 "Sunset Escape",
-                "Underwater Experience",
-                "Sunset Dinner",
                 "Aerial Experience",
                 "Countryside Escape",
                 "Outdoor Adventure",
                 "Gourmet Escape",
                 "Luxury Transfer",
+                "Custom Experience",
               ].map((item) => (
+
                 <button
-                 type="button"
-  key={item}
+                  type="button"
+                  key={item}
                   onClick={() =>
-                    handleSelect("experience", item)
+                    handleMultiSelect(
+                      "experiences",
+                      item,
+                      4
+                    )
                   }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
-                    formData.experience === item
+                    formData.experiences.includes(
+                      item
+                    )
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
                 </button>
+
               ))}
+
             </div>
+
           </div>
 
-          {/* MOOD */}
+          {/* MOODS */}
+
           <div>
-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Select Your Desired Atmosphere (max 3)
-            </p>
+
+            <div className="flex items-center justify-between mb-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                Select your desired atmosphere
+              </p>
+
+              <p className="text-zinc-500 text-sm">
+                {formData.moods.length}/3 selected
+              </p>
+
+            </div>
 
             <div
-  className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
-    errors.includes("mood")
-      ? "border border-red-500"
-      : ""
-  }`}
->
+              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+                errors.includes(
+                  "moods"
+                )
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
               {[
                 "Romantic",
                 "Cinematic",
@@ -331,41 +480,74 @@ export default function CraftYourExperience() {
                 "Authentic",
                 "Family",
               ].map((item) => (
+
                 <button
                   type="button"
-  key={item}
-                  onClick={() => handleSelect("mood", item)}
+                  key={item}
+                  onClick={() =>
+                    handleMultiSelect(
+                      "moods",
+                      item,
+                      3
+                    )
+                  }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
-                    formData.mood === item
+                    formData.moods.includes(
+                      item
+                    )
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
                 </button>
+
               ))}
+
             </div>
+
           </div>
 
+          {/* WARNING */}
+
+          {selectionWarning && (
+
+            <p className="text-amber-400 text-sm">
+              {selectionWarning}
+            </p>
+
+          )}
+
           {/* GUESTS */}
+
           <div>
+
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Number of Guests
             </p>
 
-           <div
-  className={`grid md:grid-cols-4 gap-4 rounded-3xl p-2 ${
-    errors.includes("guests")
-      ? "border border-red-500"
-      : ""
-  }`}
->
-              {["2-5", "6-10", "11+"].map((item) => (
+            <div
+              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
+                errors.includes("guests")
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
+                "2-5",
+                "6-10",
+                "11+",
+              ].map((item) => (
+
                 <button
                   type="button"
-  key={item}
+                  key={item}
                   onClick={() =>
-                    handleSelect("guests", item)
+                    handleSelect(
+                      "guests",
+                      item
+                    )
                   }
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.guests === item
@@ -375,32 +557,43 @@ export default function CraftYourExperience() {
                 >
                   {item}
                 </button>
+
               ))}
+
             </div>
+
           </div>
 
           {/* BUDGET */}
+
           <div>
+
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Estimated Investment
             </p>
 
-<div
-  className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
-    errors.includes("budget")
-      ? "border border-red-500"
-      : ""
-  }`}
->              {[
+            <div
+              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
+                errors.includes("budget")
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
                 "€500 - €1000",
                 "€1000 - €3000",
                 "€3000+",
               ].map((item) => (
+
                 <button
                   type="button"
-  key={item}
+                  key={item}
                   onClick={() =>
-                    handleSelect("budget", item)
+                    handleSelect(
+                      "budget",
+                      item
+                    )
                   }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
                     formData.budget === item
@@ -410,61 +603,85 @@ export default function CraftYourExperience() {
                 >
                   {item}
                 </button>
+
               ))}
+
             </div>
+
           </div>
 
-      
-{/* TERMS */}
-<div className="flex items-start gap-4">
-  <input
-    type="checkbox"
-    checked={formData.termsAccepted}
-   onChange={(e) => {
-  setFormData({
-    ...formData,
-    termsAccepted: e.target.checked,
-  });
+          {/* TERMS */}
 
-  setErrors((prev) =>
-    prev.filter((error) => error !== "terms")
-  );
-}}
-    className="mt-1 h-5 w-5 accent-black cursor-pointer"
-  />
+          <div className="flex items-start gap-4">
 
-  <p className="text-sm text-zinc-400 leading-relaxed">
-    I accept the{" "}
-    <a
-      href="https://www.portovenere.com/terms-conditions/"
-      target="_blank"
-      className="underline"
-    >
-      Terms & Conditions
-    </a>{" "}
-    and understand that reservation deposits may
-    be required to secure curated experiences.
-  </p>
-</div>
+            <input
+              type="checkbox"
+              checked={
+                formData.termsAccepted
+              }
+              onChange={(e) => {
 
-{errors.includes("terms") && (
-  <p className="text-red-500 text-sm mt-2">
-    Please accept the Terms & Conditions
-  </p>
-)}
+                setFormData({
+                  ...formData,
+                  termsAccepted:
+                    e.target.checked,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "terms"
+                  )
+                );
+              }}
+              className="mt-1 h-5 w-5 accent-black cursor-pointer"
+            />
+
+            <p className="text-sm text-zinc-400 leading-relaxed">
+
+              I accept the{" "}
+
+              <a
+                href="https://www.portovenere.com/terms-conditions/"
+                target="_blank"
+                className="underline"
+              >
+                Terms & Conditions
+              </a>{" "}
+
+              and understand that reservation deposits may
+              be required to secure curated experiences.
+
+            </p>
+
+          </div>
+
+          {errors.includes("terms") && (
+
+            <p className="text-red-500 text-sm mt-2">
+              Please accept the Terms & Conditions
+            </p>
+
+          )}
 
           {/* SUBMIT */}
+
           <div className="pt-10 text-center">
+
             <button
-  type="button"
-  onClick={handleSubmit}
+              type="button"
+              onClick={handleSubmit}
               className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
             >
               Generate Private Proposal
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </main>
   );
 }
