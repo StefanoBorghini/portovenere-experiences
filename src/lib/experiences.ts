@@ -11,8 +11,8 @@ export const experiences = [
     heroImage: "https://images.pexels.com/photos/35030771/pexels-photo-35030771.jpeg",
     variants: ["Boat Escape", "Luxury Yachting"],
     gallery: {
-      "Boat Escape": [
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+      "Sailing Escape": [
+        "https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681890741_18100545587475803_125703852981375846_n.webp?_nc_cat=103&ig_cache_key=Mzg4MjM2NzI3NzYxMDA5MTI5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMyJ9&_nc_ohc=X4n3DmOmbhwQ7kNvwFGAcpK&_nc_oc=AdoSCTju62PCJ0t9ehRg7JMuFND-kO0uKP-orOClYreWNzzj5F1bYKvLH_UHjiTY9js&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=1uRtMzI6SCVpSSncUT6SCA&_nc_ss=7a22e&oh=00_Af6-7ZnOcqZN5wFKnd9O93L2YCvF1fZaH7Fcdjy_bGBBHA&oe=6A0D1B9D",
         "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
         "https://images.unsplash.com/photo-1512100356356-de1b84283e18?q=80&w=1200"
       ],
