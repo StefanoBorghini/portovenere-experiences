@@ -7,8 +7,15 @@ import { useRouter } from "next/navigation";
 
 export default function CraftYourExperience() {
 
-  const today =
-  new Date()
+  const minimumBookingDate =
+  new Date();
+
+minimumBookingDate.setDate(
+  minimumBookingDate.getDate() + 10
+);
+
+const minDate =
+  minimumBookingDate
     .toLocaleDateString(
       "en-CA",
       {
@@ -722,34 +729,32 @@ traveling_with_children:
       </p>
 
       <input
-        type="date"
-        value={formData.startDate}
-        onChange={(e) => {
+  type="date"
+  value={formData.startDate}
+  min={minDate}
+  style={{
+    colorScheme: "dark",
+  }}
+  onChange={(e) => {
 
-          setFormData({
-            ...formData,
-            startDate: e.target.value,
-          });
+    setFormData({
+      ...formData,
+      startDate: e.target.value,
+    });
 
-          setErrors((prev) =>
-            prev.filter(
-              (error) =>
-                error !== "startDate"
-            )
-          );
-        }}
-        className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-          
-  errors.includes("startDate")
-    ? "border-red-500 bg-red-500/10"
-    : "border-white/10 hover:border-white/30 focus:border-white/50"
-    
-}`}
-
-style={{
-  colorScheme: "dark",
-}}
-      />
+    setErrors((prev) =>
+      prev.filter(
+        (error) =>
+          error !== "minDate"
+      )
+    );
+  }}
+  className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition backdrop-blur-md ${
+    errors.includes("startDate")
+      ? "border-red-500 bg-red-500/10"
+      : "border-white/10 hover:border-white/30 focus:border-white/50"
+  }`}
+/>
 
     </div>
 
@@ -765,7 +770,7 @@ style={{
         type="date"
         style={{colorScheme: "dark",}}
         value={formData.endDate}
-        min={formData.startDate}
+        min={formData.startDate || minDate}
         onChange={(e) => {
 
           setFormData({
