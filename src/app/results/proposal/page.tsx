@@ -78,12 +78,12 @@ export default async function ProposalPage({
 
   // PRICING ENGINE
 
-  let basePrice = 1700;
+  let basePrice = 2400;
 
   // EXPERIENCE
 
   if (isUnderwater) {
-    basePrice = 2200;
+    basePrice = 3200;
   }
 
   if (isSunset) {
@@ -91,27 +91,35 @@ export default async function ProposalPage({
   }
 
   if (isLuxury) {
-    basePrice = 4200;
+    basePrice = 5200;
   }
 
   // GUESTS
 
   if (lead.guests === "4") {
-    basePrice += 400;
+    basePrice += 600;
   }
 
   if (lead.guests === "6") {
-    basePrice += 900;
+    basePrice += 1200;
   }
 
   if (lead.guests === "8+") {
-    basePrice += 1800;
+    basePrice += 2500;
   }
 
   // MOOD
 
   if (isRomantic) {
-    basePrice += 300;
+    basePrice += 400;
+  }
+
+  if (lead.mood === "Cinematic") {
+    basePrice += 700;
+  }
+
+  if (lead.mood === "Luxury") {
+    basePrice += 1500;
   }
 
   // HIGH-END ADDONS
@@ -222,11 +230,13 @@ export default async function ProposalPage({
         <div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 text-center px-6 max-w-5xl">
-                    <img
-  src="/logo-white.png"
-  alt="Portovenere Experiences"
-  className="mx-auto w-44 mb-10 opacity-90"
-/>
+
+          <img
+            src="/logo-white.png"
+            alt="Portovenere Experiences"
+            className="mx-auto w-44 mb-10 opacity-90"
+          />
+
           <p className="uppercase tracking-[0.4em] text-sm mb-6">
             Private Proposal
           </p>
@@ -250,6 +260,24 @@ export default async function ProposalPage({
             </p>
 
           </div>
+
+        </div>
+
+      </section>
+
+      {/* CINEMATIC DIVIDER */}
+
+      <section className="py-24 px-6 border-y border-white/10 bg-black">
+
+        <div className="max-w-4xl mx-auto text-center">
+
+          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
+            Mediterranean Luxury
+          </p>
+
+          <h2 className="text-4xl md:text-6xl font-light leading-tight">
+            Crafted for unforgettable moments along the Italian Riviera.
+          </h2>
 
         </div>
 
@@ -325,9 +353,87 @@ export default async function ProposalPage({
 
       </section>
 
+      {/* INCLUDED */}
+
+      <section className="pb-32 px-6">
+
+        <div className="max-w-5xl mx-auto">
+
+          <h2 className="text-5xl font-light mb-16 text-center">
+            Included in your experience
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+
+            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+              Private skipper & crew
+            </div>
+
+            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+              Fuel & navigation
+            </div>
+
+            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+              Premium onboard aperitivo
+            </div>
+
+            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+              Snorkeling equipment
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* EXPERIENCE GALLERY */}
+
+      <section className="pb-32 px-6">
+
+        <div className="max-w-6xl mx-auto">
+
+          <div className="text-center mb-20">
+
+            <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+              Experience Gallery
+            </p>
+
+            <h2 className="text-5xl md:text-6xl font-light">
+              Moments from the Riviera
+            </h2>
+
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+
+            <img
+              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200"
+              alt="Mediterranean"
+              className="rounded-3xl h-[500px] w-full object-cover"
+            />
+
+            <img
+              src="https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200"
+              alt="Luxury"
+              className="rounded-3xl h-[500px] w-full object-cover"
+            />
+
+            <img
+              src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200"
+              alt="Experience"
+              className="rounded-3xl h-[500px] w-full object-cover"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
       {/* PDF DOWNLOAD */}
 
-      <section className="pb-20 px-6">
+      <section className="pb-20 px-6 print:hidden">
 
         <div className="max-w-4xl mx-auto flex justify-center">
 
@@ -351,21 +457,71 @@ export default async function ProposalPage({
             Ready to reserve your experience?
           </h2>
 
-          <p className="text-xl text-zinc-400 leading-9 mb-14">
-            Your proposal has been privately curated around your selected atmosphere and preferences.
-          </p>
+          <div className="text-zinc-400 leading-9 mb-14 space-y-4">
+
+            <p className="text-xl">
+              Your proposal has been privately curated around your selected atmosphere and preferences.
+            </p>
+
+            <div className="pt-6 text-sm uppercase tracking-[0.25em] text-zinc-500">
+
+              <p>
+                Stefano Borghini
+              </p>
+
+              <p>
+                Portovenere Experiences
+              </p>
+
+              <p>
+                projects@stefanoborghinidesign.it
+              </p>
+
+              <p>
+                +39 348 714 0722
+              </p>
+
+            </div>
+
+          </div>
 
           <a
-  href={whatsappUrl}
-  target="_blank"
-  className="inline-block bg-white text-black print:text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
->
-  Request Private Booking
-</a>
+            href={whatsappUrl}
+            target="_blank"
+            className="inline-block bg-white text-black print:text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+          >
+            Request Private Booking
+          </a>
 
         </div>
 
       </section>
+
+      {/* FOOTER */}
+
+      <footer className="border-t border-white/10 py-12 px-6">
+
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+
+          <div>
+
+            <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
+              Portovenere Experiences
+            </p>
+
+            <p className="text-zinc-400 mt-2">
+              Private curated luxury experiences in Liguria
+            </p>
+
+          </div>
+
+          <div className="text-zinc-500 text-sm">
+            info@portovenere.com
+          </div>
+
+        </div>
+
+      </footer>
 
     </main>
   );
