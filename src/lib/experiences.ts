@@ -7,7 +7,7 @@ export const experiences = [
 
     category: "sea",
 
-    basePrice: 2400,
+    basePrice: 1200,
 
     moods: [
       "Romantic",
@@ -36,7 +36,7 @@ export const experiences = [
 
     category: "luxury",
 
-    basePrice: 6500,
+    basePrice: 4200,
 
     moods: [
       "Luxury",
@@ -64,7 +64,7 @@ export const experiences = [
 
     category: "adventure",
 
-    basePrice: 3200,
+    basePrice: 950,
 
     moods: [
       "Adventure",
@@ -91,7 +91,7 @@ export const experiences = [
 
     category: "nature",
 
-    basePrice: 1400,
+    basePrice: 700,
 
     moods: [
       "Relaxed",
@@ -119,7 +119,7 @@ export const experiences = [
 
     category: "food",
 
-    basePrice: 2600,
+    basePrice: 1100,
 
     moods: [
       "Romantic",
@@ -148,7 +148,7 @@ export const experiences = [
 
     category: "adventure",
 
-    basePrice: 1800,
+    basePrice: 800,
 
     moods: [
       "Adventure",

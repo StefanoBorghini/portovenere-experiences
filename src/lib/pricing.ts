@@ -59,20 +59,22 @@ export function calculateProposalPrice({
   // MOOD PRICING
 
   const moodPricing: Record<
-    string,
-    number
-  > = {
+  string,
+  number
+> = {
 
-    Romantic: 400,
+  Romantic: 120,
 
-    Cinematic: 700,
+  Cinematic: 180,
 
-    Authentic: 300,
+  Authentic: 80,
 
-    Relaxed: 200,
+  Relaxed: 50,
 
-    Adventure: 500,
-  };
+  Adventure: 150,
+
+  Luxury: 400,
+};
 
   moodsSelected.forEach(
     (mood) => {
@@ -84,17 +86,17 @@ export function calculateProposalPrice({
 
   // GUEST MULTIPLIER
 
-  const guestMultiplier: Record<
-    string,
-    number
-  > = {
+ const guestMultiplier: Record<
+  string,
+  number
+> = {
 
-    "2-5": 1,
+  "2-5": 1,
 
-    "6-10": 1.4,
+  "6-10": 1.25,
 
-    "11+": 1.8,
-  };
+  "11+": 1.5,
+};
 
   totalPrice =
     totalPrice *
@@ -102,12 +104,12 @@ export function calculateProposalPrice({
 
   // CHILDREN UPGRADE
 
-  if (
-    travelingWithChildren
-  ) {
+ if (
+  travelingWithChildren
+) {
 
-    totalPrice += 500;
-  }
+  totalPrice += 150;
+}
 
   return Math.round(
     totalPrice
