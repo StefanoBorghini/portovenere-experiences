@@ -53,6 +53,11 @@ const minDate =
   const [selectionWarning, setSelectionWarning] =
     useState("");
 
+    
+  const [selectionWarningTwo, setSelectionWarningTwo] =
+    useState("");
+
+
   // SINGLE SELECT
 
   const handleSelect = (
@@ -107,6 +112,12 @@ const minDate =
 
         setSelectionWarning(
           field === "experiences"
+            ? "Maximum 2 experiences allowed"
+            : "Maximum 2 atmosphere selections allowed"
+        );
+
+         setSelectionWarningTwo(
+          field === "moods"
             ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
         );
@@ -652,10 +663,10 @@ traveling_with_children:
 
           {/* WARNING */}
 
-          {selectionWarning && (
+          {selectionWarningTwo && (
 
             <p className="text-amber-400 text-sm">
-              {selectionWarning}
+              {selectionWarningTwo}
             </p>
 
           )}{/* WARNING */}
