@@ -509,7 +509,7 @@ traveling_with_children:
               </p>
 
               <p className="text-zinc-500 text-sm">
-                {formData.experiences.length}/3 selected
+                {formData.experiences.length}/2 selected
               </p>
 
             </div>
