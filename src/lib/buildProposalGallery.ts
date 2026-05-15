@@ -28,21 +28,21 @@ export function buildProposalGallery({
 
     // PRENDE LA PRIMA GALLERY DISPONIBILE
 
-    galleryKeys.forEach((key) => {
+   galleryKeys.forEach((key) => {
 
-     const galleryImages =
-  gallery[
-    key as keyof typeof gallery
-  ];
+  const galleryImages =
+    gallery[
+      key as keyof typeof gallery
+    ];
 
-      if (
-        galleryImages &&
-        galleryImages.length > 0
-      ) {
+  if (
+    galleryImages &&
+    galleryImages.length > 0
+  ) {
 
-        images.push(galleryImages[0]);
-      }
-    });
+    images.push(galleryImages[0]);
+  }
+});
   });
 
   // LIMITA A 4 IMMAGINI

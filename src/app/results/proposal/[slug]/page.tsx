@@ -87,6 +87,8 @@ export default async function ProposalPage({
 
     moodsSelected:
       lead.moods || [],
+
+      
   });
 
   // PRICING ENGINE
