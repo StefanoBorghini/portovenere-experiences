@@ -426,11 +426,11 @@ traveling_with_children:
 
         {/* FORM */}
 
-        <div id="name-section" className="space-y-16">
+        <div className="space-y-16">
 
           {/* NAME */}
 
-          <div>
+          <div id="name-section">
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Your Name
