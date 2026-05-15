@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { experiences } from "@/lib/experiences";
 
 export default function CraftYourExperience() {
 
@@ -108,7 +109,7 @@ const minDate =
 
       // LIMIT REACHED
 
-      if (currentValues.length >= max) {
+      if (formData.experiences.length >= max) {
 
         setSelectionWarning(
           field === "experiences"
@@ -116,14 +117,16 @@ const minDate =
             : "Maximum 2 atmosphere selections allowed"
         );
 
-         setSelectionWarningTwo(
+    
+        return prev;
+      }
+
+      else if(formData.moods.length >= max)    
+       setSelectionWarningTwo(
           field === "moods"
             ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
-        );
-
-        return prev;
-      }
+        ); return prev;
 
       // SELECT
 
