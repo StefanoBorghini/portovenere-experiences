@@ -222,7 +222,11 @@ export default async function ProposalPage({
         <div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 text-center px-6 max-w-5xl">
-
+                    <img
+  src="/logo-white.png"
+  alt="Portovenere Experiences"
+  className="mx-auto w-44 mb-10 opacity-90"
+/>
           <p className="uppercase tracking-[0.4em] text-sm mb-6">
             Private Proposal
           </p>
