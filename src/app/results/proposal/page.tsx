@@ -158,7 +158,7 @@ export default async function ProposalPage({
   const whatsappUrl =
     `https://wa.me/393487140722?text=${whatsappMessage}`;
 
-  // SAVE PROPOSAL
+  // PROPOSAL PAYLOAD
 
   const proposalPayload = {
     heroTitle,
@@ -170,18 +170,34 @@ export default async function ProposalPage({
     budget: lead.budget,
   };
 
-  await supabase
+  // CHECK IF PROPOSAL ALREADY EXISTS
+
+  const { data: existingProposal } = await supabase
     .from("Proposal")
-    .insert([
-      {
-        lead_id: lead.id,
-        slug: `${lead.name
-          .toLowerCase()
-          .replace(/\s+/g, "-")}-${Date.now()}`,
-        proposal_data: proposalPayload,
-        total_price: basePrice,
-      },
-    ]);
+    .select("id")
+    .eq("lead_id", lead.id)
+    .maybeSingle();
+
+  // SAVE ONLY IF NOT EXISTS
+
+  if (!existingProposal) {
+
+    await supabase
+      .from("Proposal")
+      .insert([
+        {
+          lead_id: lead.id,
+
+          slug: `${lead.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")}-${Date.now()}`,
+
+          proposal_data: proposalPayload,
+
+          total_price: basePrice,
+        },
+      ]);
+  }
 
   return (
     <main className="bg-[#0C0C0C] text-white min-h-screen">
