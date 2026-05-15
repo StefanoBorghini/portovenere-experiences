@@ -1,6 +1,6 @@
 import { experiences } from "@/lib/experiences";
 
-interface BuildProposalGalleryProps {
+interface BuildGalleryProps {
   experiencesSelected: string[];
   moodsSelected: string[];
 }
@@ -8,53 +8,44 @@ interface BuildProposalGalleryProps {
 export function buildProposalGallery({
   experiencesSelected,
   moodsSelected,
-}: BuildProposalGalleryProps) {
+}: BuildGalleryProps) {
 
-  // MATCH EXPERIENCES
+  const images: string[] = [];
+
   const matchedExperiences =
     experiences.filter((exp) =>
       experiencesSelected.includes(exp.title)
     );
 
-  // HERO IMAGE
-  const heroImage =
-    matchedExperiences[0]?.heroImage ||
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
-
-  // FINAL GALLERY
-  const galleryImages: string[] = [];
-
   matchedExperiences.forEach((experience) => {
 
-    moodsSelected.forEach((mood) => {
+    const gallery = experience.gallery;
 
-      const moodGallery =
-        experience.gallery?.[
-          mood as keyof typeof experience.gallery
-        ];
+    if (!gallery) return;
+
+    const galleryKeys =
+      Object.keys(gallery);
+
+    // PRENDE LA PRIMA GALLERY DISPONIBILE
+
+    galleryKeys.forEach((key) => {
+
+     const galleryImages =
+  gallery[
+    key as keyof typeof gallery
+  ];
 
       if (
-        moodGallery &&
-        moodGallery.length > 0
+        galleryImages &&
+        galleryImages.length > 0
       ) {
 
-        galleryImages.push(
-          moodGallery[0]
-        );
+        images.push(galleryImages[0]);
       }
     });
   });
 
-  // REMOVE DUPLICATES
-  const uniqueImages =
-    [...new Set(galleryImages)];
+  // LIMITA A 4 IMMAGINI
 
-  // LIMIT TO 4
-  const finalImages =
-    uniqueImages.slice(0, 4);
-
-  return {
-    heroImage,
-    galleryImages: finalImages,
-  };
+  return images.slice(0, 4);
 }

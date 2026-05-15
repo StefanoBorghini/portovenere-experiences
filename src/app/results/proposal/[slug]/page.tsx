@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { generateProposal } from "@/lib/generateProposal";
+import { buildProposalGallery } from "@/lib/buildProposalGallery";
 
 import {
   calculateProposalPrice,
@@ -77,6 +78,16 @@ export default async function ProposalPage({
 
   const scoredExperiences =
     generatedProposal.scoredExperiences;
+
+    const galleryImages =
+  buildProposalGallery({
+
+    experiencesSelected:
+      lead.experiences || [],
+
+    moodsSelected:
+      lead.moods || [],
+  });
 
   // PRICING ENGINE
 
@@ -315,44 +326,47 @@ export default async function ProposalPage({
 
       </section>
 
-      {/* EXPERIENCE GALLERY */}
+      {/* GALLERY */}
 
-      <section className="pb-32 px-6">
+<section className="pb-32 px-6">
 
-        <div className="max-w-6xl mx-auto">
+  <div className="max-w-7xl mx-auto">
 
-          <div className="text-center mb-20">
+    <div className="text-center mb-20">
 
-            <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-              Experience Gallery
-            </p>
+      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+        Experience Gallery
+      </p>
 
-            <h2 className="text-5xl md:text-6xl font-light">
-              Moments from the Riviera
-            </h2>
+      <h2 className="text-5xl md:text-6xl font-light">
+        Moments from the Riviera
+      </h2>
 
-          </div>
+    </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-4 gap-6">
 
-            {scoredExperiences
-              .slice(0, 3)
-              .map((experience) => (
+      {galleryImages.map(
+        (
+          image: string,
+          index: number
+        ) => (
 
-                <img
-                  key={experience.id}
-                  src={experience.heroImage}
-                  alt={experience.title}
-                  className="rounded-3xl h-[500px] w-full object-cover"
-                />
+          <img
+            key={index}
+            src={image}
+            alt="Experience"
+            className="rounded-3xl h-[500px] w-full object-cover"
+          />
 
-            ))}
+        )
+      )}
 
-          </div>
+    </div>
 
-        </div>
+  </div>
 
-      </section>
+</section>
 
       {/* PDF DOWNLOAD */}
 
