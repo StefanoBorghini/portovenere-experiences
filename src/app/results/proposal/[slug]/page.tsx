@@ -328,47 +328,28 @@ export default async function ProposalPage({
 
       </section>
 
-      {/* GALLERY */}
+    {/* EXPERIENCE GALLERY */}
+        <section className="pb-32 px-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-20">
+              <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+                Experience Gallery
+              </p>
+              <h2 className="text-5xl md:text-6xl font-light">Moments from the Riviera</h2>
+            </div>
 
-<section className="pb-32 px-6">
-
-  <div className="max-w-7xl mx-auto">
-
-    <div className="text-center mb-20">
-
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Experience Gallery
-      </p>
-
-      <h2 className="text-5xl md:text-6xl font-light">
-        Moments from the Riviera
-      </h2>
-
-    </div>
-
-    <div className="grid md:grid-cols-4 gap-6">
-
-      {galleryImages.map(
-        (
-          image: string,
-          index: number
-        ) => (
-
-          <img
-            key={index}
-            src={image}
-            alt="Experience"
-            className="rounded-3xl h-[500px] w-full object-cover"
-          />
-
-        )
-      )}
-
-    </div>
-
-  </div>
-
-</section>
+            <div className="grid md:grid-cols-3 gap-6">
+              {galleryImages.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt="Experience"
+                  className="rounded-3xl h-[500px] w-full object-cover"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
 
       {/* PDF DOWNLOAD */}
 

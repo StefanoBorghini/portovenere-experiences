@@ -1,6 +1,8 @@
-import { experiences } from "@/lib/experiences";
+"use client";
 
-interface BuildGalleryProps {
+import { experiences } from "./experiences";
+
+interface BuildProposalGalleryProps {
   experiencesSelected: string[];
   moodsSelected: string[];
 }
@@ -8,44 +10,36 @@ interface BuildGalleryProps {
 export function buildProposalGallery({
   experiencesSelected,
   moodsSelected,
-}: BuildGalleryProps) {
-
+}: BuildProposalGalleryProps): string[] {
   const images: string[] = [];
 
-  const matchedExperiences =
-    experiences.filter((exp) =>
-      experiencesSelected.includes(exp.title)
-    );
+  // Trova le esperienze selezionate
+  const matchedExperiences = experiences.filter((exp) =>
+    experiencesSelected.includes(exp.title)
+  );
 
   matchedExperiences.forEach((experience) => {
-
     const gallery = experience.gallery;
-
     if (!gallery) return;
 
-    const galleryKeys =
-      Object.keys(gallery);
+    const galleryKeys = Object.keys(gallery) as (keyof typeof gallery)[];
 
-    // PRENDE LA PRIMA GALLERY DISPONIBILE
+    // Prima immagine per ciascun mood/esperienza disponibile
+    galleryKeys.forEach((key) => {
+      if (moodsSelected.includes(key)) {
+        const galleryImages = gallery[key];
+        if (galleryImages && galleryImages.length > 0) {
+          images.push(galleryImages[0]);
+        }
+      }
+    });
 
-   galleryKeys.forEach((key) => {
-
-  const galleryImages =
-    gallery[
-      key as keyof typeof gallery
-    ];
-
-  if (
-    galleryImages &&
-    galleryImages.length > 0
-  ) {
-
-    images.push(galleryImages[0]);
-  }
-});
+    // Se non ci sono immagini selezionate dai moods, prendi l'hero
+    if (!images.some((img) => img === experience.heroImage)) {
+      images.push(experience.heroImage);
+    }
   });
 
-  // LIMITA A 4 IMMAGINI
-
+  // Limita a 4 immagini
   return images.slice(0, 4);
 }
