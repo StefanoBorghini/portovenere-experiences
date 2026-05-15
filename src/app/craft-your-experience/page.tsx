@@ -607,6 +607,140 @@ traveling_with_children:
 
           </div>
 
+
+              {/* DATES */}
+
+<div>
+
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Travel Dates
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-6">
+
+    {/* START DATE */}
+
+    <div>
+
+      <p className="text-sm text-zinc-500 mb-3">
+        Start Date
+      </p>
+
+      <input
+        type="date"
+        value={formData.startDate}
+        onChange={(e) => {
+
+          setFormData({
+            ...formData,
+            startDate: e.target.value,
+          });
+
+          setErrors((prev) =>
+            prev.filter(
+              (error) =>
+                error !== "startDate"
+            )
+          );
+        }}
+        className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition ${
+          errors.includes("startDate")
+            ? "border-red-500 bg-red-500/10"
+            : "border-white/10 focus:border-white/40"
+        }`}
+      />
+
+    </div>
+
+    {/* END DATE */}
+
+    <div>
+
+      <p className="text-sm text-zinc-500 mb-3">
+        End Date
+      </p>
+
+      <input
+        type="date"
+        value={formData.endDate}
+        onChange={(e) => {
+
+          setFormData({
+            ...formData,
+            endDate: e.target.value,
+          });
+
+          setErrors((prev) =>
+            prev.filter(
+              (error) =>
+                error !== "endDate"
+            )
+          );
+        }}
+        className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition ${
+          errors.includes("endDate")
+            ? "border-red-500 bg-red-500/10"
+            : "border-white/10 focus:border-white/40"
+        }`}
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* CHILDREN */}
+
+<div>
+
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Traveling With Children
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-4">
+
+    {[
+      {
+        label: "Yes",
+        value: true,
+      },
+      {
+        label: "No",
+        value: false,
+      },
+    ].map((item) => (
+
+      <button
+        type="button"
+        key={item.label}
+        onClick={() => {
+
+          setFormData({
+            ...formData,
+            travelingWithChildren:
+              item.value,
+          });
+        }}
+        className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
+          formData.travelingWithChildren === item.value
+            ? "border-white bg-white text-black"
+            : "border-white/10 bg-white/5 hover:border-white/40"
+        }`}
+      >
+        {item.label}
+      </button>
+
+    ))}
+
+  </div>
+
+</div>
+
+
+
+
+
           {/* BUDGET */}
 
           <div>
