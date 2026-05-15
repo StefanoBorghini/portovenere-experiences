@@ -1,21 +1,19 @@
-import { supabase } from "../../../lib/supabase";
-import DownloadPdfButton from "../../../components/DownloadPdfButton";
+import { supabase } from "@/lib/supabase";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface ProposalPageProps {
-  searchParams: Promise<{
-    id?: string;
+  params: Promise<{
+    slug: string;
   }>;
 }
 
 export default async function ProposalPage({
-  searchParams,
+  params,
 }: ProposalPageProps) {
 
-  const params = await searchParams;
+  const { slug } = await params;
 
-  const id = params.id;
-
-  if (!id || !supabase) {
+  if (!slug || !supabase) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
         Missing proposal ID
@@ -25,12 +23,13 @@ export default async function ProposalPage({
 
   // GET LEAD
 
-  const { data: lead, error } = await supabase
-    .from("leads")
-    .select("*")
-    .eq("id", id)
-    .single();
+ const { data: proposal, error } = await supabase
+  .from("Proposal")
+  .select("*")
+  .eq("slug", slug)
+  .single();
 
+const lead = proposal?.proposal_data;
   if (error || !lead) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
