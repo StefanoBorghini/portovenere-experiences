@@ -21,7 +21,7 @@ export const experiences = [
     minBudget: 1000,
 
     heroImage:
-      "\images\sailing\hero.jpg",
+      "https://images.pexels.com/photos/35030771/pexels-photo-35030771.jpeg",
 
     description:
       "A private sailing journey across the Gulf of Poets with hidden coves and Mediterranean atmosphere.",
