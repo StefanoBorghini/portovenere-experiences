@@ -306,7 +306,7 @@ export default function CraftYourExperience() {
           {/* MOOD */}
           <div>
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Select Your Desired Atmosphere (max3)
+              Select Your Desired Atmosphere (max 3)
             </p>
 
             <div
