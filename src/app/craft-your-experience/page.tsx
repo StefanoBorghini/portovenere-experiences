@@ -121,12 +121,14 @@ const minDate =
         return prev;
       }
 
-      else if(formData.moods.length >= max)    
+      else if(formData.moods.length >= max)   { 
        setSelectionWarningTwo(
           field === "moods"
             ? "Maximum 2 experiences allowed"
             : "Maximum 2 atmosphere selections allowed"
         );
+           return prev;
+      }
 
       // SELECT
 
