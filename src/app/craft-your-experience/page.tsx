@@ -1,5 +1,7 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -29,17 +31,39 @@ const [errors, setErrors] = useState<string[]>([]);
   );
 };
 
- const handleSubmit = () => {
+const handleSubmit = async () => {
   const isValid = validateForm();
 
   if (!isValid) return;
 
-  localStorage.setItem(
-    "experienceData",
-    JSON.stringify(formData)
-  );
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          guests: formData.guests,
+          mood: formData.mood,
+          experience: formData.experience,
+          budget: formData.budget,
+        },
+      ])
+      .select()
+      .single();
 
-  router.push("/results/proposal");
+    if (error) {
+      console.error("Supabase error:", error);
+      return;
+    }
+
+    console.log("Lead salvato:", data);
+
+    router.push("/results/proposal");
+
+  } catch (err) {
+    console.error("Unexpected error:", err);
+  }
 };
 
   const validateForm = () => {
