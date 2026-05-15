@@ -806,7 +806,7 @@ traveling_with_children:
               item.value,
           });
         }}
-        className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 ${
+        className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
           formData.travelingWithChildren === item.value
             ? "border-white bg-white text-black"
             : "border-white/10 bg-white/5 hover:border-white/40"
@@ -856,7 +856,7 @@ traveling_with_children:
                       item
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.budget === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
