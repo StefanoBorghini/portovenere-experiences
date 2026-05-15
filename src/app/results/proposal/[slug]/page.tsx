@@ -10,7 +10,7 @@ interface ProposalPageProps {
 
 export default async function ProposalPage({ params }: ProposalPageProps) {
   const { slug } = await params;
-  const router = useRouter();
+  "use client";
 
   if (!slug || !supabase) {
     return (
