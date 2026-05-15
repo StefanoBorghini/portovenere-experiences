@@ -36,3 +36,44 @@ body {
   }
 
 }
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    background: #0C0C0C !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+
+  img {
+    page-break-inside: avoid;
+  }
+
+}
