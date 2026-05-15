@@ -351,7 +351,7 @@ export default function CraftYourExperience() {
       : ""
   }`}
 >
-              {["2", "4", "6", "8+"].map((item) => (
+              {["2-5", "6-10", "11+"].map((item) => (
                 <button
                   type="button"
   key={item}
