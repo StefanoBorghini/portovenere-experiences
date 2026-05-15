@@ -64,15 +64,42 @@ export default async function ProposalPage({
     heroTitle = "Private Underwater Adventure";
   }
 
-  let price = "€1700";
+let basePrice = 1700;
 
-  if (isLuxury) {
-    price = "€4200";
-  }
+// EXPERIENCE
 
-  if (lead.guests === "8+") {
-    price = "€6500";
-  }
+if (isUnderwater) {
+  basePrice = 2200;
+}
+
+if (isLuxury) {
+  basePrice = 4200;
+}
+
+// GUESTS
+
+if (lead.guests === "4") {
+  basePrice += 400;
+}
+
+if (lead.guests === "6") {
+  basePrice += 900;
+}
+
+if (lead.guests === "8+") {
+  basePrice += 1800;
+}
+
+// MOOD
+
+if (isRomantic) {
+  basePrice += 300;
+}
+
+// FINAL PRICE
+
+const price =
+  `€${basePrice.toLocaleString()}`;
 
   let heroImage =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
