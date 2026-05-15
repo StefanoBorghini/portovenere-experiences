@@ -23,6 +23,45 @@ export const experiences = [
     heroImage:
       "https://images.pexels.com/photos/35030771/pexels-photo-35030771.jpeg",
 
+    gallery: {
+
+      Romantic: [
+
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1512100356356-de1b84283e18?q=80&w=1200",
+      ],
+
+      Relaxed: [
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200",
+      ],
+
+      Authentic: [
+
+        "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+      ],
+
+      Cinematic: [
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+      ],
+    },
+
     description:
       "A private sailing journey across the Gulf of Poets with hidden coves and Mediterranean atmosphere.",
 
@@ -51,6 +90,36 @@ export const experiences = [
     heroImage:
       "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?q=80&w=2070",
 
+    gallery: {
+
+      Luxury: [
+
+        "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200",
+      ],
+
+      Cinematic: [
+
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+      ],
+
+      Relaxed: [
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+      ],
+    },
+
     description:
       "A luxury yacht experience designed for exclusive Riviera moments.",
 
@@ -77,6 +146,27 @@ export const experiences = [
 
     heroImage:
       "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070",
+
+    gallery: {
+
+      Adventure: [
+
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+      ],
+
+      Authentic: [
+
+        "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+      ],
+    },
 
     description:
       "Explore hidden underwater worlds and crystal-clear Mediterranean waters.",
@@ -105,6 +195,36 @@ export const experiences = [
 
     heroImage:
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070",
+
+    gallery: {
+
+      Relaxed: [
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200",
+      ],
+
+      Authentic: [
+
+        "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+      ],
+
+      Family: [
+
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200",
+      ],
+    },
 
     description:
       "Slow countryside experiences surrounded by Ligurian landscapes and local culture.",
@@ -135,6 +255,45 @@ export const experiences = [
     heroImage:
       "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070",
 
+    gallery: {
+
+      Romantic: [
+
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200",
+      ],
+
+      Authentic: [
+
+        "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200",
+      ],
+
+      Relaxed: [
+
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200",
+      ],
+
+      Luxury: [
+
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=1200",
+      ],
+    },
+
     description:
       "Exclusive food and wine experiences inspired by the Italian Riviera lifestyle.",
 
@@ -161,6 +320,27 @@ export const experiences = [
 
     heroImage:
       "https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=2070",
+
+    gallery: {
+
+      Adventure: [
+
+        "https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200",
+      ],
+
+      Authentic: [
+
+        "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1522163182402-834f871fd851?q=80&w=1200",
+
+        "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+      ],
+    },
 
     description:
       "Outdoor exploration experiences including trekking and nature activities.",
