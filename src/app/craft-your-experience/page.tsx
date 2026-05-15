@@ -7,8 +7,15 @@ import { useRouter } from "next/navigation";
 
 export default function CraftYourExperience() {
 
-  const today =
-  new Date()
+  const minimumBookingDate =
+  new Date();
+
+minimumBookingDate.setDate(
+  minimumBookingDate.getDate() + 10
+);
+
+const minDate =
+  minimumBookingDate
     .toLocaleDateString(
       "en-CA",
       {
@@ -724,7 +731,10 @@ traveling_with_children:
       <input
   type="date"
   value={formData.startDate}
-  min={today}
+  min={minimumBookingDate.setDate(
+  minimumBookingDate.getDate() + 10
+)}
+  
   style={{
     colorScheme: "dark",
   }}
@@ -763,7 +773,7 @@ traveling_with_children:
         type="date"
         style={{colorScheme: "dark",}}
         value={formData.endDate}
-        min={formData.startDate || today}
+        min={formData.startDate || minDate}
         onChange={(e) => {
 
           setFormData({
