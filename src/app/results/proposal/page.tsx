@@ -356,12 +356,12 @@ export default async function ProposalPage({
           </p>
 
           <a
-            href={whatsappUrl}
-            target="_blank"
-            className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-          >
-            Request Private Booking
-          </a>
+  href={whatsappUrl}
+  target="_blank"
+  className="inline-block bg-white text-black print:text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+>
+  Request Private Booking
+</a>
 
         </div>
 

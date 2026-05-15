@@ -44,6 +44,12 @@ body {
 
 @media print {
 
+  a {
+  color: black !important;
+  background: white !important;
+  border: none !important;
+}
+
   html,
   body {
     width: 210mm;
