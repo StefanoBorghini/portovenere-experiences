@@ -37,7 +37,12 @@ const handleSubmit = async () => {
   if (!isValid) return;
 
   try {
-    const { data, error } = await supabase
+    if (!supabase) {
+  console.error("Supabase not configured");
+  return;
+}
+
+const { data, error } = await supabase
       .from("leads")
       .insert([
         {
