@@ -389,7 +389,7 @@ export default async function ProposalPage({
             <div className="pt-6 text-sm uppercase tracking-[0.25em] text-zinc-500">
 
               <p>
-                Stefano Borghini
+                Stefano
               </p>
 
               <p>
