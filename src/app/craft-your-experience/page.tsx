@@ -117,6 +117,59 @@ export default function CraftYourExperience() {
 
   // VALIDATION
 
+  const scrollToError = (
+  field: string
+) => {
+
+  const map: Record<string, string> = {
+
+    name:
+      "name-section",
+
+    email:
+      "email-section",
+
+    experiences:
+      "experiences-section",
+
+    moods:
+      "moods-section",
+
+    guests:
+      "guests-section",
+
+    budget:
+      "budget-section",
+
+    startDate:
+      "dates-section",
+
+    endDate:
+      "dates-section",
+
+    terms:
+      "terms-section",
+  };
+
+  const elementId =
+    map[field];
+
+  if (!elementId) return;
+
+  const element =
+    document.getElementById(
+      elementId
+    );
+
+  if (element) {
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+};
+
   const validateForm = () => {
 
     const newErrors: string[] = [];
@@ -162,9 +215,18 @@ if (!formData.endDate)
 
     
 
-    setErrors(newErrors);
+  setErrors(newErrors);
 
-    return newErrors.length === 0;
+if (newErrors.length > 0) {
+
+  scrollToError(
+    newErrors[0]
+  );
+
+  return false;
+}
+
+return true;
   };
 
   // SUBMIT
@@ -364,7 +426,7 @@ traveling_with_children:
 
         {/* FORM */}
 
-        <div className="space-y-16">
+        <div id="name-section" className="space-y-16">
 
           {/* NAME */}
 
@@ -403,7 +465,7 @@ traveling_with_children:
 
           {/* EMAIL */}
 
-          <div>
+          <div id="email-section">
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Email Address
@@ -438,7 +500,7 @@ traveling_with_children:
 
           {/* EXPERIENCES */}
 
-          <div>
+          <div id="experiences-section">
 
             <div className="flex items-center justify-between mb-6">
 
@@ -501,7 +563,7 @@ traveling_with_children:
 
           {/* MOODS */}
 
-          <div>
+          <div id="moods-section">
 
             <div className="flex items-center justify-between mb-6">
 
@@ -572,7 +634,7 @@ traveling_with_children:
 
           {/* GUESTS */}
 
-          <div>
+          <div id="guests-section">
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Number of Guests
@@ -619,7 +681,7 @@ traveling_with_children:
 
               {/* DATES */}
 
-<div>
+<div id="dates-section">
 
   <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
     Travel Dates
@@ -752,7 +814,7 @@ traveling_with_children:
 
           {/* BUDGET */}
 
-          <div>
+          <div id="budget-section">
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Estimated Investment
