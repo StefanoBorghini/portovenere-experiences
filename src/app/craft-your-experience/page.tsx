@@ -151,8 +151,16 @@ export default function CraftYourExperience() {
     if (!formData.budget)
       newErrors.push("budget");
 
+    if (!formData.startDate)
+  newErrors.push("startDate");
+
+if (!formData.endDate)
+  newErrors.push("endDate");
+
     if (!formData.termsAccepted)
       newErrors.push("terms");
+
+    
 
     setErrors(newErrors);
 
@@ -202,6 +210,15 @@ export default function CraftYourExperience() {
 
             budget:
               formData.budget,
+
+              start_date:
+  formData.startDate,
+
+end_date:
+  formData.endDate,
+
+traveling_with_children:
+  formData.travelingWithChildren,
           },
         ])
         .select()
