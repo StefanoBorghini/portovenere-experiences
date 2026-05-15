@@ -82,8 +82,8 @@ export default function CraftYourExperience() {
 
         setSelectionWarning(
           field === "experiences"
-            ? "Maximum 4 experiences allowed"
-            : "Maximum 3 atmosphere selections allowed"
+            ? "Maximum 3 experiences allowed"
+            : "Maximum 2 atmosphere selections allowed"
         );
 
         return prev;
@@ -409,11 +409,11 @@ export default function CraftYourExperience() {
             <div className="flex items-center justify-between mb-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                Select up to 4 experiences
+                Select up to 3 experiences
               </p>
 
               <p className="text-zinc-500 text-sm">
-                {formData.experiences.length}/4 selected
+                {formData.experiences.length}/3 selected
               </p>
 
             </div>
@@ -432,13 +432,10 @@ export default function CraftYourExperience() {
                 "Private Sailing",
                 "Luxury Yachting",
                 "Underwater Adventure",
-                "Sunset Escape",
-                "Aerial Experience",
                 "Countryside Escape",
-                "Outdoor Adventure",
                 "Gourmet Escape",
-                "Luxury Transfer",
-                "Custom Experience",
+                "Outdoor Adventure",
+                
               ].map((item) => (
 
                 <button
@@ -448,7 +445,7 @@ export default function CraftYourExperience() {
                     handleMultiSelect(
                       "experiences",
                       item,
-                      4
+                      3
                     )
                   }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
@@ -475,11 +472,11 @@ export default function CraftYourExperience() {
             <div className="flex items-center justify-between mb-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                Select your desired atmosphere
+                Select up to 2 atmospheres
               </p>
 
               <p className="text-zinc-500 text-sm">
-                {formData.moods.length}/3 selected
+                {formData.moods.length}/2 selected
               </p>
 
             </div>
@@ -496,12 +493,10 @@ export default function CraftYourExperience() {
 
               {[
                 "Romantic",
-                "Cinematic",
                 "Relaxed",
-                "Luxury",
                 "Adventure",
                 "Authentic",
-                "Family",
+                "Cinematic",
               ].map((item) => (
 
                 <button
@@ -511,7 +506,7 @@ export default function CraftYourExperience() {
                     handleMultiSelect(
                       "moods",
                       item,
-                      3
+                      2
                     )
                   }
                   className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
