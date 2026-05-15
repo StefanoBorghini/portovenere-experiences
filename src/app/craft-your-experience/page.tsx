@@ -269,7 +269,7 @@ export default function CraftYourExperience() {
           {/* EXPERIENCE */}
           <div>
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Select Your Experience
+              Select up to 4 experiences
             </p>
 
             <div
@@ -306,7 +306,7 @@ export default function CraftYourExperience() {
           {/* MOOD */}
           <div>
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Desired Atmosphere
+              Select Your Desired Atmosphere (max3)
             </p>
 
             <div
