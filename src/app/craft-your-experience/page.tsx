@@ -421,7 +421,7 @@ export default function CraftYourExperience() {
     prev.filter((error) => error !== "terms")
   );
 }}
-    className="mt-1 h-5 w-5 accent-white cursor-pointer"
+    className="mt-1 h-5 w-5 accent-zinc-300 cursor-pointer"
   />
 
   <p className="text-sm text-zinc-400 leading-relaxed">
