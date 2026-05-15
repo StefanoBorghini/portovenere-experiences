@@ -543,7 +543,7 @@ traveling_with_children:
                       2
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.experiences.includes(
                       item
                     )
@@ -615,7 +615,7 @@ traveling_with_children:
                       2
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-left transition-all duration-300 cursor-pointer ${
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.moods.includes(
                       item
                     )
@@ -646,14 +646,14 @@ traveling_with_children:
 
           {/* GUESTS */}
 
-          <div id="guests-section">
+          <div id="guests-section"  >
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Number of Guests
             </p>
 
             <div
-              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2
                 errors.includes("guests")
                   ? "border border-red-500"
                   : ""
