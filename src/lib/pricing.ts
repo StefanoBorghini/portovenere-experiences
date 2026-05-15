@@ -91,11 +91,13 @@ export function calculateProposalPrice({
   number
 > = {
 
-  "2-5": 1,
+  "2": 1,
 
-  "6-10": 1.25,
+  "3-4": 1.2,
 
-  "11+": 1.5,
+  "5-7": 1.45,
+
+  "8+": 1.8,
 };
 
   totalPrice =
