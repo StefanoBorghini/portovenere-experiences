@@ -328,28 +328,55 @@ export default async function ProposalPage({
 
       </section>
 
-    {/* EXPERIENCE GALLERY */}
-        <section className="pb-32 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-20">
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                Experience Gallery
-              </p>
-              <h2 className="text-5xl md:text-6xl font-light">Moments from the Riviera</h2>
-            </div>
+   /* EXPERIENCE GALLERY */
+<section className="pb-32 px-6">
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {galleryImages.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt="Experience"
-                  className="rounded-3xl h-[500px] w-full object-cover"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
+  <div className="max-w-7xl mx-auto">
+
+    <div className="text-center mb-20">
+
+      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+        Experience Gallery
+      </p>
+
+      <h2 className="text-5xl md:text-6xl font-light">
+        Moments from the Riviera
+      </h2>
+
+    </div>
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+
+      {galleryImages
+        .slice(0, 4)
+        .map((image, index) => (
+
+        <div
+          key={index}
+          className="group relative overflow-hidden rounded-3xl"
+        >
+
+          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-all duration-700 z-10" />
+
+          <img
+            src={image}
+            alt="Experience"
+            className={`w-full object-cover transition-all duration-700 group-hover:scale-105 ${
+              index === 0
+                ? "h-[320px] md:h-[620px]"
+                : "h-[220px] md:h-[620px]"
+            }`}
+          />
+
+        </div>
+
+      ))}
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* PDF DOWNLOAD */}
 
