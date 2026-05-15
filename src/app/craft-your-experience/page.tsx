@@ -749,7 +749,7 @@ traveling_with_children:
       )
     );
   }}
-  className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition backdrop-blur-md ${
+  className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
     errors.includes("startDate")
       ? "border-red-500 bg-red-500/10"
       : "border-white/10 hover:border-white/30 focus:border-white/50"
@@ -785,7 +785,7 @@ traveling_with_children:
             )
           );
         }}
-        className={`w-full rounded-2xl px-6 py-5 bg-white/5 border text-white outline-none transition ${
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
           errors.includes("endDate")
             ? "border-red-500 bg-red-500/10"
             : "border-white/10 focus:border-white/40"
