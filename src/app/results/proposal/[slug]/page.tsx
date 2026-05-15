@@ -422,7 +422,7 @@ export default async function ProposalPage({
 
       {/* FOOTER */}
 
-      <footer className="border-t border-white/10 py-12 px-6">
+      <footer className="text-center border-t border-white/10 py-12 px-6">
 
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
 
