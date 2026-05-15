@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface ProposalPageProps {
   searchParams: Promise<{
@@ -160,19 +161,20 @@ export default async function ProposalPage({
 
   // PROPOSAL PAYLOAD
 
- const proposalPayload = {
-  name: lead.name,
-  email: lead.email,
+  const proposalPayload = {
+    name: lead.name,
+    email: lead.email,
 
-  heroTitle,
-  price,
-  heroImage,
+    heroTitle,
+    price,
+    heroImage,
 
-  experience: lead.experience,
-  mood: lead.mood,
-  guests: lead.guests,
-  budget: lead.budget,
-};
+    experience: lead.experience,
+    mood: lead.mood,
+    guests: lead.guests,
+    budget: lead.budget,
+  };
+
   // CHECK IF PROPOSAL ALREADY EXISTS
 
   const { data: existingProposal } = await supabase
@@ -204,9 +206,9 @@ export default async function ProposalPage({
 
   return (
     <main
-  id="proposal-content"
-  className="bg-[#0C0C0C] text-white min-h-screen"
->
+      id="proposal-content"
+      className="bg-[#0C0C0C] text-white min-h-screen"
+    >
 
       {/* HERO */}
 
@@ -229,8 +231,12 @@ export default async function ProposalPage({
             {heroTitle}
           </h1>
 
-          <p className="text-2xl md:text-3xl mb-12 text-zinc-200">
+          <p className="text-2xl md:text-3xl mb-6 text-zinc-200">
             Tailored for {lead.name}
+          </p>
+
+          <p className="text-zinc-400 mb-12">
+            {lead.email}
           </p>
 
           <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
@@ -413,13 +419,19 @@ export default async function ProposalPage({
             Your proposal has been privately curated around your selected atmosphere and preferences.
           </p>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-          >
-            Request Private Booking
-          </a>
+          <div className="flex flex-col items-center gap-6">
+
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+            >
+              Request Private Booking
+            </a>
+
+            <DownloadPdfButton />
+
+          </div>
 
         </div>
 
