@@ -275,24 +275,33 @@ traveling_with_children:
 
             proposal_data: {
 
-              name:
-                formData.name,
+  name:
+    formData.name,
 
-              email:
-                formData.email,
+  email:
+    formData.email,
 
-              experiences:
-                formData.experiences,
+  experiences:
+    formData.experiences,
 
-              moods:
-                formData.moods,
+  moods:
+    formData.moods,
 
-              guests:
-                formData.guests,
+  guests:
+    formData.guests,
 
-              budget:
-                formData.budget,
-            },
+  budget:
+    formData.budget,
+
+  start_date:
+    formData.startDate,
+
+  end_date:
+    formData.endDate,
+
+  traveling_with_children:
+    formData.travelingWithChildren,
+},
 
             total_price: 0,
           },

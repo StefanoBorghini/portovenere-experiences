@@ -471,3 +471,4 @@ export default async function ProposalPage({
     </main>
   );
 }
+
