@@ -203,7 +203,10 @@ export default async function ProposalPage({
   }
 
   return (
-    <main className="bg-[#0C0C0C] text-white min-h-screen">
+    <main
+  id="proposal-content"
+  className="bg-[#0C0C0C] text-white min-h-screen"
+>
 
       {/* HERO */}
 
