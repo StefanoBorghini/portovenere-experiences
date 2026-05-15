@@ -281,9 +281,15 @@ export default function CraftYourExperience() {
 >
               {[
                 "Private Sailing",
+                "Luxury Yachting",
+                "Sunset Escape",
                 "Underwater Experience",
                 "Sunset Dinner",
-                "Luxury Escape",
+                "Aerial Experience",
+                "Countryside Escape",
+                "Outdoor Adventure",
+                "Gourmet Escape",
+                "Luxury Transfer",
               ].map((item) => (
                 <button
                  type="button"
