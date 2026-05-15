@@ -22,6 +22,8 @@ export default async function ProposalPage({
     );
   }
 
+  // GET LEAD
+
   const { data: lead, error } = await supabase
     .from("leads")
     .select("*")
@@ -36,7 +38,7 @@ export default async function ProposalPage({
     );
   }
 
-  // DYNAMIC LOGIC
+  // EXPERIENCE TYPES
 
   const isLuxury =
     lead.budget === "€3000+";
@@ -49,6 +51,11 @@ export default async function ProposalPage({
 
   const isUnderwater =
     lead.experience === "Underwater Experience";
+
+  const isSunset =
+    lead.experience === "Sunset Dinner";
+
+  // HERO TITLE
 
   let heroTitle = "Mediterranean Escape";
 
@@ -64,42 +71,60 @@ export default async function ProposalPage({
     heroTitle = "Private Underwater Adventure";
   }
 
-let basePrice = 1700;
+  if (isSunset) {
+    heroTitle = "Sunset Riviera Experience";
+  }
 
-// EXPERIENCE
+  // PRICING ENGINE
 
-if (isUnderwater) {
-  basePrice = 2200;
-}
+  let basePrice = 1700;
 
-if (isLuxury) {
-  basePrice = 4200;
-}
+  // EXPERIENCE
 
-// GUESTS
+  if (isUnderwater) {
+    basePrice = 2200;
+  }
 
-if (lead.guests === "4") {
-  basePrice += 400;
-}
+  if (isSunset) {
+    basePrice = 1900;
+  }
 
-if (lead.guests === "6") {
-  basePrice += 900;
-}
+  if (isLuxury) {
+    basePrice = 4200;
+  }
 
-if (lead.guests === "8+") {
-  basePrice += 1800;
-}
+  // GUESTS
 
-// MOOD
+  if (lead.guests === "4") {
+    basePrice += 400;
+  }
 
-if (isRomantic) {
-  basePrice += 300;
-}
+  if (lead.guests === "6") {
+    basePrice += 900;
+  }
 
-// FINAL PRICE
+  if (lead.guests === "8+") {
+    basePrice += 1800;
+  }
 
-const price =
-  `€${basePrice.toLocaleString()}`;
+  // MOOD
+
+  if (isRomantic) {
+    basePrice += 300;
+  }
+
+  // HIGH-END ADDONS
+
+  if (isLuxury && lead.guests === "8+") {
+    basePrice += 1500;
+  }
+
+  // FINAL PRICE
+
+  const price =
+    `€${basePrice.toLocaleString()}`;
+
+  // HERO IMAGE
 
   let heroImage =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
@@ -119,6 +144,11 @@ const price =
       "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=2070";
   }
 
+  if (isSunset) {
+    heroImage =
+      "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=2070";
+  }
+
   // WHATSAPP CTA
 
   const whatsappMessage = encodeURIComponent(
@@ -127,6 +157,31 @@ const price =
 
   const whatsappUrl =
     `https://wa.me/393487140722?text=${whatsappMessage}`;
+
+  // SAVE PROPOSAL
+
+  const proposalPayload = {
+    heroTitle,
+    price,
+    heroImage,
+    experience: lead.experience,
+    mood: lead.mood,
+    guests: lead.guests,
+    budget: lead.budget,
+  };
+
+  await supabase
+    .from("proposals")
+    .insert([
+      {
+        lead_id: lead.id,
+        slug: `${lead.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")}-${Date.now()}`,
+        proposal_data: proposalPayload,
+        total_price: basePrice,
+      },
+    ]);
 
   return (
     <main className="bg-[#0C0C0C] text-white min-h-screen">
