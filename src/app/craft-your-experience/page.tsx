@@ -525,12 +525,11 @@ traveling_with_children:
             >
 
               {[
-                "Private Sailing",
-                "Luxury Yachting",
-                "Underwater Adventure",
-                "Countryside Escape",
+                "Sea Escape",
+                "Aerial Escape",
                 "Gourmet Escape",
-                "Outdoor Adventure",
+                "Wild Escape",
+               
                 
               ].map((item) => (
 
