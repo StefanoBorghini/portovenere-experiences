@@ -11,7 +11,7 @@ export default function CraftYourExperience() {
   new Date();
 
 minimumBookingDate.setDate(
-  minimumBookingDate.getDate() + 10
+  minimumBookingDate.getDate() + 14
 );
 
 const minDate =
