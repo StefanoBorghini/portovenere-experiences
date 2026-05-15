@@ -12,9 +12,22 @@ export default function DownloadPdfButton() {
 
     if (!input) return;
 
+    // FIX MODERN CSS COLORS
+
+    const originalBackground =
+      document.body.style.background;
+
+    document.body.style.background =
+      "#0C0C0C";
+
     const canvas = await html2canvas(input, {
       scale: 2,
+      backgroundColor: "#0C0C0C",
+      useCORS: true,
     });
+
+    document.body.style.background =
+      originalBackground;
 
     const imgData =
       canvas.toDataURL("image/png");
