@@ -1,6 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { generateProposal } from "@/lib/generateProposal";
 
+import {
+  calculateProposalPrice,
+} from "@/lib/pricing";
+
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface ProposalPageProps {
@@ -76,50 +80,24 @@ export default async function ProposalPage({
 
   // PRICING ENGINE
 
-  let basePrice = 2400;
+  const finalPrice =
+    calculateProposalPrice({
 
-  if (
-    lead.budget === "€3000+"
-  ) {
-    basePrice += 2500;
-  }
+      selectedExperiences:
+        scoredExperiences,
 
-  if (
-    lead.guests === "6-10"
-  ) {
-    basePrice += 1500;
-  }
+      moodsSelected:
+        lead.moods || [],
 
-  if (
-    lead.guests === "11+"
-  ) {
-    basePrice += 3500;
-  }
+      guests:
+        lead.guests,
 
-  if (
-    lead.moods?.includes(
-      "Luxury"
-    )
-  ) {
-    basePrice += 2000;
-  }
-
-  if (
-    lead.moods?.includes(
-      "Cinematic"
-    )
-  ) {
-    basePrice += 700;
-  }
-
-  if (
-    lead.traveling_with_children
-  ) {
-    basePrice += 500;
-  }
+      travelingWithChildren:
+        lead.traveling_with_children || false,
+    });
 
   const price =
-    `€${basePrice.toLocaleString()}`;
+    `€${finalPrice.toLocaleString()}`;
 
   // WHATSAPP CTA
 
@@ -185,7 +163,7 @@ export default async function ProposalPage({
 
       </section>
 
-      {/* CINEMATIC DIVIDER */}
+      {/* DIVIDER */}
 
       <section className="py-24 px-6 border-y border-white/10 bg-black">
 
@@ -471,4 +449,3 @@ export default async function ProposalPage({
     </main>
   );
 }
-
