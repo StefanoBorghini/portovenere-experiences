@@ -240,11 +240,11 @@ const lead = proposal?.proposal_data;
             Private Proposal
           </p>
 
-          <h1 className="text-6xl md:text-8xl font-light leading-none mb-10">
+          <h1 className="text-4xl md:text-8xl font-light leading-none mb-10">
             {heroTitle}
           </h1>
 
-          <p className="text-2xl md:text-3xl mb-12 text-zinc-200">
+          <p className="text-xl md:text-3xl mb-12 text-zinc-200">
             Tailored for {lead.name}
           </p>
 
@@ -284,7 +284,7 @@ const lead = proposal?.proposal_data;
 
       {/* EXPERIENCE DETAILS */}
 
-      <section className="py-32 px-6">
+      <section className="py-20 md:py-32 px-6">
 
         <div className="max-w-6xl mx-auto">
 
@@ -294,7 +294,7 @@ const lead = proposal?.proposal_data;
               Curated Experience
             </p>
 
-            <h2 className="text-5xl md:text-7xl font-light leading-tight">
+            <h2 className="text-3xl md:text-7xl font-light leading-tight">
               Designed around your travel style.
             </h2>
 
@@ -302,7 +302,7 @@ const lead = proposal?.proposal_data;
 
           <div className="grid md:grid-cols-2 gap-8">
 
-            <div className="border border-white/10 rounded-3xl p-10 bg-white/5">
+            <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
                 Experience
@@ -318,7 +318,7 @@ const lead = proposal?.proposal_data;
 
             </div>
 
-            <div className="border border-white/10 rounded-3xl p-10 bg-white/5">
+            <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
                 Guest Profile
@@ -452,11 +452,11 @@ const lead = proposal?.proposal_data;
             Private Reservation
           </p>
 
-          <h2 className="text-5xl md:text-6xl font-light mb-10">
+          <h2 className="text-3xl md:text-6xl font-light mb-10">
             Ready to reserve your experience?
           </h2>
 
-          <div className="text-zinc-400 leading-9 mb-14 space-y-4">
+          <div className="text-zinc-400 leading-8 md:leading-9 mb-14 space-y-4">
 
             <p className="text-xl">
               Your proposal has been privately curated around your selected atmosphere and preferences.
