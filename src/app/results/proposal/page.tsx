@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase";
-import DownloadPdfButton from "@/components/DownloadPdfButton";
+import { supabase } from "../../../lib/supabase";
+import DownloadPdfButton from "../../../components/DownloadPdfButton";
 
 interface ProposalPageProps {
   searchParams: Promise<{
@@ -175,7 +175,7 @@ export default async function ProposalPage({
     budget: lead.budget,
   };
 
-  // CHECK IF PROPOSAL ALREADY EXISTS
+  // CHECK IF PROPOSAL EXISTS
 
   const { data: existingProposal } = await supabase
     .from("Proposal")
@@ -183,7 +183,7 @@ export default async function ProposalPage({
     .eq("lead_id", lead.id)
     .maybeSingle();
 
-  // SAVE ONLY IF NOT EXISTS
+  // SAVE ONLY ONCE
 
   if (!existingProposal) {
 
@@ -231,12 +231,8 @@ export default async function ProposalPage({
             {heroTitle}
           </h1>
 
-          <p className="text-2xl md:text-3xl mb-6 text-zinc-200">
+          <p className="text-2xl md:text-3xl mb-12 text-zinc-200">
             Tailored for {lead.name}
-          </p>
-
-          <p className="text-zinc-400 mb-12">
-            {lead.email}
           </p>
 
           <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
@@ -311,6 +307,10 @@ export default async function ProposalPage({
                   Budget: {lead.budget}
                 </p>
 
+                <p>
+                  Email: {lead.email}
+                </p>
+
               </div>
 
             </div>
@@ -321,81 +321,13 @@ export default async function ProposalPage({
 
       </section>
 
-      {/* HIGHLIGHTS */}
+      {/* PDF DOWNLOAD */}
 
-      <section className="pb-32 px-6">
+      <section className="pb-20 px-6">
 
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto flex justify-center">
 
-          <div className="grid md:grid-cols-3 gap-8">
-
-            <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/5">
-
-              <img
-                src="https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200"
-                alt="Mediterranean"
-                className="h-[300px] w-full object-cover"
-              />
-
-              <div className="p-8">
-
-                <h3 className="text-2xl font-light mb-4">
-                  Scenic Navigation
-                </h3>
-
-                <p className="text-zinc-400 leading-8">
-                  Explore hidden coves, islands and dramatic Ligurian coastlines.
-                </p>
-
-              </div>
-
-            </div>
-
-            <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/5">
-
-              <img
-                src="https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=1200"
-                alt="Luxury"
-                className="h-[300px] w-full object-cover"
-              />
-
-              <div className="p-8">
-
-                <h3 className="text-2xl font-light mb-4">
-                  Luxury Atmosphere
-                </h3>
-
-                <p className="text-zinc-400 leading-8">
-                  Relaxed Mediterranean elegance with curated onboard experiences.
-                </p>
-
-              </div>
-
-            </div>
-
-            <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/5">
-
-              <img
-                src="https://images.unsplash.com/photo-1528164344705-47542687000d?q=80&w=1200"
-                alt="Experience"
-                className="h-[300px] w-full object-cover"
-              />
-
-              <div className="p-8">
-
-                <h3 className="text-2xl font-light mb-4">
-                  Tailored Moments
-                </h3>
-
-                <p className="text-zinc-400 leading-8">
-                  Every experience is designed around your preferences and travel style.
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
+          <DownloadPdfButton />
 
         </div>
 
@@ -419,19 +351,13 @@ export default async function ProposalPage({
             Your proposal has been privately curated around your selected atmosphere and preferences.
           </p>
 
-          <div className="flex flex-col items-center gap-6">
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-            >
-              Request Private Booking
-            </a>
-
-            <DownloadPdfButton />
-
-          </div>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+          >
+            Request Private Booking
+          </a>
 
         </div>
 
