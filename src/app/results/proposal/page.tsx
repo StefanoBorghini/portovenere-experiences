@@ -171,7 +171,7 @@ export default async function ProposalPage({
   };
 
   await supabase
-    .from("proposals")
+    .from("Proposal")
     .insert([
       {
         lead_id: lead.id,
