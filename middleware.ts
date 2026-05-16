@@ -1,55 +1,107 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedRoutes: Record<string, string> = {
-  "/private-sailing-experience-with-snorkeling": "sailing2026@",
+const protectedRoutes = {
+  "/private-sailing-experience-with-snorkeling": {
     username: "Carolina",
     password: "sailing2026@",
-    expiresAt: "2026-05-17T23:59:59",
+    expiresAt: "2026-06-01T23:59:59",
+  },
+
+  "/luxury-yacht-riviera": {
+    username: "Stefano",
+    password: "riviera2026@",
+    expiresAt: "2026-07-01T23:59:59",
+  },
 };
 
-export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+export function middleware(
+  request: NextRequest
+) {
 
-  const requiredPassword = protectedRoutes[path];
+  const path =
+    request.nextUrl.pathname;
 
-  if (!requiredPassword) {
+  const credentials =
+    protectedRoutes[
+      path as keyof typeof protectedRoutes
+    ];
+
+  // PUBLIC ROUTE
+
+  if (!credentials) {
     return NextResponse.next();
   }
 
-  const auth = request.headers.get("authorization");
+  // EXPIRED
+
+  if (
+    new Date() >
+    new Date(credentials.expiresAt)
+  ) {
+
+    return new NextResponse(
+      "This private proposal has expired.",
+      {
+        status: 403,
+      }
+    );
+  }
+
+  const auth =
+    request.headers.get(
+      "authorization"
+    );
 
   if (auth) {
-    const encoded = auth.split(" ")[1];
-    const decoded = atob(encoded);
 
-    const [user, password] = decoded.split(":");
+    const encoded =
+      auth.split(" ")[1];
 
-    if (password === requiredPassword) {
+    const decoded =
+      atob(encoded);
 
-      const response = NextResponse.next();
+    const [user, password] =
+      decoded.split(":");
 
-response.cookies.set(
-  "clientName",
-  user,
-  {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24,
-  }
-);      
+    // VALID LOGIN
+
+    if (
+      user === credentials.username &&
+      password === credentials.password
+    ) {
+
+      const response =
+        NextResponse.next();
+
+      response.cookies.set(
+        "clientName",
+        user,
+        {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge:
+            60 * 60 * 24,
+        }
+      );
 
       return response;
     }
   }
 
-  return new NextResponse("Protected Area", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="Private Experience"',
-    },
-  });
+  // LOGIN POPUP
+
+  return new NextResponse(
+    "Protected Area",
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate":
+          'Basic realm="Private Experience"',
+      },
+    }
+  );
 }
 
 export const config = {
