@@ -431,7 +431,7 @@ traveling_with_children:
 
 <div className="text-center pt-0 pb-16 md:pt-20 md:pb-28">
 
-  <div className="flex justify-center -mt-10 mb-10 md:mb-8">
+  <div className="flex justify-center -mt-15 mb-5 md:mb-8">
     <img
       src="/logo-white.png"
       alt="Portovenere Experiences"
