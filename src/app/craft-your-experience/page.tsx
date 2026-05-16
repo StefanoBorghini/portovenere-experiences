@@ -429,13 +429,13 @@ traveling_with_children:
 
         {/* TOP */}
 
-<div className="text-center mb-20 pt-6">
+<div className="text-center mb-20 pt-4 md:pt-8">
 
-  <div className="flex justify-center mb-6">
+  <div className="flex justify-center mb-5">
     <img
       src="/logo-white.png"
       alt="Portovenere Experiences"
-      className="w-24 opacity-80"
+      className="w-24 md:w-32 opacity-80"
     />
   </div>
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
