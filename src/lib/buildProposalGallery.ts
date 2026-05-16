@@ -12,40 +12,131 @@ export function buildProposalGallery({
 
   const images: string[] = [];
 
+  // MATCH EXPERIENCES
+
   const matchedExperiences =
-    experiences.filter((exp) =>
-      experiencesSelected.includes(exp.title)
+    experiences.filter((experience) =>
+      experiencesSelected.includes(
+        experience.title
+      )
     );
 
-  matchedExperiences.forEach((experience) => {
+  // SORT BY SCORE
 
-    const gallery = experience.gallery;
+  const sortedExperiences =
+    matchedExperiences.sort(
+      (a, b) =>
+        b.score - a.score
+    );
 
-    if (!gallery) return;
+  // EXPERIENCE IMAGES
 
-    const galleryKeys =
-      Object.keys(gallery);
+  sortedExperiences.forEach(
+    (experience) => {
 
-    // PRENDE LA PRIMA GALLERY DISPONIBILE
+      const gallery =
+        experience.gallery;
 
-   galleryKeys.forEach((key) => {
+      if (!gallery) return;
 
-  const galleryImages =
-    gallery[
-      key as keyof typeof gallery
-    ];
+      // PRENDE UNA IMMAGINE RANDOM
+      // DA OGNI VARIANTE
 
-  if (
-    galleryImages &&
-    galleryImages.length > 0
-  ) {
+      Object.keys(gallery).forEach(
+        (variantKey) => {
 
-    images.push(galleryImages[0]);
-  }
-});
+          const variantImages =
+            gallery[
+              variantKey as keyof typeof gallery
+            ];
+
+          if (
+            variantImages &&
+            variantImages.length > 0
+          ) {
+
+            const randomImage =
+              variantImages[
+                Math.floor(
+                  Math.random() *
+                  variantImages.length
+                )
+              ];
+
+            images.push(
+              randomImage
+            );
+          }
+        }
+      );
+    }
+  );
+
+  // MOOD BOOST
+
+  // aggiunge immagini extra coerenti
+  // in base al mood scelto
+
+  moodsSelected.forEach((mood) => {
+
+    matchedExperiences.forEach(
+      (experience) => {
+
+        if (
+          !experience.moods.includes(
+            mood
+          )
+        ) {
+          return;
+        }
+
+        const gallery =
+          experience.gallery;
+
+        if (!gallery) return;
+
+        const galleries =
+          Object.values(gallery);
+
+        galleries.forEach(
+          (galleryImages) => {
+
+            if (
+              galleryImages &&
+              galleryImages.length > 0
+            ) {
+
+              const randomMoodImage =
+                galleryImages[
+                  Math.floor(
+                    Math.random() *
+                    galleryImages.length
+                  )
+                ];
+
+              images.push(
+                randomMoodImage
+              );
+            }
+          }
+        );
+      }
+    );
   });
 
-  // LIMITA A 4 IMMAGINI
+  // REMOVE DUPLICATES
 
-  return images.slice(0, 4);
+  const uniqueImages =
+    [...new Set(images)];
+
+  // SHUFFLE
+
+  const shuffled =
+    uniqueImages.sort(
+      () => Math.random() - 0.5
+    );
+
+  // MAX 4
+
+  return shuffled.slice(0, 4);
 }
