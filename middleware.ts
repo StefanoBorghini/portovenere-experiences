@@ -14,6 +14,12 @@ const protectedRoutes = {
     expiresAt: "2026-05-23T23:59:59",
   },
   
+  "/": {
+    username: "Stefano",
+    password: "riviera2026@",
+    expiresAt: "2026-05-23T23:59:59",
+  },
+
 };
 
 export function middleware(
