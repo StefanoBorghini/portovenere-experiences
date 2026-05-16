@@ -429,9 +429,9 @@ traveling_with_children:
 
         {/* TOP */}
 
-<div className="text-center mb-20 pt-4 md:pt-8">
+<div className="text-center mb-20 -mt-10 md:-mt-16">
 
-  <div className="flex justify-center mb-5">
+  <div className="flex justify-center mb-4">
     <img
       src="/logo-white.png"
       alt="Portovenere Experiences"
