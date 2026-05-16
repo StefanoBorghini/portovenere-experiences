@@ -429,14 +429,15 @@ traveling_with_children:
 
         {/* TOP */}
 
-        <div className="text-center mb-10 mt-10">
-<div className="flex justify-center mb-6 mt-6">
-  <img
-    src="/logo-white.png"
-    alt="Portovenere Experiences"
-    className="w-28 md:w-36 opacity-90"
-  />
-</div>
+<div className="text-center mb-20 pt-6">
+
+  <div className="flex justify-center mb-6">
+    <img
+      src="/logo-white.png"
+      alt="Portovenere Experiences"
+      className="w-24 opacity-80"
+    />
+  </div>
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
             Private Experience Curation
           </p>
