@@ -8,11 +8,12 @@ const protectedRoutes = {
     expiresAt: "2026-06-01T23:59:59",
   },
 
-  "/luxury-yacht-riviera": {
+  "/craft-your-experience": {
     username: "Stefano",
     password: "riviera2026@",
-    expiresAt: "2026-07-01T23:59:59",
+    expiresAt: "2026-05-23T23:59:59",
   },
+  
 };
 
 export function middleware(
