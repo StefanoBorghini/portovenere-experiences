@@ -429,30 +429,31 @@ traveling_with_children:
 
         {/* TOP */}
 
-<div className="text-center mb-20 -mt-5 md:-mt-16">
+<div className="text-center pt-8 pb-16 md:pt-20 md:pb-28">
 
-  <div className="flex justify-center mb-4">
+  <div className="flex justify-center mb-6 md:mb-8">
     <img
       src="/logo-white.png"
       alt="Portovenere Experiences"
       className="w-24 md:w-32 opacity-80"
     />
   </div>
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
-            Private Experience Curation
-          </p>
 
-          <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8">
-            Craft Your
-            <br />
-            Mediterranean Escape
-          </h1>
+  <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6 md:mb-8">
+    Private Experience Curation
+  </p>
 
-          <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
-            Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
-          </p>
+  <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8 md:mb-10">
+    Craft Your
+    <br />
+    Mediterranean Escape
+  </h1>
 
-        </div>
+  <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
+    Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
+  </p>
+
+</div>
 
         {/* FORM */}
 
