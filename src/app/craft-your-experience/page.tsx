@@ -451,76 +451,6 @@ traveling_with_children:
 
         <div className="space-y-16">
 
-          {/* NAME */}
-
-          <div id="name-section">
-
-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Your Name
-            </p>
-
-            <input
-              type="text"
-              min={new Date().toISOString().split("T")[0]}
-              placeholder="Enter your full name"
-              value={formData.name}
-              onChange={(e) => {
-
-                setFormData({
-                  ...formData,
-                  name: e.target.value,
-                });
-
-                setErrors((prev) =>
-                  prev.filter(
-                    (error) =>
-                      error !== "name"
-                  )
-                );
-              }}
-              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-                errors.includes("name")
-                  ? "border border-red-500 bg-red-500/10"
-                  : "border border-white/10 bg-white/5 focus:border-white/40"
-              }`}
-            />
-
-          </div>
-
-          {/* EMAIL */}
-
-          <div id="email-section">
-
-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Email Address
-            </p>
-
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={(e) => {
-
-                setFormData({
-                  ...formData,
-                  email: e.target.value,
-                });
-
-                setErrors((prev) =>
-                  prev.filter(
-                    (error) =>
-                      error !== "email"
-                  )
-                );
-              }}
-              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-                errors.includes("email")
-                  ? "border border-red-500 bg-red-500/10"
-                  : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
-              }`}
-            />
-
-          </div>
 
           {/* EXPERIENCES */}
 
@@ -889,6 +819,79 @@ traveling_with_children:
               ))}
 
             </div>
+
+          </div>
+
+
+          
+          {/* NAME */}
+
+          <div id="name-section">
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Your Name
+            </p>
+
+            <input
+              type="text"
+              min={new Date().toISOString().split("T")[0]}
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => {
+
+                setFormData({
+                  ...formData,
+                  name: e.target.value,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "name"
+                  )
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("name")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 focus:border-white/40"
+              }`}
+            />
+
+          </div>
+
+          {/* EMAIL */}
+
+          <div id="email-section">
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Email Address
+            </p>
+
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={(e) => {
+
+                setFormData({
+                  ...formData,
+                  email: e.target.value,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "email"
+                  )
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("email")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
+              }`}
+            />
 
           </div>
 
