@@ -258,7 +258,7 @@ Possibility to stop in Portovenere, Lerici or Tellaro, depending on sea
   </p>
 
   <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
-  * Curated recommendation by Portovenere Experiences
+  * Optional experience suggested by Portovenere Experiences
 </p>
             </div>
 

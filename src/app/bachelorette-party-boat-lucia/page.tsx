@@ -264,7 +264,7 @@ food and wine products.
     Designed as a playful and cinematic Mediterranean activity, combining sea exploration, relaxation and unforgettable moments in nature.
   </p>
   <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
-  * Curated recommendation by Portovenere Experiences
+  * Optional experience suggested by Portovenere Experiences
 </p>
             </div>
 
