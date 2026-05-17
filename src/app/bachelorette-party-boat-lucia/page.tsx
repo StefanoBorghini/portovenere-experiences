@@ -24,10 +24,10 @@ export default async function ProposalPage() {
 
   const featuredExperience = {
     title:
-      "Private Sailing Experience",
+      "Private Boat Experience",
 
     description:
-      "A curated private sailing journey through the Gulf of Poets, hidden coves and Mediterranean landscapes.",
+      "5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal with a view of San Pietro and Palmaria island. Tour of the Cinque Terre Marine Protected Area with a view of the villages from the sea with a stop in front of each of them with a description of the main farms belonging to the area and tasting of local food and wine products.",
   };
 
   const galleryImages = [
@@ -168,7 +168,7 @@ export default async function ProposalPage() {
                 <p>
                   Guest:
                   {" "}
-                  {clientName}
+                  {clientName} and her friends
                 </p>
 
                 <p>
@@ -183,14 +183,14 @@ export default async function ProposalPage() {
 
                 <p>
                   Guests:
-                  8-10
+                  9-12
                 </p>
 
                 
 
                 <p>
                   Experience:
-                  Private Sailing
+                  Private Bachelorette Party
                 </p>
 
               </div>
