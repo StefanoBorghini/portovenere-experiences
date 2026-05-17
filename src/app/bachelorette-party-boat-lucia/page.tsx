@@ -145,9 +145,9 @@ export default async function ProposalPage() {
                 Featured Experience
               </p>
 
-              <h2 className="text-4xl font-light mb-6">
+              <h3 className="text-4xl font-light mb-6">
                 INCLUDED IN THE TOUR:
-              </h2>
+              </h3>
 
               <p className="text-zinc-400 leading-8">
                 Music,
@@ -163,6 +163,11 @@ Hostess/Steward,
 Captain,
 Insurance,
 Fuel.
+N.2 refrigerators,
+Wc Dinette,
+Large awning,
+Large sundeck,
+Fresh water shower.
 
               </p>
 
