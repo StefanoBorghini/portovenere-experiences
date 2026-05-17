@@ -20,6 +20,14 @@ const protectedRoutes = {
     expiresAt: "2026-05-23T23:59:59",
   },
 
+   "/bachelorette-party-boat-lucia": {
+    username: "Lucia",
+    password: "bachelorette2026@",
+    expiresAt: "2026-06-01T23:59:59",
+  },
+
+  
+
 };
 
 export function middleware(
