@@ -100,7 +100,7 @@ items-center
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 md:gap-6 items-start">
 
             <img
-              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681709376_18100545614475803_3585021078207847429_n.webp?_nc_cat=109&ig_cache_key=Mzg4MjM2NzI3NzgyODE1NjEwNw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuNDAwMC5zZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=PP7nK0_j6F4Q7kNvwGOiSRD&_nc_oc=AdqUEm0E40bFSNv3p90cuxYj2wbVBzCJXkeZtfzRkHMjMeWi2L6b0wW5Po0YjLtGBEw&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=YewZbXMysbvIWnbQeDYuXg&_nc_ss=7a22e&oh=00_Af5XtRyJipwZOEJOOZwHJYaMokzP00q_Xgi-3KqwMQl1Jg&oe=6A08E177"
+              src="https://experiences.portovenere.com/images/sailing/img-3.webp"
               alt="Sea"
               className="
 rounded-[2rem]
@@ -113,7 +113,7 @@ w-full
             />
 
             <img
-              src="https://instagram.fmxp4-1.fna.fbcdn.net/v/t51.82787-15/681890741_18100545587475803_125703852981375846_n.webp?_nc_cat=103&ig_cache_key=Mzg4MjM2NzI3NzYxMDA5MTI5OQ%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6IkNBUk9VU0VMX0lURU0ueHBpZHMuMTQ0MC5zZHIucmVndWxhcl9waG90by5DMiJ9&_nc_ohc=81hoSxA4chsQ7kNvwGQjFeT&_nc_oc=Ado2tkmzQCxA8dU4FltJ7bqD-TQsfRFxTVwcxCjo3OmxEJZielMKqzADHRKE2E8-DxY&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fmxp4-1.fna&_nc_gid=YewZbXMysbvIWnbQeDYuXg&_nc_ss=7a22e&oh=00_Af5zyUBhtsiqobIWtWSXEvEsbe7bnENfs54p5JQ05KU_pg&oe=6A08B69D"
+              src="https://experiences.portovenere.com/images/sailing/img-4.webp"
               alt="Boat"
               className="
 rounded-[2rem]
