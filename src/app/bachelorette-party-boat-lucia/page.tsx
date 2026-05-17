@@ -1,128 +1,51 @@
-import { supabase } from "@/lib/supabase";
-import { generateProposal } from "@/lib/generateProposal";
-import { buildProposalGallery } from "@/lib/buildProposalGallery";
+import { cookies } from "next/headers";
 
-import {
-  calculateProposalPrice,
-} from "@/lib/pricing";
+export default async function ProposalPage() {
 
-import DownloadPdfButton from "@/components/DownloadPdfButton";
+  const cookieStore =
+    await cookies();
 
-interface ProposalPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
+  const clientName =
+    cookieStore.get(
+      "clientName"
+    )?.value ||
+    "Private Guest";
 
-export default async function ProposalPage({
-  params,
-}: ProposalPageProps) {
-
-  const { slug } = await params;
-
-  if (!slug || !supabase) {
-    return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        Missing proposal ID
-      </main>
-    );
-  }
-
-  // GET PROPOSAL
-
-  const { data: proposal, error } =
-    await supabase
-      .from("Proposal")
-      .select("*")
-      .eq("slug", slug)
-      .single();
-
-  const lead = proposal?.proposal_data;
-
-  if (error || !lead) {
-    return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        Proposal not found
-      </main>
-    );
-  }
-
-  // GENERATE PROPOSAL
-
-  const generatedProposal =
-    generateProposal({
-
-      experiencesSelected:
-        lead.experiences || [],
-
-      moodsSelected:
-        lead.moods || [],
-
-      budget:
-        lead.budget,
-
-      travelingWithChildren:
-        lead.traveling_with_children || false,
-    });
-
-  // DYNAMIC CONTENT
+  // STATIC CONTENT
 
   const heroTitle =
-    generatedProposal.heroTitle;
+    "Mediterranean Escape";
 
   const heroImage =
-    generatedProposal.heroImage;
-
-  const featuredExperience =
-    generatedProposal.featuredExperience;
-
-  const scoredExperiences =
-    generatedProposal.scoredExperiences;
-
-    const galleryImages =
-  buildProposalGallery({
-
-    experiencesSelected:
-      lead.experiences || [],
-
-    moodsSelected:
-      lead.moods || [],
-
-      
-  });
-
-  // PRICING ENGINE
-
-  const finalPrice =
-    calculateProposalPrice({
-
-      selectedExperiences:
-        scoredExperiences,
-
-      moodsSelected:
-        lead.moods || [],
-
-      guests:
-        lead.guests,
-
-      travelingWithChildren:
-        lead.traveling_with_children || false,
-    });
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
 
   const price =
-    `€${finalPrice.toLocaleString()}`;
+    "€1700";
 
-  // WHATSAPP CTA
+  const featuredExperience = {
+    title:
+      "Private Sailing Experience",
 
-  const whatsappMessage =
-    encodeURIComponent(
-      `Hi Stefano, I'd like to confirm my ${featuredExperience.title} experience proposal for ${lead.guests} guests.`
-    );
+    description:
+      "A curated private sailing journey through the Gulf of Poets, hidden coves and Mediterranean landscapes.",
+  };
+
+  const galleryImages = [
+
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+
+    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+
+    "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+
+    "https://images.unsplash.com/photo-1512100356356-de1b84283e18?q=80&w=1200",
+  ];
 
   const whatsappUrl =
-    `https://wa.me/393487140722?text=${whatsappMessage}`;
+    "https://wa.me/393487140722";
 
   return (
+
     <main
       id="proposal-content"
       className="bg-[#0C0C0C] text-white min-h-screen"
@@ -157,7 +80,7 @@ export default async function ProposalPage({
           </h1>
 
           <p className="text-xl md:text-3xl mb-12 text-zinc-200">
-            Tailored for {lead.name}
+            Tailored for {clientName}
           </p>
 
           <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
@@ -243,45 +166,29 @@ export default async function ProposalPage({
               <div className="space-y-5 text-lg">
 
                 <p>
-                  Experiences:
+                  Guest:
                   {" "}
-                  {lead.experiences?.join(", ")}
+                  {clientName}
                 </p>
 
                 <p>
                   Atmosphere:
-                  {" "}
-                  {lead.moods?.join(", ")}
+                  Romantic, Authentic
                 </p>
 
                 <p>
                   Guests:
-                  {" "}
-                  {lead.guests}
+                  2-4
                 </p>
 
                 <p>
-                  Budget:
-                  {" "}
-                  {lead.budget}
+                  Investment:
+                  €1700
                 </p>
 
                 <p>
-                  Travel Dates:
-                  {" "}
-                  {lead.start_date}
-                  {" "}
-                  —
-                  {" "}
-                  {lead.end_date}
-                </p>
-
-                <p>
-                  Children:
-                  {" "}
-                  {lead.traveling_with_children
-                    ? "Yes"
-                    : "No"}
+                  Experience:
+                  Private Sailing
                 </p>
 
               </div>
@@ -330,53 +237,41 @@ export default async function ProposalPage({
 
       {/* GALLERY */}
 
-<section className="pb-32 px-6">
+      <section className="pb-32 px-6">
 
-  <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto">
 
-    <div className="text-center mb-20">
+          <div className="text-center mb-20">
 
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Experience Gallery
-      </p>
+            <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+              Experience Gallery
+            </p>
 
-      <h2 className="text-5xl md:text-6xl font-light">
-        Moments from the Riviera
-      </h2>
+            <h2 className="text-5xl md:text-6xl font-light">
+              Moments from the Riviera
+            </h2>
 
-    </div>
+          </div>
 
-    <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-4 gap-6">
 
-      {galleryImages.map(
-        (
-          image: string,
-          index: number
-        ) => (
+            {galleryImages.map(
+              (
+                image,
+                index
+              ) => (
 
-          <img
-            key={index}
-            src={image}
-            alt="Experience"
-            className="rounded-3xl h-[500px] w-full object-cover"
-          />
+                <img
+                  key={index}
+                  src={image}
+                  alt="Experience"
+                  className="rounded-3xl h-[500px] w-full object-cover"
+                />
 
-        )
-      )}
+              )
+            )}
 
-    </div>
-
-  </div>
-
-</section>
-
-      {/* PDF DOWNLOAD */}
-
-      <section className="pb-20 px-6 print:hidden">
-
-        <div className="max-w-4xl mx-auto flex justify-center">
-
-          <DownloadPdfButton />
+          </div>
 
         </div>
 
@@ -427,7 +322,7 @@ export default async function ProposalPage({
           <a
             href={whatsappUrl}
             target="_blank"
-            className="inline-block bg-white text-black print:text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+            className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
           >
             Request Private Booking
           </a>
