@@ -240,7 +240,6 @@ export default async function ProposalPage() {
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
-    Mermaiding Experience
 
     A private mermaiding experience in the crystal-clear waters of the Ligurian coast.
 
