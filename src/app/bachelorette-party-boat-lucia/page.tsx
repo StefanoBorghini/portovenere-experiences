@@ -17,7 +17,7 @@ export default async function ProposalPage() {
     "Mediterranean Bachelorette Party";
 
   const heroImage =
-    "https://www.aphrodite5terreboattour.com/public/services_featured/1613034819_servizi-barca-cinque-terre.jpg";
+    "/images/yachts/hero.jpg";
 
   const price =
     "€ 2300";
@@ -34,7 +34,7 @@ export default async function ProposalPage() {
 
     "https://www.portovenere.com/wp-content/uploads/2026/05/FOTO_1.jpg",
 
-    "https://images.pexels.com/photos/5046351/pexels-photo-5046351.jpeg",
+    "/images/yachts/img-2.jpg",
 
     "/images/yachts/img-1.jpg",
 
