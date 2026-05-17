@@ -219,6 +219,9 @@ export default async function ProposalPage() {
              <p className="text-zinc-300 leading-8 whitespace-pre-LINE">Duration : 7 hours private sailing experience. <br></br>
              Departure : Porto delle Grazie – Portovenere.<br></br>
              Yacht : Private 40ft sailing yacht with local crew.
+             <br></br>
+             <br></br>
+             Slow navigation along dramatic cliffs and picturesque Mediterranean villages.
              </p> </div>
 
 
@@ -229,7 +232,7 @@ Navigation through Portovenere, Palmaria, Tino, Tinetto, Lerici and Tellaro.
 <br></br>
 Swim in crystal-clear bays and hidden coves accessible only by sea.
 
-<br></br>Slow navigation along dramatic cliffs and picturesque Mediterranean villages.
+
 <br></br>
 Possibility to stop in Portovenere, Lerici or Tellaro, depending on sea
   </p>
