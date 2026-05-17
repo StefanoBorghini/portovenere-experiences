@@ -126,11 +126,11 @@ export default async function ProposalPage() {
           <div className="text-center mb-20">
 
             <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-              Curated Experience
+             Private Boat Experience
             </p>
 
             <h2 className="text-3xl md:text-7xl font-light leading-tight">
-              Designed around your travel profile.
+              A curated private boat journey through in hidden coves and Mediterranean landscapes.
             </h2>
 
           </div>
@@ -146,11 +146,24 @@ export default async function ProposalPage() {
               </p>
 
               <h2 className="text-4xl font-light mb-6">
-                {featuredExperience.title}
+                INCLUDED IN THE TOUR:
               </h2>
 
               <p className="text-zinc-400 leading-8">
-                {featuredExperience.description}
+                Music,
+Beach towels,
+Inflatables,
+Snorkeling masks,
+Drinks,
+Cinque Terre wines,
+Aperitif made only with local products
+(rice cake, vegetable cake, pizza, focaccia
+and stuffed focaccia),
+Hostess/Steward,
+Captain,
+Insurance,
+Fuel.
+
               </p>
 
             </div>
