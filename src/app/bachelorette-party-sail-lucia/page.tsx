@@ -147,7 +147,7 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-           Sail through one of the most breathtaking stretches of the Ligurian coastline,<br></br>
+           Sail through one of the most breathtaking stretches of the Ligurian coastline,
             exploring Palmaria, Tino and Tinetto islands, <br></br>
            the colorful village of Portovenere and the elegant seaside gems of Lerici and Tellaro.
 
