@@ -216,7 +216,7 @@ export default async function ProposalPage() {
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> 5H Tour:Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal <br></br>with a view of San Pietro and Palmaria island. <br></br>Tour of the Cinque Terre Marine Protected Area
+             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> 5H Tour:Embarkation / Disembarkation<br></br> at Porto Mirabello (La Spezia): transit in the Portovenere canal with a view of San Pietro and Palmaria island. Tour of the Cinque Terre Marine Protected Area
             </p> </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
@@ -231,13 +231,7 @@ export default async function ProposalPage() {
     Wine Experience
  
  
-    Curated tasting of artisanal Cinque Terre wines produced by small local winemakers from:
-
-    Canneto
-    Riomaggiore
-    Corniglia
-    Vernazza
-    Monterosso
+    Curated tasting of artisanal Cinque Terre wines produced by small local winemakers 
 
     A Mediterranean wine journey focused on authentic coastal viticulture and local traditions.
   </p>
