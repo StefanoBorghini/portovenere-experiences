@@ -1,19 +1,27 @@
-SEA ESCAPE 
---DINO             ROMANTIC AUTHENTIC ADVENTURE             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
---APHRODITE        ADVENTURE AUTHENTIC CINEMATIC            3-4 5-7         €500 - €1000 €1000 - €3000
---VELAMICA         ADVENTURE CINEMATIC                      8+              €1000 - €3000 €3000+
---VELAGIOVANE      AUTHENTIC ADVENTURE                      8+              €1000 - €3000 €3000+
 
+MacroEsperienza                         Atmosfera                                                      Guests          Budget                                        score
+--Esperienza                            Moods      
+
+SEA ESCAPE                           
+--DINO                                  ROMANTIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000                   
+--APHRODITE                             ADVENTURE(3) AUTHENTIC(2) CINEMATIC(1)                         3-4 5-7 8+      €500 - €1000 €1000 - €3000
+--VELAMICA                              ADVENTURE(2) CINEMATIC(1)                                      8+              €1000 - €3000 €3000+
+--VELAGIOVANE                           AUTHENTIC(2) ADVENTURE(1)                                      8+              €1000 - €3000 €3000+
+ 
 AERIAL ESCAPE
---AIRPLANE         AUTHENTIC ADVENTURE CINEMATIC             2 3-4 5-7 8+   €500 - €1000 €1000 - €3000 €3000+
---MONGOLFIERA      ADVENTURE AUTHENTIC ROMANTIC CINEMATIC    2 3-4 5-7 8+   €500 - €1000 €1000 - €3000 €3000+
+--AIRPLANE                               CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)           2 3-4 5-7       €500 - €1000 €1000 - €3000 
+--MONGOLFIERA                           ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 
 
 GOURMET ESCAPE
---PRENOTAZIONE RISTORANTE               ROMANTIC AUTHENTIC CINEMATIC  2 3-4 5-7 8+ €500 - €1000 €1000 - €3000
---ON BOARD FOOD & WINE EXPERIENCES      ADVENTURE AUTHENTIC ROMANTIC  2 3-4 5-7 8+ €500 - €1000 €1000 - €3000
-
+--PRENOTAZIONE RISTORANTE               ROMANTIC(3) AUTHENTIC(2) CINEMATIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+--ON BOARD FOOD & WINE EXPERIENCES      ADVENTURE(3) AUTHENTIC(2) ROMANTIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+  
 WILD ESCAPE
---TREKKING                              AUTHENTIC ADVENTURE  2 3-4 5-7 8+  €500 - €1000 €1000 - €3000 €3000+
---SNORKELING                            ADVENTURE CINEMATIC  2 3-4 5-7 8+  €500 - €1000 €1000 - €3000 €3000+
---MERMAIDING                            ROMANTIC ADVENTURE   2 3-4 5-7 8+  €500 - €1000 €1000 - €3000 €3000+
---HORSES                                ADVENTURE AUTHENTIC  2 3-4 5-7 8+  €500 - €1000 €1000 - €3000 €3000+
+--TREKKING                              AUTHENTIC(2) ADVENTURE(1)                                      2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--SNORKELING                            ADVENTURE(2) CINEMATIC(1)                                      2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--MERMAIDING                            ROMANTIC(3) ADVENTURE(2) CINEMATIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--HORSES                                ADVENTURE(3) AUTHENTIC(2) CINEMATIC(1)                         2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+
+
+
+
