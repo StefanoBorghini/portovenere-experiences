@@ -172,19 +172,21 @@ export default async function ProposalPage() {
                 </p>
 
                 <p>
+                  Experiences:
+                  Sea Escape, Gourmet Escape
+                </p>
+
+                <p>
                   Atmosphere:
                   Romantic, Authentic
                 </p>
 
                 <p>
                   Guests:
-                  2-4
+                  8-10
                 </p>
 
-                <p>
-                  Investment:
-                  €1700
-                </p>
+                
 
                 <p>
                   Experience:
