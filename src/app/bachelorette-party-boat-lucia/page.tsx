@@ -17,7 +17,7 @@ export default async function ProposalPage() {
     "Mediterranean Bachelorette Party";
 
   const heroImage =
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
+    "https://www.aphrodite5terreboattour.com/public/services_featured/1613034819_servizi-barca-cinque-terre.jpg";
 
   const price =
     "€1700";
@@ -32,13 +32,13 @@ export default async function ProposalPage() {
 
   const galleryImages = [
 
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1200",
+    "https://www.aphrodite5terreboattour.com/public/services_featured/aphrodite_tour-5terre.jpg",
 
-    "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?q=80&w=1200",
+    "https://www.aphrodite5terreboattour.com/public/gallery/Aphrodite_VBerlanda_0966.jpg",
 
-    "https://images.unsplash.com/photo-1493558103817-58b2924bce98?q=80&w=1200",
+    "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
-    "https://images.unsplash.com/photo-1512100356356-de1b84283e18?q=80&w=1200",
+    "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/Copia-di-Copia-di-meeting-underwater-3-scaled.webp?fit=2560%2C1709&ssl=1",
   ];
 
   const whatsappUrl =
