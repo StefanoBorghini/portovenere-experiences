@@ -70,21 +70,11 @@ export const experiences = [
 
       "Sailing Escape": [
 
-        "/images/sailing/gallery-1.webp",
+        "/images/sailing/img-1.webp",
 
-        "/images/sailing/gallery-2.webp",
+        "/images/sailing/img-2.webp",
 
-        "/images/sailing/gallery-3.webp",
-
-      ],
-
-      "Luxury Yachting": [
-
-        "/images/sailing/gallery-4.webp",
-
-        "/images/sailing/gallery-5.webp",
-
-        "/images/sailing/gallery-6.webp",
+        "/images/sailing/img-3.webp",
 
       ],
 
