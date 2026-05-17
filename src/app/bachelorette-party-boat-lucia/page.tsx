@@ -27,12 +27,7 @@ export default async function ProposalPage() {
       "Private Boat Experience",
 
     description:
-
-    
-    "5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia).<br /> " +
-    "Transit in the Portovenere canal with a view of San Pietro and Palmaria island.<br /> " +
-    "Tour of the Cinque Terre Marine Protected Area with a view of the villages from the sea.<br />" +
-    "with a stop in front of each of them with a description of the main farms belonging to the area and tasting of local food and wine products.",
+      "A curated private boat journey through in Cinque Terre and Portovenere, hidden coves and Mediterranean landscapes.",
   };
 
   const galleryImages = [
@@ -221,7 +216,7 @@ export default async function ProposalPage() {
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Private curated itinerary
+              5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal with a view of San Pietro and Palmaria island. Tour of the Cinque Terre Marine Protected Area
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
