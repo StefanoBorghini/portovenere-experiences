@@ -216,19 +216,44 @@ export default async function ProposalPage() {
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal <br></br>with a view of San Pietro and Palmaria island. <br></br>Tour of the Cinque Terre Marine Protected Area
+             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> 5H Tour:</p> Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal <br></br>with a view of San Pietro and Palmaria island. <br></br>Tour of the Cinque Terre Marine Protected Area
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Personalized concierge assistance
+                            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+  Curated Mediterranean food and wine tasting experience featuring local Ligurian specialties.</p>
+
+
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Premium Mediterranean atmosphere
+               <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+    Wine Experience
+  </p>
+   <p className="leading-8 text-zinc-300 whitespace-pre-line">
+    Curated tasting of artisanal Cinque Terre wines produced by small local winemakers from:
+
+    Canneto
+    Riomaggiore
+    Corniglia
+    Vernazza
+    Monterosso
+
+    A Mediterranean wine journey focused on authentic coastal viticulture and local traditions.
+  </p>
+
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Tailored local experiences
+            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+    Mermaiding Experience
+  </p>
+
+  <p className="leading-8 text-zinc-300 whitespace-pre-line">
+    A private mermaiding experience in the crystal-clear waters of the Ligurian coast.
+
+    Designed as a playful and cinematic Mediterranean activity, combining sea exploration, relaxation and unforgettable moments in nature.
+  </p>
             </div>
 
           </div>
