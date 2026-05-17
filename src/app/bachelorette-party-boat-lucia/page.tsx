@@ -34,7 +34,7 @@ export default async function ProposalPage() {
 
     "https://www.aphrodite5terreboattour.com/public/services_featured/aphrodite_tour-5terre.jpg",
 
-    "https://www.aphrodite5terreboattour.com/public/gallery/Aphrodite_VBerlanda_0966.jpg",
+    "https://scontent.fmxp4-1.fna.fbcdn.net/v/t1.6435-9/206512996_324916929261741_5461553870419850360_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=3a1ebe&_nc_ohc=J2TsVwKvSqQQ7kNvwFVE8fr&_nc_oc=AdrDMajlN_b0B9nvvkE6hgP651rnkZH1nv7l1l7OCvXkU5HP0z_NDiWroPo5LcKCHHA&_nc_zt=23&_nc_ht=scontent.fmxp4-1.fna&_nc_gid=gajdEGmiPcvbzhsQarCOHw&_nc_ss=7b2a8&oh=00_Af7aCk1tCO0fgsU9grezkgAP2WTD5iz8h1VgP9AXbHBhqQ&oe=6A314A99",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
@@ -166,7 +166,7 @@ export default async function ProposalPage() {
               <div className="space-y-5 text-lg">
 
                 <p>
-                  Guest:
+                  Guests:
                   {" "}
                   {clientName} and her friends
                 </p>
