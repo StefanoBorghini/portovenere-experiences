@@ -216,7 +216,7 @@ export default async function ProposalPage() {
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal with a view of San Pietro and Palmaria island. Tour of the Cinque Terre Marine Protected Area
+              5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia): transit in the Portovenere canal <br></br>with a view of San Pietro and Palmaria island. <br></br>Tour of the Cinque Terre Marine Protected Area
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
