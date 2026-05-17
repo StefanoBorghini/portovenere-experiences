@@ -155,6 +155,11 @@ export function generateProposal({
       "Luxury Riviera Experience";
   }
 
+  // INCLUDED SECTIONS
+
+  const includedSections =
+    bestExperience.included || [];
+
   return {
 
     heroTitle,
@@ -167,5 +172,7 @@ export function generateProposal({
 
     scoredExperiences:
       sortedExperiences,
+
+    includedSections,
   };
 }

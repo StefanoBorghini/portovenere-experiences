@@ -14,6 +14,7 @@ interface ProposalPageProps {
   }>;
 }
 
+
 export default async function ProposalPage({
   params,
 }: ProposalPageProps) {
@@ -27,6 +28,8 @@ export default async function ProposalPage({
       </main>
     );
   }
+
+  
 
   // GET PROPOSAL
 
@@ -64,6 +67,10 @@ export default async function ProposalPage({
       travelingWithChildren:
         lead.traveling_with_children || false,
     });
+
+    const includedSections =
+  generatedProposal.includedSections;
+
 
   // DYNAMIC CONTENT
 
@@ -296,38 +303,53 @@ export default async function ProposalPage({
 
       {/* INCLUDED */}
 
-      <section className="pb-32 px-6">
+   <section className="pb-32 px-6">
 
-        <div className="max-w-5xl mx-auto">
+  <div className="max-w-5xl mx-auto">
 
-          <h2 className="text-5xl font-light mb-16 text-center">
-            Included in your experience
-          </h2>
+    <h2 className="text-5xl font-light mb-16 text-center">
+      Included in your experience
+    </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+    <div className="grid md:grid-cols-2 gap-6">
 
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Private curated itinerary
-            </div>
+      {includedSections.map(
+        (
+          section: any,
+          index: number
+        ) => (
 
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Personalized concierge assistance
-            </div>
+          <div
+            key={index}
+            className="border border-white/10 rounded-2xl p-8 bg-white/5"
+          >
 
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Premium Mediterranean atmosphere
-            </div>
+            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-5">
+              {section.title}
+            </p>
 
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-              Tailored local experiences
-            </div>
+            <p className="text-zinc-300 leading-8 whitespace-pre-line">
+              {section.text}
+            </p>
+
+            {section.optional && (
+
+              <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
+                * Optional curated activity available upon request
+              </p>
+
+            )}
 
           </div>
 
-        </div>
+        )
+      )}
 
-      </section>
+    </div>
 
+  </div>
+
+</section>
       {/* GALLERY */}
 
 <section className="pb-32 px-6">
