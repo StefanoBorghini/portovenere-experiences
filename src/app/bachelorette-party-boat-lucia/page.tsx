@@ -142,13 +142,10 @@ export default async function ProposalPage() {
             <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                Featured Experience
+                 INCLUDED IN THE TOUR
               </p>
 
-              <h3 className="text-4xl font-light mb-6">
-                INCLUDED IN THE TOUR:
-              </h3>
-
+             
               <p className="text-zinc-400 leading-8">
                 Music,
 Beach towels,
