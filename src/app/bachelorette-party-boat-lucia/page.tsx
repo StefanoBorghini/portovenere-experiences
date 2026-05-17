@@ -27,9 +27,11 @@ export default async function ProposalPage() {
       "Private Boat Experience",
 
     description:
-    "5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia). " +
-    "Transit in the Portovenere canal with a view of San Pietro and Palmaria island. " +
-    "Tour of the Cinque Terre Marine Protected Area with a view of the villages from the sea." +
+
+    
+    "5H Tour: Embarkation / Disembarkation at Porto Mirabello (La Spezia).<br /> " +
+    "Transit in the Portovenere canal with a view of San Pietro and Palmaria island.<br /> " +
+    "Tour of the Cinque Terre Marine Protected Area with a view of the villages from the sea.<br />" +
     "with a stop in front of each of them with a description of the main farms belonging to the area and tasting of local food and wine products.",
   };
 
