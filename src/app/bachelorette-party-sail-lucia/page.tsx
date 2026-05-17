@@ -17,7 +17,7 @@ export default async function ProposalPage() {
     "Mediterranean Bachelorette Party";
 
   const heroImage =
-    "/images/sailing/hero.webp";
+    "https://www.portovenere.com/wp-content/uploads/2026/02/352.webp";
 
   const price =
     "€ 1800";
@@ -126,11 +126,11 @@ export default async function ProposalPage() {
           <div className="text-center mb-20">
 
             <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-             Private Boat Experience
+             Private Sailing Experience
             </p>
 
             <h2 className="text-3xl md:text-7xl font-light leading-tight">
-              A curated private boat journey through in hidden coves and Mediterranean landscapes.
+              Discover the Gulf of Poets from a unique perspective at sea.
             </h2>
 
           </div>
@@ -142,29 +142,14 @@ export default async function ProposalPage() {
             <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
 
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                 INCLUDED IN THE TOUR
+                 CURATED PRIVATE SAILING
               </p>
 
              
               <p className="text-zinc-400 leading-8">
-                Music,
-Beach towels,
-Inflatables,
-Snorkeling masks,
-Drinks,
-Cinque Terre wines,
-Aperitif made only with local products
-(rice cake, vegetable cake, pizza, focaccia
-and stuffed focaccia),
-Hostess/Steward,
-Captain,
-Insurance,
-Fuel.
-N.2 refrigerators,
-Wc Dinette,
-Large awning,
-Large sundeck,
-Fresh water shower.
+           Sail through one of the most breathtaking stretches of the Ligurian coastline,<br></br>
+            exploring Palmaria, Tino and Tinetto islands, <br></br>
+           the colorful village of Portovenere and the elegant seaside gems of Lerici and Tellaro.
 
               </p>
 
@@ -193,12 +178,12 @@ Fresh water shower.
 
                 <p>
                   Atmosphere:
-                  Adventure, Authentic
+                  Romantic, Authentic
                 </p>
 
                 <p>
                   Guests:
-                  9-12
+                  8-10
                 </p>
 
                 
@@ -231,17 +216,22 @@ Fresh water shower.
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="text-zinc-300 leading-8 whitespace-pre-LINE"> Embarkation/Disembarking La Spezia, Lerici, Portovenere or Monterosso:<br></br>
-                 transit in the Portovenere channel with a view of San Pietro and Palmaria Island.<br></br> Tour of the Cinque Terre Marine Protected Area
-            </p> </div>
+             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">Duration : 7 hours private sailing experience. <br></br>
+             Departure : Porto delle Grazie – Portovenere.<br></br>
+             Yacht : Private 40ft sailing yacht with local crew.
+             </p> </div>
 
 
                 <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
                <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
-   View of the villages from the sea, a stop in front of each
-one with a description of the main agricultural
-companies belonging to the area and tasting of local
-food and wine products.
+   Hidden coves, islands and timeless villages.<br></br>
+Navigation through Portovenere, Palmaria, Tino, Tinetto, Lerici and Tellaro.
+<br></br>
+Swim in crystal-clear bays and hidden coves accessible only by sea.
+
+<br></br>Slow navigation along dramatic cliffs and picturesque Mediterranean villages.
+<br></br>
+Possibility to stop in Portovenere, Lerici or Tellaro, depending on sea
   </p>
 
             </div>
