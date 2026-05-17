@@ -32,9 +32,9 @@ export default async function ProposalPage() {
 
   const galleryImages = [
 
-    "https://hostingssd101.netsons.net:2096/cpsess3522584282/3rdparty/roundcube/?_task=mail&_mbox=INBOX&_uid=117&_part=9&_action=get&_extwin=1&_framed=1&_mimewarning=1&_embed=1",
+    "https://www.portovenere.com/wp-content/uploads/2026/05/FOTO_1.jpg",
 
-    "https://hostingssd101.netsons.net:2096/cpsess3522584282/3rdparty/roundcube/?_task=mail&_mbox=INBOX&_uid=117&_part=5&_action=get&_extwin=1&_framed=1&_mimewarning=1&_embed=1",
+    "https://www.portovenere.com/wp-content/uploads/2026/05/Degustazione.jpg",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
