@@ -32,9 +32,9 @@ export default async function ProposalPage() {
 
   const galleryImages = [
 
-    "https://www.aphrodite5terreboattour.com/public/services_featured/aphrodite_tour-5terre.jpg",
+    "https://hostingssd101.netsons.net:2096/cpsess3522584282/3rdparty/roundcube/?_task=mail&_mbox=INBOX&_uid=117&_part=9&_action=get&_extwin=1&_framed=1&_mimewarning=1&_embed=1",
 
-    "https://scontent.fmxp4-1.fna.fbcdn.net/v/t1.6435-9/206512996_324916929261741_5461553870419850360_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=3a1ebe&_nc_ohc=J2TsVwKvSqQQ7kNvwFVE8fr&_nc_oc=AdrDMajlN_b0B9nvvkE6hgP651rnkZH1nv7l1l7OCvXkU5HP0z_NDiWroPo5LcKCHHA&_nc_zt=23&_nc_ht=scontent.fmxp4-1.fna&_nc_gid=gajdEGmiPcvbzhsQarCOHw&_nc_ss=7b2a8&oh=00_Af7aCk1tCO0fgsU9grezkgAP2WTD5iz8h1VgP9AXbHBhqQ&oe=6A314A99",
+    "https://hostingssd101.netsons.net:2096/cpsess3522584282/3rdparty/roundcube/?_task=mail&_mbox=INBOX&_uid=117&_part=5&_action=get&_extwin=1&_framed=1&_mimewarning=1&_embed=1",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
