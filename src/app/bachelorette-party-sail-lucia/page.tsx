@@ -20,7 +20,7 @@ export default async function ProposalPage() {
     "https://www.portovenere.com/wp-content/uploads/2026/02/352.webp";
 
   const price =
-    "€ 1800";
+    "€ 1900";
 
   const featuredExperience = {
     title:
