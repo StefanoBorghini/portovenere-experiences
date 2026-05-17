@@ -216,27 +216,30 @@ export default async function ProposalPage() {
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> 5H Tour:Embarkation / Disembarkation<br></br> at Porto Mirabello (La Spezia): transit in the Portovenere canal with a view of San Pietro and Palmaria island. Tour of the Cinque Terre Marine Protected Area
+             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> Embarkation/Disembarking La Spezia, Lerici, Portovenere or Monterosso:<br></br>
+                 transit in the Portovenere channel with a view of San Pietro and Palmaria Island.<br></br> Tour of the Cinque Terre Marine Protected Area
             </p> </div>
 
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-                            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
-  Curated Mediterranean food and wine tasting experience featuring local Ligurian specialties.</p>
 
-
-            </div>
-
-            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+                <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
                <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
-    Wine Experience
- 
- 
-    Curated tasting of artisanal Cinque Terre wines produced by small local winemakers 
-
-    A Mediterranean wine journey focused on authentic coastal viticulture and local traditions.
+   View of the villages from the sea, a stop in front of each
+one with a description of the main agricultural
+companies belonging to the area and tasting of local
+food and wine products.
   </p>
 
             </div>
+
+            <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
+                            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+  Curated Mediterranean food and wine tasting experience featuring local Ligurian specialties.<br></br>
+  Curated tasting of artisanal Cinque Terre wines produced by small local winemakers </p>
+
+
+            </div>
+
+        
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
