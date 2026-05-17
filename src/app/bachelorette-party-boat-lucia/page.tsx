@@ -80,7 +80,7 @@ export default async function ProposalPage() {
           </h1>
 
           <p className="text-xl md:text-3xl mb-12 text-zinc-200">
-            Tailored for {clientName}
+            Tailored for {clientName}and her friends
           </p>
 
           <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
