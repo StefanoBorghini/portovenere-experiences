@@ -20,7 +20,7 @@ export default async function ProposalPage() {
     "https://www.aphrodite5terreboattour.com/public/services_featured/1613034819_servizi-barca-cinque-terre.jpg";
 
   const price =
-    "€2300";
+    "€ 2300";
 
   const featuredExperience = {
     title:
