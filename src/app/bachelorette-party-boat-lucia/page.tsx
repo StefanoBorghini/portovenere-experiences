@@ -14,7 +14,7 @@ export default async function ProposalPage() {
   // STATIC CONTENT
 
   const heroTitle =
-    "Mediterranean Escape";
+    "Mediterranean Bachelorette Party";
 
   const heroImage =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2070";
