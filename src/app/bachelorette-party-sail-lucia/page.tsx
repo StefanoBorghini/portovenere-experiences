@@ -17,24 +17,24 @@ export default async function ProposalPage() {
     "Mediterranean Bachelorette Party";
 
   const heroImage =
-    "https://www.aphrodite5terreboattour.com/public/services_featured/1613034819_servizi-barca-cinque-terre.jpg";
+    "/images/sailing/hero.webp";
 
   const price =
-    "€ 2300";
+    "€ 1800";
 
   const featuredExperience = {
     title:
       "Private Boat Experience",
 
     description:
-      "A curated private boat journey through in Cinque Terre and Portovenere, hidden coves and Mediterranean landscapes.",
+      "A curated private sailing journey through in Portovenere, hidden coves and Mediterranean landscapes.",
   };
 
   const galleryImages = [
 
-    "https://www.portovenere.com/wp-content/uploads/2026/05/FOTO_1.jpg",
+     "/images/sailing/img-3.webp",
 
-    "https://images.pexels.com/photos/5046351/pexels-photo-5046351.jpeg",
+    "/images/sailing/img-4.webp",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
