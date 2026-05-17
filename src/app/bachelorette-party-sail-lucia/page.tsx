@@ -36,7 +36,7 @@ export default async function ProposalPage() {
 
     "/images/sailing/img-4.jpg",
 
-    "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
+    "/images/sailing/img-5.png",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/Copia-di-Copia-di-meeting-underwater-3-scaled.webp?fit=2560%2C1709&ssl=1",
   ];
