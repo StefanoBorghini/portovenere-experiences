@@ -231,13 +231,13 @@ Fresh water shower.
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4"> Embarkation/Disembarking La Spezia, Lerici, Portovenere or Monterosso:<br></br>
+             <p className="text-zinc-300 leading-8 whitespace-pre-LINE"> Embarkation/Disembarking La Spezia, Lerici, Portovenere or Monterosso:<br></br>
                  transit in the Portovenere channel with a view of San Pietro and Palmaria Island.<br></br> Tour of the Cinque Terre Marine Protected Area
             </p> </div>
 
 
                 <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-               <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+               <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
    View of the villages from the sea, a stop in front of each
 one with a description of the main agricultural
 companies belonging to the area and tasting of local
@@ -247,7 +247,7 @@ food and wine products.
             </div>
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-                            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+                            <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
   Curated Mediterranean food and wine tasting experience featuring local Ligurian specialties.<br></br>
   Curated tasting of artisanal Cinque Terre wines produced by small local winemakers </p>
 
@@ -257,7 +257,7 @@ food and wine products.
         
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-4">
+            <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
 
     A private mermaiding experience in the crystal-clear waters of the Ligurian coast.
 
