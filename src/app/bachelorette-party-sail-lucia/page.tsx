@@ -34,7 +34,7 @@ export default async function ProposalPage() {
 
      "/images/sailing/img-3.webp",
 
-    "/images/sailing/img-4.webp",
+    "/images/sailing/img-4.jpg",
 
     "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1",
 
