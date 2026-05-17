@@ -21,7 +21,7 @@ export const experiences = [
     minBudget: 1000,
 
     heroImage:
-      "/images/sailing/hero.webp",
+      "https://www.portovenere.com/wp-content/uploads/2026/02/352.webp",
 
     description:
       "A curated private sailing journey through the Gulf of Poets and the Cinque Terre coastline.",
