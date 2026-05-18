@@ -423,7 +423,7 @@ traveling_with_children:
   };
 
   return (
-    <main className="min-h-screen bg-[#0C0C0C] text-[f2f3f0] px-6 py-24">
+    <main className="min-h-screen bg-[#0C0C0C] text-white px-6 py-24">
 
       <div className="max-w-4xl mx-auto">
 

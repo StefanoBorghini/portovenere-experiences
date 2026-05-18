@@ -9,7 +9,7 @@
 
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #f2f3f0;
   }
 
 }
@@ -24,7 +24,7 @@ body {
 
   body {
     background: black !important;
-    color: white !important;
+    color: #f2f3f0 !important;
   }
 
   button {
@@ -46,7 +46,7 @@ body {
 
   a {
   color: black !important;
-  background: white !important;
+  background: #f2f3f0 !important;
   border: none !important;
 }
 
@@ -55,7 +55,7 @@ body {
     width: 210mm;
     min-height: 297mm;
     background: #0C0C0C !important;
-    color: white !important;
+    color: #f2f3f0 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
