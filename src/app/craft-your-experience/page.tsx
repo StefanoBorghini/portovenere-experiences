@@ -509,8 +509,8 @@ traveling_with_children:
                     formData.experiences.includes(
                       item
                     )
-                      ? "border-[f2f3f0] bg-[f2f3f0] text-black"
-                      : "border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40"
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -581,8 +581,8 @@ traveling_with_children:
                     formData.moods.includes(
                       item
                     )
-                      ? "border-[f2f3f0] bg-[f2f3f0] text-black"
-                      : "border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40"
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -631,8 +631,8 @@ traveling_with_children:
                   }
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.guests === item
-                      ? "border-[f2f3f0] bg-[f2f3f0] text-black"
-                      : "border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40"
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -684,10 +684,10 @@ traveling_with_children:
       )
     );
   }}
-  className={`w-full rounded-2xl px-6 py-6 text-lg bg-[f2f3f0]/5 border text-[f2f3f0] outline-none transition backdrop-blur-md border-[f2f3f0]/10 hover:border-[f2f3f0]/30 focus:border-[f2f3f0]/50 ${
+  className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
     errors.includes("startDate")
       ? "border-red-500 bg-red-500/10"
-      : "border-[f2f3f0]/10 hover:border-[f2f3f0]/30 focus:border-[f2f3f0]/50"
+      : "border-white/10 hover:border-white/30 focus:border-white/50"
   }`}
 />
 
@@ -720,10 +720,10 @@ traveling_with_children:
             )
           );
         }}
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-[f2f3f0]/5 border text-[f2f3f0] outline-none transition backdrop-blur-md border-[f2f3f0]/10 hover:border-[f2f3f0]/30 focus:border-[f2f3f0]/50 ${
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
           errors.includes("endDate")
             ? "border-red-500 bg-red-500/10"
-            : "border-[f2f3f0]/10 focus:border-[f2f3f0]/40"
+            : "border-white/10 focus:border-white/40"
         }`}
       />
 
@@ -767,8 +767,8 @@ traveling_with_children:
         }}
         className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
           formData.travelingWithChildren === item.value
-            ? "border-[f2f3f0] bg-[f2f3f0] text-black"
-            : "border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40"
+            ? "border-white bg-white text-black"
+            : "border-white/10 bg-white/5 hover:border-white/40"
         }`}
       >
         {item.label}
@@ -817,8 +817,8 @@ traveling_with_children:
                   }
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
                     formData.budget === item
-                      ? "border-[f2f3f0] bg-[f2f3f0] text-black"
-                      : "border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40"
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
                   {item}
@@ -859,10 +859,10 @@ traveling_with_children:
                   )
                 );
               }}
-              className={`w-full rounded-2xl px-6 py-5 text-[f2f3f0] placeholder:text-zinc-500 outline-none transition ${
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
                 errors.includes("name")
                   ? "border border-red-500 bg-red-500/10"
-                  : "border border-[f2f3f0]/10 bg-[f2f3f0]/5 focus:border-[f2f3f0]/40"
+                  : "border border-white/10 bg-white/5 focus:border-white/40"
               }`}
             />
 
@@ -894,10 +894,10 @@ traveling_with_children:
                   )
                 );
               }}
-              className={`w-full rounded-2xl px-6 py-5 text-[f2f3f0] placeholder:text-zinc-500 outline-none transition ${
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
                 errors.includes("email")
                   ? "border border-red-500 bg-red-500/10"
-                  : "border border-[f2f3f0]/10 bg-[f2f3f0]/5 hover:border-[f2f3f0]/40 focus:border-[f2f3f0]/40"
+                  : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
               }`}
             />
 
@@ -964,7 +964,7 @@ traveling_with_children:
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-[f2f3f0] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+              className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
             >
               Generate Private Proposal
             </button>
