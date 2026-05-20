@@ -218,8 +218,7 @@ view of all the towns and a swimming stop.
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
              <p className="text-zinc-300 leading-8 whitespace-pre-LINE">              
-  Music system, beach towels, inflatables, snorkeling equipment, welcome drinks and 
-  a curated aperitif prepared exclusively with local Ligurian products and Cinque Terre wines.
+  Music system, beach towels, inflatables, snorkeling equipment.
    <br></br>On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, large awning, spacious sundeck and fresh water shower.
 </p> </div>
 
