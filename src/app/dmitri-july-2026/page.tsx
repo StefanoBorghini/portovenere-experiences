@@ -38,7 +38,7 @@ export default async function ProposalPage() {
 
     "/images/yachts/img-1.jpg",
 
-    "/images/dining/wine.jpg",
+    "/images/yachts/Degustazione.jpg",
   ];
 
   const whatsappUrl =
