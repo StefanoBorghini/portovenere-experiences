@@ -32,7 +32,7 @@ export default async function ProposalPage() {
 
   const galleryImages = [
 
-    "https://www.portovenere.com/wp-content/uploads/2026/05/FOTO_1.jpg",
+    "/images/yachts/family.jpg",
 
     "/images/yachts/img-2.jpg",
 
