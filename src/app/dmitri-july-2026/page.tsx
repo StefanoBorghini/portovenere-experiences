@@ -218,23 +218,9 @@ view of all the towns and a swimming stop.
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
              <p className="text-zinc-300 leading-8 whitespace-pre-LINE">                 Music,
-Beach towels,
-Inflatables,
-Snorkeling masks,
-Drinks,
-Cinque Terre wines,
-Aperitif made only with local products
-(rice cake, vegetable cake, pizza, focaccia
-and stuffed focaccia),
-Hostess/Steward,
-Captain,
-Insurance,
-Fuel.
-N.2 refrigerators,
-Wc Dinette,
-Large awning,
-Large sundeck,
-Fresh water shower.
+Music system, beach towels, inflatables, snorkeling equipment,
+On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, 
+large awning, spacious sundeck and fresh water shower.
 </p> </div>
 
 
