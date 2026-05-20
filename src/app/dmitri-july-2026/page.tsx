@@ -147,8 +147,8 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-Embarkation/Disembarking Portovenere - Monterosso: circumnavigation of the islands (Palmaria,
-Tino and Tinetto), transit in the Portovenere channel with
+Embarkation/Disembarking<br></br>Portovenere - Monterosso: circumnavigation of the islands (Palmaria,
+Tino and Tinetto),<br></br> transit in the Portovenere channel with
 a view of San Pietro, the Byron cave and navigation
 towards the Cinque Terre Marine Protected Area with a
 view of all the towns and a swimming stop.
@@ -169,8 +169,7 @@ view of all the towns and a swimming stop.
                 <p>
                   Guests:
                   {" "}
-                  {clientName} and her friends
-                </p>
+                  {clientName} and his family             </p>
 
                 <p>
                   Experiences:
@@ -179,19 +178,19 @@ view of all the towns and a swimming stop.
 
                 <p>
                   Atmosphere:
-                  Adventure, Authentic
+                  Family, Relaxing
                 </p>
 
                 <p>
                   Guests:
-                  9-12
+                  4
                 </p>
 
                 
 
                 <p>
                   Experience:
-                  Private Bachelorette Party
+                  Private Boat Tour
                 </p>
 
               </div>
