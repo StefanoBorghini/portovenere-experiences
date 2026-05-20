@@ -17,7 +17,7 @@ export default async function ProposalPage() {
     "Mediterranean Bachelorette Party";
 
   const heroImage =
-    "/images/yachts/hero.jpg";
+    "/images/yachts/hero.webp";
 
   const price =
     "€ 2300";
