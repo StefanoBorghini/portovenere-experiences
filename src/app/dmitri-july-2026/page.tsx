@@ -235,8 +235,10 @@ food and wine products.
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
                             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
-  Curated Mediterranean food and wine tasting experience featuring local Ligurian specialties.<br></br>
-  Curated tasting of artisanal Cinque Terre wines produced by small local winemakers </p>
+                 Technical Details:<br></br>             
+  Gozzo Libeccio" 8.50 m Walk Around model launched in 2019.<br></br>
+   It is a DayCruiser with lower deck that can accommodate up to 8 people.<br></br>
+   Maximum speed: 27kt, engine: 230 hp. </p>
 
 
             </div>
