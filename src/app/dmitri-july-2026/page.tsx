@@ -147,6 +147,7 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
+                Duration :5 hours<br></br>
 Embarkation : Portovenere<br></br>Circumnavigation of the islands (Palmaria,
 Tino and Tinetto),<br></br> transit in the Portovenere channel with
 a view of San Pietro, the Byron cave and navigation
@@ -217,7 +218,9 @@ view of all the towns and a swimming stop.
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
              <p className="text-zinc-300 leading-8 whitespace-pre-LINE">              
-  "Music system, beach towels, inflatables, snorkeling equipment, welcome drinks and a curated aperitif prepared exclusively with local Ligurian products and Cinque Terre wines. On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, large awning, spacious sundeck and fresh water shower.",
+  Music system, beach towels, inflatables, snorkeling equipment, welcome drinks and 
+  a curated aperitif prepared exclusively with local Ligurian products and Cinque Terre wines.
+   <br></br>On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, large awning, spacious sundeck and fresh water shower.
 </p> </div>
 
 
