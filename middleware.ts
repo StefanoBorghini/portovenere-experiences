@@ -22,9 +22,9 @@ const protectedRoutes = {
 
 
   "/dmitri-july-2026": {
-    username: "Dmitri",
-    password: "29-july-2026@",
-    expiresAt: "2026-05-23T23:59:59",
+    username: "fdsvsvsv",
+    password: "Scogio1987@Rjfijffjafsesef9",
+    expiresAt: "2126-05-23T23:59:59",
   },
   
 
