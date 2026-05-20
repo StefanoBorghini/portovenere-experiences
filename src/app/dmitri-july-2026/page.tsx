@@ -261,12 +261,10 @@ food and wine products.
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">
 
-    A private mermaiding experience in the crystal-clear waters of the Ligurian coast.
-
-    Designed as a playful and cinematic Mediterranean activity, combining sea exploration, relaxation and unforgettable moments in nature.
+   A private wine tasting experience hosted by Walter De Battè, discovering artisanal Ligurian wines, local flavors and authentic stories rooted in the Cinque Terre landscape. A slow and intimate journey through taste, territory and Mediterranean culture.
   </p>
   <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
-  * Optional experience suggested by Portovenere Experiences
+  * Curated experience suggested by Portovenere Experiences
 </p>
             </div>
 
