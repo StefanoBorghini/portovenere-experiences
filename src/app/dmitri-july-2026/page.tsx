@@ -14,7 +14,7 @@ export default async function ProposalPage() {
   // STATIC CONTENT
 
   const heroTitle =
-    "Mediterranean Boat Experience";
+    "Ligurian Private Boat Experience";
 
   const heroImage =
     "/images/yachts/hero-web.webp";
@@ -38,7 +38,7 @@ export default async function ProposalPage() {
 
     "/images/yachts/img-1.jpg",
 
-    "https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/Copia-di-Copia-di-meeting-underwater-3-scaled.webp?fit=2560%2C1709&ssl=1",
+    "/images/dining/wine.jpg",
   ];
 
   const whatsappUrl =
