@@ -147,9 +147,9 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-Embarkation/Disembarking<br></br>Portovenere - Monterosso: circumnavigation of the islands (Palmaria,
-Tino and Tinetto),<br></br> transit in the Portovenere channel with
-a view of San Pietro, the Byron cave and navigation
+Embarkation / Disembarking<br></br>Portovenere / Monterosso <br></br>Circumnavigation of the islands (Palmaria,
+Tino and Tinetto), transit in the Portovenere channel with
+a view of San Pietro, <br></br>the Byron cave and navigation
 towards the Cinque Terre Marine Protected Area with a
 view of all the towns and a swimming stop.
               </p>
