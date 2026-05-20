@@ -147,25 +147,11 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-                Music,
-Beach towels,
-Inflatables,
-Snorkeling masks,
-Drinks,
-Cinque Terre wines,
-Aperitif made only with local products
-(rice cake, vegetable cake, pizza, focaccia
-and stuffed focaccia),
-Hostess/Steward,
-Captain,
-Insurance,
-Fuel.
-N.2 refrigerators,
-Wc Dinette,
-Large awning,
-Large sundeck,
-Fresh water shower.
-
+Embarkation/Disembarking Portovenere - Monterosso: circumnavigation of the islands (Palmaria,
+Tino and Tinetto), transit in the Portovenere channel with
+a view of San Pietro, the Byron cave and navigation
+towards the Cinque Terre Marine Protected Area with a
+view of all the towns and a swimming stop.
               </p>
 
             </div>
@@ -231,9 +217,25 @@ Fresh water shower.
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="text-zinc-300 leading-8 whitespace-pre-LINE"> Embarkation/Disembarking La Spezia, Lerici, Portovenere or Monterosso:<br></br>
-                 transit in the Portovenere channel with a view of San Pietro and Palmaria Island.<br></br> Tour of the Cinque Terre Marine Protected Area
-            </p> </div>
+             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">                 Music,
+Beach towels,
+Inflatables,
+Snorkeling masks,
+Drinks,
+Cinque Terre wines,
+Aperitif made only with local products
+(rice cake, vegetable cake, pizza, focaccia
+and stuffed focaccia),
+Hostess/Steward,
+Captain,
+Insurance,
+Fuel.
+N.2 refrigerators,
+Wc Dinette,
+Large awning,
+Large sundeck,
+Fresh water shower.
+</p> </div>
 
 
                 <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
