@@ -1,109 +1,5 @@
 import { cookies } from "next/headers";
 
-import { useEffect, useState } from "react";
-
-
-
-function CountdownTimer() {
-
-  const targetDate = new Date(
-    "2026-05-23T23:59:00"
-  ).getTime();
-
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  useEffect(() => {
-
-    const interval = setInterval(() => {
-
-      const now = new Date().getTime();
-
-      const distance = targetDate - now;
-
-      if (distance <= 0) {
-
-        clearInterval(interval);
-
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(
-          distance / (1000 * 60 * 60 * 24)
-        ),
-
-        hours: Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) /
-          (1000 * 60 * 60)
-        ),
-
-        minutes: Math.floor(
-          (distance % (1000 * 60 * 60)) /
-          (1000 * 60)
-        ),
-
-        seconds: Math.floor(
-          (distance % (1000 * 60)) / 1000
-        ),
-      });
-
-    }, 1000);
-
-    return () => clearInterval(interval);
-
-  }, []);
-
-  return (
-
-    <div className="flex items-center justify-center gap-6 py-10">
-
-      <div className="text-center">
-        <p className="text-4xl font-light">
-          {timeLeft.days}
-        </p>
-        <p className="text-xs uppercase tracking-[0.2em]">
-          Days
-        </p>
-      </div>
-
-      <div className="text-center">
-        <p className="text-4xl font-light">
-          {timeLeft.hours}
-        </p>
-        <p className="text-xs uppercase tracking-[0.2em]">
-          Hours
-        </p>
-      </div>
-
-      <div className="text-center">
-        <p className="text-4xl font-light">
-          {timeLeft.minutes}
-        </p>
-        <p className="text-xs uppercase tracking-[0.2em]">
-          Minutes
-        </p>
-      </div>
-
-      <div className="text-center">
-        <p className="text-4xl font-light">
-          {timeLeft.seconds}
-        </p>
-        <p className="text-xs uppercase tracking-[0.2em]">
-          Seconds
-        </p>
-      </div>
-
-    </div>
-
-  );
-}
-
-
 export default async function ProposalPage() {
 
   const cookieStore =
@@ -457,7 +353,7 @@ food and wine products.
           >
             Request Private Booking
           </a>
-<CountdownTimer />
+
         </div>
 
       </section>
