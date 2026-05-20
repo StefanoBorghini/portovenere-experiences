@@ -130,7 +130,8 @@ export default async function ProposalPage() {
             </p>
 
             <h2 className="text-3xl md:text-7xl font-light leading-tight">
-              A curated private boat journey through in hidden coves and Mediterranean landscapes.
+              
+              A curated private boat journey through hidden coves and Mediterranean landscapes.
             </h2>
 
           </div>
