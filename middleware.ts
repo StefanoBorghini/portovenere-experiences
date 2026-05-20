@@ -24,7 +24,7 @@ const protectedRoutes = {
   "/dmitri-july-2026": {
     username: "Dmitri",
     password: "29-july-2026@",
-    expiresAt: "2026-05-20T23:59:59",
+    expiresAt: "2026-05-23T23:59:59",
   },
   
 
