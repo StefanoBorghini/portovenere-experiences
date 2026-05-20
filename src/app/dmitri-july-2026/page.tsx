@@ -36,7 +36,7 @@ export default async function ProposalPage() {
 
     "/images/yachts/img-2.jpg",
 
-    "/images/yachts/Istantanea.png",
+    "/images/sailing/img-5.png",
 
     "/images/yachts/Degustazione.jpg",
   ];
