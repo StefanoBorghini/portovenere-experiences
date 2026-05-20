@@ -20,7 +20,7 @@ export default async function ProposalPage() {
     "/images/yachts/hero-web.webp";
 
   const price =
-    "€ 2300";
+    "€ 1600";
 
   const featuredExperience = {
     title:
@@ -147,7 +147,7 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-                Duration :5 hours<br></br>
+                Duration : 5 hours<br></br>
 Embarkation : Portovenere<br></br>Circumnavigation of the islands (Palmaria,
 Tino and Tinetto),<br></br> transit in the Portovenere channel with
 a view of San Pietro, the Byron cave and navigation
