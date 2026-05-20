@@ -147,9 +147,9 @@ export default async function ProposalPage() {
 
              
               <p className="text-zinc-400 leading-8">
-Embarkation / Disembarking<br></br>Portovenere / Monterosso <br></br>Circumnavigation of the islands (Palmaria,
-Tino and Tinetto), transit in the Portovenere channel with
-a view of San Pietro, <br></br>the Byron cave and navigation
+Embarkation : Portovenere<br></br>Circumnavigation of the islands (Palmaria,
+Tino and Tinetto),<br></br> transit in the Portovenere channel with
+a view of San Pietro, the Byron cave and navigation
 towards the Cinque Terre Marine Protected Area with a
 view of all the towns and a swimming stop.
               </p>
@@ -216,10 +216,8 @@ view of all the towns and a swimming stop.
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="border border-white/10 rounded-2xl p-8 bg-white/5">
-             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">                 Music,
-Music system, beach towels, inflatables, snorkeling equipment,
-On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, 
-large awning, spacious sundeck and fresh water shower.
+             <p className="text-zinc-300 leading-8 whitespace-pre-LINE">              included:
+  "Music system, beach towels, inflatables, snorkeling equipment, welcome drinks and a curated aperitif prepared exclusively with local Ligurian products and Cinque Terre wines. On board: hostess/steward service, captain, insurance, fuel, two refrigerators, WC, dinette area, large awning, spacious sundeck and fresh water shower.",
 </p> </div>
 
 
