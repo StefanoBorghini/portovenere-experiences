@@ -59,10 +59,10 @@ export const experiences = [
       // SINGLE MOOD
 
       "Sea Escape-Romantic":
-        "/images/sea/dino/romantic.webp",
+         "/images/sailing/dino/romantic.webp",
 
       "Sea Escape-Authentic":
-        "/images/sea/dino/authentic.webp",
+         "/images/sailing/dino/authentic.webp",
 
       "Sea Escape-Adventure":
          "/images/sailing/dino/adventure.webp",
