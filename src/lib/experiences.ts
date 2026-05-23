@@ -9,6 +9,9 @@ export const experiences = [
 
     title: "Dino",
 
+    operator:
+      "Dino",
+
     macroCategory:
       "Sea Escape",
 
@@ -41,20 +44,35 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/sailing/hero.webp",
+        "/images/heroes/sea-romantic.webp",
 
       Authentic:
-        "/images/sailing/hero.webp",
+        "/images/heroes/sea-authentic.webp",
 
       Adventure:
-        "/images/sailing/hero.webp",
+        "/images/heroes/sea-adventure.webp",
 
       Cinematic:
-        "/images/sailing/hero.webp",
+        "/images/heroes/sea-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Sea Escape-Romantic":
+        "/images/heroes/sea-romantic.webp",
+
+      "Sea Escape-Authentic":
+        "/images/heroes/sea-authentic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/heroes/sea-gourmet-romantic.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/heroes/sea-wild-adventure.webp",
     },
 
     heroImage:
-      "/images/sailing/hero.webp",
+      "/images/sea/dino-hero.webp",
 
     description:
       "Authentic Riviera sailing between hidden coves, cinematic sea landscapes and Mediterranean atmosphere.",
@@ -96,6 +114,9 @@ export const experiences = [
 
     title: "Aphrodite",
 
+    operator:
+      "Aphrodite",
+
     macroCategory:
       "Sea Escape",
 
@@ -128,20 +149,32 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/yachts/hero.webp",
+        "/images/heroes/yacht-romantic.webp",
 
       Authentic:
-        "/images/yachts/hero.webp",
+        "/images/heroes/yacht-authentic.webp",
 
       Adventure:
-        "/images/yachts/hero.webp",
+        "/images/heroes/yacht-adventure.webp",
 
       Cinematic:
-        "/images/yachts/hero.webp",
+        "/images/heroes/yacht-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Sea Escape-Authentic":
+        "/images/heroes/sea-authentic.webp",
+
+      "Sea Escape-Adventure":
+        "/images/heroes/sea-adventure.webp",
+
+      "Sea Escape-Gourmet Escape-Authentic":
+        "/images/heroes/sea-gourmet-authentic.webp",
     },
 
     heroImage:
-      "/images/yachts/hero.webp",
+      "/images/sea/aphrodite-hero.webp",
 
     description:
       "Luxury Mediterranean yacht journeys combining exploration, freedom and Riviera atmosphere.",
@@ -183,6 +216,9 @@ export const experiences = [
 
     title: "Velamica",
 
+    operator:
+      "Velamica",
+
     macroCategory:
       "Sea Escape",
 
@@ -213,16 +249,28 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/sea/velamica-romantic.webp",
+        "/images/heroes/velamica-romantic.webp",
 
       Authentic:
-        "/images/sea/velamica-authentic.webp",
+        "/images/heroes/velamica-authentic.webp",
 
       Adventure:
-        "/images/sea/velamica-adventure.webp",
+        "/images/heroes/velamica-adventure.webp",
 
       Cinematic:
-        "/images/sea/velamica-cinematic.webp",
+        "/images/heroes/velamica-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Sea Escape-Adventure":
+        "/images/heroes/sea-adventure.webp",
+
+      "Sea Escape-Cinematic":
+        "/images/heroes/sea-cinematic.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/heroes/sea-wild-adventure.webp",
     },
 
     heroImage:
@@ -268,6 +316,9 @@ export const experiences = [
 
     title: "Velagiovane",
 
+    operator:
+      "Velagiovane",
+
     macroCategory:
       "Sea Escape",
 
@@ -298,16 +349,25 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/sea/velagiovane-romantic.webp",
+        "/images/heroes/velagiovane-romantic.webp",
 
       Authentic:
-        "/images/sea/velagiovane-authentic.webp",
+        "/images/heroes/velagiovane-authentic.webp",
 
       Adventure:
-        "/images/sea/velagiovane-adventure.webp",
+        "/images/heroes/velagiovane-adventure.webp",
 
       Cinematic:
-        "/images/sea/velagiovane-cinematic.webp",
+        "/images/heroes/velagiovane-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Sea Escape-Cinematic":
+        "/images/heroes/sea-cinematic.webp",
+
+      "Sea Escape-Romantic-Cinematic":
+        "/images/heroes/sea-romantic-cinematic.webp",
     },
 
     heroImage:
@@ -324,14 +384,6 @@ export const experiences = [
 
         text:
           "Private sailing across Riviera landscapes with refined cinematic atmosphere.",
-      },
-
-      {
-        title:
-          "Sunset Mediterranean Mood",
-
-        text:
-          "Golden light, cinematic perspectives and elegant sea moments.",
       },
     ],
 
@@ -356,6 +408,9 @@ export const experiences = [
     id: "airplane",
 
     title: "Airplane",
+
+    operator:
+      "Airplane",
 
     macroCategory:
       "Aerial Escape",
@@ -389,16 +444,28 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/air/airplane-romantic.webp",
+        "/images/heroes/aerial-romantic.webp",
 
       Authentic:
-        "/images/air/airplane-authentic.webp",
+        "/images/heroes/aerial-authentic.webp",
 
       Adventure:
-        "/images/air/airplane-adventure.webp",
+        "/images/heroes/aerial-adventure.webp",
 
       Cinematic:
-        "/images/air/airplane-cinematic.webp",
+        "/images/heroes/aerial-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Aerial Escape-Cinematic":
+        "/images/heroes/aerial-cinematic.webp",
+
+      "Aerial Escape-Adventure":
+        "/images/heroes/aerial-adventure.webp",
+
+      "Sea Escape-Aerial Escape-Cinematic":
+        "/images/heroes/sea-aerial-cinematic.webp",
     },
 
     heroImage:
@@ -415,14 +482,6 @@ export const experiences = [
 
         text:
           "Scenic aerial perspectives across Portovenere and the Cinque Terre.",
-      },
-
-      {
-        title:
-          "Cinematic Riviera Landscapes",
-
-        text:
-          "Mediterranean coastlines viewed from above with cinematic atmosphere.",
       },
     ],
 
@@ -443,6 +502,9 @@ export const experiences = [
     id: "mongolfiera",
 
     title: "Mongolfiera",
+
+    operator:
+      "Mongolfiera",
 
     macroCategory:
       "Aerial Escape",
@@ -477,16 +539,25 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/air/balloon-romantic.webp",
+        "/images/heroes/balloon-romantic.webp",
 
       Authentic:
-        "/images/air/balloon-authentic.webp",
+        "/images/heroes/balloon-authentic.webp",
 
       Adventure:
-        "/images/air/balloon-adventure.webp",
+        "/images/heroes/balloon-adventure.webp",
 
       Cinematic:
-        "/images/air/balloon-cinematic.webp",
+        "/images/heroes/balloon-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Aerial Escape-Adventure":
+        "/images/heroes/aerial-adventure.webp",
+
+      "Aerial Escape-Cinematic":
+        "/images/heroes/aerial-cinematic.webp",
     },
 
     heroImage:
@@ -503,14 +574,6 @@ export const experiences = [
 
         text:
           "Private aerial journeys with panoramic Riviera landscapes.",
-      },
-
-      {
-        title:
-          "Adventure Atmosphere",
-
-        text:
-          "Slow cinematic exploration suspended above Mediterranean scenery.",
       },
     ],
 
@@ -532,9 +595,13 @@ export const experiences = [
   // =========================================================
 
   {
-    id: "ristorante",
+    id: "restaurant",
 
-    title: "Prenotazione Ristorante",
+    title:
+      "Restaurant Experience",
+
+    operator:
+      "Restaurant",
 
     macroCategory:
       "Gourmet Escape",
@@ -567,13 +634,22 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/gourmet/restaurant-romantic.webp",
+        "/images/heroes/gourmet-romantic.webp",
 
       Authentic:
-        "/images/gourmet/restaurant-authentic.webp",
+        "/images/heroes/gourmet-authentic.webp",
 
       Cinematic:
-        "/images/gourmet/restaurant-cinematic.webp",
+        "/images/heroes/gourmet-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Gourmet Escape-Romantic":
+        "/images/heroes/gourmet-romantic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/heroes/sea-gourmet-romantic.webp",
     },
 
     heroImage:
@@ -591,14 +667,6 @@ export const experiences = [
         text:
           "Private Riviera dining experiences curated around atmosphere and Mediterranean cuisine.",
       },
-
-      {
-        title:
-          "Authentic Mediterranean Taste",
-
-        text:
-          "Authentic Ligurian flavors and cinematic Riviera atmosphere.",
-      },
     ],
 
     gallery: {
@@ -615,10 +683,13 @@ export const experiences = [
   },
 
   {
-    id: "food-wine",
+    id: "foodwine",
 
     title:
       "On Board Food & Wine Experiences",
+
+    operator:
+      "Food & Wine",
 
     macroCategory:
       "Gourmet Escape",
@@ -651,13 +722,22 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/gourmet/wine-romantic.webp",
+        "/images/heroes/wine-romantic.webp",
 
       Authentic:
-        "/images/gourmet/wine-authentic.webp",
+        "/images/heroes/wine-authentic.webp",
 
       Adventure:
-        "/images/gourmet/wine-adventure.webp",
+        "/images/heroes/wine-adventure.webp",
+    },
+
+    heroCombinations: {
+
+      "Gourmet Escape-Authentic":
+        "/images/heroes/gourmet-authentic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/heroes/sea-gourmet-romantic.webp",
     },
 
     heroImage:
@@ -674,14 +754,6 @@ export const experiences = [
 
         text:
           "Curated Mediterranean food and wine moments onboard and across the Riviera.",
-      },
-
-      {
-        title:
-          "Mediterranean Lifestyle",
-
-        text:
-          "Authentic Riviera atmosphere, sea views and culinary storytelling.",
       },
     ],
 
@@ -706,6 +778,9 @@ export const experiences = [
     id: "trekking",
 
     title: "Trekking",
+
+    operator:
+      "Trekking",
 
     macroCategory:
       "Wild Escape",
@@ -737,10 +812,22 @@ export const experiences = [
     heroImages: {
 
       Authentic:
-        "/images/wild/trekking-authentic.webp",
+        "/images/heroes/wild-authentic.webp",
 
       Adventure:
-        "/images/wild/trekking-adventure.webp",
+        "/images/heroes/wild-adventure.webp",
+    },
+
+    heroCombinations: {
+
+      "Wild Escape-Adventure":
+        "/images/heroes/wild-adventure.webp",
+
+      "Wild Escape-Authentic":
+        "/images/heroes/wild-authentic.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/heroes/sea-wild-adventure.webp",
     },
 
     heroImage:
@@ -778,6 +865,9 @@ export const experiences = [
 
     title: "Snorkeling",
 
+    operator:
+      "Snorkeling",
+
     macroCategory:
       "Wild Escape",
 
@@ -808,10 +898,19 @@ export const experiences = [
     heroImages: {
 
       Adventure:
-        "/images/wild/snorkeling-adventure.webp",
+        "/images/heroes/snorkeling-adventure.webp",
 
       Cinematic:
-        "/images/wild/snorkeling-cinematic.webp",
+        "/images/heroes/snorkeling-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Wild Escape-Adventure":
+        "/images/heroes/wild-adventure.webp",
+
+      "Wild Escape-Cinematic":
+        "/images/heroes/wild-cinematic.webp",
     },
 
     heroImage:
@@ -849,6 +948,9 @@ export const experiences = [
 
     title: "Mermaiding",
 
+    operator:
+      "Mermaiding",
+
     macroCategory:
       "Wild Escape",
 
@@ -881,13 +983,25 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/wild/mermaid-romantic.webp",
+        "/images/heroes/mermaid-romantic.webp",
 
       Adventure:
-        "/images/wild/mermaid-adventure.webp",
+        "/images/heroes/mermaid-adventure.webp",
 
       Cinematic:
-        "/images/wild/mermaid-cinematic.webp",
+        "/images/heroes/mermaid-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Wild Escape-Romantic":
+        "/images/heroes/wild-romantic.webp",
+
+      "Wild Escape-Cinematic":
+        "/images/heroes/wild-cinematic.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/heroes/sea-wild-adventure.webp",
     },
 
     heroImage:
@@ -925,6 +1039,9 @@ export const experiences = [
 
     title: "Horses",
 
+    operator:
+      "Horses",
+
     macroCategory:
       "Wild Escape",
 
@@ -957,13 +1074,22 @@ export const experiences = [
     heroImages: {
 
       Adventure:
-        "/images/wild/horses-adventure.webp",
+        "/images/heroes/horses-adventure.webp",
 
       Authentic:
-        "/images/wild/horses-authentic.webp",
+        "/images/heroes/horses-authentic.webp",
 
       Cinematic:
-        "/images/wild/horses-cinematic.webp",
+        "/images/heroes/horses-cinematic.webp",
+    },
+
+    heroCombinations: {
+
+      "Wild Escape-Adventure":
+        "/images/heroes/wild-adventure.webp",
+
+      "Wild Escape-Authentic":
+        "/images/heroes/wild-authentic.webp",
     },
 
     heroImage:
