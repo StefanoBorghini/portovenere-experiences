@@ -210,19 +210,7 @@ export function generateProposal({
 // MAIN CATEGORY PRIORITY
 // =====================================================
 
-const mainCategoriesPriority = [
 
-  "Sea Escape",
-
-  "Aerial Escape",
-
-  "Gourmet Escape",
-
-  "Wild Escape",
-];
-
-// prende la categoria principale
-// in base alla priorità narrativa
 
 
 
