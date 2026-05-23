@@ -54,7 +54,7 @@ export const experiences = [
       // DEFAULT
 
       "Sea Escape":
-       "/images/sailing/dino/hero.webp",
+        "/images/sailing/dino/hero.webp",
 
       // SINGLE MOOD
 
@@ -65,7 +65,7 @@ export const experiences = [
         "/images/sea/dino/authentic.webp",
 
       "Sea Escape-Adventure":
-         "/images/sailing/dino/hero.webp",
+         "/images/sailing/dino/adventure.webp",
 
       "Sea Escape-Cinematic":
         "/images/sea/dino/cinematic.webp",
