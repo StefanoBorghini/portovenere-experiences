@@ -249,7 +249,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              Limited Access
+              SEA ESCAPE
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
@@ -264,8 +264,7 @@ export default function HomePage() {
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                Golden hour navigation, hidden coves and cinematic atmosphere
-                across Portovenere.
+                Private sailing journeys through hidden Riviera coves designed around silence, freedom and Mediterranean light.
               </p>
 
               <a
@@ -287,7 +286,7 @@ Craft Your Experience              </a>
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              Selected Guests
+              CINEMATIC
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
@@ -302,8 +301,7 @@ Craft Your Experience              </a>
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                Immersive cinematic experiences between sea, movement and visual
-                storytelling.
+                A visual storytelling experience suspended between freediving, sea light and cinematic Mediterranean atmosphere.
               </p>
 
               <a
