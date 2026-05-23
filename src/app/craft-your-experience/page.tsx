@@ -1,55 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
 import { supabase } from "@/lib/supabase";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function CraftYourExperience() {
 
+  const minimumBookingDate =
+  new Date();
+
+minimumBookingDate.setDate(
+  minimumBookingDate.getDate() + 14
+);
+
+const minDate =
+  minimumBookingDate
+    .toLocaleDateString(
+      "en-CA",
+      {
+        timeZone:
+          "Europe/Rome",
+      }
+    );
+
   const router = useRouter();
 
-  // MINIMUM BOOKING DATE
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
 
-  const minimumBookingDate =
-    new Date();
+    experiences: [] as string[],
+    moods: [] as string[],
 
-  minimumBookingDate.setDate(
-    minimumBookingDate.getDate() + 14
-  );
+    guests: "",
+    budget: "",
 
-  // FORM STATE
+    
+  startDate: "",
+  endDate: "",
 
-  const [formData, setFormData] =
-    useState({
+  travelingWithChildren: false,
 
-      name: "",
-      email: "",
+    termsAccepted: false,
+  });
 
-      experiences: [] as string[],
-      moods: [] as string[],
+  
 
-      guests: "",
-      budget: "",
 
-      startDate: "",
-      endDate: "",
-
-      travelingWithChildren: false,
-
-      termsAccepted: false,
-    });
-
-  const [errors, setErrors] =
-    useState<string[]>([]);
-
-  const [
-    selectionWarning,
-    setSelectionWarning,
-  ] = useState("");
 
   // SINGLE SELECT
 
@@ -71,134 +72,128 @@ export default function CraftYourExperience() {
   };
 
   // MULTI SELECT
+const [errors, setErrors] =
+  useState<string[]>([]);
 
-  const handleMultiSelect = (
-    field: "experiences" | "moods",
-    value: string,
-    max: number
-  ) => {
+const [selectionWarning, setSelectionWarning] =
+  useState("");
 
-    setSelectionWarning("");
+// MULTI SELECT
 
-    setFormData((prev) => {
+const handleMultiSelect = (
+  field: "experiences" | "moods",
+  value: string,
+  max: number
+) => {
 
-      const currentValues =
-        prev[field];
+  setSelectionWarning("");
 
-      const alreadySelected =
-        currentValues.includes(value);
+  setFormData((prev) => {
 
-      // REMOVE
+    const currentValues = prev[field];
 
-      if (alreadySelected) {
+    const alreadySelected =
+      currentValues.includes(value);
 
-        return {
-          ...prev,
+    // DESELECT
 
-          [field]:
-            currentValues.filter(
-              (item) =>
-                item !== value
-            ),
-        };
-      }
-
-      // LIMIT
-
-      if (
-        currentValues.length >= max
-      ) {
-
-        setSelectionWarning(
-
-          field === "experiences"
-            ? "Maximum 2 experiences allowed"
-            : "Maximum 2 atmosphere selections allowed"
-
-        );
-
-        return prev;
-      }
-
-      // ADD
+    if (alreadySelected) {
 
       return {
-
         ...prev,
-
-        [field]: [
-          ...currentValues,
-          value,
-        ],
+        [field]: currentValues.filter(
+          (item) => item !== value
+        ),
       };
-    });
+    }
 
-    setErrors((prev) =>
-      prev.filter(
-        (error) => error !== field
-      )
-    );
-  };
+    // LIMIT REACHED
 
-  // SCROLL TO ERROR
+    if (currentValues.length >= max) {
 
-  const scrollToError = (
-    field: string
-  ) => {
+      setSelectionWarning(
 
-    const map: Record<
-      string,
-      string
-    > = {
+        field === "experiences"
+          ? "Maximum 2 experiences allowed"
+          : "Maximum 2 atmosphere selections allowed"
 
-      name:
-        "name-section",
-
-      email:
-        "email-section",
-
-      experiences:
-        "experiences-section",
-
-      moods:
-        "moods-section",
-
-      guests:
-        "guests-section",
-
-      budget:
-        "budget-section",
-
-      startDate:
-        "dates-section",
-
-      endDate:
-        "dates-section",
-
-      terms:
-        "terms-section",
-    };
-
-    const elementId =
-      map[field];
-
-    if (!elementId) return;
-
-    const element =
-      document.getElementById(
-        elementId
       );
 
-    if (element) {
-
-      element.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+      return prev;
     }
-  };
+
+    // SELECT
+
+    return {
+      ...prev,
+      [field]: [
+        ...currentValues,
+        value,
+      ],
+    };
+  });
+
+  setErrors((prev) =>
+    prev.filter(
+      (error) => error !== field
+    )
+  );
+};
 
   // VALIDATION
+
+  const scrollToError = (
+  field: string
+) => {
+
+  const map: Record<string, string> = {
+
+    name:
+      "name-section",
+
+    email:
+      "email-section",
+
+    experiences:
+      "experiences-section",
+
+    moods:
+      "moods-section",
+
+    guests:
+      "guests-section",
+
+    budget:
+      "budget-section",
+
+    startDate:
+      "dates-section",
+
+    endDate:
+      "dates-section",
+
+    terms:
+      "terms-section",
+  };
+
+  const elementId =
+    map[field];
+
+  if (!elementId) return;
+
+  const element =
+    document.getElementById(
+      elementId
+    );
+
+  if (element) {
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+};
 
   const validateForm = () => {
 
@@ -219,9 +214,7 @@ export default function CraftYourExperience() {
     if (
       formData.experiences.length === 0
     ) {
-      newErrors.push(
-        "experiences"
-      );
+      newErrors.push("experiences");
     }
 
     if (
@@ -237,427 +230,750 @@ export default function CraftYourExperience() {
       newErrors.push("budget");
 
     if (!formData.startDate)
-      newErrors.push(
-        "startDate"
-      );
+  newErrors.push("startDate");
 
-    if (!formData.endDate)
-      newErrors.push(
-        "endDate"
-      );
+if (!formData.endDate)
+  newErrors.push("endDate");
 
-    if (
-      !formData.termsAccepted
-    )
+    if (!formData.termsAccepted)
       newErrors.push("terms");
 
-    setErrors(newErrors);
+    
 
-    if (newErrors.length > 0) {
+  setErrors(newErrors);
 
-      scrollToError(
-        newErrors[0]
-      );
+if (newErrors.length > 0) {
 
-      return false;
-    }
+  scrollToError(
+    newErrors[0]
+  );
 
-    return true;
+  return false;
+}
+
+return true;
   };
 
   // SUBMIT
 
-  const handleSubmit =
-    async () => {
+  const handleSubmit = async () => {
 
-      const isValid =
-        validateForm();
+    const isValid = validateForm();
 
-      if (!isValid) return;
+    if (!isValid) return;
 
-      try {
+    try {
 
-        if (!supabase) {
-
-          console.error(
-            "Supabase not configured"
-          );
-
-          return;
-        }
-
-        // SAVE LEAD
-
-        const {
-          data: leadData,
-          error: leadError,
-        } = await supabase
-
-          .from("Leads")
-
-          .insert([
-            {
-
-              name:
-                formData.name,
-
-              email:
-                formData.email,
-
-              experiences:
-                formData.experiences,
-
-              moods:
-                formData.moods,
-
-              guests:
-                formData.guests,
-
-              budget:
-                formData.budget,
-
-              start_date:
-                formData.startDate,
-
-              end_date:
-                formData.endDate,
-
-              traveling_with_children:
-                formData.travelingWithChildren,
-            },
-          ])
-
-          .select()
-
-          .single();
-
-        if (
-          leadError ||
-          !leadData
-        ) {
-
-          console.error(
-            "Lead error full:",
-            JSON.stringify(
-              leadError,
-              null,
-              2
-            )
-          );
-
-          return;
-        }
-
-        // SAFE SLUG
-
-        const primaryExperience =
-          formData.experiences[0]
-
-            .toLowerCase()
-
-            .replace(
-              /\s+/g,
-              "-"
-            )
-
-            .replace(
-              /[^a-z0-9-]/g,
-              ""
-            );
-
-        const safeName =
-          formData.name
-
-            .toLowerCase()
-
-            .replace(
-              /\s+/g,
-              "-"
-            )
-
-            .replace(
-              /[^a-z0-9-]/g,
-              ""
-            );
-
-        const slug =
-          `${safeName}-${primaryExperience}`;
-
-        // SAVE PROPOSAL
-
-        const {
-          data: proposalData,
-          error: proposalError,
-        } = await supabase
-
-          .from("Proposal")
-
-          .insert([
-            {
-
-              lead_id:
-                leadData.id,
-
-              slug,
-
-              proposal_data: {
-
-                name:
-                  formData.name,
-
-                email:
-                  formData.email,
-
-                experiences:
-                  formData.experiences,
-
-                moods:
-                  formData.moods,
-
-                guests:
-                  formData.guests,
-
-                budget:
-                  formData.budget,
-
-                start_date:
-                  formData.startDate,
-
-                end_date:
-                  formData.endDate,
-
-                traveling_with_children:
-                  formData.travelingWithChildren,
-              },
-
-              total_price: 0,
-            },
-          ])
-
-          .select()
-
-          .single();
-
-        if (
-          proposalError ||
-          !proposalData
-        ) {
-
-          console.error(
-            "Proposal error:",
-            proposalError
-          );
-
-          return;
-        }
-
-        // REDIRECT
-
-        router.push(
-          `/results/proposal/${proposalData.slug}`
-        );
-
-      } catch (err) {
+      if (!supabase) {
 
         console.error(
-          "Unexpected error:",
-          err
+          "Supabase not configured"
         );
+
+        return;
       }
-    };
+
+      // SAVE LEAD
+
+      const {
+        data: leadData,
+        error: leadError,
+      } = await supabase
+        .from("leads")
+        .insert([
+          {
+            name: formData.name,
+
+            email: formData.email,
+
+            experiences:
+              formData.experiences,
+
+            moods:
+              formData.moods,
+
+            guests:
+              formData.guests,
+
+            budget:
+              formData.budget,
+
+              start_date:
+  formData.startDate,
+
+end_date:
+  formData.endDate,
+
+traveling_with_children:
+  formData.travelingWithChildren,
+          },
+        ])
+        .select()
+        .single();
+
+      if (
+        leadError ||
+        !leadData
+      ) {
+
+        console.error(
+  "Lead error full:",
+  JSON.stringify(
+    leadError,
+    null,
+    2
+  )
+);
+
+        return;
+      }
+
+      // SAFE SLUG
+
+      const primaryExperience =
+        formData.experiences[0]
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(
+            /[^a-z0-9-]/g,
+            ""
+          );
+
+      const safeName =
+        formData.name
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(
+            /[^a-z0-9-]/g,
+            ""
+          );
+
+      const slug =
+        `${safeName}-${primaryExperience}`;
+
+      // SAVE PROPOSAL
+
+      const {
+        data: proposalData,
+        error: proposalError,
+      } = await supabase
+        .from("Proposal")
+        .insert([
+          {
+            lead_id: leadData.id,
+
+            slug,
+
+            proposal_data: {
+
+  name:
+    formData.name,
+
+  email:
+    formData.email,
+
+  experiences:
+    formData.experiences,
+
+  moods:
+    formData.moods,
+
+  guests:
+    formData.guests,
+
+  budget:
+    formData.budget,
+
+  start_date:
+    formData.startDate,
+
+  end_date:
+    formData.endDate,
+
+  traveling_with_children:
+    formData.travelingWithChildren,
+},
+
+            total_price: 0,
+          },
+        ])
+        .select()
+        .single();
+
+      if (
+        proposalError ||
+        !proposalData
+      ) {
+
+        console.error(
+          "Proposal error:",
+          proposalError
+        );
+
+        return;
+      }
+
+      // REDIRECT
+
+      router.push(
+        `/results/proposal/${proposalData.slug}`
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Unexpected error:",
+        err
+      );
+    }
+  };
 
   return (
-
     <main className="min-h-screen bg-[#0C0C0C] text-white px-6 py-24">
 
       <div className="max-w-4xl mx-auto">
 
-        {/* HERO */}
+        {/* TOP */}
 
-        <div className="text-center pt-0 pb-16 md:pt-20 md:pb-28">
+<div className="text-center pt-0 pb-16 md:pt-20 md:pb-28">
 
-          <div className="flex justify-center -mt-15 mb-5 md:mb-8">
+  <div className="flex justify-center -mt-15 mb-5 md:mb-8">
+    <img
+      src="/logo-white.png"
+      alt="Portovenere Experiences"
+      className="w-24 md:w-32 opacity-80"
+    />
+  </div>
 
-            <img
-              src="/logo-white.png"
-              alt="Portovenere Experiences"
-              className="w-24 md:w-32 opacity-80"
+  <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6 md:mb-8">
+    Private Experience Curation
+  </p>
+
+  <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8 md:mb-10">
+    Craft Your
+    <br />
+    Mediterranean Escape
+  </h1>
+
+  <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
+    Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
+  </p>
+
+</div>
+
+        {/* FORM */}
+
+        <div className="space-y-16">
+
+
+          {/* EXPERIENCES */}
+
+          <div id="experiences-section">
+
+            <div className="flex items-center justify-between mb-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                Select up to 2 experiences
+              </p>
+
+              <p className="text-zinc-500 text-sm">
+                {formData.experiences.length}/2 selected
+              </p>
+
+            </div>
+
+            <div
+              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+                errors.includes(
+                  "experiences"
+                )
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
+                "Sea Escape",
+                "Aerial Escape",
+                "Gourmet Escape",
+                "Wild Escape",
+               
+                
+              ].map((item) => (
+
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() =>
+                    handleMultiSelect(
+                      "experiences",
+                      item,
+                      2
+                    )
+                  }
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
+                    formData.experiences.includes(
+                      item
+                    )
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          {/* WARNING */}
+
+          {selectionWarning && (
+
+            <p className="text-amber-400 text-sm">
+              {selectionWarning}
+            </p>
+
+          )}{/* WARNING */}
+
+          {/* MOODS */}
+
+          <div id="moods-section">
+
+            <div className="flex items-center justify-between mb-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                Select up to 2 atmospheres
+              </p>
+
+              <p className="text-zinc-500 text-sm">
+                {formData.moods.length}/2 selected
+              </p>
+
+            </div>
+
+            <div
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2 ${
+                errors.includes(
+                  "moods"
+                )
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
+                "Romantic",
+                "Cinematic",
+                "Authentic",
+                "Adventure",
+                
+                
+              ].map((item) => (
+
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() =>
+                    handleMultiSelect(
+                      "moods",
+                      item,
+                      2
+                    )
+                  }
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
+                    formData.moods.includes(
+                      item
+                    )
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          
+         
+
+          {/* GUESTS */}
+
+          <div id="guests-section"  >
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Number of Guests
+            </p>
+
+            <div
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2
+                errors.includes("guests")
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
+                "2",
+                "3-4",
+                "5-7",
+                "8+",
+              ].map((item) => (
+
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() =>
+                    handleSelect(
+                      "guests",
+                      item
+                    )
+                  }
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
+                    formData.guests === item
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+
+              {/* DATES */}
+
+<div id="dates-section">
+
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Travel Dates
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-6">
+
+    {/* START DATE */}
+
+    <div>
+
+      <p className="text-sm text-zinc-500 mb-3">
+        Start Date
+      </p>
+
+      <input
+  type="date"
+  value={formData.startDate}
+  min={minDate}
+  style={{
+    colorScheme: "dark",
+  }}
+  onChange={(e) => {
+
+    setFormData({
+      ...formData,
+      startDate: e.target.value,
+    });
+
+    setErrors((prev) =>
+      prev.filter(
+        (error) =>
+          error !== "minDate"
+      )
+    );
+  }}
+  className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
+    errors.includes("startDate")
+      ? "border-red-500 bg-red-500/10"
+      : "border-white/10 hover:border-white/30 focus:border-white/50"
+  }`}
+/>
+
+    </div>
+
+    {/* END DATE */}
+
+    <div>
+
+      <p className="text-sm text-zinc-500 mb-3">
+        End Date
+      </p>
+
+      <input
+        type="date"
+        style={{colorScheme: "dark",}}
+        value={formData.endDate}
+        min={formData.startDate || minDate}
+        onChange={(e) => {
+
+          setFormData({
+            ...formData,
+            endDate: e.target.value,
+          });
+
+          setErrors((prev) =>
+            prev.filter(
+              (error) =>
+                error !== "endDate"
+            )
+          );
+        }}
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
+          errors.includes("endDate")
+            ? "border-red-500 bg-red-500/10"
+            : "border-white/10 focus:border-white/40"
+        }`}
+      />
+
+    </div>
+
+  </div>
+
+</div>
+
+{/* CHILDREN */}
+
+<div>
+
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Traveling With Children
+  </p>
+
+  <div className="grid md:grid-cols-2 gap-4">
+
+    {[
+      {
+        label: "Yes",
+        value: true,
+      },
+      {
+        label: "No",
+        value: false,
+      },
+    ].map((item) => (
+
+      <button
+        type="button"
+        key={item.label}
+        onClick={() => {
+
+          setFormData({
+            ...formData,
+            travelingWithChildren:
+              item.value,
+          });
+        }}
+        className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
+          formData.travelingWithChildren === item.value
+            ? "border-white bg-white text-black"
+            : "border-white/10 bg-white/5 hover:border-white/40"
+        }`}
+      >
+        {item.label}
+      </button>
+
+    ))}
+
+  </div>
+
+</div>
+
+
+
+
+
+          {/* BUDGET */}
+
+          <div id="budget-section">
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Estimated Investment
+            </p>
+
+            <div
+              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
+                errors.includes("budget")
+                  ? "border border-red-500"
+                  : ""
+              }`}
+            >
+
+              {[
+                "€500 - €1000",
+                "€1000 - €3000",
+                "€3000+",
+              ].map((item) => (
+
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() =>
+                    handleSelect(
+                      "budget",
+                      item
+                    )
+                  }
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
+                    formData.budget === item
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
+
+
+          
+          {/* NAME */}
+
+          <div id="name-section">
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Your Name
+            </p>
+
+            <input
+              type="text"
+              min={new Date().toISOString().split("T")[0]}
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => {
+
+                setFormData({
+                  ...formData,
+                  name: e.target.value,
+                });
+
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "name"
+                  )
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("name")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 focus:border-white/40"
+              }`}
             />
 
           </div>
 
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6 md:mb-8">
+          {/* EMAIL */}
 
-            Private Experience Curation
+          <div id="email-section">
 
-          </p>
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Email Address
+            </p>
 
-          <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8 md:mb-10">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={(e) => {
 
-            Craft Your
-            <br />
-            Mediterranean Escape
+                setFormData({
+                  ...formData,
+                  email: e.target.value,
+                });
 
-          </h1>
-
-          <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
-
-            Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
-
-          </p>
-
-        </div>
-
-        {/* DATES */}
-
-        <div
-          id="dates-section"
-          className="space-y-6"
-        >
-
-          <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-
-            Travel Dates
-
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-6">
-
-            {/* START DATE */}
-
-            <div>
-
-              <p className="text-sm text-zinc-500 mb-3">
-
-                Start Date
-
-              </p>
-
-              <DatePicker
-
-                selected={
-                  formData.startDate
-                    ? new Date(
-                        formData.startDate
-                      )
-                    : null
-                }
-
-                onChange={(date: Date | null) => {
-
-                  setFormData({
-                    ...formData,
-
-                    startDate:
-                      date
-                        ? date
-                            .toISOString()
-                            .split(
-                              "T"
-                            )[0]
-                        : "",
-                  });
-
-                  setErrors(
-                    (prev) =>
-                      prev.filter(
-                        (error) =>
-                          error !==
-                          "startDate"
-                      )
-                  );
-                }}
-
-                minDate={
-                  minimumBookingDate
-                }
-
-                placeholderText="Select start date"
-
-                dateFormat="MMMM d, yyyy"
-
-                calendarClassName="custom-calendar"
-
-                className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-                  errors.includes(
-                    "startDate"
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "email"
                   )
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 hover:border-white/30 focus:border-white/50"
-                }`}
-              />
+                );
+              }}
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
+                errors.includes("email")
+                  ? "border border-red-500 bg-red-500/10"
+                  : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
+              }`}
+            />
 
-            </div>
+          </div>
 
-            {/* END DATE */}
+          {/* TERMS */}
 
-            <div>
+          <div className="flex items-start gap-4">
 
-              <p className="text-sm text-zinc-500 mb-3">
+            <input
+              type="checkbox"
+              checked={
+                formData.termsAccepted
+              }
+              onChange={(e) => {
 
-                End Date
+                setFormData({
+                  ...formData,
+                  termsAccepted:
+                    e.target.checked,
+                });
 
-              </p>
-
-              <DatePicker
-
-                selected={
-                  formData.endDate
-                    ? new Date(
-                        formData.endDate
-                      )
-                    : null
-                }
-
-                onChange={(date: Date | null) => {
-
-                  setFormData({
-                    ...formData,
-
-                    endDate:
-                      date
-                        ? date
-                            .toISOString()
-                            .split(
-                              "T"
-                            )[0]
-                        : "",
-                  });
-
-                  setErrors(
-                    (prev) =>
-                      prev.filter(
-                        (error) =>
-                          error !==
-                          "endDate"
-                      )
-                  );
-                }}
-
-                minDate={
-                  formData.startDate
-                    ? new Date(
-                        formData.startDate
-                      )
-                    : minimumBookingDate
-                }
-
-                placeholderText="Select end date"
-
-                dateFormat="MMMM d, yyyy"
-
-                calendarClassName="custom-calendar"
-
-                className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-                  errors.includes(
-                    "endDate"
+                setErrors((prev) =>
+                  prev.filter(
+                    (error) =>
+                      error !== "terms"
                   )
-                    ? "border-red-500 bg-red-500/10"
-                    : "border-white/10 hover:border-white/30 focus:border-white/50"
-                }`}
-              />
+                );
+              }}
+              className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
+            />
 
-            </div>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+
+              I accept the{" "}
+
+              <a
+                href="https://www.portovenere.com/terms-conditions/"
+                target="_blank"
+                className="underline"
+              >
+                Terms & Conditions
+              </a>{" "}
+
+              and understand that reservation deposits may
+              be required to secure curated experiences.
+
+            </p>
+
+          </div>
+
+          {errors.includes("terms") && (
+
+            <p className="text-red-500 text-sm mt-2">
+              Please accept the Terms & Conditions
+            </p>
+
+          )}
+
+          {/* SUBMIT */}
+
+          <div className="pt-10 text-center">
+
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+            >
+              Generate Private Proposal
+            </button>
 
           </div>
 
