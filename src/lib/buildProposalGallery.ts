@@ -144,6 +144,45 @@ const moodAddons =
   addonIds =
     [...new Set(addonIds)];
 
+    if (
+  addonIds.length < 4
+) {
+
+  const fallbackExperiences =
+
+    experiences.filter(
+      (experience) =>
+
+        experience.macroCategory !==
+          mainCategory &&
+
+        experience.id !==
+          heroExperienceId
+    );
+
+  fallbackExperiences.forEach(
+    (experience) => {
+
+      if (
+        addonIds.length >= 4
+      ) {
+        return;
+      }
+
+      if (
+        !addonIds.includes(
+          experience.id
+        )
+      ) {
+
+        addonIds.push(
+          experience.id
+        );
+      }
+    }
+  );
+}
+
   // =====================================================
   // BUILD IMAGES
   // =====================================================

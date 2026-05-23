@@ -854,12 +854,12 @@ included: [],
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/adventure.webp",
+      "/images/wild/trekking/adventure.jpg",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/trekking/adventure.webp",
+        "/images/wild/trekking/adventure.jpg",
 
       "Wild Escape-Authentic":
         "/images/wild/trekking/authentic.jpg",
@@ -872,7 +872,7 @@ included: [],
 
       trekking: [
 
-        "/images/wild/trekking/adventure.webp",
+        "/images/wild/trekking/adventure.jpg",
 
          "/images/wild/trekking/authentic.jpg",
 
