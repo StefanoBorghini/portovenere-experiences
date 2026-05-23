@@ -50,7 +50,8 @@ export const experiences = [
         "/images/heroes/sea-authentic.webp",
 
       Adventure:
-        "/images/heroes/sea-adventure.webp",
+              "/images/sailing/hero.webp",
+
 
       Cinematic:
         "/images/heroes/sea-cinematic.webp",
@@ -72,7 +73,7 @@ export const experiences = [
     },
 
     heroImage:
-      "/images/sea/dino-hero.webp",
+      "/images/sailing/hero.webp",
 
     description:
       "Authentic Riviera sailing between hidden coves, cinematic sea landscapes and Mediterranean atmosphere.",
