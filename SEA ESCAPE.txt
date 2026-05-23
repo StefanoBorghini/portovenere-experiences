@@ -4,12 +4,12 @@ MacroEsperienza                         Atmosfera                               
 
 SEA ESCAPE                           
 --DINO                                  ROMANTIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000                   
---APHRODITE                             ADVENTURE(3) AUTHENTIC(2) CINEMATIC(1)                         3-4 5-7 8+      €500 - €1000 €1000 - €3000
---VELAMICA                              ADVENTURE(2) CINEMATIC(1)                                      8+              €1000 - €3000 €3000+
---VELAGIOVANE                           AUTHENTIC(2) ADVENTURE(1)                                      8+              €1000 - €3000 €3000+
+--APHRODITE                             AUTHENTIC(4) ROMANTIC(3) ADVENTURE(3) CINEMATIC(2)             3-4 5-7 8+      €500 - €1000 €1000 - €3000
+--VELAMICA                              ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             8+              €1000 - €3000 €3000+
+--VELAGIOVANE                           CINEMATIC(4) ADVENTURE(2) AUTHENTIC(1) ROMANTIC(1)             8+              €1000 - €3000 €3000+
  
 AERIAL ESCAPE
---AIRPLANE                               CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)           2 3-4 5-7       €500 - €1000 €1000 - €3000 
+--AIRPLANE                              CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)            2 3-4 5-7       €500 - €1000 €1000 - €3000 
 --MONGOLFIERA                           ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 
 
 GOURMET ESCAPE
