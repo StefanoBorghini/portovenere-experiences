@@ -2,10 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 
-import {
-  useState,
-  useEffect,
-} from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
@@ -49,88 +46,10 @@ const minDate =
   travelingWithChildren: false,
 
     termsAccepted: false,
-
-    
   });
 
   
-useEffect(() => {
 
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-  const experienceParam =
-    params.get("experience");
-
-  const moodParam =
-    params.get("mood");
-
-  const experienceMap: Record<
-    string,
-    string
-  > = {
-
-    sailing:
-      "Sea Escape",
-
-    gourmet:
-      "Gourmet Escape",
-
-    aerial:
-      "Aerial Escape",
-
-    wild:
-      "Wild Escape",
-  };
-
-  const moodMap: Record<
-    string,
-    string
-  > = {
-
-    romantic:
-      "Romantic",
-
-    cinematic:
-      "Cinematic",
-
-    authentic:
-      "Authentic",
-
-    adventure:
-      "Adventure",
-  };
-
-  setFormData((prev) => ({
-
-    ...prev,
-
-    experiences:
-      experienceParam &&
-      experienceMap[
-        experienceParam
-      ]
-        ? [
-            experienceMap[
-              experienceParam
-            ],
-          ]
-        : prev.experiences,
-
-    moods:
-      moodParam &&
-      moodMap[moodParam]
-        ? [
-            moodMap[
-              moodParam
-            ],
-          ]
-        : prev.moods,
-  }));
-
-}, []);
 
 
   // SINGLE SELECT
@@ -731,154 +650,79 @@ traveling_with_children:
 
           </div>
 
-{/* DATES */}
 
-<div
-  id="dates-section"
-  className="space-y-6"
->
+              {/* DATES */}
 
-  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+<div id="dates-section">
 
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
     Travel Dates
-
   </p>
 
   <div className="grid md:grid-cols-2 gap-6">
 
     {/* START DATE */}
 
-    <div className="flex flex-col gap-3">
+    <div>
 
-      <p className="text-sm text-zinc-500">
-
+      <p className="text-sm text-zinc-500 mb-3">
         Start Date
-
       </p>
 
-      <DatePicker
+ <DatePicker
+  selected={
+    formData.startDate
+      ? new Date(formData.startDate)
+      : null
+  }
 
-        selected={
-          formData.startDate
-            ? new Date(
-                formData.startDate
-              )
-            : null
-        }
+  onChange={(date: Date | null) => {
 
-        onChange={(
-          date: Date | null
-        ) => {
+    setFormData({
+      ...formData,
 
-          setFormData({
-            ...formData,
-
-            startDate:
-              date
-                ? date
-                    .toISOString()
-                    .split("T")[0]
-                : "",
-          });
-
-          setErrors((prev) =>
-            prev.filter(
-              (error) =>
-                error !==
-                "startDate"
-            )
-          );
-        }}
-
-        minDate={
-          minimumBookingDate
-        }
-
-        placeholderText="Select start date"
-
-        dateFormat="MMMM d, yyyy"
-
-        calendarClassName="custom-calendar"
-
-        wrapperClassName="w-full"
-
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-          errors.includes(
-            "startDate"
-          )
-            ? "border-red-500 bg-red-500/10"
-            : "border-white/10 hover:border-white/30 focus:border-white/50"
-        }`}
-      />
-
+      startDate:
+        date
+          ? date
+              .toISOString()
+              .split("T")[0]
+          : "",
+    });
+  }}
+/>
     </div>
 
     {/* END DATE */}
 
-    <div className="flex flex-col gap-3">
+    <div>
 
-      <p className="text-sm text-zinc-500">
-
+      <p className="text-sm text-zinc-500 mb-3">
         End Date
-
       </p>
 
-      <DatePicker
-
-        selected={
-          formData.endDate
-            ? new Date(
-                formData.endDate
-              )
-            : null
-        }
-
-        onChange={(
-          date: Date | null
-        ) => {
+      <input
+        type="date"
+        style={{colorScheme: "dark",}}
+        value={formData.endDate}
+        min={formData.startDate || minDate}
+        onChange={(e) => {
 
           setFormData({
             ...formData,
-
-            endDate:
-              date
-                ? date
-                    .toISOString()
-                    .split("T")[0]
-                : "",
+            endDate: e.target.value,
           });
 
           setErrors((prev) =>
             prev.filter(
               (error) =>
-                error !==
-                "endDate"
+                error !== "endDate"
             )
           );
         }}
-
-        minDate={
-          formData.startDate
-            ? new Date(
-                formData.startDate
-              )
-            : minimumBookingDate
-        }
-
-        placeholderText="Select end date"
-
-        dateFormat="MMMM d, yyyy"
-
-        calendarClassName="custom-calendar"
-
-        wrapperClassName="w-full"
-
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-          errors.includes(
-            "endDate"
-          )
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
+          errors.includes("endDate")
             ? "border-red-500 bg-red-500/10"
-            : "border-white/10 hover:border-white/30 focus:border-white/50"
+            : "border-white/10 focus:border-white/40"
         }`}
       />
 
