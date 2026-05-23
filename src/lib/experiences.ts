@@ -775,12 +775,12 @@ included: [],
     basePrice: 1500,
 
     heroImage:
-      "/images/dining/onboard/default.webp",
+      "/images/dining/onboard/authentic.jpg",
 
     heroCombinations: {
 
       "Gourmet Escape":
-        "/images/dining/onboard/default.webp",
+        "/images/dining/onboard/authentic.jpg",
 
       "Gourmet Escape-Adventure":
         "/images/yachts/aphrodite/degustazione.jpg",
@@ -793,7 +793,7 @@ included: [],
 
       wine: [
 
-         "/images/dining/onboard/default.webp",
+         "/images/dining/onboard/authentic.jpg",
 
         "/images/yachts/aphrodite/degustazione.jpg",
 
