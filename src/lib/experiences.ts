@@ -198,7 +198,7 @@ export const experiences: Experience[] = [
     basePrice: 2200,
 
     heroImage:
-      "/images/sea/aphrodite/default.webp",
+      "/images/yachts/aphrodite/default.webp",
 
     heroCombinations: {
 
