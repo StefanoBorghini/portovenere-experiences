@@ -53,25 +53,23 @@ export default async function ProposalPage({
   // GENERATE PROPOSAL
 
   const generatedProposal =
-    generateProposal({
+  generateProposal({
 
-      experiencesSelected:
-        lead.experiences || [],
+    experiencesSelected:
+      lead.experiences || [],
 
-      moodsSelected:
-        lead.moods || [],
+    moodsSelected:
+      lead.moods || [],
 
-      budget:
-        lead.budget,
+    budget:
+      lead.budget,
 
-  guests:
+    guests:
       lead.guests,
 
     travelingWithChildren:
       lead.traveling_with_children || false,
-
-        
-    });
+  });
 
     const includedSections =
   generatedProposal.includedSections;
