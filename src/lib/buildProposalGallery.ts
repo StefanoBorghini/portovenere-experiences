@@ -68,15 +68,16 @@ export function buildProposalGallery({
     moodsSelected.forEach(
       (mood) => {
 
-        const moodAddons =
+       const normalizedMood =
 
-          compatibility?.moods?.[
-            mood as keyof typeof compatibility.moods
-          ]?.addons || [];
+  mood.charAt(0).toUpperCase() +
+  mood.slice(1);
 
-        addonIds.push(
-          ...moodAddons
-        );
+const moodAddons =
+
+  compatibility?.moods?.[
+    normalizedMood as keyof typeof compatibility.moods
+  ]?.addons || [];
       }
     );
   }
@@ -99,20 +100,39 @@ export function buildProposalGallery({
         }
 
         moodsSelected.forEach(
-          (mood) => {
+  (mood) => {
 
-          const combinations =
+    const normalizedMood =
 
-  compatibility?.combinations as
-    Record<string, any>;
+      mood.charAt(0).toUpperCase() +
+      mood.slice(1);
 
-const categoryCombination =
+    const combinations =
 
-  combinations?.[
-    category
-  ];
-          }
-        );
+      compatibility?.combinations as
+        Record<string, any>;
+
+    const categoryCombination =
+
+      combinations?.[
+        category
+      ];
+
+    const moodCombination =
+
+      categoryCombination?.[
+        normalizedMood
+      ];
+
+    const comboAddons =
+
+      moodCombination?.addons || [];
+
+    addonIds.push(
+      ...comboAddons
+    );
+  }
+);
       }
     );
   }
