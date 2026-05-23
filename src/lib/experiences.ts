@@ -41,20 +41,20 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/sailing/dino-romantic.webp",
+        "/images/sailing/hero.webp",
 
       Authentic:
-        "/images/sailing/dino-authentic.webp",
+        "/images/sailing/hero.webp",
 
       Adventure:
-        "/images/sailing/dino-adventure.webp",
+        "/images/sailing/hero.webp",
 
       Cinematic:
-        "/images/sailing/dino-cinematic.webp",
+        "/images/sailing/hero.webp",
     },
 
     heroImage:
-      "/images/sailing/dino-hero.webp",
+      "/images/sailing/hero.webp",
 
     description:
       "Authentic Riviera sailing between hidden coves, cinematic sea landscapes and Mediterranean atmosphere.",
