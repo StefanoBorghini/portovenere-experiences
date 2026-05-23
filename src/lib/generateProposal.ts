@@ -206,13 +206,67 @@ export function generateProposal({
         b.finalScore - a.finalScore
     );
 
+    // =====================================================
+// MAIN CATEGORY PRIORITY
+// =====================================================
+
+const mainCategoriesPriority = [
+
+  "Sea Escape",
+
+  "Aerial Escape",
+
+  "Gourmet Escape",
+
+  "Wild Escape",
+];
+
+// prende la categoria principale
+// in base alla priorità narrativa
+
+
+
   // =========================================================
   // BEST EXPERIENCE
   // =========================================================
 
-  const bestExperience =
+ const narrativePriority = [
 
-    sortedExperiences[0];
+  "Sea Escape",
+
+  "Aerial Escape",
+
+  "Gourmet Escape",
+
+  "Wild Escape",
+];
+
+// trova la categoria principale
+// in base alla priorità narrativa
+
+const selectedMainCategory =
+
+  narrativePriority.find(
+    (category) =>
+
+      experiencesSelected.includes(
+        category
+      )
+  );
+
+// prende il miglior operator
+// SOLO della categoria principale
+
+const bestExperience =
+
+  sortedExperiences.find(
+    (experience) =>
+
+      experience.macroCategory ===
+      selectedMainCategory
+  ) ||
+
+  sortedExperiences[0];
 
   // =========================================================
   // FALLBACK
