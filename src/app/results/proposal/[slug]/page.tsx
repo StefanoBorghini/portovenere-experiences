@@ -64,8 +64,13 @@ export default async function ProposalPage({
       budget:
         lead.budget,
 
-      travelingWithChildren:
-        lead.traveling_with_children || false,
+  guests:
+      lead.guests,
+
+    travelingWithChildren:
+      lead.traveling_with_children || false,
+
+        
     });
 
     const includedSections =
@@ -123,8 +128,10 @@ export default async function ProposalPage({
 
   const whatsappMessage =
     encodeURIComponent(
-      `Hi Stefano, I'd like to confirm my ${featuredExperience.title} experience proposal for ${lead.guests} guests.`
+      `Hi Stefano, I'd like to confirm my ${featuredExperience?.title || "experience"} experience proposal for ${lead.guests} guests.`
     );
+
+    
 
   const whatsappUrl =
     `https://wa.me/393487140722?text=${whatsappMessage}`;
@@ -230,11 +237,11 @@ export default async function ProposalPage({
               </p>
 
               <h2 className="text-4xl font-light mb-6">
-                {featuredExperience.title}
+               ${featuredExperience?.title || "experience"}
               </h2>
 
               <p className="text-zinc-400 leading-8">
-                {featuredExperience.description}
+              ${featuredExperience?.title || "experience"}
               </p>
 
             </div>
