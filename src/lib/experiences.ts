@@ -105,50 +105,48 @@ export const experiences: Experience[] = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sea/dino/default.webp",
+      "/images/sailing/dino/hero.webp",
 
     heroCombinations: {
 
       // SINGLE
-      "Sea Escape":
-        "/images/sea/dino/default.webp",
 
       "Sea Escape-Romantic":
-        "/images/sea/dino/romantic.webp",
+        "/images/sailing/dino/romantic.webp",
 
       "Sea Escape-Authentic":
-        "/images/sea/dino/authentic.webp",
+        "/images/sailing/dino/authentic.webp",
 
       "Sea Escape-Adventure":
-        "/images/sea/dino/adventure.webp",
+        "/images/sailing/dino/adventure.webp",
 
       "Sea Escape-Cinematic":
-        "/images/sea/dino/cinematic.webp",
+        "/images/sailing/dino/cinematic.webp",
 
       // DOUBLE MOOD
       "Sea Escape-Romantic-Cinematic":
-        "/images/sea/dino/romantic-cinematic.webp",
+        "/images/sailing/dino/romantic-cinematic.webp",
 
       "Sea Escape-Adventure-Authentic":
-        "/images/sea/dino/adventure-authentic.webp",
+        "/images/sailing/dino/adventure-authentic.webp",
 
       // CATEGORY CROSSOVER
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/sea/dino/gourmet-romantic.webp",
+        "/images/sailing/dino/gourmet-romantic.webp",
 
       "Sea Escape-Wild Escape-Adventure":
-        "/images/sea/dino/wild-adventure.webp",
+        "/images/sailing/dino/wild-adventure.webp",
     },
 
     gallery: {
 
       sailing: [
 
-        "/images/sea/dino/1.webp",
+        "/images/sailing/dino/1.webp",
 
-        "/images/sea/dino/2.webp",
+        "/images/sailing/dino/2.webp",
 
-        "/images/sea/dino/3.webp",
+        "/images/sailing/dino/3.webp",
       ],
     },
 
