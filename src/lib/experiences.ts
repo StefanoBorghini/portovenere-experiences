@@ -299,11 +299,11 @@ export const experiences: Experience[] = [
 
       sailing: [
 
-        "/images/sea/velamica/1.webp",
+        "/images/sailing/velamica/1.webp",
 
-        "/images/sea/velamica/2.webp",
+        "/images/sailing/velamica/2.webp",
 
-        "/images/sea/velamica/3.webp",
+        "/images/sailing/velamica/3.webp",
       ],
     },
 
@@ -350,32 +350,30 @@ export const experiences: Experience[] = [
     basePrice: 3200,
 
     heroImage:
-      "/images/sea/velagiovane/default.webp",
+      "/images/sailing/velagiovane/default.webp",
 
     heroCombinations: {
 
-      "Sea Escape":
-        "/images/sea/velagiovane/default.webp",
 
       "Sea Escape-Cinematic":
-        "/images/sea/velagiovane/cinematic.webp",
+        "/images/sailing/velagiovane/cinematic.jpg",
 
       "Sea Escape-Adventure":
-        "/images/sea/velagiovane/adventure.webp",
+        "/images/sailing/velagiovane/adventure.jpg",
 
       "Sea Escape-Romantic-Cinematic":
-        "/images/sea/velagiovane/romantic-cinematic.webp",
+     "/images/sailing/velagiovane/cinematic.jpg",
     },
 
     gallery: {
 
       sunset: [
 
-        "/images/sea/velagiovane/1.webp",
+        "/images/sailing/velagiovane/1.webp",
 
-        "/images/sea/velagiovane/2.webp",
+        "/images/sailing/velagiovane/2.webp",
 
-        "/images/sea/velagiovane/3.webp",
+        "/images/sailing/velagiovane/3.webp",
       ],
     },
 
@@ -429,32 +427,32 @@ export const experiences: Experience[] = [
     basePrice: 1800,
 
     heroImage:
-      "/images/aerial/airplane/default.webp",
+      "/images/flying/aereo/img-1.jpg",
 
     heroCombinations: {
 
       "Aerial Escape":
-        "/images/aerial/airplane/default.webp",
+         "/images/flying/aereo/img-1.jpg",
 
       "Aerial Escape-Cinematic":
-        "/images/aerial/airplane/cinematic.webp",
+        "/images/flying/aereo/img-1.jpg",
 
       "Aerial Escape-Adventure":
-        "/images/aerial/airplane/adventure.webp",
+       "/images/flying/aereo/img-1.jpg",
 
       "Sea Escape-Aerial Escape-Cinematic":
-        "/images/aerial/airplane/sea-cinematic.webp",
+         "/images/flying/aereo/img-1.jpg",
     },
 
     gallery: {
 
       aerial: [
 
-        "/images/aerial/airplane/1.webp",
+        "/images/flying/aereo/1.webp",
 
-        "/images/aerial/airplane/2.webp",
+        "/images/flying/aereo/2.webp",
 
-        "/images/aerial/airplane/3.webp",
+        "/images/flying/aereo/3.webp",
       ],
     },
 
@@ -506,29 +504,29 @@ export const experiences: Experience[] = [
     basePrice: 2000,
 
     heroImage:
-      "/images/aerial/mongolfiera/default.webp",
+      "/images/flying/mongolfiera/mongolfiera.jpg",
 
     heroCombinations: {
 
       "Aerial Escape":
-        "/images/aerial/mongolfiera/default.webp",
+       "/images/flying/mongolfiera/mongolfiera.jpg",
 
       "Aerial Escape-Adventure":
-        "/images/aerial/mongolfiera/adventure.webp",
+        "/images/flying/mongolfiera/mongolfiera.jpg",
 
       "Aerial Escape-Cinematic":
-        "/images/aerial/mongolfiera/cinematic.webp",
+       "/images/flying/mongolfiera/mongolfiera.jpg",
     },
 
     gallery: {
 
       balloon: [
 
-        "/images/aerial/mongolfiera/1.webp",
+        "/images/flying/mongolfiera/1.webp",
 
-        "/images/aerial/mongolfiera/2.webp",
+        "/images/flying/mongolfiera/2.webp",
 
-        "/images/aerial/mongolfiera/3.webp",
+        "/images/flying/mongolfiera/3.webp",
       ],
     },
 
