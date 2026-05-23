@@ -50,6 +50,17 @@ export interface Experience {
     title: string;
     description: string;
   }[];
+
+  compatibleAddons?: {
+
+  Romantic?: string[];
+
+  Adventure?: string[];
+
+  Cinematic?: string[];
+
+  Authentic?: string[];
+};
 }
 
 // =========================================================
@@ -140,18 +151,52 @@ export const experiences: Experience[] = [
 
     gallery: {
 
-      sailing: [
+  sailing: [
 
-        "/images/sailing/dino/1.webp",
+    "/images/sailing/dino/1.webp",
 
-        "/images/sailing/dino/2.webp",
+    "/images/sailing/dino/2.webp",
 
-        "/images/sailing/dino/3.webp",
-      ],
-    },
+    "/images/sailing/dino/3.webp",
+  ],
+},
 
-    included: [],
+compatibleAddons: {
+
+  Romantic: [
+
+    "foodwine",
+
+    "aperitivo",
+
+    "mermaiding",
+  ],
+
+  Adventure: [
+
+    "snorkeling",
+
+    "trekking",
+  ],
+
+  Cinematic: [
+
+    "sunset",
+
+    "mermaiding",
+  ],
+
+  Authentic: [
+
+    "trekking",
+
+    "foodwine",
+  ],
+},
+
+included: [],
   },
+  
 
   {
     id: "aphrodite",
