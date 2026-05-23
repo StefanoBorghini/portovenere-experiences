@@ -1,3 +1,7 @@
+// =========================================================
+// generateProposal.ts
+// =========================================================
+
 import { experiences } from "./experiences";
 
 interface GenerateProposalProps {
@@ -16,13 +20,13 @@ export function generateProposal({
   travelingWithChildren,
 }: GenerateProposalProps) {
 
-  // FILTER EXPERIENCES
+  // =========================================================
+  // FILTER
+  // =========================================================
 
   const filteredExperiences =
     experiences.filter(
       (experience) => {
-
-        // MACRO CATEGORY
 
         const matchesCategory =
 
@@ -32,15 +36,11 @@ export function generateProposal({
             experience.macroCategory
           );
 
-        // GUESTS
-
         const matchesGuests =
 
           experience.guests.includes(
             guests
           );
-
-        // BUDGET
 
         const matchesBudget =
 
@@ -51,15 +51,15 @@ export function generateProposal({
         return (
 
           matchesCategory &&
-
           matchesGuests &&
-
           matchesBudget
         );
       }
     );
 
-  // SCORE EXPERIENCES
+  // =========================================================
+  // SCORE
+  // =========================================================
 
   const scoredExperiences =
     filteredExperiences.map(
@@ -67,7 +67,7 @@ export function generateProposal({
 
         let score = 0;
 
-        // MOOD MATCHING
+        // MOODS
 
         moodsSelected.forEach(
           (mood) => {
@@ -82,7 +82,7 @@ export function generateProposal({
           }
         );
 
-        // FAMILY BONUS
+        // FAMILY
 
         if (
           travelingWithChildren &&
@@ -90,6 +90,14 @@ export function generateProposal({
         ) {
 
           score += 20;
+        }
+
+        if (
+          travelingWithChildren &&
+          !experience.familyFriendly
+        ) {
+
+          score -= 30;
         }
 
         return {
@@ -101,7 +109,9 @@ export function generateProposal({
       }
     );
 
+  // =========================================================
   // SORT
+  // =========================================================
 
   const sortedExperiences =
     scoredExperiences.sort(
@@ -109,12 +119,16 @@ export function generateProposal({
         b.finalScore - a.finalScore
     );
 
-  // BEST MATCH
+  // =========================================================
+  // BEST EXPERIENCE
+  // =========================================================
 
   const bestExperience =
     sortedExperiences[0];
 
+  // =========================================================
   // FALLBACK
+  // =========================================================
 
   if (!bestExperience) {
 
@@ -134,12 +148,12 @@ export function generateProposal({
     };
   }
 
+  // =========================================================
   // HERO TITLE
+  // =========================================================
 
   let heroTitle =
     "Mediterranean Escape";
-
-  // ROMANTIC
 
   if (
     moodsSelected.includes(
@@ -151,8 +165,6 @@ export function generateProposal({
       "Romantic Riviera Escape";
   }
 
-  // ADVENTURE
-
   if (
     moodsSelected.includes(
       "Adventure"
@@ -162,8 +174,6 @@ export function generateProposal({
     heroTitle =
       "Mediterranean Adventure";
   }
-
-  // AUTHENTIC
 
   if (
     moodsSelected.includes(
@@ -175,8 +185,6 @@ export function generateProposal({
       "Authentic Riviera Escape";
   }
 
-  // CINEMATIC
-
   if (
     moodsSelected.includes(
       "Cinematic"
@@ -187,17 +195,54 @@ export function generateProposal({
       "Cinematic Mediterranean Escape";
   }
 
-  // INCLUDED SECTIONS
+  // =========================================================
+  // HERO IMAGE
+  // =========================================================
+
+  let heroImage =
+    bestExperience.heroImage;
+
+  // 1 CATEGORY + 1 MOOD
+
+  if (
+    experiencesSelected.length === 1 &&
+    moodsSelected.length === 1
+  ) {
+
+    const key =
+
+      `${experiencesSelected[0]}-${moodsSelected[0]}`;
+
+    const combinationHero =
+
+      (bestExperience as any)
+        .heroCombinations?.[
+          key as string
+        ];
+
+    if (combinationHero) {
+
+      heroImage =
+        combinationHero;
+    }
+  }
+
+  // =========================================================
+  // INCLUDED
+  // =========================================================
 
   const includedSections =
     bestExperience.included || [];
+
+  // =========================================================
+  // RETURN
+  // =========================================================
 
   return {
 
     heroTitle,
 
-    heroImage:
-      bestExperience.heroImage,
+    heroImage,
 
     featuredExperience:
       bestExperience,

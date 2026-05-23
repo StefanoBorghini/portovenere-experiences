@@ -6,21 +6,21 @@ SEA ESCAPE
 --DINO                                  ROMANTIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000                   
 --APHRODITE                             AUTHENTIC(4) ROMANTIC(3) ADVENTURE(3) CINEMATIC(2)             3-4 5-7 8+      €500 - €1000 €1000 - €3000
 --VELAMICA                              ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             8+              €1000 - €3000 €3000+
---VELAGIOVANE                           CINEMATIC(4) ADVENTURE(2) AUTHENTIC(1) ROMANTIC(1)             8+              €1000 - €3000 €3000+
+--VELAGIOVANE                           ADVENTURE(4) AUTHENTIC(3) CINEMATIC(2) ROMANTIC(1)             8+              €1000 - €3000 €3000+
  
 AERIAL ESCAPE
---AIRPLANE                              CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)            2 3-4 5-7       €500 - €1000 €1000 - €3000 
+--AIRPLANE                              CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) ROMANTIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000 
 --MONGOLFIERA                           ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 
 
 GOURMET ESCAPE
---PRENOTAZIONE RISTORANTE               ROMANTIC(3) AUTHENTIC(2) CINEMATIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
---ON BOARD FOOD & WINE EXPERIENCES      ADVENTURE(3) AUTHENTIC(2) ROMANTIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+--PRENOTAZIONE RISTORANTE               ROMANTIC(4) AUTHENTIC(3) CINEMATIC(2) ADVENTURE(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+--ON BOARD FOOD & WINE EXPERIENCES      ADVENTURE(4) AUTHENTIC(3) ROMANTIC(2) CINEMATIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
   
 WILD ESCAPE
---TREKKING                              AUTHENTIC(2) ADVENTURE(1)                                      2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
---SNORKELING                            ADVENTURE(2) CINEMATIC(1)                                      2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
---MERMAIDING                            ROMANTIC(3) ADVENTURE(2) CINEMATIC(1)                          2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
---HORSES                                ADVENTURE(3) AUTHENTIC(2) CINEMATIC(1)                         2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--TREKKING                              AUTHENTIC(4) ADVENTURE(3) CINEMATIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--SNORKELING                            ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--MERMAIDING                            ROMANTIC(4) ADVENTURE(3) CINEMATIC(2) AUTHENTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--HORSES                                ADVENTURE(4) AUTHENTIC(3) CINEMATIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
 
 
 
