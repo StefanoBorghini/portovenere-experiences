@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = {
   "/private-sailing-experience-with-snorkeling": {
@@ -13,29 +12,17 @@ const protectedRoutes = {
     password: "riviera2026@",
     expiresAt: "2026-05-23T23:59:59",
   },
-  
-  "/": {
-    username: "Stefano",
-    password: "riviera2026@",
-    expiresAt: "2026-05-23T23:59:59",
-  },
-
 
   "/dmitri-july-2026": {
-    username: "fdsvsvsv",
-    password: "Scogio1987@Rjfijffjafsesef9",
-    expiresAt: "2126-05-23T23:59:59",
+    username: "Dmitri",
+    password: "29-july-2026@",
+    expiresAt: "2026-05-23T23:59:59",
   },
-  
-
 };
 
-export function middleware(
-  request: NextRequest
-) {
+export function middleware(request: NextRequest) {
 
-  const path =
-    request.nextUrl.pathname;
+  const path = request.nextUrl.pathname;
 
   const credentials =
     protectedRoutes[
@@ -48,7 +35,7 @@ export function middleware(
     return NextResponse.next();
   }
 
-  // EXPIRED
+  // CHECK EXPIRATION
 
   if (
     new Date() >
@@ -63,60 +50,32 @@ export function middleware(
     );
   }
 
-  const auth =
-    request.headers.get(
-      "authorization"
-    );
+  // CHECK COOKIE
 
-  if (auth) {
+  const authCookie =
+    request.cookies.get("proposalAuth");
 
-    const encoded =
-      auth.split(" ")[1];
+  if (
+    authCookie?.value ===
+    `${credentials.username}:${credentials.password}`
+  ) {
 
-    const decoded =
-      atob(encoded);
-
-    const [user, password] =
-      decoded.split(":");
-
-    // VALID LOGIN
-
-    if (
-      user === credentials.username &&
-      password === credentials.password
-    ) {
-
-      const response =
-        NextResponse.next();
-
-      response.cookies.set(
-        "clientName",
-        user,
-        {
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
-          maxAge:
-            60 * 60 * 24,
-        }
-      );
-
-      return response;
-    }
+    return NextResponse.next();
   }
 
-  // LOGIN POPUP
+  // REDIRECT TO LOGIN PAGE
 
-  return new NextResponse(
-    "Protected Area",
-    {
-      status: 401,
-      headers: {
-        "WWW-Authenticate":
-          'Basic realm="Private Experience"',
-      },
-    }
+  const loginUrl = new URL(
+    "/private-access",
+    request.url
   );
+
+  loginUrl.searchParams.set(
+    "redirect",
+    path
+  );
+
+  return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
