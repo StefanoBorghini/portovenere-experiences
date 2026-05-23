@@ -4,6 +4,7 @@ interface GenerateProposalProps {
   experiencesSelected: string[];
   moodsSelected: string[];
   budget: string;
+  guests: string;
   travelingWithChildren: boolean;
 }
 
@@ -11,88 +12,94 @@ export function generateProposal({
   experiencesSelected,
   moodsSelected,
   budget,
+  guests,
   travelingWithChildren,
 }: GenerateProposalProps) {
 
-  // CONVERT BUDGET
+  // FILTER EXPERIENCES
 
-  let numericBudget = 0;
+  const filteredExperiences =
+    experiences.filter(
+      (experience) => {
 
-  if (budget === "€500 - €1000") {
-    numericBudget = 500;
-  }
+        // MACRO CATEGORY
 
-  if (budget === "€1000 - €3000") {
-    numericBudget = 1000;
-  }
+        const matchesCategory =
 
-  if (budget === "€3000+") {
-    numericBudget = 3000;
-  }
+          experiencesSelected.length === 0 ||
+
+          experiencesSelected.includes(
+            experience.macroCategory
+          );
+
+        // GUESTS
+
+        const matchesGuests =
+
+          experience.guests.includes(
+            guests
+          );
+
+        // BUDGET
+
+        const matchesBudget =
+
+          experience.budgets.includes(
+            budget
+          );
+
+        return (
+
+          matchesCategory &&
+
+          matchesGuests &&
+
+          matchesBudget
+        );
+      }
+    );
 
   // SCORE EXPERIENCES
 
   const scoredExperiences =
-    experiences.map((experience) => {
+    filteredExperiences.map(
+      (experience) => {
 
-      let score = experience.score;
+        let score = 0;
 
-      // USER SELECTED EXPERIENCE
+        // MOOD MATCHING
 
-      if (
-        experiencesSelected.includes(
-          experience.title
-        )
-      ) {
-        score += 50;
-      }
+        moodsSelected.forEach(
+          (mood) => {
 
-      // MOOD MATCHING
+            const moodScore =
 
-      moodsSelected.forEach((mood) => {
+              experience.moodScores[
+                mood as keyof typeof experience.moodScores
+              ] || 0;
+
+            score += moodScore * 10;
+          }
+        );
+
+        // FAMILY BONUS
 
         if (
-          experience.moods.includes(
-            mood
-          )
+          travelingWithChildren &&
+          experience.familyFriendly
         ) {
-          score += 25;
+
+          score += 20;
         }
 
-      });
+        return {
 
-      // FAMILY FILTER
+          ...experience,
 
-      if (
-        travelingWithChildren &&
-        experience.familyFriendly
-      ) {
-        score += 20;
+          finalScore: score,
+        };
       }
-
-      if (
-        travelingWithChildren &&
-        !experience.familyFriendly
-      ) {
-        score -= 40;
-      }
-
-      // BUDGET FILTER
-
-      if (
-        numericBudget >=
-        experience.minBudget
-      ) {
-        score += 15;
-      } else {
-        score -= 30;
-      }
-
-      return {
-        ...experience,
-        finalScore: score,
-      };
-    });
+    );
 
   // SORT
 
@@ -107,6 +114,26 @@ export function generateProposal({
   const bestExperience =
     sortedExperiences[0];
 
+  // FALLBACK
+
+  if (!bestExperience) {
+
+    return {
+
+      heroTitle:
+        "Mediterranean Escape",
+
+      heroImage:
+        "/images/default-hero.webp",
+
+      featuredExperience: null,
+
+      scoredExperiences: [],
+
+      includedSections: [],
+    };
+  }
+
   // HERO TITLE
 
   let heroTitle =
@@ -119,6 +146,7 @@ export function generateProposal({
       "Romantic"
     )
   ) {
+
     heroTitle =
       "Romantic Riviera Escape";
   }
@@ -130,29 +158,33 @@ export function generateProposal({
       "Adventure"
     )
   ) {
+
     heroTitle =
       "Mediterranean Adventure";
   }
 
-  // RELAXED
+  // AUTHENTIC
 
   if (
     moodsSelected.includes(
-      "Relaxed"
+      "Authentic"
     )
   ) {
+
     heroTitle =
-      "Relaxed Coastal Escape";
+      "Authentic Riviera Escape";
   }
 
-  // LUXURY
+  // CINEMATIC
 
   if (
-    bestExperience.category ===
-    "luxury"
+    moodsSelected.includes(
+      "Cinematic"
+    )
   ) {
+
     heroTitle =
-      "Luxury Riviera Experience";
+      "Cinematic Mediterranean Escape";
   }
 
   // INCLUDED SECTIONS
