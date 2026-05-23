@@ -125,7 +125,7 @@ export const experiences: Experience[] = [
 
       // DOUBLE MOOD
       "Sea Escape-Romantic-Cinematic":
-        "/images/sailing/dino/romantic-cinematic.webp",
+        "/images/sailing/dino/cinematic.webp",
 
       "Sea Escape-Adventure-Authentic":
         "/images/sailing/dino/adventure-authentic.webp",
@@ -135,7 +135,7 @@ export const experiences: Experience[] = [
         "/images/sailing/dino/gourmet-romantic.webp",
 
       "Sea Escape-Wild Escape-Adventure":
-        "/images/sailing/dino/wild-adventure.webp",
+         "/images/sailing/dino/adventure.webp",
     },
 
     gallery: {
@@ -198,30 +198,28 @@ export const experiences: Experience[] = [
     basePrice: 2200,
 
     heroImage:
-      "/images/yachts/aphrodite/default.webp",
+      "/images/yachts/aphrodite/hero-web.webp",
 
     heroCombinations: {
 
-      "Sea Escape":
-        "/images/sea/aphrodite/default.webp",
 
       "Sea Escape-Romantic":
-        "/images/sea/aphrodite/romantic.webp",
+        "/images/sea/aphrodite/hero-web.webp",
 
       "Sea Escape-Cinematic":
-        "/images/sea/aphrodite/cinematic.webp",
+        "/images/sea/aphrodite/cinematic.jpg",
 
       "Sea Escape-Authentic":
-        "/images/sea/aphrodite/authentic.webp",
+        "/images/sea/aphrodite/authentic.jpg",
 
       "Sea Escape-Romantic-Cinematic":
-        "/images/sea/aphrodite/romantic-cinematic.webp",
+        "/images/sea/aphrodite/cinematic.jpg",
 
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/sea/aphrodite/gourmet-romantic.webp",
+        "/images/sea/aphrodite/degustazione.jpg",
 
       "Sea Escape-Aerial Escape-Cinematic":
-        "/images/sea/aphrodite/aerial-cinematic.webp",
+         "/images/sea/aphrodite/cinematic.jpg",
     },
 
     gallery: {
