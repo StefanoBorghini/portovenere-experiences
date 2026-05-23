@@ -669,34 +669,27 @@ traveling_with_children:
         Start Date
       </p>
 
-      <input
-  type="date"
-  value={formData.startDate}
-  min={minDate}
-  style={{
-    colorScheme: "dark",
-  }}
-  onChange={(e) => {
+ <DatePicker
+  selected={
+    formData.startDate
+      ? new Date(formData.startDate)
+      : null
+  }
+
+  onChange={(date: Date | null) => {
 
     setFormData({
       ...formData,
-      startDate: e.target.value,
+
+      startDate:
+        date
+          ? date
+              .toISOString()
+              .split("T")[0]
+          : "",
     });
-
-    setErrors((prev) =>
-      prev.filter(
-        (error) =>
-          error !== "minDate"
-      )
-    );
   }}
-  className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
-    errors.includes("startDate")
-      ? "border-red-500 bg-red-500/10"
-      : "border-white/10 hover:border-white/30 focus:border-white/50"
-  }`}
 />
-
     </div>
 
     {/* END DATE */}
