@@ -148,37 +148,38 @@ const moodAddons =
   addonIds.length < 4
 ) {
 
-  const fallbackExperiences =
+const compatibleCategories =
 
-    experiences.filter(
-      (experience) =>
+  compatibility?.compatibleWith || [];
 
-        experience.macroCategory !==
-          mainCategory &&
+const fallbackExperiences =
 
-        experience.id !==
-          heroExperienceId
-    );
-
-  fallbackExperiences.forEach(
+  experiences.filter(
     (experience) => {
 
-      if (
-        addonIds.length >= 4
-      ) {
-        return;
-      }
+      // no hero
 
       if (
-        !addonIds.includes(
-          experience.id
-        )
+        experience.id ===
+        heroExperienceId
       ) {
-
-        addonIds.push(
-          experience.id
-        );
+        return false;
       }
+
+      // stessa category NO
+
+      if (
+        experience.macroCategory ===
+        mainCategory
+      ) {
+        return false;
+      }
+
+      // solo categorie compatibili
+
+      return compatibleCategories.includes(
+        experience.macroCategory
+      );
     }
   );
 }

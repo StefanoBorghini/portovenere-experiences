@@ -1,10 +1,13 @@
 export const experienceCompatibility = {
 
-  // =====================================================
-  // SEA ESCAPE
-  // =====================================================
-
   "Sea Escape": {
+
+    compatibleWith: [
+
+      "Wild Escape",
+
+      "Gourmet Escape",
+    ],
 
     incompatibleWith: [
 
@@ -75,6 +78,8 @@ export const experienceCompatibility = {
             "snorkeling",
 
             "trekking",
+
+            "foodwine",
           ],
         },
 
@@ -82,7 +87,9 @@ export const experienceCompatibility = {
 
           addons: [
 
-            "mermaiding",
+            "foodwine",
+
+            "restaurant",
           ],
         },
 
@@ -129,88 +136,6 @@ export const experienceCompatibility = {
 
             "foodwine",
           ],
-        },
-      },
-    },
-  },
-
-  // =====================================================
-  // AERIAL ESCAPE
-  // =====================================================
-
-  "Aerial Escape": {
-
-    incompatibleWith: [
-
-      "Sea Escape",
-    ],
-
-    moods: {
-
-      Romantic: {
-
-        addons: [
-
-          "restaurant",
-        ],
-      },
-
-      Adventure: {
-
-        addons: [
-
-          "trekking",
-        ],
-      },
-
-      Cinematic: {
-
-        addons: [
-
-          "restaurant",
-        ],
-      },
-
-      Authentic: {
-
-        addons: [
-
-          "trekking",
-        ],
-      },
-    },
-
-    combinations: {
-
-      "Gourmet Escape": {
-
-        Romantic: {
-
-          addons: [],
-        },
-
-        Adventure: {
-
-          addons: [
-
-            "trekking",
-          ],
-        },
-      },
-
-      "Wild Escape": {
-
-        Romantic: {
-
-          addons: [
-
-            "restaurant",
-          ],
-        },
-
-        Adventure: {
-
-          addons: [],
         },
       },
     },
