@@ -68,7 +68,7 @@ export const experiences = [
          "/images/sailing/dino/adventure.webp",
 
       "Sea Escape-Cinematic":
-        "/images/sea/dino/cinematic.webp",
+       "/images/sailing/dino/cinematic.webp",
 
       // DOUBLE MOOD
 
