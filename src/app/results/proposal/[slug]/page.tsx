@@ -94,8 +94,7 @@ export default async function ProposalPage({
 
   const scoredExperiences =
     generatedProposal.scoredExperiences;
-
-    const galleryImages =
+const galleryImages =
   buildProposalGallery({
 
     experiencesSelected:
@@ -104,7 +103,8 @@ export default async function ProposalPage({
     moodsSelected:
       lead.moods || [],
 
-      
+    heroExperienceId:
+      featuredExperience?.id || "",
   });
 
   // PRICING ENGINE

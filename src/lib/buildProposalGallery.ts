@@ -1,11 +1,20 @@
 import { experiences }
 from "@/lib/experiences";
 
+import {
+  experienceCompatibility,
+} from "@/lib/experienceCompatibility";
+
 interface BuildGalleryProps {
 
-  experiencesSelected: string[];
+  experiencesSelected:
+    string[];
 
-  moodsSelected: string[];
+  moodsSelected:
+    string[];
+
+  heroExperienceId:
+    string;
 }
 
 export function buildProposalGallery({
@@ -14,146 +23,158 @@ export function buildProposalGallery({
 
   moodsSelected,
 
+  heroExperienceId,
+
 }: BuildGalleryProps) {
 
-  // ======================================================
-  // MATCH EXPERIENCES
-  // ======================================================
+  // =====================================================
+  // HERO EXPERIENCE
+  // =====================================================
 
-  const matchedExperiences =
-    experiences.filter(
-      (experience) =>
+  const heroExperience =
 
-        experiencesSelected.includes(
-          experience.macroCategory
-        )
+    experiences.find(
+      (exp) =>
+        exp.id === heroExperienceId
     );
 
-  // ======================================================
-  // SCORE EXPERIENCES
-  // ======================================================
+  if (!heroExperience) {
+    return [];
+  }
 
-  const scoredExperiences =
-    matchedExperiences.map(
-      (experience) => {
+  // =====================================================
+  // SUPPORTING IDS
+  // =====================================================
 
-        let score = 0;
+  let addonIds: string[] = [];
+
+  const mainCategory =
+    heroExperience.macroCategory;
+
+  const compatibility =
+
+    experienceCompatibility[
+      mainCategory as keyof typeof experienceCompatibility
+    ];
+
+  // =====================================================
+  // SINGLE CATEGORY
+  // =====================================================
+
+  if (
+    experiencesSelected.length === 1
+  ) {
+
+    moodsSelected.forEach(
+      (mood) => {
+
+        const moodAddons =
+
+          compatibility?.moods?.[
+            mood as keyof typeof compatibility.moods
+          ]?.addons || [];
+
+        addonIds.push(
+          ...moodAddons
+        );
+      }
+    );
+  }
+
+  // =====================================================
+  // CATEGORY COMBINATIONS
+  // =====================================================
+
+  if (
+    experiencesSelected.length >= 2
+  ) {
+
+    experiencesSelected.forEach(
+      (category) => {
+
+        if (
+          category === mainCategory
+        ) {
+          return;
+        }
 
         moodsSelected.forEach(
           (mood) => {
 
-            const moodScore =
+          const combinations =
 
-              experience.moodScores[
-                mood as keyof typeof experience.moodScores
-              ] || 0;
+  compatibility?.combinations as
+    Record<string, any>;
 
-            score += moodScore;
+const categoryCombination =
+
+  combinations?.[
+    category
+  ];
           }
         );
-
-        return {
-
-          ...experience,
-
-          galleryScore: score,
-        };
       }
     );
+  }
 
-  // ======================================================
-  // SORT
-  // ======================================================
+  // =====================================================
+  // REMOVE DUPLICATES
+  // =====================================================
 
-  const sortedExperiences =
+  addonIds =
+    [...new Set(addonIds)];
 
-    scoredExperiences.sort(
-      (a, b) =>
-
-        b.galleryScore -
-        a.galleryScore
-    );
-
-  // ======================================================
-  // BUILD GALLERY
-  // ======================================================
+  // =====================================================
+  // BUILD IMAGES
+  // =====================================================
 
   const images: string[] = [];
 
-  sortedExperiences.forEach(
-    (experience) => {
+  addonIds.forEach(
+    (addonId) => {
 
-      if (!experience.gallery) {
+      const addonExperience =
+
+        experiences.find(
+          (exp) =>
+            exp.id === addonId
+        );
+
+      if (
+        !addonExperience ||
+        !addonExperience.gallery
+      ) {
         return;
       }
 
-      // ==================================================
-      // PRIORITY:
-      // HERO COMBINATIONS
-      // ==================================================
+      // =================================================
+      // TAKE FIRST IMAGE ONLY
+      // =================================================
 
-      moodsSelected.forEach(
-        (mood) => {
+      const galleryValues =
 
-          const key =
-            `${experience.macroCategory}-${mood}`;
+        Object.values(
+          addonExperience.gallery
+        );
 
-          const comboImage =
+      const firstGallery =
+        galleryValues[0];
 
-            experience.heroCombinations?.[
-              key
-            ];
+      if (
+        firstGallery &&
+        firstGallery[0]
+      ) {
 
-          if (comboImage) {
-
-            images.push(
-              comboImage
-            );
-          }
-        }
-      );
-
-      // ==================================================
-      // GALLERY IMAGES
-      // ==================================================
-
-      Object.values(
-        experience.gallery
-      ).forEach(
-        (galleryImages) => {
-
-          galleryImages.forEach(
-            (image) => {
-
-              images.push(image);
-            }
-          );
-        }
-      );
+        images.push(
+          firstGallery[0]
+        );
+      }
     }
   );
 
-  // ======================================================
-  // REMOVE DUPLICATES
-  // ======================================================
-
-  const uniqueImages =
-
-    [...new Set(images)];
-
-  // ======================================================
-  // SHUFFLE
-  // ======================================================
-
-  const shuffled =
-
-    uniqueImages.sort(
-      () => Math.random() - 0.5
-    );
-
-  // ======================================================
+  // =====================================================
   // MAX 4
-  // ======================================================
+  // =====================================================
 
-  return shuffled.slice(0, 4);
+  return images.slice(0, 4);
 }
