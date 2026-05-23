@@ -735,18 +735,18 @@ export const experiences: Experience[] = [
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/default.webp",
+      "/images/wild/trekking/adventure.webp",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/trekking/default.webp",
+        "/images/wild/trekking/adventure.webp",
 
       "Wild Escape-Authentic":
-        "/images/wild/trekking/authentic.webp",
+        "/images/wild/trekking/authentic.jpg",
 
       "Wild Escape-Adventure":
-        "/images/wild/trekking/adventure.webp",
+        "/images/wild/trekking/adventure.jpg",
     },
 
     gallery: {
@@ -810,29 +810,29 @@ export const experiences: Experience[] = [
     basePrice: 900,
 
     heroImage:
-      "/images/wild/snorkeling/default.webp",
+      "/images/wild/underwater/snorkeling/default.jpg",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/snorkeling/default.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
 
       "Wild Escape-Adventure":
-        "/images/wild/snorkeling/adventure.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
 
       "Wild Escape-Cinematic":
-        "/images/wild/snorkeling/cinematic.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
     },
 
     gallery: {
 
       snorkeling: [
 
-        "/images/wild/snorkeling/1.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
 
-        "/images/wild/snorkeling/2.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
 
-        "/images/wild/snorkeling/3.webp",
+         "/images/wild/underwater/snorkeling/default.jpg",
       ],
     },
 
@@ -883,21 +883,21 @@ export const experiences: Experience[] = [
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/mermaiding/default.webp",
+      "/images/wild/mermaiding/cinematic.jpg",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/mermaiding/default.webp",
+        "/images/wild/mermaiding/cinematic.jpg",
 
       "Wild Escape-Romantic":
-        "/images/wild/mermaiding/romantic.webp",
+        "/images/wild/mermaiding/romantic.jpg",
 
       "Wild Escape-Cinematic":
-        "/images/wild/mermaiding/cinematic.webp",
+        "/images/wild/mermaiding/cinematic.jpg",
 
       "Wild Escape-Romantic-Cinematic":
-        "/images/wild/mermaiding/romantic-cinematic.webp",
+        "/images/wild/mermaiding/cinematic.jpg",
     },
 
     gallery: {
@@ -961,18 +961,18 @@ export const experiences: Experience[] = [
     basePrice: 1300,
 
     heroImage:
-      "/images/wild/horses/default.webp",
+      "/images/wild/horses/default.jpg",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/horses/default.webp",
+        "/images/wild/horses/default.jpg",
 
       "Wild Escape-Adventure":
-        "/images/wild/horses/adventure.webp",
+        "/images/wild/horses/default.jpg",
 
       "Wild Escape-Authentic":
-        "/images/wild/horses/authentic.webp",
+        "/images/wild/horses/default.jpg",
     },
 
     gallery: {
