@@ -8,6 +8,12 @@ import {
 
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
+import { proposalContent }
+from "@/lib/proposalContent";
+
+import { experienceCompatibility }
+from "@/lib/experienceCompatibility";
+
 interface ProposalPageProps {
   params: Promise<{
     slug: string;
@@ -103,25 +109,26 @@ export default async function ProposalPage({
 
   // PRICING ENGINE
 
-  const finalPrice =
-    calculateProposalPrice({
+// PRICING ENGINE
 
-      selectedExperiences:
-        scoredExperiences,
+const finalPrice =
+  calculateProposalPrice({
 
-      moodsSelected:
-        lead.moods || [],
+    selectedExperiences:
+      scoredExperiences || [],
 
-      guests:
-        lead.guests,
+    moodsSelected:
+      lead.moods || [],
 
-      travelingWithChildren:
-        lead.traveling_with_children || false,
-    });
+    guests:
+      lead.guests,
 
-  const price =
-    `€${finalPrice.toLocaleString()}`;
+    travelingWithChildren:
+      lead.traveling_with_children || false,
+  });
 
+const price =
+  `€${finalPrice.toLocaleString()}`;
   // WHATSAPP CTA
 
   const whatsappMessage =
@@ -318,7 +325,7 @@ export default async function ProposalPage({
 
     <div className="grid md:grid-cols-2 gap-6">
 
-      {includedSections.map(
+      {includedSections?.map(
         (
           section: any,
           index: number
