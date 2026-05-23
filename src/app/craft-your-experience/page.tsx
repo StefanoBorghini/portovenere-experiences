@@ -1,9 +1,11 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -29,13 +31,78 @@ const minDate =
 
   const router = useRouter();
 
+  const searchParams =
+  useSearchParams();
+
+const experienceParam =
+  searchParams.get(
+    "experience"
+  );
+
+const moodParam =
+  searchParams.get(
+    "mood"
+  );
+
+  const experienceMap: Record<
+  string,
+  string
+> = {
+
+  sailing:
+    "Sea Escape",
+
+  gourmet:
+    "Gourmet Escape",
+
+  aerial:
+    "Aerial Escape",
+
+  wild:
+    "Wild Escape",
+};
+
+const moodMap: Record<
+  string,
+  string
+> = {
+
+  romantic:
+    "Romantic",
+
+  cinematic:
+    "Cinematic",
+
+  authentic:
+    "Authentic",
+
+  adventure:
+    "Adventure",
+};
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
 
-    experiences: [] as string[],
-    moods: [] as string[],
+    experiences:
+  experienceParam &&
+  experienceMap[
+    experienceParam
+  ]
+    ? [
+        experienceMap[
+          experienceParam
+        ],
+      ]
+    : [],
 
+moods:
+  moodParam &&
+  moodMap[moodParam]
+    ? [
+        moodMap[moodParam],
+      ]
+    : [],
     guests: "",
     budget: "",
 
