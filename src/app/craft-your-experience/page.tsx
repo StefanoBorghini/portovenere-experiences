@@ -1,10 +1,12 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+
 import {
-  useRouter,
-} from "next/navigation";
+  useState,
+  useEffect,
+} from "react";
+import { useRouter } from "next/navigation";
 import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -30,76 +32,13 @@ const minDate =
 
   const router = useRouter();
 
- const params =
-  new URLSearchParams(
-    window.location.search
-  );
-
-const experienceParam =
-  params.get("experience");
-
-const moodParam =
-  params.get("mood");
-
-  const experienceMap: Record<
-  string,
-  string
-> = {
-
-  sailing:
-    "Sea Escape",
-
-  gourmet:
-    "Gourmet Escape",
-
-  aerial:
-    "Aerial Escape",
-
-  wild:
-    "Wild Escape",
-};
-
-const moodMap: Record<
-  string,
-  string
-> = {
-
-  romantic:
-    "Romantic",
-
-  cinematic:
-    "Cinematic",
-
-  authentic:
-    "Authentic",
-
-  adventure:
-    "Adventure",
-};
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
 
-    experiences:
-  experienceParam &&
-  experienceMap[
-    experienceParam
-  ]
-    ? [
-        experienceMap[
-          experienceParam
-        ],
-      ]
-    : [],
+    experiences: [] as string[],
+    moods: [] as string[],
 
-moods:
-  moodParam &&
-  moodMap[moodParam]
-    ? [
-        moodMap[moodParam],
-      ]
-    : [],
     guests: "",
     budget: "",
 
@@ -110,10 +49,88 @@ moods:
   travelingWithChildren: false,
 
     termsAccepted: false,
+
+    
   });
 
   
+useEffect(() => {
 
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const experienceParam =
+    params.get("experience");
+
+  const moodParam =
+    params.get("mood");
+
+  const experienceMap: Record<
+    string,
+    string
+  > = {
+
+    sailing:
+      "Sea Escape",
+
+    gourmet:
+      "Gourmet Escape",
+
+    aerial:
+      "Aerial Escape",
+
+    wild:
+      "Wild Escape",
+  };
+
+  const moodMap: Record<
+    string,
+    string
+  > = {
+
+    romantic:
+      "Romantic",
+
+    cinematic:
+      "Cinematic",
+
+    authentic:
+      "Authentic",
+
+    adventure:
+      "Adventure",
+  };
+
+  setFormData((prev) => ({
+
+    ...prev,
+
+    experiences:
+      experienceParam &&
+      experienceMap[
+        experienceParam
+      ]
+        ? [
+            experienceMap[
+              experienceParam
+            ],
+          ]
+        : prev.experiences,
+
+    moods:
+      moodParam &&
+      moodMap[moodParam]
+        ? [
+            moodMap[
+              moodParam
+            ],
+          ]
+        : prev.moods,
+  }));
+
+}, []);
 
 
   // SINGLE SELECT
