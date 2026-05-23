@@ -265,7 +265,7 @@ export default function HomePage() {
 
               <p className="text-zinc-200 leading-relaxed mb-8">
                 Golden hour navigation, hidden coves and cinematic atmosphere
-                across the Gulf of Poets.
+                across Portovenere.
               </p>
 
               <a
@@ -317,7 +317,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
           {/* CARD 3 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="/images/dining/dining-01.jpg"
+              src="/images/flying/img-1.jpg"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Mediterranean Sunset Dinner"
             />
@@ -325,23 +325,23 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              Private Dinner
+              Private Flight
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-                Sunset Dining
+                AERIAL EXPERIENCE
               </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-                Mediterranean
+               Italian Riviera
+
                 <br />
-                Sunset Dinner
+               Air Escape
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                Private seaside tables, authentic Ligurian cuisine and timeless
-                Riviera atmosphere.
+                A private fly experience across the Riviera coastline, suspended between sea, cliffs and golden Mediterranean light.
               </p>
 
               <a
