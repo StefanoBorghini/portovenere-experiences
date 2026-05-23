@@ -4,7 +4,6 @@ import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import {
   useRouter,
-  useSearchParams,
 } from "next/navigation";
 import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
@@ -31,18 +30,16 @@ const minDate =
 
   const router = useRouter();
 
-  const searchParams =
-  useSearchParams();
+ const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
 const experienceParam =
-  searchParams.get(
-    "experience"
-  );
+  params.get("experience");
 
 const moodParam =
-  searchParams.get(
-    "mood"
-  );
+  params.get("mood");
 
   const experienceMap: Record<
   string,
