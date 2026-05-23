@@ -1,5 +1,6 @@
 // =========================================================
 // experiences.ts
+// COMPLETE VERSION
 // =========================================================
 
 export const experiences = [
@@ -46,29 +47,55 @@ export const experiences = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sea/dino-hero.webp",
+      "/images/sea/dino/default.webp",
 
     heroCombinations: {
 
+      // DEFAULT
+
+      "Sea Escape":
+        "/images/sea/dino/default.webp",
+
+      // SINGLE MOOD
+
       "Sea Escape-Romantic":
-        "/images/heroes/sea-romantic.webp",
+        "/images/sea/dino/romantic.webp",
 
       "Sea Escape-Authentic":
-        "/images/heroes/sea-authentic.webp",
+        "/images/sea/dino/authentic.webp",
+
+      "Sea Escape-Adventure":
+        "/images/sea/dino/adventure.webp",
+
+      "Sea Escape-Cinematic":
+        "/images/sea/dino/cinematic.webp",
+
+      // DOUBLE MOOD
+
+      "Sea Escape-Romantic-Cinematic":
+        "/images/sea/dino/romantic-cinematic.webp",
+
+      "Sea Escape-Authentic-Adventure":
+        "/images/sea/dino/authentic-adventure.webp",
+
+      // CROSS CATEGORY
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/sea/dino/gourmet-romantic.webp",
 
       "Sea Escape-Wild Escape-Adventure":
-        "/images/heroes/sea-wild-adventure.webp",
+        "/images/sea/dino/wild-adventure.webp",
     },
 
     gallery: {
 
       sailing: [
 
-        "/images/sea/dino-1.webp",
+        "/images/sea/dino/1.webp",
 
-        "/images/sea/dino-2.webp",
+        "/images/sea/dino/2.webp",
 
-        "/images/sea/dino-3.webp",
+        "/images/sea/dino/3.webp",
       ],
     },
 
@@ -113,19 +140,41 @@ export const experiences = [
     basePrice: 2200,
 
     heroImage:
-      "/images/sea/aphrodite-hero.webp",
+      "/images/sea/aphrodite/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Sea Escape":
+        "/images/sea/aphrodite/default.webp",
+
+      "Sea Escape-Romantic":
+        "/images/sea/aphrodite/romantic.webp",
+
+      "Sea Escape-Cinematic":
+        "/images/sea/aphrodite/cinematic.webp",
+
+      "Sea Escape-Adventure":
+        "/images/sea/aphrodite/adventure.webp",
+
+      "Sea Escape-Romantic-Cinematic":
+        "/images/sea/aphrodite/romantic-cinematic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/sea/aphrodite/gourmet-romantic.webp",
+
+      "Sea Escape-Aerial Escape-Cinematic":
+        "/images/sea/aphrodite/aerial-cinematic.webp",
+    },
 
     gallery: {
 
       yacht: [
 
-        "/images/sea/aphrodite-1.webp",
+        "/images/sea/aphrodite/1.webp",
 
-        "/images/sea/aphrodite-2.webp",
+        "/images/sea/aphrodite/2.webp",
 
-        "/images/sea/aphrodite-3.webp",
+        "/images/sea/aphrodite/3.webp",
       ],
     },
 
@@ -168,19 +217,35 @@ export const experiences = [
     basePrice: 2800,
 
     heroImage:
-      "/images/sea/velamica-hero.webp",
+      "/images/sea/velamica/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Sea Escape":
+        "/images/sea/velamica/default.webp",
+
+      "Sea Escape-Adventure":
+        "/images/sea/velamica/adventure.webp",
+
+      "Sea Escape-Cinematic":
+        "/images/sea/velamica/cinematic.webp",
+
+      "Sea Escape-Adventure-Cinematic":
+        "/images/sea/velamica/adventure-cinematic.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/sea/velamica/wild-adventure.webp",
+    },
 
     gallery: {
 
       sailing: [
 
-        "/images/sea/velamica-1.webp",
+        "/images/sea/velamica/1.webp",
 
-        "/images/sea/velamica-2.webp",
+        "/images/sea/velamica/2.webp",
 
-        "/images/sea/velamica-3.webp",
+        "/images/sea/velamica/3.webp",
       ],
     },
 
@@ -223,19 +288,32 @@ export const experiences = [
     basePrice: 3200,
 
     heroImage:
-      "/images/sea/velagiovane-hero.webp",
+      "/images/sea/velagiovane/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Sea Escape":
+        "/images/sea/velagiovane/default.webp",
+
+      "Sea Escape-Cinematic":
+        "/images/sea/velagiovane/cinematic.webp",
+
+      "Sea Escape-Adventure":
+        "/images/sea/velagiovane/adventure.webp",
+
+      "Sea Escape-Romantic-Cinematic":
+        "/images/sea/velagiovane/romantic-cinematic.webp",
+    },
 
     gallery: {
 
       sunset: [
 
-        "/images/sea/velagiovane-1.webp",
+        "/images/sea/velagiovane/1.webp",
 
-        "/images/sea/velagiovane-2.webp",
+        "/images/sea/velagiovane/2.webp",
 
-        "/images/sea/velagiovane-3.webp",
+        "/images/sea/velagiovane/3.webp",
       ],
     },
 
@@ -284,19 +362,32 @@ export const experiences = [
     basePrice: 1800,
 
     heroImage:
-      "/images/air/airplane-hero.webp",
+      "/images/aerial/airplane/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Aerial Escape":
+        "/images/aerial/airplane/default.webp",
+
+      "Aerial Escape-Cinematic":
+        "/images/aerial/airplane/cinematic.webp",
+
+      "Aerial Escape-Adventure":
+        "/images/aerial/airplane/adventure.webp",
+
+      "Sea Escape-Aerial Escape-Cinematic":
+        "/images/aerial/airplane/sea-cinematic.webp",
+    },
 
     gallery: {
 
       aerial: [
 
-        "/images/air/airplane-1.webp",
+        "/images/aerial/airplane/1.webp",
 
-        "/images/air/airplane-2.webp",
+        "/images/aerial/airplane/2.webp",
 
-        "/images/air/airplane-3.webp",
+        "/images/aerial/airplane/3.webp",
       ],
     },
 
@@ -342,19 +433,29 @@ export const experiences = [
     basePrice: 2000,
 
     heroImage:
-      "/images/air/balloon-hero.webp",
+      "/images/aerial/mongolfiera/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Aerial Escape":
+        "/images/aerial/mongolfiera/default.webp",
+
+      "Aerial Escape-Adventure":
+        "/images/aerial/mongolfiera/adventure.webp",
+
+      "Aerial Escape-Cinematic":
+        "/images/aerial/mongolfiera/cinematic.webp",
+    },
 
     gallery: {
 
       balloon: [
 
-        "/images/air/balloon-1.webp",
+        "/images/aerial/mongolfiera/1.webp",
 
-        "/images/air/balloon-2.webp",
+        "/images/aerial/mongolfiera/2.webp",
 
-        "/images/air/balloon-3.webp",
+        "/images/aerial/mongolfiera/3.webp",
       ],
     },
 
@@ -405,19 +506,32 @@ export const experiences = [
     basePrice: 700,
 
     heroImage:
-      "/images/gourmet/restaurant-hero.webp",
+      "/images/gourmet/restaurant/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Gourmet Escape":
+        "/images/gourmet/restaurant/default.webp",
+
+      "Gourmet Escape-Romantic":
+        "/images/gourmet/restaurant/romantic.webp",
+
+      "Gourmet Escape-Authentic":
+        "/images/gourmet/restaurant/authentic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/gourmet/restaurant/sea-romantic.webp",
+    },
 
     gallery: {
 
       gourmet: [
 
-        "/images/gourmet/restaurant-1.webp",
+        "/images/gourmet/restaurant/1.webp",
 
-        "/images/gourmet/restaurant-2.webp",
+        "/images/gourmet/restaurant/2.webp",
 
-        "/images/gourmet/restaurant-3.webp",
+        "/images/gourmet/restaurant/3.webp",
       ],
     },
 
@@ -464,19 +578,32 @@ export const experiences = [
     basePrice: 1500,
 
     heroImage:
-      "/images/gourmet/wine-hero.webp",
+      "/images/gourmet/wine/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Gourmet Escape":
+        "/images/gourmet/wine/default.webp",
+
+      "Gourmet Escape-Adventure":
+        "/images/gourmet/wine/adventure.webp",
+
+      "Gourmet Escape-Authentic":
+        "/images/gourmet/wine/authentic.webp",
+
+      "Sea Escape-Gourmet Escape-Romantic":
+        "/images/gourmet/wine/sea-romantic.webp",
+    },
 
     gallery: {
 
       wine: [
 
-        "/images/gourmet/wine-1.webp",
+        "/images/gourmet/wine/1.webp",
 
-        "/images/gourmet/wine-2.webp",
+        "/images/gourmet/wine/2.webp",
 
-        "/images/gourmet/wine-3.webp",
+        "/images/gourmet/wine/3.webp",
       ],
     },
 
@@ -527,19 +654,32 @@ export const experiences = [
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking-hero.webp",
+      "/images/wild/trekking/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Wild Escape":
+        "/images/wild/trekking/default.webp",
+
+      "Wild Escape-Authentic":
+        "/images/wild/trekking/authentic.webp",
+
+      "Wild Escape-Adventure":
+        "/images/wild/trekking/adventure.webp",
+
+      "Sea Escape-Wild Escape-Adventure":
+        "/images/wild/trekking/sea-adventure.webp",
+    },
 
     gallery: {
 
       trekking: [
 
-        "/images/wild/trekking-1.webp",
+        "/images/wild/trekking/1.webp",
 
-        "/images/wild/trekking-2.webp",
+        "/images/wild/trekking/2.webp",
 
-        "/images/wild/trekking-3.webp",
+        "/images/wild/trekking/3.webp",
       ],
     },
 
@@ -586,19 +726,29 @@ export const experiences = [
     basePrice: 900,
 
     heroImage:
-      "/images/wild/snorkeling-hero.webp",
+      "/images/wild/snorkeling/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Wild Escape":
+        "/images/wild/snorkeling/default.webp",
+
+      "Wild Escape-Adventure":
+        "/images/wild/snorkeling/adventure.webp",
+
+      "Wild Escape-Cinematic":
+        "/images/wild/snorkeling/cinematic.webp",
+    },
 
     gallery: {
 
       snorkeling: [
 
-        "/images/wild/snorkeling-1.webp",
+        "/images/wild/snorkeling/1.webp",
 
-        "/images/wild/snorkeling-2.webp",
+        "/images/wild/snorkeling/2.webp",
 
-        "/images/wild/snorkeling-3.webp",
+        "/images/wild/snorkeling/3.webp",
       ],
     },
 
@@ -645,19 +795,35 @@ export const experiences = [
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/mermaid-hero.webp",
+      "/images/wild/mermaiding/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Wild Escape":
+        "/images/wild/mermaiding/default.webp",
+
+      "Wild Escape-Romantic":
+        "/images/wild/mermaiding/romantic.webp",
+
+      "Wild Escape-Cinematic":
+        "/images/wild/mermaiding/cinematic.webp",
+
+      "Wild Escape-Romantic-Cinematic":
+        "/images/wild/mermaiding/romantic-cinematic.webp",
+
+      "Sea Escape-Wild Escape-Cinematic":
+        "/images/wild/mermaiding/sea-cinematic.webp",
+    },
 
     gallery: {
 
       underwater: [
 
-        "/images/wild/mermaid-1.webp",
+        "/images/wild/mermaiding/1.webp",
 
-        "/images/wild/mermaid-2.webp",
+        "/images/wild/mermaiding/2.webp",
 
-        "/images/wild/mermaid-3.webp",
+        "/images/wild/mermaiding/3.webp",
       ],
     },
 
@@ -704,19 +870,29 @@ export const experiences = [
     basePrice: 1300,
 
     heroImage:
-      "/images/wild/horses-hero.webp",
+      "/images/wild/horses/default.webp",
 
-    heroCombinations: {},
+    heroCombinations: {
+
+      "Wild Escape":
+        "/images/wild/horses/default.webp",
+
+      "Wild Escape-Adventure":
+        "/images/wild/horses/adventure.webp",
+
+      "Wild Escape-Authentic":
+        "/images/wild/horses/authentic.webp",
+    },
 
     gallery: {
 
       horses: [
 
-        "/images/wild/horses-1.webp",
+        "/images/wild/horses/1.webp",
 
-        "/images/wild/horses-2.webp",
+        "/images/wild/horses/2.webp",
 
-        "/images/wild/horses-3.webp",
+        "/images/wild/horses/3.webp",
       ],
     },
 
