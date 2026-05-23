@@ -241,7 +241,7 @@ export default function HomePage() {
           {/* CARD 1 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="/images/sailing/sailing-01.jpg"
+              src="https://www.portovenere.com/wp-content/uploads/2026/02/352.webp"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Private Sailing Experience"
             />
@@ -279,7 +279,7 @@ Craft Your Experience              </a>
           {/* CARD 2 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="/images/underwater/underwater-01.jpg"
+              src="https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Underwater Storytelling"
             />
