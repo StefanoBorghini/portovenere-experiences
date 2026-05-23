@@ -252,7 +252,7 @@ export default function HomePage() {
               Limited Access
             </div>
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Yacht Experience
               </p>
@@ -270,7 +270,7 @@ export default function HomePage() {
 
               <a
                 href="/private-sailing-experience"
-                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
+                className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Discover Experience
               </a>
@@ -291,7 +291,7 @@ export default function HomePage() {
               Selected Guests
             </div>
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Underwater Storytelling
               </p>
@@ -309,8 +309,7 @@ export default function HomePage() {
 
               <a
                 href="/underwater-experience"
-                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
-              >
+className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
                 Explore
               </a>
             </div>
@@ -330,7 +329,7 @@ export default function HomePage() {
               Private Dinner
             </div>
 
-            <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-10">
+            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
                 Sunset Dining
               </p>
@@ -348,8 +347,7 @@ export default function HomePage() {
 
               <a
                 href="/sunset-dinner"
-                className="w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
-              >
+className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
                 View Experience
               </a>
             </div>
