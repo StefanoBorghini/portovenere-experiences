@@ -581,32 +581,29 @@ export const experiences: Experience[] = [
     basePrice: 700,
 
     heroImage:
-      "/images/gourmet/restaurant/default.webp",
+      "/images/dining/ristorante/default.webp",
 
     heroCombinations: {
 
-      "Gourmet Escape":
-        "/images/gourmet/restaurant/default.webp",
-
       "Gourmet Escape-Romantic":
-        "/images/gourmet/restaurant/romantic.webp",
+        "/images/dining/ristorante/romantic-two.jpg",
 
       "Gourmet Escape-Authentic":
-        "/images/gourmet/restaurant/authentic.webp",
+        "/images/dining/ristorante/authentic.webp",
 
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/gourmet/restaurant/sea-romantic.webp",
+       "/images/dining/ristorante/romantic.jpg",
     },
 
     gallery: {
 
       gourmet: [
 
-        "/images/gourmet/restaurant/1.webp",
+        "/images/dining/ristorante/1.webp",
 
-        "/images/gourmet/restaurant/2.webp",
+        "/images/dining/ristorante/2.webp",
 
-        "/images/gourmet/restaurant/3.webp",
+        "/images/dining/ristorante/3.webp",
       ],
     },
 
@@ -659,29 +656,29 @@ export const experiences: Experience[] = [
     basePrice: 1500,
 
     heroImage:
-      "/images/gourmet/wine/default.webp",
+      "/images/dining/onboard/default.webp",
 
     heroCombinations: {
 
       "Gourmet Escape":
-        "/images/gourmet/wine/default.webp",
+        "/images/dining/onboard/default.webp",
 
       "Gourmet Escape-Adventure":
-        "/images/gourmet/wine/adventure.webp",
+        "/images/yachts/aphrodite/degustazione.jpg",
 
       "Gourmet Escape-Authentic":
-        "/images/gourmet/wine/authentic.webp",
+        "/images/dining/onboard/authentic.jpg",
     },
 
     gallery: {
 
       wine: [
 
-        "/images/gourmet/wine/1.webp",
+        "/images/dining/onboard/1.webp",
 
-        "/images/gourmet/wine/2.webp",
+        "/images/dining/onboard/2.webp",
 
-        "/images/gourmet/wine/3.webp",
+        "/images/dining/onboard/3.webp",
       ],
     },
 
