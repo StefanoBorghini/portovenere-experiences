@@ -105,7 +105,7 @@ export const experiences: Experience[] = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sailing/dino/hero.webp",
+      "/images/sailing/dino/cinematic.webp",
 
     heroCombinations: {
 
@@ -277,24 +277,22 @@ export const experiences: Experience[] = [
     basePrice: 2800,
 
     heroImage:
-      "/images/sea/velamica/default.webp",
+      "/images/sailing/velamica/cinematic.jpg",
 
     heroCombinations: {
 
-      "Sea Escape":
-        "/images/sea/velamica/default.webp",
 
       "Sea Escape-Adventure":
-        "/images/sea/velamica/adventure.webp",
+        "/images/sailing/velamica/adventure.jpg",
 
       "Sea Escape-Cinematic":
-        "/images/sea/velamica/cinematic.webp",
+        "/images/sailing/velamica/cinematic.jpg",
 
       "Sea Escape-Adventure-Cinematic":
-        "/images/sea/velamica/adventure-cinematic.webp",
+        "/images/sailing/velamica/adventure-cinematic.jpg",
 
       "Sea Escape-Wild Escape-Adventure":
-        "/images/sea/velamica/wild-adventure.webp",
+        "/images/sailing/velamica/wild-adventure.jpg",
     },
 
     gallery: {
