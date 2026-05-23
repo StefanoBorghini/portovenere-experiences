@@ -204,33 +204,33 @@ export const experiences: Experience[] = [
 
 
       "Sea Escape-Romantic":
-        "/images/sea/aphrodite/hero-web.webp",
+        "/images/yachts/aphrodite/hero-web.webp",
 
       "Sea Escape-Cinematic":
-        "/images/sea/aphrodite/cinematic.jpg",
+        "/images/yachts/aphrodite/cinematic.jpg",
 
       "Sea Escape-Authentic":
-        "/images/sea/aphrodite/authentic.jpg",
+        "/images/yachts/aphrodite/authentic.jpg",
 
       "Sea Escape-Romantic-Cinematic":
-        "/images/sea/aphrodite/cinematic.jpg",
+        "/images/yachts/aphrodite/cinematic.jpg",
 
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/sea/aphrodite/degustazione.jpg",
+        "/images/yachts/aphrodite/degustazione.jpg",
 
       "Sea Escape-Aerial Escape-Cinematic":
-         "/images/sea/aphrodite/cinematic.jpg",
+         "/images/yachts/aphrodite/cinematic.jpg",
     },
 
     gallery: {
 
       yacht: [
 
-        "/images/sea/aphrodite/1.webp",
+          "/images/yachts/aphrodite/cinematic.jpg",
 
-        "/images/sea/aphrodite/2.webp",
+        "/images/yachts/aphrodite/authentic.jpg",
 
-        "/images/sea/aphrodite/3.webp",
+        "/images/yachts/aphrodite/degustazione.jpg",
       ],
     },
 
@@ -299,11 +299,11 @@ export const experiences: Experience[] = [
 
       sailing: [
 
-        "/images/sailing/velamica/1.webp",
+        "/images/sailing/velamica/wild-adventure.jpg",
 
-        "/images/sailing/velamica/2.webp",
+        "/images/sailing/velamica/adventure-cinematic.jpg",
 
-        "/images/sailing/velamica/3.webp",
+          "/images/sailing/velamica/cinematic.jpg",
       ],
     },
 
@@ -369,11 +369,11 @@ export const experiences: Experience[] = [
 
       sunset: [
 
-        "/images/sailing/velagiovane/1.webp",
+        "/images/sailing/velagiovane/cinematic.jpg",
 
-        "/images/sailing/velagiovane/2.webp",
+       "/images/sailing/velagiovane/adventure.jpg",
 
-        "/images/sailing/velagiovane/3.webp",
+         "/images/sailing/velagiovane/default.webp",
       ],
     },
 
@@ -448,11 +448,11 @@ export const experiences: Experience[] = [
 
       aerial: [
 
-        "/images/flying/aereo/1.webp",
+         "/images/flying/aereo/img-1.jpg",
 
-        "/images/flying/aereo/2.webp",
+         "/images/flying/aereo/img-1.jpg",
 
-        "/images/flying/aereo/3.webp",
+         "/images/flying/aereo/img-1.jpg",
       ],
     },
 
@@ -522,11 +522,11 @@ export const experiences: Experience[] = [
 
       balloon: [
 
-        "/images/flying/mongolfiera/1.webp",
+       "/images/flying/mongolfiera/mongolfiera.jpg",
 
-        "/images/flying/mongolfiera/2.webp",
+        "/images/flying/mongolfiera/mongolfiera.jpg",
 
-        "/images/flying/mongolfiera/3.webp",
+        "/images/flying/mongolfiera/mongolfiera.jpg",
       ],
     },
 
@@ -599,11 +599,11 @@ export const experiences: Experience[] = [
 
       gourmet: [
 
-        "/images/dining/ristorante/1.webp",
+        "/images/dining/ristorante/romantic-two.jpg",
 
-        "/images/dining/ristorante/2.webp",
+       "/images/dining/ristorante/authentic.webp",
 
-        "/images/dining/ristorante/3.webp",
+      "/images/dining/ristorante/romantic.jpg",
       ],
     },
 
@@ -674,11 +674,11 @@ export const experiences: Experience[] = [
 
       wine: [
 
-        "/images/dining/onboard/1.webp",
+         "/images/dining/onboard/default.webp",
 
-        "/images/dining/onboard/2.webp",
+        "/images/yachts/aphrodite/degustazione.jpg",
 
-        "/images/dining/onboard/3.webp",
+        "/images/dining/onboard/authentic.jpg",
       ],
     },
 
@@ -753,11 +753,11 @@ export const experiences: Experience[] = [
 
       trekking: [
 
-        "/images/wild/trekking/1.webp",
+        "/images/wild/trekking/adventure.webp",
 
-        "/images/wild/trekking/2.webp",
+         "/images/wild/trekking/authentic.jpg",
 
-        "/images/wild/trekking/3.webp",
+         "/images/wild/trekking/authentic.jpg",
       ],
     },
 
@@ -904,11 +904,11 @@ export const experiences: Experience[] = [
 
       underwater: [
 
-        "/images/wild/mermaiding/1.webp",
+       "/images/wild/mermaiding/cinematic.jpg",
 
-        "/images/wild/mermaiding/2.webp",
+        "/images/wild/mermaiding/romantic.jpg",
 
-        "/images/wild/mermaiding/3.webp",
+        "/images/wild/mermaiding/romantic.jpg",
       ],
     },
 
@@ -979,11 +979,11 @@ export const experiences: Experience[] = [
 
       horses: [
 
-        "/images/wild/horses/1.webp",
+        "/images/wild/horses/default.jpg",
 
-        "/images/wild/horses/2.webp",
+        "/images/wild/horses/default.jpg",
 
-        "/images/wild/horses/3.webp",
+        "/images/wild/horses/default.jpg",
       ],
     },
 
