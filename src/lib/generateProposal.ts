@@ -1,33 +1,59 @@
 // =========================================================
 // generateProposal.ts
+// COMPLETE UPDATED VERSION
 // =========================================================
 
-import { experiences } from "./experiences";
-import { experienceCompatibility }
-from "./experienceCompatibility";
+import { experiences }
+from "./experiences";
+
+import {
+  experienceCompatibility,
+} from "./experienceCompatibility";
+
 interface GenerateProposalProps {
-  experiencesSelected: string[];
-  moodsSelected: string[];
-  budget: string;
-  guests: string;
-  travelingWithChildren: boolean;
+
+  experiencesSelected:
+    string[];
+
+  moodsSelected:
+    string[];
+
+  budget:
+    string;
+
+  guests:
+    string;
+
+  travelingWithChildren:
+    boolean;
 }
 
 export function generateProposal({
+
   experiencesSelected,
+
   moodsSelected,
+
   budget,
+
   guests,
+
   travelingWithChildren,
+
 }: GenerateProposalProps) {
 
   // =========================================================
-  // FILTER
+  // FILTER EXPERIENCES
   // =========================================================
 
   const filteredExperiences =
+
     experiences.filter(
       (experience) => {
+
+        // =====================================================
+        // MACRO CATEGORY
+        // =====================================================
 
         const matchesCategory =
 
@@ -37,11 +63,19 @@ export function generateProposal({
             experience.macroCategory
           );
 
+        // =====================================================
+        // GUESTS
+        // =====================================================
+
         const matchesGuests =
 
           experience.guests.includes(
             guests
           );
+
+        // =====================================================
+        // BUDGET
+        // =====================================================
 
         const matchesBudget =
 
@@ -52,23 +86,61 @@ export function generateProposal({
         return (
 
           matchesCategory &&
+
           matchesGuests &&
+
           matchesBudget
         );
       }
     );
 
   // =========================================================
-  // SCORE
+  // SCORE EXPERIENCES
   // =========================================================
 
   const scoredExperiences =
+
     filteredExperiences.map(
       (experience) => {
 
+        // =====================================================
+        // BASE SCORE
+        // =====================================================
+
         let score = 0;
 
-        // MOODS
+        // =====================================================
+        // IDEAL GUESTS
+        // =====================================================
+
+        if (
+
+          experience.idealGuests?.includes(
+            guests
+          )
+
+        ) {
+
+          score += 80;
+
+        } else {
+
+          score -= 100;
+        }
+
+        // =====================================================
+        // LUXURY PRIORITY
+        // =====================================================
+
+        score +=
+
+          (
+            experience.luxuryPriority || 1
+          ) * 20;
+
+        // =====================================================
+        // MOOD REFINEMENT
+        // =====================================================
 
         moodsSelected.forEach(
           (mood) => {
@@ -83,23 +155,35 @@ export function generateProposal({
           }
         );
 
+        // =====================================================
         // FAMILY
+        // =====================================================
 
         if (
+
           travelingWithChildren &&
+
           experience.familyFriendly
+
         ) {
 
           score += 20;
         }
 
         if (
+
           travelingWithChildren &&
+
           !experience.familyFriendly
+
         ) {
 
-          score -= 30;
+          score -= 100;
         }
+
+        // =====================================================
+        // RETURN
+        // =====================================================
 
         return {
 
@@ -115,8 +199,10 @@ export function generateProposal({
   // =========================================================
 
   const sortedExperiences =
+
     scoredExperiences.sort(
       (a, b) =>
+
         b.finalScore - a.finalScore
     );
 
@@ -125,6 +211,7 @@ export function generateProposal({
   // =========================================================
 
   const bestExperience =
+
     sortedExperiences[0];
 
   // =========================================================
@@ -141,48 +228,32 @@ export function generateProposal({
       heroImage:
         "/images/default-hero.webp",
 
-      featuredExperience: null,
+      featuredExperience:
+        null,
 
       scoredExperiences: [],
 
       includedSections: [],
+
+      compatibilityData:
+        null,
     };
   }
-// =========================================================
-// COMPATIBILITY
-// =========================================================
 
-let compatibilityData = null;
-
-if (
-  experiencesSelected.length >= 2
-) {
-
-  const sortedCategories =
-    [...experiencesSelected].sort();
-
-  const compatibilityKey =
-    `${sortedCategories[0]}-${sortedCategories[1]}`;
-
-  compatibilityData =
-
-    experienceCompatibility[
-      compatibilityKey as keyof typeof experienceCompatibility
-    ] || null;
-
-
-return {compatibilityData,}  }
   // =========================================================
   // HERO TITLE
   // =========================================================
 
   let heroTitle =
+
     "Mediterranean Escape";
 
   if (
+
     moodsSelected.includes(
       "Romantic"
     )
+
   ) {
 
     heroTitle =
@@ -190,9 +261,11 @@ return {compatibilityData,}  }
   }
 
   if (
+
     moodsSelected.includes(
       "Adventure"
     )
+
   ) {
 
     heroTitle =
@@ -200,9 +273,11 @@ return {compatibilityData,}  }
   }
 
   if (
+
     moodsSelected.includes(
       "Authentic"
     )
+
   ) {
 
     heroTitle =
@@ -210,9 +285,11 @@ return {compatibilityData,}  }
   }
 
   if (
+
     moodsSelected.includes(
       "Cinematic"
     )
+
   ) {
 
     heroTitle =
@@ -224,13 +301,19 @@ return {compatibilityData,}  }
   // =========================================================
 
   let heroImage =
+
     bestExperience.heroImage;
 
-  // 1 CATEGORY + 1 MOOD
+  // =========================================================
+  // SINGLE CATEGORY + SINGLE MOOD
+  // =========================================================
 
   if (
+
     experiencesSelected.length === 1 &&
+
     moodsSelected.length === 1
+
   ) {
 
     const key =
@@ -239,10 +322,9 @@ return {compatibilityData,}  }
 
     const combinationHero =
 
-      (bestExperience as any)
-        .heroCombinations?.[
-          key as string
-        ];
+      bestExperience.heroCombinations?.[
+        key as keyof typeof bestExperience.heroCombinations
+      ];
 
     if (combinationHero) {
 
@@ -252,10 +334,141 @@ return {compatibilityData,}  }
   }
 
   // =========================================================
+  // SINGLE CATEGORY + DOUBLE MOOD
+  // =========================================================
+
+  if (
+
+    experiencesSelected.length === 1 &&
+
+    moodsSelected.length === 2
+
+  ) {
+
+    const sortedMood =
+
+      [...moodsSelected].sort();
+
+    const key =
+
+      `${experiencesSelected[0]}-${sortedMood[0]}-${sortedMood[1]}`;
+
+    const combinationHero =
+
+      bestExperience.heroCombinations?.[
+        key as keyof typeof bestExperience.heroCombinations
+      ];
+
+    if (combinationHero) {
+
+      heroImage =
+        combinationHero;
+    }
+  }
+
+  // =========================================================
+  // DOUBLE CATEGORY + SINGLE MOOD
+  // =========================================================
+
+  if (
+
+    experiencesSelected.length === 2 &&
+
+    moodsSelected.length === 1
+
+  ) {
+
+    const sortedCategories =
+
+      [...experiencesSelected].sort();
+
+    const key =
+
+      `${sortedCategories[0]}-${sortedCategories[1]}-${moodsSelected[0]}`;
+
+    const combinationHero =
+
+      bestExperience.heroCombinations?.[
+        key as keyof typeof bestExperience.heroCombinations
+      ];
+
+    if (combinationHero) {
+
+      heroImage =
+        combinationHero;
+    }
+  }
+
+  // =========================================================
+  // DOUBLE CATEGORY + DOUBLE MOOD
+  // =========================================================
+
+  if (
+
+    experiencesSelected.length === 2 &&
+
+    moodsSelected.length === 2
+
+  ) {
+
+    const sortedCategories =
+
+      [...experiencesSelected].sort();
+
+    const sortedMood =
+
+      [...moodsSelected].sort();
+
+    const key =
+
+      `${sortedCategories[0]}-${sortedCategories[1]}-${sortedMood[0]}-${sortedMood[1]}`;
+
+    const combinationHero =
+
+      bestExperience.heroCombinations?.[
+        key as keyof typeof bestExperience.heroCombinations
+      ];
+
+    if (combinationHero) {
+
+      heroImage =
+        combinationHero;
+    }
+  }
+
+  // =========================================================
+  // COMPATIBILITY
+  // =========================================================
+
+  let compatibilityData = null;
+
+  if (
+
+    experiencesSelected.length >= 2
+
+  ) {
+
+    const sortedCategories =
+
+      [...experiencesSelected].sort();
+
+    const compatibilityKey =
+
+      `${sortedCategories[0]}-${sortedCategories[1]}`;
+
+    compatibilityData =
+
+      experienceCompatibility[
+        compatibilityKey as keyof typeof experienceCompatibility
+      ] || null;
+  }
+
+  // =========================================================
   // INCLUDED
   // =========================================================
 
   const includedSections =
+
     bestExperience.included || [];
 
   // =========================================================
@@ -275,5 +488,7 @@ return {compatibilityData,}  }
       sortedExperiences,
 
     includedSections,
+
+    compatibilityData,
   };
 }

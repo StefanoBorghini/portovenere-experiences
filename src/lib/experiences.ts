@@ -1,9 +1,62 @@
 // =========================================================
 // experiences.ts
-// COMPLETE VERSION
+// FINAL COMPLETE VERSION
 // =========================================================
 
-export const experiences = [
+export interface Experience {
+
+  id: string;
+
+  title: string;
+
+  operator: string;
+
+  macroCategory: string;
+
+  guests: string[];
+
+  idealGuests: string[];
+
+  luxuryPriority: number;
+
+  budgets: string[];
+
+  moodScores: {
+
+    Romantic: number;
+
+    Authentic: number;
+
+    Adventure: number;
+
+    Cinematic: number;
+  };
+
+  familyFriendly: boolean;
+
+  basePrice: number;
+
+  heroImage: string;
+
+  heroCombinations?: {
+    [key: string]: string;
+  };
+
+  gallery?: {
+    [key: string]: string[];
+  };
+
+  included?: {
+    title: string;
+    description: string;
+  }[];
+}
+
+// =========================================================
+// EXPERIENCES
+// =========================================================
+
+export const experiences: Experience[] = [
 
   // =========================================================
   // SEA ESCAPE
@@ -14,17 +67,22 @@ export const experiences = [
 
     title: "Dino",
 
-    operator:
-      "Dino",
+    operator: "Dino",
 
-    macroCategory:
-      "Sea Escape",
+    macroCategory: "Sea Escape",
 
     guests: [
       "2",
       "3-4",
       "5-7",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+    ],
+
+    luxuryPriority: 2,
 
     budgets: [
       "€500 - €1000",
@@ -47,39 +105,34 @@ export const experiences = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sailing/dino/hero.webp",
+      "/images/sea/dino/default.webp",
 
     heroCombinations: {
 
-      // DEFAULT
-
+      // SINGLE
       "Sea Escape":
-        "/images/sailing/dino/hero.webp",
-
-      // SINGLE MOOD
+        "/images/sea/dino/default.webp",
 
       "Sea Escape-Romantic":
-         "/images/sailing/dino/romantic.webp",
+        "/images/sea/dino/romantic.webp",
 
       "Sea Escape-Authentic":
-         "/images/sailing/dino/authentic.webp",
+        "/images/sea/dino/authentic.webp",
 
       "Sea Escape-Adventure":
-         "/images/sailing/dino/adventure.webp",
+        "/images/sea/dino/adventure.webp",
 
       "Sea Escape-Cinematic":
-       "/images/sailing/dino/cinematic.webp",
+        "/images/sea/dino/cinematic.webp",
 
       // DOUBLE MOOD
-
       "Sea Escape-Romantic-Cinematic":
         "/images/sea/dino/romantic-cinematic.webp",
 
-      "Sea Escape-Authentic-Adventure":
-        "/images/sea/dino/authentic-adventure.webp",
+      "Sea Escape-Adventure-Authentic":
+        "/images/sea/dino/adventure-authentic.webp",
 
-      // CROSS CATEGORY
-
+      // CATEGORY CROSSOVER
       "Sea Escape-Gourmet Escape-Romantic":
         "/images/sea/dino/gourmet-romantic.webp",
 
@@ -107,21 +160,28 @@ export const experiences = [
 
     title: "Aphrodite",
 
-    operator:
-      "Aphrodite",
+    operator: "Aphrodite",
 
-    macroCategory:
-      "Sea Escape",
+    macroCategory: "Sea Escape",
 
     guests: [
+      "2",
       "3-4",
       "5-7",
       "8+",
     ],
 
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 5,
+
     budgets: [
-      "€500 - €1000",
       "€1000 - €3000",
+      "€3000+",
     ],
 
     moodScores: {
@@ -153,8 +213,8 @@ export const experiences = [
       "Sea Escape-Cinematic":
         "/images/sea/aphrodite/cinematic.webp",
 
-      "Sea Escape-Adventure":
-        "/images/sea/aphrodite/adventure.webp",
+      "Sea Escape-Authentic":
+        "/images/sea/aphrodite/authentic.webp",
 
       "Sea Escape-Romantic-Cinematic":
         "/images/sea/aphrodite/romantic-cinematic.webp",
@@ -186,15 +246,19 @@ export const experiences = [
 
     title: "Velamica",
 
-    operator:
-      "Velamica",
+    operator: "Velamica",
 
-    macroCategory:
-      "Sea Escape",
+    macroCategory: "Sea Escape",
 
     guests: [
       "8+",
     ],
+
+    idealGuests: [
+      "8+",
+    ],
+
+    luxuryPriority: 4,
 
     budgets: [
       "€1000 - €3000",
@@ -257,15 +321,19 @@ export const experiences = [
 
     title: "Velagiovane",
 
-    operator:
-      "Velagiovane",
+    operator: "Velagiovane",
 
-    macroCategory:
-      "Sea Escape",
+    macroCategory: "Sea Escape",
 
     guests: [
       "8+",
     ],
+
+    idealGuests: [
+      "8+",
+    ],
+
+    luxuryPriority: 4,
 
     budgets: [
       "€1000 - €3000",
@@ -329,17 +397,22 @@ export const experiences = [
 
     title: "Airplane",
 
-    operator:
-      "Airplane",
+    operator: "Airplane",
 
-    macroCategory:
-      "Aerial Escape",
+    macroCategory: "Aerial Escape",
 
     guests: [
       "2",
       "3-4",
       "5-7",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+    ],
+
+    luxuryPriority: 4,
 
     budgets: [
       "€500 - €1000",
@@ -399,11 +472,9 @@ export const experiences = [
 
     title: "Mongolfiera",
 
-    operator:
-      "Mongolfiera",
+    operator: "Mongolfiera",
 
-    macroCategory:
-      "Aerial Escape",
+    macroCategory: "Aerial Escape",
 
     guests: [
       "2",
@@ -411,6 +482,14 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 3,
 
     budgets: [
       "€500 - €1000",
@@ -469,14 +548,11 @@ export const experiences = [
   {
     id: "restaurant",
 
-    title:
-      "Prenotazione Ristorante",
+    title: "Prenotazione Ristorante",
 
-    operator:
-      "Restaurant",
+    operator: "Restaurant",
 
-    macroCategory:
-      "Gourmet Escape",
+    macroCategory: "Gourmet Escape",
 
     guests: [
       "2",
@@ -484,6 +560,13 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+    ],
+
+    luxuryPriority: 5,
 
     budgets: [
       "€500 - €1000",
@@ -544,11 +627,9 @@ export const experiences = [
     title:
       "On Board Food & Wine Experiences",
 
-    operator:
-      "Food & Wine",
+    operator: "Food & Wine",
 
-    macroCategory:
-      "Gourmet Escape",
+    macroCategory: "Gourmet Escape",
 
     guests: [
       "2",
@@ -556,6 +637,14 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 4,
 
     budgets: [
       "€500 - €1000",
@@ -590,9 +679,6 @@ export const experiences = [
 
       "Gourmet Escape-Authentic":
         "/images/gourmet/wine/authentic.webp",
-
-      "Sea Escape-Gourmet Escape-Romantic":
-        "/images/gourmet/wine/sea-romantic.webp",
     },
 
     gallery: {
@@ -619,11 +705,9 @@ export const experiences = [
 
     title: "Trekking",
 
-    operator:
-      "Trekking",
+    operator: "Trekking",
 
-    macroCategory:
-      "Wild Escape",
+    macroCategory: "Wild Escape",
 
     guests: [
       "2",
@@ -631,6 +715,14 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 2,
 
     budgets: [
       "€500 - €1000",
@@ -666,9 +758,6 @@ export const experiences = [
 
       "Wild Escape-Adventure":
         "/images/wild/trekking/adventure.webp",
-
-      "Sea Escape-Wild Escape-Adventure":
-        "/images/wild/trekking/sea-adventure.webp",
     },
 
     gallery: {
@@ -691,11 +780,9 @@ export const experiences = [
 
     title: "Snorkeling",
 
-    operator:
-      "Snorkeling",
+    operator: "Snorkeling",
 
-    macroCategory:
-      "Wild Escape",
+    macroCategory: "Wild Escape",
 
     guests: [
       "2",
@@ -703,6 +790,14 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 3,
 
     budgets: [
       "€500 - €1000",
@@ -760,11 +855,9 @@ export const experiences = [
 
     title: "Mermaiding",
 
-    operator:
-      "Mermaiding",
+    operator: "Mermaiding",
 
-    macroCategory:
-      "Wild Escape",
+    macroCategory: "Wild Escape",
 
     guests: [
       "2",
@@ -772,6 +865,12 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+    ],
+
+    luxuryPriority: 4,
 
     budgets: [
       "€500 - €1000",
@@ -810,9 +909,6 @@ export const experiences = [
 
       "Wild Escape-Romantic-Cinematic":
         "/images/wild/mermaiding/romantic-cinematic.webp",
-
-      "Sea Escape-Wild Escape-Cinematic":
-        "/images/wild/mermaiding/sea-cinematic.webp",
     },
 
     gallery: {
@@ -835,11 +931,9 @@ export const experiences = [
 
     title: "Horses",
 
-    operator:
-      "Horses",
+    operator: "Horses",
 
-    macroCategory:
-      "Wild Escape",
+    macroCategory: "Wild Escape",
 
     guests: [
       "2",
@@ -847,6 +941,14 @@ export const experiences = [
       "5-7",
       "8+",
     ],
+
+    idealGuests: [
+      "2",
+      "3-4",
+      "5-7",
+    ],
+
+    luxuryPriority: 3,
 
     budgets: [
       "€500 - €1000",
