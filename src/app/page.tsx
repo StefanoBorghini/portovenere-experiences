@@ -208,7 +208,7 @@ export default function HomePage() {
       </section>
 
       {/* AUTHORITY */}
-      <section className="border-y border-[#EDEBE7]/10 py-6 bg-black">
+      <section className="border-y border-[#EDEBE7]/10 py-20 md:py-28 bg-black">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-10 uppercase tracking-[0.35em] text-[10px] md:text-xs text-zinc-500 px-6 text-center">
           <span>Private Productions</span>
           <span>Mediterranean Lifestyle</span>
