@@ -315,9 +315,13 @@ traveling_with_children:
       ) {
 
         console.error(
-          "Lead error:",
-          leadError
-        );
+  "Lead error full:",
+  JSON.stringify(
+    leadError,
+    null,
+    2
+  )
+);
 
         return;
       }
