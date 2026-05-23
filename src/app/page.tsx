@@ -142,13 +142,6 @@ export default function HomePage() {
             Manifesto
           </a>
 
-          <a
-            href="#contact"
-            onClick={() => setMenuOpen(false)}
-            className="text-[#EDEBE7] text-5xl font-light"
-          >
-            Contact
-          </a>
 
           <a
             href="/craft-your-experience"
