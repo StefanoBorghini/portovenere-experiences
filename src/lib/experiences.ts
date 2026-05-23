@@ -1002,32 +1002,32 @@ included: [],
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/mermaiding/cinematic.jpg",
+      "/images/wild/underwater/mermaiding/cinematic.jpg",
 
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/mermaiding/cinematic.jpg",
+        "/images/wild/underwater/mermaiding/cinematic.jpg",
 
       "Wild Escape-Romantic":
-        "/images/wild/mermaiding/romantic.jpg",
+        "/images/wild/underwater/mermaiding/romantic.jpg",
 
       "Wild Escape-Cinematic":
-        "/images/wild/mermaiding/cinematic.jpg",
+        "/images/wild/underwater/mermaiding/cinematic.jpg",
 
       "Wild Escape-Romantic-Cinematic":
-        "/images/wild/mermaiding/cinematic.jpg",
+        "/images/wild/underwater/mermaiding/cinematic.jpg",
     },
 
     gallery: {
 
       underwater: [
 
-       "/images/wild/mermaiding/cinematic.jpg",
+       "/images/wild/underwater/mermaiding/cinematic.jpg",
 
-        "/images/wild/mermaiding/romantic.jpg",
+        "/images/wild/underwater/mermaiding/romantic.jpg",
 
-        "/images/wild/mermaiding/romantic.jpg",
+        "/images/wild/underwater/mermaiding/romantic.jpg",
       ],
     },
 
