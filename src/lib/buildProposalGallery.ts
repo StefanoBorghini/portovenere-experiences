@@ -16,31 +16,62 @@ export function buildProposalGallery({
 
   const matchedExperiences =
     experiences.filter((experience) =>
+
       experiencesSelected.includes(
-        experience.title
+        experience.macroCategory
       )
     );
 
-  // SORT BY SCORE
+  // SORT BY MOOD SCORE
 
-  const sortedExperiences =
-    matchedExperiences.sort(
-      (a, b) =>
-        b.score - a.score
-    );
+  matchedExperiences.sort(
+    (a, b) => {
+
+      const aScore =
+        moodsSelected.reduce(
+          (total, mood) => {
+
+            return (
+              total +
+              (
+                a.moodScores[
+                  mood as keyof typeof a.moodScores
+                ] || 0
+              )
+            );
+          },
+          0
+        );
+
+      const bScore =
+        moodsSelected.reduce(
+          (total, mood) => {
+
+            return (
+              total +
+              (
+                b.moodScores[
+                  mood as keyof typeof b.moodScores
+                ] || 0
+              )
+            );
+          },
+          0
+        );
+
+      return bScore - aScore;
+    }
+  );
 
   // EXPERIENCE IMAGES
 
-  sortedExperiences.forEach(
+  matchedExperiences.forEach(
     (experience) => {
 
       const gallery =
         experience.gallery;
 
       if (!gallery) return;
-
-      // PRENDE UNA IMMAGINE RANDOM
-      // DA OGNI VARIANTE
 
       Object.keys(gallery).forEach(
         (variantKey) => {
@@ -74,19 +105,18 @@ export function buildProposalGallery({
 
   // MOOD BOOST
 
-  // aggiunge immagini extra coerenti
-  // in base al mood scelto
-
   moodsSelected.forEach((mood) => {
 
     matchedExperiences.forEach(
       (experience) => {
 
-        if (
-          !experience.moods.includes(
-            mood
-          )
-        ) {
+        const moodValue =
+
+          experience.moodScores[
+            mood as keyof typeof experience.moodScores
+          ] || 0;
+
+        if (moodValue <= 0) {
           return;
         }
 
