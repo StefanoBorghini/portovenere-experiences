@@ -128,20 +128,20 @@ export const experiences = [
     heroImages: {
 
       Romantic:
-        "/images/sea/aphrodite-romantic.webp",
+        "/images/yachts/hero.webp",
 
       Authentic:
-        "/images/sea/aphrodite-authentic.webp",
+        "/images/yachts/hero.webp",
 
       Adventure:
-        "/images/sea/aphrodite-adventure.webp",
+        "/images/yachts/hero.webp",
 
       Cinematic:
-        "/images/sea/aphrodite-cinematic.webp",
+        "/images/yachts/hero.webp",
     },
 
     heroImage:
-      "/images/sea/aphrodite-hero.webp",
+      "/images/yachts/hero.webp",
 
     description:
       "Luxury Mediterranean yacht journeys combining exploration, freedom and Riviera atmosphere.",
