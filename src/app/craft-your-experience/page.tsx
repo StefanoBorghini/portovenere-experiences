@@ -405,11 +405,14 @@ traveling_with_children:
         !proposalData
       ) {
 
-        console.error(
-          "Proposal error:",
-          proposalError
-        );
-
+        console.log(
+  "Proposal error:",
+  JSON.stringify(
+    errors,
+    null,
+    2
+  )
+);
         return;
       }
 
