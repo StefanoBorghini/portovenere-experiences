@@ -47,14 +47,14 @@ export const experiences = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sea/dino/default.webp",
+      "/images/sailing/dino/hero.webp",
 
     heroCombinations: {
 
       // DEFAULT
 
       "Sea Escape":
-        "/images/sea/dino/default.webp",
+       "/images/sailing/dino/hero.webp",
 
       // SINGLE MOOD
 
@@ -65,7 +65,7 @@ export const experiences = [
         "/images/sea/dino/authentic.webp",
 
       "Sea Escape-Adventure":
-        "/images/sea/dino/adventure.webp",
+         "/images/sailing/dino/hero.webp",
 
       "Sea Escape-Cinematic":
         "/images/sea/dino/cinematic.webp",

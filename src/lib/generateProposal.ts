@@ -3,7 +3,8 @@
 // =========================================================
 
 import { experiences } from "./experiences";
-
+import { experienceCompatibility }
+from "./experienceCompatibility";
 interface GenerateProposalProps {
   experiencesSelected: string[];
   moodsSelected: string[];
@@ -147,7 +148,30 @@ export function generateProposal({
       includedSections: [],
     };
   }
+// =========================================================
+// COMPATIBILITY
+// =========================================================
 
+let compatibilityData = null;
+
+if (
+  experiencesSelected.length >= 2
+) {
+
+  const sortedCategories =
+    [...experiencesSelected].sort();
+
+  const compatibilityKey =
+    `${sortedCategories[0]}-${sortedCategories[1]}`;
+
+  compatibilityData =
+
+    experienceCompatibility[
+      compatibilityKey as keyof typeof experienceCompatibility
+    ] || null;
+
+
+return {compatibilityData,}  }
   // =========================================================
   // HERO TITLE
   // =========================================================
