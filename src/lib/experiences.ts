@@ -30,6 +30,7 @@ export interface Experience {
     Adventure: number;
 
     Cinematic: number;
+    
   };
 
   familyFriendly: boolean;
@@ -53,13 +54,30 @@ export interface Experience {
 
   compatibleAddons?: {
 
-  Romantic?: string[];
+  default?: {
 
-  Adventure?: string[];
+    Romantic?: string[];
 
-  Cinematic?: string[];
+    Adventure?: string[];
 
-  Authentic?: string[];
+    Cinematic?: string[];
+
+    Authentic?: string[];
+  };
+
+  categoryAddons?: {
+
+    [key: string]: {
+
+      Romantic?: string[];
+
+      Adventure?: string[];
+
+      Cinematic?: string[];
+
+      Authentic?: string[];
+    };
+  };
 };
 }
 
@@ -163,35 +181,91 @@ export const experiences: Experience[] = [
 
 compatibleAddons: {
 
-  Romantic: [
+  default: {
 
-    "foodwine",
+    Romantic: [
 
-    "aperitivo",
+      "restaurant",
 
-    "mermaiding",
-  ],
+      "foodwine",
 
-  Adventure: [
+      "mermaiding",
+    ],
 
-    "snorkeling",
+    Adventure: [
 
-    "trekking",
-  ],
+      "snorkeling",
 
-  Cinematic: [
+      "trekking",
+    ],
 
-    "sunset",
+    Cinematic: [
 
-    "mermaiding",
-  ],
+      "mermaiding",
 
-  Authentic: [
+      "foodwine",
+    ],
 
-    "trekking",
+    Authentic: [
 
-    "foodwine",
-  ],
+      "trekking",
+
+      "foodwine",
+    ],
+  },
+
+  categoryAddons: {
+
+    "Gourmet Escape": {
+
+      Romantic: [
+
+        "mermaiding",
+      ],
+
+      Adventure: [
+
+        "snorkeling",
+
+        "trekking",
+      ],
+
+      Cinematic: [
+
+        "mermaiding",
+      ],
+
+      Authentic: [
+
+        "trekking",
+      ],
+    },
+
+    "Wild Escape": {
+
+      Romantic: [
+
+        "restaurant",
+
+        "foodwine",
+      ],
+
+      Adventure: [
+
+        "foodwine",
+      ],
+
+      Cinematic: [
+
+        "restaurant",
+      ],
+
+      Authentic: [
+
+        "foodwine",
+      ],
+    },
+  },
 },
 
 included: [],
