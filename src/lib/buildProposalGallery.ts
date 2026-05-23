@@ -175,6 +175,10 @@ const categoryCombination =
   // =====================================================
   // MAX 4
   // =====================================================
+  
+  console.log("ADDON IDS", addonIds);
+  console.log("IMAGES", images);  
+  console.log("MOODS", moodsSelected);
 
   return images.slice(0, 4);
 }
