@@ -1,9 +1,9 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import { supabase } from "@/lib/supabase";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -21,7 +21,7 @@ export default function CraftYourExperience() {
     minimumBookingDate.getDate() + 14
   );
 
-  // STATE
+  // FORM STATE
 
   const [formData, setFormData] =
     useState({
@@ -88,7 +88,7 @@ export default function CraftYourExperience() {
       const alreadySelected =
         currentValues.includes(value);
 
-      // DESELECT
+      // REMOVE
 
       if (alreadySelected) {
 
@@ -103,7 +103,7 @@ export default function CraftYourExperience() {
         };
       }
 
-      // LIMIT REACHED
+      // LIMIT
 
       if (
         currentValues.length >= max
@@ -120,9 +120,10 @@ export default function CraftYourExperience() {
         return prev;
       }
 
-      // SELECT
+      // ADD
 
       return {
+
         ...prev,
 
         [field]: [
@@ -292,7 +293,7 @@ export default function CraftYourExperience() {
           error: leadError,
         } = await supabase
 
-          .from("leads")
+          .from("Leads")
 
           .insert([
             {
@@ -542,7 +543,7 @@ export default function CraftYourExperience() {
                     : null
                 }
 
-          onChange={(date: Date | null) => {
+                onChange={(date: Date | null) => {
 
                   setFormData({
                     ...formData,
@@ -608,7 +609,7 @@ export default function CraftYourExperience() {
                     : null
                 }
 
-           onChange={(date: Date | null) => {
+                onChange={(date: Date | null) => {
 
                   setFormData({
                     ...formData,
