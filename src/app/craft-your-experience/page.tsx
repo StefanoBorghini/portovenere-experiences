@@ -650,79 +650,154 @@ traveling_with_children:
 
           </div>
 
+{/* DATES */}
 
-              {/* DATES */}
+<div
+  id="dates-section"
+  className="space-y-6"
+>
 
-<div id="dates-section">
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
 
-  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
     Travel Dates
+
   </p>
 
   <div className="grid md:grid-cols-2 gap-6">
 
     {/* START DATE */}
 
-    <div>
+    <div className="flex flex-col gap-3">
 
-      <p className="text-sm text-zinc-500 mb-3">
+      <p className="text-sm text-zinc-500">
+
         Start Date
+
       </p>
 
- <DatePicker
-  selected={
-    formData.startDate
-      ? new Date(formData.startDate)
-      : null
-  }
+      <DatePicker
 
-  onChange={(date: Date | null) => {
+        selected={
+          formData.startDate
+            ? new Date(
+                formData.startDate
+              )
+            : null
+        }
 
-    setFormData({
-      ...formData,
-
-      startDate:
-        date
-          ? date
-              .toISOString()
-              .split("T")[0]
-          : "",
-    });
-  }}
-/>
-    </div>
-
-    {/* END DATE */}
-
-    <div>
-
-      <p className="text-sm text-zinc-500 mb-3">
-        End Date
-      </p>
-
-      <input
-        type="date"
-        style={{colorScheme: "dark",}}
-        value={formData.endDate}
-        min={formData.startDate || minDate}
-        onChange={(e) => {
+        onChange={(
+          date: Date | null
+        ) => {
 
           setFormData({
             ...formData,
-            endDate: e.target.value,
+
+            startDate:
+              date
+                ? date
+                    .toISOString()
+                    .split("T")[0]
+                : "",
           });
 
           setErrors((prev) =>
             prev.filter(
               (error) =>
-                error !== "endDate"
+                error !==
+                "startDate"
             )
           );
         }}
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md border-white/10 hover:border-white/30 focus:border-white/50 ${
-          errors.includes("endDate")
+
+        minDate={
+          minimumBookingDate
+        }
+
+        placeholderText="Select start date"
+
+        dateFormat="MMMM d, yyyy"
+
+        calendarClassName="custom-calendar"
+
+        wrapperClassName="w-full"
+
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
+          errors.includes(
+            "startDate"
+          )
             ? "border-red-500 bg-red-500/10"
-            : "border-white/10 focus:border-white/40"
+            : "border-white/10 hover:border-white/30 focus:border-white/50"
+        }`}
+      />
+
+    </div>
+
+    {/* END DATE */}
+
+    <div className="flex flex-col gap-3">
+
+      <p className="text-sm text-zinc-500">
+
+        End Date
+
+      </p>
+
+      <DatePicker
+
+        selected={
+          formData.endDate
+            ? new Date(
+                formData.endDate
+              )
+            : null
+        }
+
+        onChange={(
+          date: Date | null
+        ) => {
+
+          setFormData({
+            ...formData,
+
+            endDate:
+              date
+                ? date
+                    .toISOString()
+                    .split("T")[0]
+                : "",
+          });
+
+          setErrors((prev) =>
+            prev.filter(
+              (error) =>
+                error !==
+                "endDate"
+            )
+          );
+        }}
+
+        minDate={
+          formData.startDate
+            ? new Date(
+                formData.startDate
+              )
+            : minimumBookingDate
+        }
+
+        placeholderText="Select end date"
+
+        dateFormat="MMMM d, yyyy"
+
+        calendarClassName="custom-calendar"
+
+        wrapperClassName="w-full"
+
+        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
+          errors.includes(
+            "endDate"
+          )
+            ? "border-red-500 bg-red-500/10"
+            : "border-white/10 hover:border-white/30 focus:border-white/50"
         }`}
       />
 
