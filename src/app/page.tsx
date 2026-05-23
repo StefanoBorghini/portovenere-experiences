@@ -204,10 +204,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* SCROLL */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-zinc-300 text-[10px] uppercase tracking-[0.5em]">
-          Scroll
-        </div>
+        
       </section>
 
       {/* AUTHORITY */}
