@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <main className="bg-[#0C0C0C] text-[#EDEBE7] overflow-hidden">
       {/* HERO */}
-      <section className="relative min-h-screen overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden pb-24 md:pb-0">
         {/* DESKTOP VIDEO */}
         <video
           autoPlay
