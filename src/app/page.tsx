@@ -248,7 +248,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Limited Access
             </div>
 
@@ -287,7 +287,7 @@ export default function HomePage() {
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Selected Guests
             </div>
 
@@ -325,7 +325,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
 
             <div className="absolute inset-0 bg-black/45" />
 
-            <div className="absolute top-6 left-6 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
               Private Dinner
             </div>
 
