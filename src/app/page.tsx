@@ -269,7 +269,7 @@ export default function HomePage() {
               </p>
 
               <a
-                href="/craft-your-experience?experience=sailing&mood=relaxing"
+                href="/craft-your-experience"
                 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Discover Experience
@@ -308,7 +308,7 @@ export default function HomePage() {
               </p>
 
               <a
-                href="/craft-your-experience?experience=aerial&mood=cinematic"
+                href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
                 Explore
               </a>
@@ -346,7 +346,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
               </p>
 
               <a
-              href="/craft-your-experience?experience=gourmet&mood=romantic"
+              href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
                 View Experience
               </a>
