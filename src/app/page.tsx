@@ -272,8 +272,7 @@ export default function HomePage() {
                 href="/craft-your-experience"
                 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
-                Discover Experience
-              </a>
+Craft Your Experience              </a>
             </div>
           </div>
 
@@ -310,7 +309,7 @@ export default function HomePage() {
               <a
                 href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                Explore
+                Craft Your Experience
               </a>
             </div>
           </div>
@@ -348,7 +347,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
               <a
               href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                View Experience
+                Craft Your Experience
               </a>
             </div>
           </div>
