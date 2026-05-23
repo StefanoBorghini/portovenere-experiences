@@ -1,6 +1,8 @@
 export const experiences = [
 
-  // DINO
+  // =========================================================
+  // SEA ESCAPE
+  // =========================================================
 
   {
     id: "dino",
@@ -36,20 +38,35 @@ export const experiences = [
 
     basePrice: 1200,
 
+    heroImages: {
+
+      Romantic:
+        "/images/sea/dino-romantic.webp",
+
+      Authentic:
+        "/images/sea/dino-authentic.webp",
+
+      Adventure:
+        "/images/sea/dino-adventure.webp",
+
+      Cinematic:
+        "/images/sea/dino-cinematic.webp",
+    },
+
     heroImage:
       "/images/sea/dino-hero.webp",
 
     description:
-      "An authentic Riviera sailing experience through hidden coves, Portovenere and the Cinque Terre coastline.",
+      "Authentic Riviera sailing between hidden coves, cinematic sea landscapes and Mediterranean atmosphere.",
 
     included: [
 
       {
         title:
-          "Private Sailing Journey",
+          "Private Sailing Experience",
 
         text:
-          "Authentic navigation around Portovenere and the Cinque Terre with swimming stops and Riviera landscapes.",
+          "Authentic navigation around Portovenere and the Gulf of Poets.",
       },
 
       {
@@ -57,9 +74,8 @@ export const experiences = [
           "Mediterranean Atmosphere",
 
         text:
-          "A relaxed and cinematic atmosphere designed around sea, silence and Mediterranean authenticity.",
+          "Relaxed sea mood, Riviera landscapes and cinematic sailing moments.",
       },
-
     ],
 
     gallery: {
@@ -74,8 +90,6 @@ export const experiences = [
       ],
     },
   },
-
-  // APHRODITE
 
   {
     id: "aphrodite",
@@ -92,8 +106,8 @@ export const experiences = [
     ],
 
     budgets: [
+      "€500 - €1000",
       "€1000 - €3000",
-      "€3000+",
     ],
 
     moodScores: {
@@ -109,22 +123,37 @@ export const experiences = [
 
     familyFriendly: true,
 
-    basePrice: 2300,
+    basePrice: 2200,
+
+    heroImages: {
+
+      Romantic:
+        "/images/sea/aphrodite-romantic.webp",
+
+      Authentic:
+        "/images/sea/aphrodite-authentic.webp",
+
+      Adventure:
+        "/images/sea/aphrodite-adventure.webp",
+
+      Cinematic:
+        "/images/sea/aphrodite-cinematic.webp",
+    },
 
     heroImage:
       "/images/sea/aphrodite-hero.webp",
 
     description:
-      "A luxury Mediterranean yacht experience designed around authentic Riviera exploration and relaxation.",
+      "Luxury Mediterranean yacht journeys combining exploration, freedom and Riviera atmosphere.",
 
     included: [
 
       {
         title:
-          "Luxury Yacht Experience",
+          "Luxury Riviera Navigation",
 
         text:
-          "Private navigation through Portovenere, Palmaria and the Cinque Terre with premium onboard comfort.",
+          "Private yacht experience across Portovenere and Cinque Terre.",
       },
 
       {
@@ -132,9 +161,8 @@ export const experiences = [
           "Sea Exploration",
 
         text:
-          "Swimming stops, snorkeling and Riviera hidden coves surrounded by Mediterranean landscapes.",
+          "Swimming stops, hidden coves and authentic Riviera landscapes.",
       },
-
     ],
 
     gallery: {
@@ -149,8 +177,6 @@ export const experiences = [
       ],
     },
   },
-
-  // VELAMICA
 
   {
     id: "velamica",
@@ -182,32 +208,46 @@ export const experiences = [
 
     familyFriendly: true,
 
-    basePrice: 2600,
+    basePrice: 2800,
+
+    heroImages: {
+
+      Romantic:
+        "/images/sea/velamica-romantic.webp",
+
+      Authentic:
+        "/images/sea/velamica-authentic.webp",
+
+      Adventure:
+        "/images/sea/velamica-adventure.webp",
+
+      Cinematic:
+        "/images/sea/velamica-cinematic.webp",
+    },
 
     heroImage:
       "/images/sea/velamica-hero.webp",
 
     description:
-      "A cinematic Riviera sailing experience combining freedom, exploration and Mediterranean atmosphere.",
+      "A cinematic sailing escape designed for larger groups, Riviera freedom and adventurous atmospheres.",
 
     included: [
 
       {
         title:
-          "Private Sailing Escape",
+          "Large Group Sailing",
 
         text:
-          "Authentic sailing around the Gulf of Poets and Cinque Terre with large outdoor relaxation spaces.",
+          "Private Riviera sailing experiences designed for social and immersive moments.",
       },
 
       {
         title:
-          "Mediterranean Lifestyle",
+          "Adventure Atmosphere",
 
         text:
-          "A slow Riviera atmosphere designed around sea, light and unforgettable coastal landscapes.",
+          "Sea exploration, cinematic navigation and Mediterranean freedom.",
       },
-
     ],
 
     gallery: {
@@ -222,8 +262,6 @@ export const experiences = [
       ],
     },
   },
-
-  // VELAGIOVANE
 
   {
     id: "velagiovane",
@@ -246,22 +284,37 @@ export const experiences = [
 
       Cinematic: 4,
 
-      Romantic: 3,
-
       Adventure: 2,
 
       Authentic: 1,
+
+      Romantic: 1,
     },
 
     familyFriendly: false,
 
-    basePrice: 2800,
+    basePrice: 3200,
+
+    heroImages: {
+
+      Romantic:
+        "/images/sea/velagiovane-romantic.webp",
+
+      Authentic:
+        "/images/sea/velagiovane-authentic.webp",
+
+      Adventure:
+        "/images/sea/velagiovane-adventure.webp",
+
+      Cinematic:
+        "/images/sea/velagiovane-cinematic.webp",
+    },
 
     heroImage:
       "/images/sea/velagiovane-hero.webp",
 
     description:
-      "A refined Riviera sailing experience focused on cinematic atmosphere, sunset light and elegant Mediterranean navigation.",
+      "Elegant cinematic Riviera sailing with refined atmosphere, sunset light and Mediterranean storytelling.",
 
     included: [
 
@@ -270,17 +323,16 @@ export const experiences = [
           "Elegant Sailing Experience",
 
         text:
-          "Private sailing navigation through Riviera landscapes with refined onboard atmosphere.",
+          "Private sailing across Riviera landscapes with refined cinematic atmosphere.",
       },
 
       {
         title:
-          "Sunset Riviera Mood",
+          "Sunset Mediterranean Mood",
 
         text:
-          "Golden hour sailing, Mediterranean light and cinematic sea perspectives.",
+          "Golden light, cinematic perspectives and elegant sea moments.",
       },
-
     ],
 
     gallery: {
@@ -296,13 +348,14 @@ export const experiences = [
     },
   },
 
-  // AIR ESCAPE
+  // =========================================================
+  // AERIAL ESCAPE
+  // =========================================================
 
   {
-    id: "riviera-air-escape",
+    id: "airplane",
 
-    title:
-      "Italian Riviera Air Escape",
+    title: "Airplane",
 
     macroCategory:
       "Aerial Escape",
@@ -310,81 +363,7 @@ export const experiences = [
     guests: [
       "2",
       "3-4",
-    ],
-
-    budgets: [
-      "€1000 - €3000",
-      "€3000+",
-    ],
-
-    moodScores: {
-
-      Cinematic: 4,
-
-      Adventure: 3,
-
-      Romantic: 2,
-
-      Authentic: 1,
-    },
-
-    familyFriendly: false,
-
-    basePrice: 3200,
-
-    heroImage:
-      "/images/air/air-hero.webp",
-
-    description:
-      "A private aerial journey above Portovenere and the Cinque Terre coastline.",
-
-    included: [
-
-      {
-        title:
-          "Private Fly Experience",
-
-        text:
-          "Scenic Riviera flights with breathtaking aerial perspectives across sea and cliffs.",
-      },
-
-      {
-        title:
-          "Mediterranean Perspectives",
-
-        text:
-          "Golden light, cinematic landscapes and unforgettable coastal scenery.",
-      },
-
-    ],
-
-    gallery: {
-
-      air: [
-
-        "/images/air/air-1.webp",
-
-        "/images/air/air-2.webp",
-
-        "/images/air/air-3.webp",
-      ],
-    },
-  },
-
-  // MERMAID EXPERIENCE
-
-  {
-    id: "mermaid-experience",
-
-    title:
-      "Mermaid Experience",
-
-    macroCategory:
-      "Wild Escape",
-
-    guests: [
-      "2",
-      "3-4",
+      "5-7",
     ],
 
     budgets: [
@@ -396,41 +375,536 @@ export const experiences = [
 
       Cinematic: 4,
 
+      Authentic: 3,
+
+      Adventure: 2,
+
+      Romantic: 1,
+    },
+
+    familyFriendly: false,
+
+    basePrice: 1800,
+
+    heroImages: {
+
+      Romantic:
+        "/images/air/airplane-romantic.webp",
+
+      Authentic:
+        "/images/air/airplane-authentic.webp",
+
+      Adventure:
+        "/images/air/airplane-adventure.webp",
+
+      Cinematic:
+        "/images/air/airplane-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/air/airplane-hero.webp",
+
+    description:
+      "Private aerial Riviera experiences suspended between sea, cliffs and cinematic Mediterranean light.",
+
+    included: [
+
+      {
+        title:
+          "Private Fly Experience",
+
+        text:
+          "Scenic aerial perspectives across Portovenere and the Cinque Terre.",
+      },
+
+      {
+        title:
+          "Cinematic Riviera Landscapes",
+
+        text:
+          "Mediterranean coastlines viewed from above with cinematic atmosphere.",
+      },
+    ],
+
+    gallery: {
+
+      aerial: [
+
+        "/images/air/airplane-1.webp",
+
+        "/images/air/airplane-2.webp",
+
+        "/images/air/airplane-3.webp",
+      ],
+    },
+  },
+
+  {
+    id: "mongolfiera",
+
+    title: "Mongolfiera",
+
+    macroCategory:
+      "Aerial Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+    ],
+
+    moodScores: {
+
+      Adventure: 4,
+
+      Cinematic: 3,
+
+      Authentic: 2,
+
+      Romantic: 1,
+    },
+
+    familyFriendly: true,
+
+    basePrice: 2000,
+
+    heroImages: {
+
+      Romantic:
+        "/images/air/balloon-romantic.webp",
+
+      Authentic:
+        "/images/air/balloon-authentic.webp",
+
+      Adventure:
+        "/images/air/balloon-adventure.webp",
+
+      Cinematic:
+        "/images/air/balloon-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/air/balloon-hero.webp",
+
+    description:
+      "Immersive aerial journeys combining adventure, cinematic landscapes and Mediterranean freedom.",
+
+    included: [
+
+      {
+        title:
+          "Balloon Experience",
+
+        text:
+          "Private aerial journeys with panoramic Riviera landscapes.",
+      },
+
+      {
+        title:
+          "Adventure Atmosphere",
+
+        text:
+          "Slow cinematic exploration suspended above Mediterranean scenery.",
+      },
+    ],
+
+    gallery: {
+
+      balloon: [
+
+        "/images/air/balloon-1.webp",
+
+        "/images/air/balloon-2.webp",
+
+        "/images/air/balloon-3.webp",
+      ],
+    },
+  },
+
+  // =========================================================
+  // GOURMET ESCAPE
+  // =========================================================
+
+  {
+    id: "ristorante",
+
+    title: "Prenotazione Ristorante",
+
+    macroCategory:
+      "Gourmet Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+    ],
+
+    moodScores: {
+
       Romantic: 3,
+
+      Authentic: 2,
+
+      Cinematic: 1,
+    },
+
+    familyFriendly: true,
+
+    basePrice: 700,
+
+    heroImages: {
+
+      Romantic:
+        "/images/gourmet/restaurant-romantic.webp",
+
+      Authentic:
+        "/images/gourmet/restaurant-authentic.webp",
+
+      Cinematic:
+        "/images/gourmet/restaurant-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/gourmet/restaurant-hero.webp",
+
+    description:
+      "Selected Riviera dining experiences blending Mediterranean cuisine and authentic atmosphere.",
+
+    included: [
+
+      {
+        title:
+          "Selected Restaurants",
+
+        text:
+          "Private Riviera dining experiences curated around atmosphere and Mediterranean cuisine.",
+      },
+
+      {
+        title:
+          "Authentic Mediterranean Taste",
+
+        text:
+          "Authentic Ligurian flavors and cinematic Riviera atmosphere.",
+      },
+    ],
+
+    gallery: {
+
+      gourmet: [
+
+        "/images/gourmet/restaurant-1.webp",
+
+        "/images/gourmet/restaurant-2.webp",
+
+        "/images/gourmet/restaurant-3.webp",
+      ],
+    },
+  },
+
+  {
+    id: "food-wine",
+
+    title:
+      "On Board Food & Wine Experiences",
+
+    macroCategory:
+      "Gourmet Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+    ],
+
+    moodScores: {
+
+      Adventure: 3,
+
+      Authentic: 2,
+
+      Romantic: 1,
+    },
+
+    familyFriendly: true,
+
+    basePrice: 1500,
+
+    heroImages: {
+
+      Romantic:
+        "/images/gourmet/wine-romantic.webp",
+
+      Authentic:
+        "/images/gourmet/wine-authentic.webp",
+
+      Adventure:
+        "/images/gourmet/wine-adventure.webp",
+    },
+
+    heroImage:
+      "/images/gourmet/wine-hero.webp",
+
+    description:
+      "Mediterranean food and wine experiences designed around authentic Riviera atmosphere and storytelling.",
+
+    included: [
+
+      {
+        title:
+          "Private Food Experiences",
+
+        text:
+          "Curated Mediterranean food and wine moments onboard and across the Riviera.",
+      },
+
+      {
+        title:
+          "Mediterranean Lifestyle",
+
+        text:
+          "Authentic Riviera atmosphere, sea views and culinary storytelling.",
+      },
+    ],
+
+    gallery: {
+
+      wine: [
+
+        "/images/gourmet/wine-1.webp",
+
+        "/images/gourmet/wine-2.webp",
+
+        "/images/gourmet/wine-3.webp",
+      ],
+    },
+  },
+
+  // =========================================================
+  // WILD ESCAPE
+  // =========================================================
+
+  {
+    id: "trekking",
+
+    title: "Trekking",
+
+    macroCategory:
+      "Wild Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+      "€3000+",
+    ],
+
+    moodScores: {
 
       Authentic: 2,
 
       Adventure: 1,
     },
 
-    familyFriendly: false,
+    familyFriendly: true,
 
-    basePrice: 900,
+    basePrice: 600,
+
+    heroImages: {
+
+      Authentic:
+        "/images/wild/trekking-authentic.webp",
+
+      Adventure:
+        "/images/wild/trekking-adventure.webp",
+    },
 
     heroImage:
-      "/images/wild/mermaid-hero.webp",
+      "/images/wild/trekking-hero.webp",
 
     description:
-      "An underwater cinematic storytelling experience in the crystal-clear waters of the Ligurian coast.",
+      "Authentic Riviera trekking paths suspended between cliffs, Mediterranean nature and sea landscapes.",
 
     included: [
 
       {
         title:
-          "Underwater Experience",
+          "Mediterranean Trails",
 
         text:
-          "Freediving-inspired cinematic sessions suspended between light, movement and Mediterranean sea textures.",
+          "Authentic trekking experiences through Riviera landscapes and panoramic sea views.",
       },
+    ],
+
+    gallery: {
+
+      trekking: [
+
+        "/images/wild/trekking-1.webp",
+
+        "/images/wild/trekking-2.webp",
+
+        "/images/wild/trekking-3.webp",
+      ],
+    },
+  },
+
+  {
+    id: "snorkeling",
+
+    title: "Snorkeling",
+
+    macroCategory:
+      "Wild Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+      "€3000+",
+    ],
+
+    moodScores: {
+
+      Adventure: 2,
+
+      Cinematic: 1,
+    },
+
+    familyFriendly: true,
+
+    basePrice: 900,
+
+    heroImages: {
+
+      Adventure:
+        "/images/wild/snorkeling-adventure.webp",
+
+      Cinematic:
+        "/images/wild/snorkeling-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/wild/snorkeling-hero.webp",
+
+    description:
+      "Immersive Riviera snorkeling experiences in crystal-clear Mediterranean waters.",
+
+    included: [
 
       {
         title:
-          "Cinematic Atmosphere",
+          "Mediterranean Sea Exploration",
 
         text:
-          "A poetic Riviera experience blending underwater storytelling and Mediterranean aesthetics.",
+          "Snorkeling sessions across hidden Riviera coves and underwater landscapes.",
       },
+    ],
 
+    gallery: {
+
+      snorkeling: [
+
+        "/images/wild/snorkeling-1.webp",
+
+        "/images/wild/snorkeling-2.webp",
+
+        "/images/wild/snorkeling-3.webp",
+      ],
+    },
+  },
+
+  {
+    id: "mermaiding",
+
+    title: "Mermaiding",
+
+    macroCategory:
+      "Wild Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+      "€3000+",
+    ],
+
+    moodScores: {
+
+      Romantic: 3,
+
+      Adventure: 2,
+
+      Cinematic: 1,
+    },
+
+    familyFriendly: false,
+
+    basePrice: 1100,
+
+    heroImages: {
+
+      Romantic:
+        "/images/wild/mermaid-romantic.webp",
+
+      Adventure:
+        "/images/wild/mermaid-adventure.webp",
+
+      Cinematic:
+        "/images/wild/mermaid-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/wild/mermaid-hero.webp",
+
+    description:
+      "Cinematic underwater storytelling inspired by Mediterranean light and movement.",
+
+    included: [
+
+      {
+        title:
+          "Underwater Storytelling",
+
+        text:
+          "Immersive underwater cinematic experiences suspended between sea and light.",
+      },
     ],
 
     gallery: {
@@ -442,6 +916,82 @@ export const experiences = [
         "/images/wild/mermaid-2.webp",
 
         "/images/wild/mermaid-3.webp",
+      ],
+    },
+  },
+
+  {
+    id: "horses",
+
+    title: "Horses",
+
+    macroCategory:
+      "Wild Escape",
+
+    guests: [
+      "2",
+      "3-4",
+      "5-7",
+      "8+",
+    ],
+
+    budgets: [
+      "€500 - €1000",
+      "€1000 - €3000",
+      "€3000+",
+    ],
+
+    moodScores: {
+
+      Adventure: 3,
+
+      Authentic: 2,
+
+      Cinematic: 1,
+    },
+
+    familyFriendly: true,
+
+    basePrice: 1300,
+
+    heroImages: {
+
+      Adventure:
+        "/images/wild/horses-adventure.webp",
+
+      Authentic:
+        "/images/wild/horses-authentic.webp",
+
+      Cinematic:
+        "/images/wild/horses-cinematic.webp",
+    },
+
+    heroImage:
+      "/images/wild/horses-hero.webp",
+
+    description:
+      "Authentic horseback experiences immersed in Mediterranean landscapes and Riviera nature.",
+
+    included: [
+
+      {
+        title:
+          "Mediterranean Horse Riding",
+
+        text:
+          "Private horseback journeys through Riviera nature and panoramic landscapes.",
+      },
+    ],
+
+    gallery: {
+
+      horses: [
+
+        "/images/wild/horses-1.webp",
+
+        "/images/wild/horses-2.webp",
+
+        "/images/wild/horses-3.webp",
       ],
     },
   },
