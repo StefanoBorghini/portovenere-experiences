@@ -138,47 +138,19 @@ if (
 
     // DESELECT
 
-    if (alreadySelected) {
+  // DESELECT
 
-     // EXPERIENCE CONFLICTS
+if (alreadySelected) {
 
-// EXPERIENCE CONFLICTS
-
-if (
-  field === "experiences" &&
-  !alreadySelected
-) {
-
-  const hasConflict =
-
-    currentValues.some(
-      (selected) =>
-
-        incompatibleExperiences[
-          selected
-        ]?.includes(value)
-    );
-
-  if (hasConflict) {
-
-    setSelectionWarning(
-      "These experiences cannot be combined"
-    );
-
-    return prev;
-  }
+  return {
+    ...prev,
+    [field]:
+      currentValues.filter(
+        (item) =>
+          item !== value
+      ),
+  };
 }
-
-// SELECT
-
-return {
-  ...prev,
-  [field]: [
-    ...currentValues,
-    value,
-  ],
-};
-    }
 
     // LIMIT REACHED
 
