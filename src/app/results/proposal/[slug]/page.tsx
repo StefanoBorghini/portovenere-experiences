@@ -8,11 +8,7 @@ import {
 
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
-import { proposalContent }
-from "@/lib/proposalContent";
 
-import { experienceCompatibility }
-from "@/lib/experienceCompatibility";
 
 interface ProposalPageProps {
   params: Promise<{
@@ -88,6 +84,10 @@ export default async function ProposalPage({
 
   const heroImage =
     generatedProposal.heroImage;
+    console.log(
+  "HERO IMAGE",
+  heroImage
+);
 
   const featuredExperience =
     generatedProposal.featuredExperience;
@@ -240,14 +240,13 @@ const price =
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
                 Featured Experience
               </p>
+<h2 className="text-4xl font-light mb-6">
+  {featuredExperience?.title || "Experience"}
+</h2>
 
-              <h2 className="text-4xl font-light mb-6">
-               ${featuredExperience?.title || "experience"}
-              </h2>
-
-              <p className="text-zinc-400 leading-8">
-              ${featuredExperience?.title || "experience"}
-              </p>
+<p className="text-zinc-400 leading-8">
+  {"A private curated Riviera experience tailored around your selected atmosphere."}
+</p>
 
             </div>
 
