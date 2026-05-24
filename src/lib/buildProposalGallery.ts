@@ -8,6 +8,7 @@ import {
 import {
   experienceConflicts,
 } from "@/lib/experienceConflicts";
+
 interface BuildGalleryProps {
 
   experiencesSelected:
@@ -88,6 +89,8 @@ export function buildProposalGallery({
 
     mermaiding: "activity",
 
+    horses: "activity",
+
     restaurant: "gourmet",
 
     foodwine: "gourmet",
@@ -112,9 +115,9 @@ export function buildProposalGallery({
       return;
     }
 
-    // ===============================================
+    // ===================================================
     // ACTIVITY
-    // ===============================================
+    // ===================================================
 
     if (
       type === "activity" &&
@@ -125,9 +128,9 @@ export function buildProposalGallery({
         addonId;
     }
 
-    // ===============================================
+    // ===================================================
     // GOURMET
-    // ===============================================
+    // ===================================================
 
     if (
       type === "gourmet" &&
@@ -138,9 +141,9 @@ export function buildProposalGallery({
         addonId;
     }
 
-    // ===============================================
+    // ===================================================
     // ATMOSPHERE
-    // ===============================================
+    // ===================================================
 
     if (
       type === "atmosphere" &&
@@ -250,348 +253,363 @@ export function buildProposalGallery({
   // FINAL IDS
   // =====================================================
 
-const addonIdsRaw = [
+  const addonIdsRaw = [
 
-  selectedActivity,
+    selectedActivity,
 
-  selectedGourmet,
+    selectedGourmet,
 
-  selectedAtmosphere,
-];
+    selectedAtmosphere,
+  ];
 
-let addonIds = addonIdsRaw.filter(
-  (item) => item !== null
-) as string[];
+  let addonIds = addonIdsRaw.filter(
+    (item) => item !== null
+  ) as string[];
 
+  // =====================================================
+  // USED NARRATIVE TYPES
+  // =====================================================
 
+  const usedNarrativeTypes = {
 
-const usedNarrativeTypes = {
+    activity:
+      !!selectedActivity,
 
-  activity:
-    !!selectedActivity,
+    gourmet:
+      !!selectedGourmet,
 
-  gourmet:
-    !!selectedGourmet,
+    atmosphere:
+      !!selectedAtmosphere,
+  };
 
-  atmosphere:
-    !!selectedAtmosphere,
-};
   // =====================================================
   // FALLBACKS
   // =====================================================
-// =====================================================
-// FALLBACKS
-// =====================================================
 
-if (
-  addonIds.length < 2
-) {
+  if (
+    addonIds.length < 2
+  ) {
 
-  const compatibleCategories =
+    const compatibleCategories =
 
-    compatibility?.compatibleWith || [];
+      compatibility?.compatibleWith || [];
 
-  const fallbackExperiences =
+    const fallbackExperiences =
 
-    experiences.filter(
+      experiences.filter(
+        (experience) => {
+
+          // no hero
+
+          if (
+            experience.id ===
+            heroExperienceId
+          ) {
+            return false;
+          }
+
+          // no duplicates
+
+          if (
+            addonIds.includes(
+              experience.id
+            )
+          ) {
+            return false;
+          }
+
+          // no same category
+
+          if (
+            experience.macroCategory ===
+            mainCategory
+          ) {
+            return false;
+          }
+
+          // no duplicate narrative type
+
+          const experienceType =
+
+            addonTypes[
+              experience.id
+            ];
+
+          if (
+            experienceType &&
+            usedNarrativeTypes[
+              experienceType
+            ]
+          ) {
+            return false;
+          }
+
+          // compatible categories only
+
+          return compatibleCategories.includes(
+            experience.macroCategory
+          );
+        }
+      );
+
+    fallbackExperiences.forEach(
       (experience) => {
 
-        // no hero
-
         if (
-          experience.id ===
-          heroExperienceId
+          addonIds.length >= 3
         ) {
-          return false;
+          return;
         }
 
-        // no duplicates
-
-        if (
-          addonIds.includes(
-            experience.id
-          )
-        ) {
-          return false;
-        }
-
-        // no same category
-
-        if (
-          experience.macroCategory ===
-          mainCategory
-        ) {
-          return false;
-        }
-
-        // no duplicate narrative types
-
-        const experienceType =
-
-          addonTypes[
-            experience.id
-          ];
-
-        if (
-          experienceType &&
-          usedNarrativeTypes[
-            experienceType
-          ]
-        ) {
-          return false;
-        }
-
-        // only compatible categories
-
-        return compatibleCategories.includes(
-          experience.macroCategory
+        addonIds.push(
+          experience.id
         );
       }
     );
+  }
 
-  fallbackExperiences.forEach(
-    (experience) => {
+  // =====================================================
+  // REMOVE CONFLICTS
+  // =====================================================
 
-      if (
-        addonIds.length >= 3
-      ) {
-        return;
+  const cleanedAddons:
+    string[] = [];
+
+  addonIds.forEach(
+    (id) => {
+
+      const conflicts =
+
+        experienceConflicts[id] || [];
+
+      const hasConflict =
+
+        cleanedAddons.some(
+          (existing) =>
+
+            conflicts.includes(
+              existing
+            )
+        );
+
+      if (!hasConflict) {
+
+        cleanedAddons.push(id);
       }
-
-      addonIds.push(
-        experience.id
-      );
     }
   );
-}
 
-// =====================================================
-// REMOVE CONFLICTS
-// =====================================================
+  addonIds = cleanedAddons;
 
-const cleanedAddons: string[] = [];
+  // =====================================================
+  // FINAL EXPERIENCES
+  // =====================================================
 
-addonIds.forEach(
-  (id) => {
+  const finalExperiences = [
 
-    const conflicts =
+    heroExperience,
 
-      experienceConflicts[id] || [];
+    ...addonIds.map(
+      (id) =>
 
-    const hasConflict =
+        experiences.find(
+          (exp) =>
+            exp.id === id
+        )
+    ),
 
-      cleanedAddons.some(
-        (existing) =>
+  ].filter(
+    (
+      exp
+    ): exp is typeof heroExperience =>
 
-          conflicts.includes(
-            existing
-          )
-      );
+      Boolean(exp)
+  );
 
-    if (!hasConflict) {
+  // =====================================================
+  // GET BEST IMAGE
+  // =====================================================
 
-      cleanedAddons.push(id);
+  function getBestImage(
+    experience: any
+  ) {
+
+    if (!experience) {
+      return null;
     }
-  }
-);
 
-addonIds = cleanedAddons;
+    // ===================================================
+    // COMBINATION KEY
+    // ===================================================
 
-// =====================================================
-// FINAL EXPERIENCES
-// =====================================================
+    const combinationParts = [
 
-const finalExperiences = [
+      ...experiencesSelected,
 
-  heroExperience,
+      ...moodsSelected,
+    ];
 
-  ...addonIds.map(
-    (id) =>
+    const combinationKey =
 
-      experiences.find(
-        (exp) =>
-          exp.id === id
-      )
-  ),
+      combinationParts.join("-");
 
-].filter(
-  (
-    exp
-  ): exp is typeof heroExperience =>
+    // ===================================================
+    // HERO COMBINATION
+    // ===================================================
 
-    Boolean(exp)
-);
+    const combinationImage =
 
-// =====================================================
-// GET BEST IMAGE
-// =====================================================
+      experience.heroCombinations?.[
+        combinationKey
+      ];
 
-function getBestImage(
-  experience: any
-) {
+    if (combinationImage) {
+      return combinationImage;
+    }
 
-  if (!experience) {
+    // ===================================================
+    // SINGLE CATEGORY + MOOD
+    // ===================================================
+
+    const singleMoodKey =
+
+      `${experience.macroCategory}-${moodsSelected[0]}`;
+
+    const singleMoodImage =
+
+      experience.heroCombinations?.[
+        singleMoodKey
+      ];
+
+    if (singleMoodImage) {
+      return singleMoodImage;
+    }
+
+    // ===================================================
+    // HERO IMAGE
+    // ===================================================
+
+    if (experience.heroImage) {
+      return experience.heroImage;
+    }
+
+    // ===================================================
+    // GALLERY FALLBACK
+    // ===================================================
+
+    if (experience.gallery) {
+
+      const galleryValues =
+
+        Object.values(
+          experience.gallery
+        ) as string[][];
+
+      const firstGallery =
+        galleryValues[0];
+
+      if (
+        firstGallery &&
+        firstGallery[0]
+      ) {
+
+        return firstGallery[0];
+      }
+    }
+
     return null;
   }
 
-  // ===================================================
-  // COMBINATION KEY
-  // ===================================================
+  // =====================================================
+  // EXPERIENCE SLOT SYSTEM
+  // =====================================================
 
-  const combinationParts = [
+  const activityExperience =
+    finalExperiences.find(
+      (exp) =>
+        exp &&
+        exp.slot === "activity"
+    );
 
-    ...experiencesSelected,
+  const gourmetExperience =
+    finalExperiences.find(
+      (exp) =>
+        exp &&
+        exp.slot === "gourmet"
+    );
 
-    ...moodsSelected,
+  const atmosphereExperience =
+    finalExperiences.find(
+      (exp) =>
+        exp &&
+        exp.slot === "atmosphere"
+    );
+
+  // =====================================================
+  // FINAL GALLERY EXPERIENCES
+  // =====================================================
+
+  const galleryExperiences = [
+
+    heroExperience,
+
+    activityExperience,
+
+    gourmetExperience ||
+
+      atmosphereExperience,
+
+  ].filter(Boolean);
+
+  console.log(
+    "galleryExperiences",
+    galleryExperiences
+  );
+
+  // =====================================================
+  // BUILD IMAGES
+  // =====================================================
+
+  const images: string[] = [];
+
+  galleryExperiences.forEach(
+    (experience) => {
+
+      if (!experience) {
+        return;
+      }
+
+      const bestImage =
+        getBestImage(
+          experience
+        );
+
+      if (bestImage) {
+
+        images.push(
+          bestImage
+        );
+      }
+    }
+  );
+
+  // =====================================================
+  // REMOVE DUPLICATES
+  // =====================================================
+
+  const finalImages = [
+
+    ...new Set(images),
   ];
 
-  const combinationKey =
-
-    combinationParts.join("-");
-
-  // ===================================================
-  // HERO COMBINATION
-  // ===================================================
-
-  const combinationImage =
-
-    experience.heroCombinations?.[
-      combinationKey
-    ];
-
-  if (combinationImage) {
-    return combinationImage;
-  }
-
-  // ===================================================
-  // SINGLE CATEGORY + MOOD
-  // ===================================================
-
-  const singleMoodKey =
-
-    `${experience.macroCategory}-${moodsSelected[0]}`;
-
-  const singleMoodImage =
-
-    experience.heroCombinations?.[
-      singleMoodKey
-    ];
-
-  if (singleMoodImage) {
-    return singleMoodImage;
-  }
-
-  // ===================================================
-  // HERO IMAGE
-  // ===================================================
-
-  if (experience.heroImage) {
-    return experience.heroImage;
-  }
-
-  // ===================================================
-  // GALLERY FALLBACK
-  // ===================================================
-
-  if (experience.gallery) {
-
-   const galleryValues =
-
-  Object.values(
-    experience.gallery
-  ) as string[][];
-
-const firstGallery =
-  galleryValues[0];
-
-if (
-  firstGallery &&
-  firstGallery[0]
-) {
-
-  return firstGallery[0];
-}
-  return null;
-}
-
-// ======================================================
-// EXPERIENCE SLOT SYSTEM
-// ======================================================
-
-
-
-const activityExperience =
-  finalExperiences.find(
-    (exp) => exp?.slot === "activity"
+  console.log(
+    "finalImages",
+    finalImages
   );
 
-const gourmetExperience =
-  finalExperiences.find(
-    (exp) => exp?.slot === "gourmet"
-  );
+  // =====================================================
+  // RETURN
+  // =====================================================
 
-const atmosphereExperience =
-  finalExperiences.find(
-    (exp) => exp?.slot === "atmosphere"
-  );
-
-// ======================================================
-// FINAL GALLERY EXPERIENCES
-// ======================================================
-
-const galleryExperiences = [
-
-  heroExperience,
-
-  activityExperience,
-
-  gourmetExperience ||
-
-    atmosphereExperience,
-
-].filter(Boolean);
-
-console.log(
-  "galleryExperiences",
-  galleryExperiences
-);
-
-// ======================================================
-// BUILD IMAGES
-// ======================================================
-
-const images: string[] = [];
-
-galleryExperiences.forEach(
-  (experience) => {
-
-    if (!experience) return;
-
-  const bestImage =
-  getBestImage(experience);
-
-if (bestImage) {
-
-  images.push(bestImage);
+  return finalImages.slice(0, 3);
 }
-  }
-);
-
-// ======================================================
-// REMOVE DUPLICATES
-// ======================================================
-
-const finalImages = [
-  ...new Set(images),
-];
-console.log(
-  "images",
-  images
-);
-
-
-// =====================================================
-// RETURN
-// =====================================================
-
-return finalImages.slice(0, 3);}}
