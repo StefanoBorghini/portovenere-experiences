@@ -22,6 +22,9 @@ export default function Countdown({
   const [expired, setExpired] =
     useState(false);
 
+  const [hoursLeft, setHoursLeft] =
+    useState(48);
+
   useEffect(() => {
 
     const interval =
@@ -47,14 +50,12 @@ export default function Countdown({
           setExpired(true);
 
           setTimeLeft(
-            "Private reservation expired"
+            "00h 00m 00s"
           );
 
           clearInterval(
             interval
           );
-
-          // redirect after short delay
 
           setTimeout(() => {
 
@@ -94,25 +95,27 @@ export default function Countdown({
             1000
           );
 
+        setHoursLeft(hours);
+
         const formattedHours =
 
-  String(hours)
-    .padStart(2, "0");
+          String(hours)
+            .padStart(2, "0");
 
-const formattedMinutes =
+        const formattedMinutes =
 
-  String(minutes)
-    .padStart(2, "0");
+          String(minutes)
+            .padStart(2, "0");
 
-const formattedSeconds =
+        const formattedSeconds =
 
-  String(seconds)
-    .padStart(2, "0");
+          String(seconds)
+            .padStart(2, "0");
 
-setTimeLeft(
+        setTimeLeft(
 
-  `${formattedHours}h ${formattedMinutes}m ${formattedSeconds}s`
-);
+          `${formattedHours}h ${formattedMinutes}m ${formattedSeconds}s`
+        );
 
       }, 950);
 
@@ -123,37 +126,114 @@ setTimeLeft(
 
   }, [expiresAt]);
 
+  // =====================================================
+  // DYNAMIC URGENCY COLORS
+  // =====================================================
+
+  let urgencyClass =
+
+    "text-white";
+
+  if (hoursLeft <= 12) {
+
+    urgencyClass =
+      "text-amber-200";
+  }
+
+  if (hoursLeft <= 3) {
+
+    urgencyClass =
+      "text-red-300";
+  }
+
   return (
 
     <div className="text-center">
 
+      {/* LABEL */}
+
       <p className="
         uppercase
-        tracking-[0.3em]
+        tracking-[0.45em]
         text-[11px]
-        text-zinc-500
-        mb-5
+        text-zinc-600
+        mb-8
       ">
-        Private proposal reserved for
+        Private Reservation
       </p>
 
+      {/* TIMER */}
+
       <div className="
-        text-5xl
-        md:text-7xl
-        font-light
-        tracking-tight
+        relative
+        inline-block
       ">
 
-        {timeLeft}
+        {/* GLOW */}
+
+        <div className="
+          absolute
+          inset-0
+          blur-3xl
+          opacity-20
+          bg-white
+          rounded-full
+          animate-pulse
+        " />
+
+        {/* TIME */}
+
+        <div
+          className={`
+            relative
+            text-5xl
+            md:text-8xl
+            font-light
+            tracking-tight
+            transition-all
+            duration-700
+            ${urgencyClass}
+          `}
+        >
+
+          {timeLeft}
+
+        </div>
 
       </div>
+
+      {/* SUBTEXT */}
+
+      <div className="
+        mt-10
+        max-w-2xl
+        mx-auto
+      ">
+
+        <p className="
+          text-zinc-500
+          text-sm
+          md:text-base
+          leading-8
+        ">
+
+          Your curated Riviera proposal
+          remains privately reserved
+          for a limited time.
+
+        </p>
+
+      </div>
+
+      {/* EXPIRED */}
 
       {expired && (
 
         <p className="
-          mt-6
+          mt-8
           text-zinc-500
           text-sm
+          animate-pulse
         ">
           Redirecting...
         </p>
