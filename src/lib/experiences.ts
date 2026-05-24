@@ -157,11 +157,11 @@ export const experiences: Experience[] = [
         "/images/sailing/dino/cinematic.webp",
 
       "Sea Escape-Adventure-Authentic":
-        "/images/sailing/dino/adventure-authentic.webp",
+        "/images/sailing/dino/adventure.webp",
 
       // CATEGORY CROSSOVER
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/sailing/dino/gourmet-romantic.webp",
+        "/images/sailing/dino/img-2.webp",
 
       "Sea Escape-Wild Escape-Adventure":
          "/images/sailing/dino/adventure.webp",
@@ -171,11 +171,11 @@ export const experiences: Experience[] = [
 
   sailing: [
 
-    "/images/sailing/dino/1.webp",
+    "/images/sailing/dino/adventure.webp",
 
-    "/images/sailing/dino/2.webp",
+      "/images/sailing/dino/img-2.webp",
 
-    "/images/sailing/dino/3.webp",
+    "/images/sailing/dino/img-3.webp",
   ],
 },
 
@@ -469,7 +469,7 @@ included: [],
     basePrice: 3200,
 
     heroImage:
-      "/images/sailing/velagiovane/default.webp",
+      "/images/sailing/velagiovane/cinematic.jpg",
 
     heroCombinations: {
 
@@ -492,7 +492,7 @@ included: [],
 
        "/images/sailing/velagiovane/adventure.jpg",
 
-         "/images/sailing/velagiovane/default.webp",
+         "/images/sailing/velagiovane/cinematic.jpg",
       ],
     },
 
@@ -700,7 +700,7 @@ included: [],
     basePrice: 700,
 
     heroImage:
-      "/images/dining/ristorante/default.webp",
+         "/images/dining/ristorante/authentic.webp",
 
     heroCombinations: {
 
