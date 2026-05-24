@@ -1459,10 +1459,10 @@ visualStyleScores: {
     heroCombinations: {
 
       "Wild Escape":
-        "/images/wild/horses/default.jpg",
+        "/images/wild/horses/default.webp",
 
       "Wild Escape-Adventure":
-        "/images/wild/horses/default.jpg",
+        "/images/wild/horses/default.webp",
 
       "Wild Escape-Authentic":
         "/images/wild/horses/default.jpg",
@@ -1472,11 +1472,11 @@ visualStyleScores: {
 
       horses: [
 
-        "/images/wild/horses/default.jpg",
+        "/images/wild/horses/default.webp",
 
-        "/images/wild/horses/default.jpg",
+        "/images/wild/horses/default.webp",
 
-        "/images/wild/horses/default.jpg",
+        "/images/wild/horses/default.webp",
       ],
     },
 

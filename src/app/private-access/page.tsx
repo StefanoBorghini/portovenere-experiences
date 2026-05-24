@@ -52,7 +52,7 @@ export default function PrivateAccessPage() {
      <div className="flex flex-col items-center mb-10">
 
   <img
-    src="/images/logo-white.png"
+    src="/logo-white.png"
     alt="Portovenere Experiences"
     className="
       w-28
