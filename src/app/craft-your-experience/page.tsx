@@ -113,7 +113,12 @@ const handleMultiSelect = (
 
      // EXPERIENCE CONFLICTS
 
-if (field === "experiences") {
+// EXPERIENCE CONFLICTS
+
+if (
+  field === "experiences" &&
+  !alreadySelected
+) {
 
   const hasConflict =
 
