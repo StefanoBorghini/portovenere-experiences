@@ -78,6 +78,18 @@ const [errors, setErrors] =
 const [selectionWarning, setSelectionWarning] =
   useState("");
 
+  const incompatibleExperiences:
+Record<string, string[]> = {
+
+  "Sea Escape": [
+    "Aerial Escape",
+  ],
+
+  "Aerial Escape": [
+    "Sea Escape",
+  ],
+};
+
 // MULTI SELECT
 
 const handleMultiSelect = (
@@ -99,12 +111,39 @@ const handleMultiSelect = (
 
     if (alreadySelected) {
 
-      return {
-        ...prev,
-        [field]: currentValues.filter(
-          (item) => item !== value
-        ),
-      };
+     // EXPERIENCE CONFLICTS
+
+if (field === "experiences") {
+
+  const hasConflict =
+
+    currentValues.some(
+      (selected) =>
+
+        incompatibleExperiences[
+          selected
+        ]?.includes(value)
+    );
+
+  if (hasConflict) {
+
+    setSelectionWarning(
+      "These experiences cannot be combined"
+    );
+
+    return prev;
+  }
+}
+
+// SELECT
+
+return {
+  ...prev,
+  [field]: [
+    ...currentValues,
+    value,
+  ],
+};
     }
 
     // LIMIT REACHED
