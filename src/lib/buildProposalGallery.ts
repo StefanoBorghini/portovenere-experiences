@@ -61,27 +61,30 @@ export function buildProposalGallery({
   // SINGLE CATEGORY
   // =====================================================
 
-  if (
-    experiencesSelected.length === 1
-  ) {
+ if (
+  experiencesSelected.length === 1
+) {
 
-    moodsSelected.forEach(
-      (mood) => {
+  moodsSelected.forEach(
+    (mood) => {
 
-       const normalizedMood =
+      const normalizedMood =
 
-  mood.charAt(0).toUpperCase() +
-  mood.slice(1);
+        mood.charAt(0).toUpperCase() +
+        mood.slice(1);
 
-const moodAddons =
+      const moodAddons =
 
-  compatibility?.moods?.[
-    normalizedMood as keyof typeof compatibility.moods
-  ]?.addons || [];
-      }
-    );
-  }
+        compatibility?.moods?.[
+          normalizedMood as keyof typeof compatibility.moods
+        ]?.addons || [];
 
+      addonIds.push(
+        ...moodAddons
+      );
+    }
+  );
+}
   // =====================================================
   // CATEGORY COMBINATIONS
   // =====================================================
@@ -154,6 +157,8 @@ const compatibleCategories =
 
 const fallbackExperiences =
 
+    
+
   experiences.filter(
     (experience) => {
 
@@ -182,6 +187,21 @@ const fallbackExperiences =
       );
     }
   );
+
+  fallbackExperiences.forEach(
+  (experience) => {
+
+    if (
+      addonIds.length >= 4
+    ) {
+      return;
+    }
+
+    addonIds.push(
+      experience.id
+    );
+  }
+);
 }
 
   // =====================================================

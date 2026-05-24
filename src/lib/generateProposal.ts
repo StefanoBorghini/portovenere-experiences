@@ -420,13 +420,12 @@ const bestExperience =
 
   ) {
 
-    const sortedCategories =
+    const orderedCategories =
+  experiencesSelected;
 
-      [...experiencesSelected].sort();
+  const key =
 
-    const key =
-
-      `${sortedCategories[0]}-${sortedCategories[1]}-${moodsSelected[0]}`;
+  `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
 
     const combinationHero =
 
@@ -453,17 +452,16 @@ const bestExperience =
 
   ) {
 
-    const sortedCategories =
-
-      [...experiencesSelected].sort();
+  const orderedCategories =
+  experiencesSelected;
 
     const sortedMood =
 
       [...moodsSelected].sort();
 
-    const key =
+   const key =
 
-      `${sortedCategories[0]}-${sortedCategories[1]}-${sortedMood[0]}-${sortedMood[1]}`;
+  `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
 
     const combinationHero =
 
@@ -490,13 +488,12 @@ const bestExperience =
 
   ) {
 
-    const sortedCategories =
-
-      [...experiencesSelected].sort();
+const orderedCategories =
+  experiencesSelected;
 
     const compatibilityKey =
 
-      `${sortedCategories[0]}-${sortedCategories[1]}`;
+     `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
 
     compatibilityData =
 
