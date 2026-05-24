@@ -107,6 +107,35 @@ const handleMultiSelect = (
     const alreadySelected =
       currentValues.includes(value);
 
+      // =====================================================
+// EXPERIENCE CONFLICTS
+// =====================================================
+
+if (
+  field === "experiences" &&
+  !alreadySelected
+) {
+
+  const hasConflict =
+
+    currentValues.some(
+      (selected) =>
+
+        incompatibleExperiences[
+          selected
+        ]?.includes(value)
+    );
+
+  if (hasConflict) {
+
+    setSelectionWarning(
+      "These experiences cannot be combined"
+    );
+
+    return prev;
+  }
+}
+
     // DESELECT
 
     if (alreadySelected) {

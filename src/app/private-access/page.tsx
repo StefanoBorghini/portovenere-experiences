@@ -49,9 +49,10 @@ export default function PrivateAccessPage() {
 
       <div className="w-full max-w-md space-y-6">
 
-        <div className="space-y-2 text-center">
- <img
-    src="/logo-white.png"
+     <div className="flex flex-col items-center mb-10">
+
+  <img
+    src="/images/logo-white.png"
     alt="Portovenere Experiences"
     className="
       w-28
@@ -61,9 +62,15 @@ export default function PrivateAccessPage() {
       opacity-95
     "
   />
-          <p className="uppercase tracking-[0.3em] text-sm opacity-60">
-            Portovenere Experiences
-          </p>
+
+  <p className="
+    uppercase
+    tracking-[0.3em]
+    text-sm
+    text-zinc-500
+  ">
+    PORTOVENERE EXPERIENCES
+  </p>
 
           <h1 className="text-4xl font-light">
             Private Guest Access
