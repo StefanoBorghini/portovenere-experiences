@@ -711,7 +711,7 @@ included: [],
     basePrice: 700,
 
     heroImage:
-         "/images/dining/ristorante/authentic.jpg",slot: "hero",
+         "/images/dining/ristorante/authentic.jpg",slot: "gourmet",
 
     heroCombinations: {
 
@@ -787,7 +787,7 @@ included: [],
 
     heroImage:
       "/images/dining/onboard/authentic.jpg",
-slot: "hero",
+slot: "gourmet",
     heroCombinations: {
 
       "Gourmet Escape":
@@ -865,7 +865,7 @@ slot: "hero",
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/adventure.jpg",slot: "hero",
+      "/images/wild/trekking/adventure.jpg",slot: "activity",
 
     heroCombinations: {
 
@@ -941,7 +941,7 @@ slot: "hero",
 
     heroImage:
       "/images/wild/underwater/snorkeling/default.jpg",
-slot: "hero",
+slot: "activity",
     heroCombinations: {
 
       "Wild Escape":
@@ -1013,7 +1013,7 @@ slot: "hero",
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/underwater/mermaiding/cinematic.jpg",slot: "hero",
+      "/images/wild/underwater/mermaiding/cinematic.jpg",slot: "activity",
 
     heroCombinations: {
 
@@ -1091,7 +1091,7 @@ slot: "hero",
     basePrice: 1300,
 
     heroImage:
-      "/images/wild/horses/default.jpg",slot: "hero",
+      "/images/wild/horses/default.jpg",slot: "activity",
 
     heroCombinations: {
 
