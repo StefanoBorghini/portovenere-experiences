@@ -414,7 +414,13 @@ const finalExperiences = [
       )
   ),
 
-].filter(Boolean);
+].filter(
+  (
+    exp
+  ): exp is typeof heroExperience =>
+
+    Boolean(exp)
+);
 
 // =====================================================
 // GET BEST IMAGE
@@ -545,6 +551,11 @@ const galleryExperiences = [
 
 ].filter(Boolean);
 
+console.log(
+  "galleryExperiences",
+  galleryExperiences
+);
+
 // ======================================================
 // BUILD IMAGES
 // ======================================================
@@ -573,7 +584,10 @@ if (bestImage) {
 const finalImages = [
   ...new Set(images),
 ];
-
+console.log(
+  "images",
+  images
+);
 
 
 // =====================================================
