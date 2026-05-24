@@ -426,6 +426,15 @@ export function buildProposalGallery({
       Boolean(exp)
   );
 
+  console.log(
+  "addonIds",
+  addonIds
+);
+
+console.log(
+  "finalExperiences",
+  finalExperiences
+);
   // =====================================================
   // GET BEST IMAGE
   // =====================================================
