@@ -262,10 +262,9 @@ let addonIds = addonIdsRaw.filter(
   // =====================================================
   // FALLBACKS
   // =====================================================
-
-  if (
-    addonIds.length < 4
-  ) {
+if (
+  addonIds.length < 3
+) {
 
     const compatibleCategories =
 
@@ -398,5 +397,5 @@ let addonIds = addonIdsRaw.filter(
   // RETURN
   // =====================================================
 
-  return uniqueImages.slice(0, 4);
+  return uniqueImages.slice(0, 3);
 }

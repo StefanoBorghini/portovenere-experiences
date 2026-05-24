@@ -380,25 +380,40 @@ const price =
 
     </div>
 
-    <div className="grid md:grid-cols-4 gap-6">
+    <div className="grid md:grid-cols-3 gap-6">
 
-      {galleryImages.map(
-        (
-          image: string,
-          index: number
-        ) => (
+  {galleryImages.map(
+    (
+      image: string,
+      index: number
+    ) => (
 
-          <img
-            key={index}
-            src={image}
-            alt="Experience"
-            className="rounded-3xl h-[500px] w-full object-cover"
-          />
+      <div
+        key={index}
+        className="relative overflow-hidden rounded-[32px] group"
+      >
 
-        )
-      )}
+        <img
+          src={image}
+          alt="Experience"
+          className="
+            h-[520px]
+            w-full
+            object-cover
+            transition-all
+            duration-700
+            group-hover:scale-105
+          "
+        />
 
-    </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+
+      </div>
+
+    )
+  )}
+
+</div>
 
   </div>
 
