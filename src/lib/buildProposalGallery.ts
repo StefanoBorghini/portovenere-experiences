@@ -25,6 +25,39 @@ interface BuildGalleryProps {
     string;
 }
 
+function hasConflict(
+
+  experienceA: any,
+
+  experienceB: any,
+
+  conflicts: Record<string, string[]>
+) {
+
+  const firstConflicts =
+
+    conflicts[
+      experienceA.id
+    ] || [];
+
+  const secondConflicts =
+
+    conflicts[
+      experienceB.id
+    ] || [];
+
+  return (
+
+    firstConflicts.includes(
+      experienceB.id
+    ) ||
+
+    secondConflicts.includes(
+      experienceA.id
+    )
+  );
+}
+
 export function buildProposalGallery({
 
   experiencesSelected,
@@ -298,7 +331,7 @@ export function buildProposalGallery({
 
       compatibility?.compatibleWith || [];
 
-    const fallbackExperiences =
+    const finalExperiences =
 
   experiences
 
@@ -358,7 +391,7 @@ export function buildProposalGallery({
     
       );
 
-    fallbackExperiences.forEach(
+    finalExperiences.forEach(
       (experience) => {
 
         if (
@@ -564,67 +597,78 @@ console.log(
   // FINAL GALLERY EXPERIENCES
   // =====================================================
 
-  const galleryExperiences = [
+ // =====================================================
+// FINAL GALLERY EXPERIENCES
+// =====================================================
 
-    heroExperience,
+const galleryExperiences: any[] = [];
 
-    activityExperience,
+// always hero first
 
-    gourmetExperience ||
+galleryExperiences.push(
+  heroExperience
+);
 
-      atmosphereExperience,
+// candidate addons only
 
-  ].filter(Boolean);
+const candidateExperiences =
 
-  console.log(
-    "galleryExperiences",
-    galleryExperiences
-  );
+  addonIds
 
-  // =====================================================
-  // BUILD IMAGES
-  // =====================================================
+    .map(
+      (id) =>
 
-  const images: string[] = [];
+        experiences.find(
+          (exp) =>
+            exp.id === id
+        )
+    )
 
-  galleryExperiences.forEach(
-    (experience) => {
+    .filter(Boolean);
 
-      if (!experience) {
-        return;
-      }
+// =====================================================
+// ADD COMPATIBLE EXPERIENCES
+// =====================================================
 
-      const bestImage =
-        getBestImage(
-          experience
-        );
+candidateExperiences.forEach(
+  (candidate: any) => {
 
-      if (bestImage) {
-
-        images.push(
-          bestImage
-        );
-      }
+    if (
+      galleryExperiences.length >= 3
+    ) {
+      return;
     }
+
+    const hasAnyConflict =
+
+      galleryExperiences.some(
+        (selected) =>
+
+          hasConflict(
+            selected,
+            candidate,
+            experienceConflicts
+          )
+      );
+
+    if (!hasAnyConflict) {
+
+      galleryExperiences.push(
+        candidate
+      );
+    }
+  }
+);
+
+// =====================================================
+// FILL EMPTY SLOTS
+// =====================================================
+
+while (
+  galleryExperiences.length < 3
+) {
+
+  galleryExperiences.push(
+    heroExperience
   );
-
-  // =====================================================
-  // REMOVE DUPLICATES
-  // =====================================================
-
-  const finalImages = [
-
-    ...new Set(images),
-  ];
-
-  console.log(
-    "finalImages",
-    finalImages
-  );
-
-  // =====================================================
-  // RETURN
-  // =====================================================
-
-  return finalImages.slice(0, 3);
-}
+}}
