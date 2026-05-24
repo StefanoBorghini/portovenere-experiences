@@ -556,23 +556,13 @@ galleryExperiences.forEach(
 
     if (!experience) return;
 
-    const galleryValues =
-      Object.values(
-        experience.gallery || {}
-      );
+  const bestImage =
+  getBestImage(experience);
 
-    const firstGallery =
-      galleryValues[0] as string[];
+if (bestImage) {
 
-    if (
-      firstGallery &&
-      firstGallery[0]
-    ) {
-
-      images.push(
-        firstGallery[0]
-      );
-    }
+  images.push(bestImage);
+}
   }
 );
 
