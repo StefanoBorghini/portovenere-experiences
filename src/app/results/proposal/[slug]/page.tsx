@@ -5,6 +5,8 @@ import { buildProposalGallery } from "@/lib/buildProposalGallery";
 import {
   calculateProposalPrice,
 } from "@/lib/pricing";
+import Countdown
+from "@/components/countdown";
 
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
@@ -140,6 +142,24 @@ const finalPrice =
 
 const price =
   `€${finalPrice.toLocaleString()}`;
+
+  // =========================================================
+// COUNTDOWN
+// =========================================================
+
+const createdAt =
+
+  proposal.created_at;
+
+const expiresAt =
+
+  new Date(
+    new Date(
+      createdAt
+    ).getTime() +
+
+    72 * 60 * 60 * 1000
+  ).toISOString();
   // WHATSAPP CTA
 
   const whatsappMessage =
@@ -504,15 +524,14 @@ const price =
     ">
       Private Reservation
     </p>
-
-    <div className="
-      text-5xl
-      md:text-7xl
-      font-light
-      mb-10
-    ">
-      72h 00m
-    </div>
+<div className="
+  text-5xl
+  md:text-7xl
+  font-light
+  mb-10
+">
+  72h 00m
+</div>
 
     <h2 className="
       text-3xl
