@@ -4,7 +4,12 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+button,
+a,input
+[role="button"] {
 
+  cursor: pointer;
+}
 @media (prefers-color-scheme: dark) {
 
   :root {
