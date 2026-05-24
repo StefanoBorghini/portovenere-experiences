@@ -10,7 +10,7 @@ const protectedRoutes = {
   "/craft-your-experience": {
     username: "Stefano",
     password: "riviera2026@",
-    expiresAt: "2026-05-23T23:59:59",
+    expiresAt: "2027-05-23T23:59:59",
   },
 
   "/dmitri-july-2026": {
