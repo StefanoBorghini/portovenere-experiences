@@ -77,23 +77,36 @@ export default async function ProposalPage({
   generatedProposal.includedSections;
 
 
-  // DYNAMIC CONTENT
+ // =========================================================
+// DYNAMIC CONTENT
+// =========================================================
 
-  const heroTitle =
-    generatedProposal.heroTitle;
+const heroTitle =
+  generatedProposal.heroTitle;
 
-  const heroImage =
-    generatedProposal.heroImage;
-    console.log(
+const heroImage =
+  generatedProposal.heroImage;
+
+const dynamicIntroTitle =
+  generatedProposal.dynamicIntroTitle;
+
+const dynamicIntroParagraph =
+  generatedProposal.dynamicIntroParagraph;
+
+const dynamicClosingParagraph =
+  generatedProposal.dynamicClosingParagraph;
+
+console.log(
   "HERO IMAGE",
   heroImage
 );
 
-  const featuredExperience =
-    generatedProposal.featuredExperience;
+const featuredExperience =
+  generatedProposal.featuredExperience;
 
-  const scoredExperiences =
-    generatedProposal.scoredExperiences;
+const scoredExperiences =
+  generatedProposal.scoredExperiences;
+
 const galleryImages =
   buildProposalGallery({
 
@@ -106,8 +119,6 @@ const galleryImages =
     heroExperienceId:
       featuredExperience?.id || "",
   });
-
-  // PRICING ENGINE
 
 // PRICING ENGINE
 
@@ -197,128 +208,174 @@ const price =
 
       {/* DIVIDER */}
 
-      <section className="py-24 px-6 border-y border-white/10 bg-black">
+<section className="py-32 md:py-40 px-6 border-y border-white/10 bg-black">
 
-        <div className="max-w-4xl mx-auto text-center">
+  <div className="max-w-5xl mx-auto text-center">
 
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
-            Mediterranean Luxury
+    <p className="
+      uppercase
+      tracking-[0.4em]
+      text-zinc-600
+      text-xs
+      mb-8
+    ">
+      Mediterranean Luxury
+    </p>
+
+    <h2 className="
+      text-4xl
+      md:text-7xl
+      font-light
+      leading-[1.1]
+      tracking-tight
+      mb-12
+    ">
+      {dynamicIntroTitle}
+    </h2>
+
+    <p className="
+      text-zinc-400
+      text-lg
+      md:text-2xl
+      leading-relaxed
+      max-w-3xl
+      mx-auto
+    ">
+      {dynamicIntroParagraph}
+    </p>
+
+  </div>
+
+</section>
+
+{/* EXPERIENCE DETAILS */}
+
+<section className="py-20 md:py-32 px-6">
+
+  <div className="max-w-6xl mx-auto">
+
+    <div className="text-center mb-20">
+
+      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+        Curated Experience
+      </p>
+
+      <h2 className="text-3xl md:text-7xl font-light leading-tight">
+        Designed around your travel profile.
+      </h2>
+
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-8">
+
+      {/* EXPERIENCE */}
+
+      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
+
+        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+          Featured Experience
+        </p>
+
+        <h2 className="
+          text-4xl
+          md:text-6xl
+          font-light
+          mb-8
+          leading-tight
+        ">
+          {featuredExperience?.operator || "Experience"}
+        </h2>
+
+        <p className="text-zinc-400 leading-8 text-lg">
+
+          {
+            featuredExperience
+              ?.included?.[0]
+              ?.description ||
+
+            "A private curated Riviera experience tailored around your selected atmosphere."
+          }
+
+        </p>
+
+      </div>
+
+      {/* PROFILE */}
+
+      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
+
+        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
+          Guest Profile
+        </p>
+
+        <div className="space-y-5 text-lg">
+
+          <p>
+            Experiences:
+            {" "}
+            {lead.experiences?.join(", ")}
           </p>
 
-          <h2 className="text-4xl md:text-6xl font-light leading-tight">
-            Crafted around your personal travel style and Riviera atmosphere.
-          </h2>
+          <p>
+            Atmosphere:
+            {" "}
+            {lead.moods?.join(", ")}
+          </p>
+
+          <p>
+            Guests:
+            {" "}
+            {lead.guests}
+          </p>
+
+          <p>
+            Budget:
+            {" "}
+            {lead.budget}
+          </p>
+
+          <p>
+            Travel Dates:
+            {" "}
+            {lead.start_date}
+            {" "}
+            —
+            {" "}
+            {lead.end_date}
+          </p>
+
+          <p>
+            Children:
+            {" "}
+            {lead.traveling_with_children
+              ? "Yes"
+              : "No"}
+          </p>
 
         </div>
 
-      </section>
+      </div>
 
-      {/* EXPERIENCE DETAILS */}
+    </div>
 
-      <section className="py-20 md:py-32 px-6">
+  </div>
 
-        <div className="max-w-6xl mx-auto">
+</section>
 
-          <div className="text-center mb-20">
+{/* INCLUDED */}
 
-            <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-              Curated Experience
-            </p>
-
-            <h2 className="text-3xl md:text-7xl font-light leading-tight">
-              Designed around your travel profile.
-            </h2>
-
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-
-            {/* EXPERIENCE */}
-
-            <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                Featured Experience
-              </p>
-<h2 className="text-4xl font-light mb-6">
-  {featuredExperience?.title || "Experience"}
-</h2>
-
-<p className="text-zinc-400 leading-8">
-  {"A private curated Riviera experience tailored around your selected atmosphere."}
-</p>
-
-            </div>
-
-            {/* PROFILE */}
-
-            <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-                Guest Profile
-              </p>
-
-              <div className="space-y-5 text-lg">
-
-                <p>
-                  Experiences:
-                  {" "}
-                  {lead.experiences?.join(", ")}
-                </p>
-
-                <p>
-                  Atmosphere:
-                  {" "}
-                  {lead.moods?.join(", ")}
-                </p>
-
-                <p>
-                  Guests:
-                  {" "}
-                  {lead.guests}
-                </p>
-
-                <p>
-                  Budget:
-                  {" "}
-                  {lead.budget}
-                </p>
-
-                <p>
-                  Travel Dates:
-                  {" "}
-                  {lead.start_date}
-                  {" "}
-                  —
-                  {" "}
-                  {lead.end_date}
-                </p>
-
-                <p>
-                  Children:
-                  {" "}
-                  {lead.traveling_with_children
-                    ? "Yes"
-                    : "No"}
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* INCLUDED */}
-
-   <section className="pb-32 px-6">
+<section className="pb-32 px-6">
 
   <div className="max-w-5xl mx-auto">
 
-    <h2 className="text-5xl font-light mb-16 text-center">
+    <h2 className="
+      text-4xl
+      md:text-6xl
+      font-light
+      mb-20
+      text-center
+      leading-tight
+    ">
       Included in your experience
     </h2>
 
@@ -432,57 +489,110 @@ const price =
 
       {/* CTA */}
 
-      <section className="pb-32 px-6">
+     {/* CTA */}
 
-        <div className="max-w-4xl mx-auto text-center">
+<section className="pb-40 px-6">
 
-          <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-            Private Reservation
-          </p>
+  <div className="max-w-4xl mx-auto text-center">
 
-          <h2 className="text-3xl md:text-6xl font-light mb-10">
-            Ready to reserve your experience?
-          </h2>
+    <p className="
+      uppercase
+      tracking-[0.35em]
+      text-xs
+      text-zinc-600
+      mb-8
+    ">
+      Private Reservation
+    </p>
 
-          <div className="text-zinc-400 leading-8 md:leading-9 mb-14 space-y-4">
+    <div className="
+      text-5xl
+      md:text-7xl
+      font-light
+      mb-10
+    ">
+      72h 00m
+    </div>
 
-            <p className="text-xl">
-              Your proposal has been privately curated around your selected atmosphere and preferences.
-            </p>
+    <h2 className="
+      text-3xl
+      md:text-6xl
+      font-light
+      leading-tight
+      mb-10
+    ">
+      Ready to reserve your experience?
+    </h2>
 
-            <div className="pt-6 text-sm uppercase tracking-[0.25em] text-zinc-500">
+    <div className="
+      text-zinc-400
+      leading-8
+      md:leading-9
+      mb-14
+      space-y-6
+      max-w-3xl
+      mx-auto
+    ">
 
-              <p>
-                Stefano
-              </p>
+      <p className="text-lg md:text-xl">
 
-              <p>
-                Portovenere Experiences
-              </p>
+        {dynamicClosingParagraph}
 
-              <p>
-                info@portovenere.com
-              </p>
+      </p>
 
-              <p>
-                +39 348 714 0722
-              </p>
+      <div className="
+        pt-10
+        text-sm
+        uppercase
+        tracking-[0.25em]
+        text-zinc-500
+        space-y-3
+      ">
 
-            </div>
+        <p>
+          Stefano
+        </p>
 
-          </div>
+        <p>
+          Portovenere Experiences
+        </p>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            className="inline-block bg-white text-black print:text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-          >
-            Request Private Booking
-          </a>
+        <p>
+          info@portovenere.com
+        </p>
 
-        </div>
+        <p>
+          +39 348 714 0722
+        </p>
 
-      </section>
+      </div>
+
+    </div>
+
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      className="
+        inline-block
+        bg-white
+        text-black
+        px-10
+        py-5
+        rounded-full
+        uppercase
+        tracking-[0.25em]
+        text-xs
+        hover:scale-105
+        transition-all
+        duration-500
+      "
+    >
+      Request Private Booking
+    </a>
+
+  </div>
+
+</section>
 
       {/* FOOTER */}
 

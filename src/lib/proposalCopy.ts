@@ -156,3 +156,50 @@ export const proposalTitles = {
     ],
   },
 };
+
+// =========================================================
+// INTRO TITLES
+// =========================================================
+
+export const introTitles = [
+
+  "Every Detail Curated Around Your Desired Atmosphere",
+
+  "A Proposal Designed Around Your Vision of the Riviera",
+
+  "Crafted Around Your Personal Travel Style",
+
+  "A Tailored Mediterranean Experience",
+
+  "Curated Around Your Riviera Atmosphere",
+];
+
+// =========================================================
+// INTRO PARAGRAPHS
+// =========================================================
+
+export const introParagraphs = [
+
+  "Every experience within your proposal has been carefully selected to balance atmosphere, elegance and emotional coherence across your Riviera journey.",
+
+  "From private sea escapes to curated culinary moments, your proposal has been designed to reflect your selected travel energy and desired pace.",
+
+  "Each moment has been curated to create a seamless blend of Mediterranean luxury, cinematic atmosphere and authentic local discovery.",
+
+  "Designed as a fully private experience, your proposal combines selected Riviera operators, curated atmospheres and exclusive moments tailored around your preferences.",
+];
+
+// =========================================================
+// CLOSING PARAGRAPHS
+// =========================================================
+
+export const closingParagraphs = [
+
+  "To preserve experience quality and private availability, your curated proposal will remain reserved for a limited time.",
+
+  "Your private Riviera proposal has been temporarily reserved exclusively for you.",
+
+  "Availability is intentionally limited to maintain a highly curated experience standard.",
+
+  "Your selected experiences are currently being privately reserved to guarantee the highest level of service and availability.",
+];

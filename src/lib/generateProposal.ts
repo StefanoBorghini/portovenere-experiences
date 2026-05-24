@@ -6,7 +6,15 @@
 import { experiences }
 from "./experiences";
 import {
+
   proposalTitles,
+
+  introTitles,
+
+  introParagraphs,
+
+  closingParagraphs,
+
 } from "@/lib/proposalCopy";
 
 import {
@@ -318,7 +326,40 @@ const heroTitle =
 // =========================================================
 // HERO IMAGE
 // =========================================================
+// =========================================================
+// DYNAMIC INTRO COPY
+// =========================================================
 
+const dynamicIntroTitle =
+
+  introTitles[
+    Math.floor(
+      Math.random() *
+      introTitles.length
+    )
+  ];
+
+const dynamicIntroParagraph =
+
+  introParagraphs[
+    Math.floor(
+      Math.random() *
+      introParagraphs.length
+    )
+  ];
+
+// =========================================================
+// DYNAMIC CLOSING COPY
+// =========================================================
+
+const dynamicClosingParagraph =
+
+  closingParagraphs[
+    Math.floor(
+      Math.random() *
+      closingParagraphs.length
+    )
+  ];
   // =========================================================
   // HERO IMAGE
   // =========================================================
@@ -501,6 +542,12 @@ const orderedCategories =
 
     heroImage,
 
+    dynamicIntroTitle,
+
+    dynamicIntroParagraph,
+
+    dynamicClosingParagraph,
+
     featuredExperience:
       bestExperience,
 
@@ -511,4 +558,6 @@ const orderedCategories =
 
     compatibilityData,
   };
+
+  
 }
