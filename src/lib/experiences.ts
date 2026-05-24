@@ -173,7 +173,7 @@ export const experiences: Experience[] = [
 
     "/images/sailing/dino/adventure.webp",
 
-      "/images/sailing/dino/img-2.webp",
+    "/images/sailing/dino/cinematic.webp",
 
     "/images/sailing/dino/img-3.webp",
   ],
