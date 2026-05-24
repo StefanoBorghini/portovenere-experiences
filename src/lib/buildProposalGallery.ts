@@ -281,7 +281,7 @@ const usedNarrativeTypes = {
 // =====================================================
 
 if (
-  addonIds.length < 3
+  addonIds.length < 2
 ) {
 
   const compatibleCategories =
@@ -432,5 +432,21 @@ if (
   // RETURN
   // =====================================================
 
-  return uniqueImages.slice(0, 3);
+  const heroGallery =
+
+  Object.values(
+    heroExperience.gallery || {}
+  )[0];
+
+const heroImage =
+
+  heroGallery?.[0];
+
+return [
+
+  heroImage,
+
+  ...uniqueImages,
+
+].filter(Boolean).slice(0, 3);
 }
