@@ -259,73 +259,108 @@ const addonIdsRaw = [
 let addonIds = addonIdsRaw.filter(
   (item) => item !== null
 ) as string[];
+
+
+
+const usedNarrativeTypes = {
+
+  activity:
+    !!selectedActivity,
+
+  gourmet:
+    !!selectedGourmet,
+
+  atmosphere:
+    !!selectedAtmosphere,
+};
   // =====================================================
   // FALLBACKS
   // =====================================================
+// =====================================================
+// FALLBACKS
+// =====================================================
+
 if (
   addonIds.length < 3
 ) {
 
-    const compatibleCategories =
+  const compatibleCategories =
 
-      compatibility?.compatibleWith || [];
+    compatibility?.compatibleWith || [];
 
-    const fallbackExperiences =
+  const fallbackExperiences =
 
-      experiences.filter(
-        (experience) => {
-
-          // no hero
-
-          if (
-            experience.id ===
-            heroExperienceId
-          ) {
-            return false;
-          }
-
-          // no duplicates
-
-          if (
-            addonIds.includes(
-              experience.id
-            )
-          ) {
-            return false;
-          }
-
-          // no same category
-
-          if (
-            experience.macroCategory ===
-            mainCategory
-          ) {
-            return false;
-          }
-
-          // compatible only
-
-          return compatibleCategories.includes(
-            experience.macroCategory
-          );
-        }
-      );
-
-    fallbackExperiences.forEach(
+    experiences.filter(
       (experience) => {
 
+        // no hero
+
         if (
-          addonIds.length >= 4
+          experience.id ===
+          heroExperienceId
         ) {
-          return;
+          return false;
         }
 
-        addonIds.push(
-          experience.id
+        // no duplicates
+
+        if (
+          addonIds.includes(
+            experience.id
+          )
+        ) {
+          return false;
+        }
+
+        // no same category
+
+        if (
+          experience.macroCategory ===
+          mainCategory
+        ) {
+          return false;
+        }
+
+        // no duplicate narrative types
+
+        const experienceType =
+
+          addonTypes[
+            experience.id
+          ];
+
+        if (
+          experienceType &&
+          usedNarrativeTypes[
+            experienceType
+          ]
+        ) {
+          return false;
+        }
+
+        // only compatible categories
+
+        return compatibleCategories.includes(
+          experience.macroCategory
         );
       }
     );
-  }
+
+  fallbackExperiences.forEach(
+    (experience) => {
+
+      if (
+        addonIds.length >= 3
+      ) {
+        return;
+      }
+
+      addonIds.push(
+        experience.id
+      );
+    }
+  );
+}
 
   // =====================================================
   // BUILD IMAGES
