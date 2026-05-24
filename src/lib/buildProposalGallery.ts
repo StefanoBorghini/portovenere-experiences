@@ -5,6 +5,9 @@ import {
   experienceCompatibility,
 } from "@/lib/experienceCompatibility";
 
+import {
+  experienceConflicts,
+} from "@/lib/experienceConflicts";
 interface BuildGalleryProps {
 
   experiencesSelected:
@@ -361,6 +364,38 @@ if (
     }
   );
 }
+
+// =====================================================
+// REMOVE CONFLICTS
+// =====================================================
+
+const cleanedAddons: string[] = [];
+
+addonIds.forEach(
+  (id) => {
+
+    const conflicts =
+
+      experienceConflicts[id] || [];
+
+    const hasConflict =
+
+      cleanedAddons.some(
+        (existing) =>
+
+          conflicts.includes(
+            existing
+          )
+      );
+
+    if (!hasConflict) {
+
+      cleanedAddons.push(id);
+    }
+  }
+);
+
+addonIds = cleanedAddons;
 
 // =====================================================
 // FINAL EXPERIENCES
