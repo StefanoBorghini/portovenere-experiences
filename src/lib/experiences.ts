@@ -430,7 +430,7 @@ visualStyleScores: {
         "/images/yachts/aphrodite/cinematic.jpg",
 
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/yachts/aphrodite/degustazione.jpg",
+        "/images/yachts/aphrodite/vino.jpg",
 
       "Sea Escape-Aerial Escape-Cinematic":
          "/images/yachts/aphrodite/cinematic.jpg",
@@ -444,7 +444,7 @@ visualStyleScores: {
 
         "/images/yachts/aphrodite/authentic.jpg",
 
-        "/images/yachts/aphrodite/degustazione.jpg",
+        "/images/yachts/aphrodite/vino.jpg",
       ],
     },
 
@@ -1046,7 +1046,7 @@ visualStyleScores: {
         "/images/dining/onboard/authentic.jpg",
 
       "Gourmet Escape-Adventure":
-        "/images/yachts/aphrodite/degustazione.jpg",
+        "/images/yachts/aphrodite/vino.jpg",
 
       "Gourmet Escape-Authentic":
         "/images/dining/onboard/authentic.jpg",
@@ -1058,7 +1058,7 @@ visualStyleScores: {
 
          "/images/dining/onboard/authentic.jpg",
 
-        "/images/yachts/aphrodite/degustazione.jpg",
+        "/images/yachts/aphrodite/vino.jpg",
 
         "/images/dining/onboard/authentic.jpg",
       ],
