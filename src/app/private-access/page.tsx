@@ -51,7 +51,7 @@ export default function PrivateAccessPage() {
 
         <div className="space-y-2 text-center">
  <img
-    src="/images/logo-white.png"
+    src="/logo-white.png"
     alt="Portovenere Experiences"
     className="
       w-28
