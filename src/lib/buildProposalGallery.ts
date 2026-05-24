@@ -43,37 +43,8 @@ export function buildProposalGallery({
   }
 
   // =====================================================
-  // SUPPORTING IDS
+  // MAIN CATEGORY
   // =====================================================
-
-  let addonIds: string[] = [];
-
-  const narrativeSlots = {
-
-    activity: [] as string[],
-
-    gourmet: [] as string[],
-
-    atmosphere: [] as string[],
-  };
-
-  const addonTypes: Record<
-    string,
-    keyof typeof narrativeSlots
-  > = {
-
-    snorkeling: "activity",
-
-    trekking: "activity",
-
-    restaurant: "gourmet",
-
-    foodwine: "gourmet",
-
-    mermaiding: "atmosphere",
-
-    sunset: "atmosphere",
-  };
 
   const mainCategory =
     heroExperience.macroCategory;
@@ -83,6 +54,100 @@ export function buildProposalGallery({
     experienceCompatibility[
       mainCategory as keyof typeof experienceCompatibility
     ];
+
+  // =====================================================
+  // NARRATIVE SLOTS
+  // =====================================================
+
+  let selectedActivity:
+    string | null = null;
+
+  let selectedGourmet:
+    string | null = null;
+
+  let selectedAtmosphere:
+    string | null = null;
+
+  // =====================================================
+  // ADDON TYPES
+  // =====================================================
+
+  const addonTypes: Record<
+    string,
+    "activity" |
+    "gourmet" |
+    "atmosphere"
+  > = {
+
+    snorkeling: "activity",
+
+    trekking: "activity",
+
+    mermaiding: "activity",
+
+    restaurant: "gourmet",
+
+    foodwine: "gourmet",
+
+    sunset: "atmosphere",
+
+    aperitivo: "atmosphere",
+  };
+
+  // =====================================================
+  // PRIORITY PICKER
+  // =====================================================
+
+  function assignNarrativeSlot(
+    addonId: string
+  ) {
+
+    const type =
+      addonTypes[addonId];
+
+    if (!type) {
+      return;
+    }
+
+    // ===============================================
+    // ACTIVITY
+    // ===============================================
+
+    if (
+      type === "activity" &&
+      !selectedActivity
+    ) {
+
+      selectedActivity =
+        addonId;
+    }
+
+    // ===============================================
+    // GOURMET
+    // ===============================================
+
+    if (
+      type === "gourmet" &&
+      !selectedGourmet
+    ) {
+
+      selectedGourmet =
+        addonId;
+    }
+
+    // ===============================================
+    // ATMOSPHERE
+    // ===============================================
+
+    if (
+      type === "atmosphere" &&
+      !selectedAtmosphere
+    ) {
+
+      selectedAtmosphere =
+        addonId;
+    }
+  }
 
   // =====================================================
   // SINGLE CATEGORY
@@ -109,18 +174,9 @@ export function buildProposalGallery({
         moodAddons.forEach(
           (addonId: string) => {
 
-            const type =
-              addonTypes[addonId];
-
-            if (
-              type &&
-              narrativeSlots[type].length === 0
-            ) {
-
-              narrativeSlots[type].push(
-                addonId
-              );
-            }
+            assignNarrativeSlot(
+              addonId
+            );
           }
         );
       }
@@ -176,18 +232,9 @@ export function buildProposalGallery({
             comboAddons.forEach(
               (addonId: string) => {
 
-                const type =
-                  addonTypes[addonId];
-
-                if (
-                  type &&
-                  narrativeSlots[type].length === 0
-                ) {
-
-                  narrativeSlots[type].push(
-                    addonId
-                  );
-                }
+                assignNarrativeSlot(
+                  addonId
+                );
               }
             );
           }
@@ -197,21 +244,21 @@ export function buildProposalGallery({
   }
 
   // =====================================================
-  // FINAL ADDON IDS
+  // FINAL IDS
   // =====================================================
 
-  addonIds = [
+const addonIdsRaw = [
 
-    ...narrativeSlots.activity,
+  selectedActivity,
 
-    ...narrativeSlots.gourmet,
+  selectedGourmet,
 
-    ...narrativeSlots.atmosphere,
-  ];
+  selectedAtmosphere,
+];
 
-  addonIds =
-    [...new Set(addonIds)];
-
+let addonIds = addonIdsRaw.filter(
+  (item) => item !== null
+) as string[];
   // =====================================================
   // FALLBACKS
   // =====================================================
@@ -238,6 +285,16 @@ export function buildProposalGallery({
             return false;
           }
 
+          // no duplicates
+
+          if (
+            addonIds.includes(
+              experience.id
+            )
+          ) {
+            return false;
+          }
+
           // no same category
 
           if (
@@ -247,7 +304,7 @@ export function buildProposalGallery({
             return false;
           }
 
-          // only compatible categories
+          // compatible only
 
           return compatibleCategories.includes(
             experience.macroCategory
@@ -316,7 +373,7 @@ export function buildProposalGallery({
   );
 
   // =====================================================
-  // REMOVE DUPLICATE IMAGES
+  // UNIQUE IMAGES
   // =====================================================
 
   const uniqueImages =
@@ -328,22 +385,17 @@ export function buildProposalGallery({
   // =====================================================
 
   console.log(
-    "ADDON IDS",
+    "FINAL ADDON IDS",
     addonIds
   );
 
   console.log(
-    "IMAGES",
+    "FINAL IMAGES",
     uniqueImages
   );
 
-  console.log(
-    "MOODS",
-    moodsSelected
-  );
-
   // =====================================================
-  // MAX 4
+  // RETURN
   // =====================================================
 
   return uniqueImages.slice(0, 4);
