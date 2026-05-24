@@ -362,91 +362,159 @@ if (
   );
 }
 
-  // =====================================================
-  // BUILD IMAGES
-  // =====================================================
+// =====================================================
+// FINAL EXPERIENCES
+// =====================================================
 
-  const images: string[] = [];
+const finalExperiences = [
 
-  addonIds.forEach(
-    (addonId) => {
+  heroExperience,
 
-      const addonExperience =
+  ...addonIds.map(
+    (id) =>
 
-        experiences.find(
-          (exp) =>
-            exp.id === addonId
-        );
+      experiences.find(
+        (exp) =>
+          exp.id === id
+      )
+  ),
 
-      if (
-        !addonExperience ||
-        !addonExperience.gallery
-      ) {
-        return;
-      }
+].filter(Boolean);
 
-      const galleryValues =
+// =====================================================
+// GET BEST IMAGE
+// =====================================================
 
-        Object.values(
-          addonExperience.gallery
-        );
+function getBestImage(
+  experience: any
+) {
 
-      const firstGallery =
-        galleryValues[0];
+  if (!experience) {
+    return null;
+  }
 
-      if (
-        firstGallery &&
-        firstGallery[0]
-      ) {
+  // ===================================================
+  // COMBINATION KEY
+  // ===================================================
 
-        images.push(
-          firstGallery[0]
-        );
-      }
-    }
-  );
+  const combinationParts = [
 
-  // =====================================================
-  // UNIQUE IMAGES
-  // =====================================================
+    ...experiencesSelected,
 
-  const uniqueImages =
+    ...moodsSelected,
+  ];
 
-    [...new Set(images)];
+  const combinationKey =
 
-  // =====================================================
-  // DEBUG
-  // =====================================================
+    combinationParts.join("-");
 
-  console.log(
-    "FINAL ADDON IDS",
-    addonIds
-  );
+  // ===================================================
+  // HERO COMBINATION
+  // ===================================================
 
-  console.log(
-    "FINAL IMAGES",
-    uniqueImages
-  );
+  const combinationImage =
 
-  // =====================================================
-  // RETURN
-  // =====================================================
+    experience.heroCombinations?.[
+      combinationKey
+    ];
 
-  const heroGallery =
+  if (combinationImage) {
+    return combinationImage;
+  }
+
+  // ===================================================
+  // SINGLE CATEGORY + MOOD
+  // ===================================================
+
+  const singleMoodKey =
+
+    `${experience.macroCategory}-${moodsSelected[0]}`;
+
+  const singleMoodImage =
+
+    experience.heroCombinations?.[
+      singleMoodKey
+    ];
+
+  if (singleMoodImage) {
+    return singleMoodImage;
+  }
+
+  // ===================================================
+  // HERO IMAGE
+  // ===================================================
+
+  if (experience.heroImage) {
+    return experience.heroImage;
+  }
+
+  // ===================================================
+  // GALLERY FALLBACK
+  // ===================================================
+
+  if (experience.gallery) {
+
+   const galleryValues =
 
   Object.values(
-    heroExperience.gallery || {}
-  )[0];
+    experience.gallery
+  ) as string[][];
 
-const heroImage =
+const firstGallery =
+  galleryValues[0];
+  }
 
-  heroGallery?.[0];
-
-return [
-
-  heroImage,
-
-  ...uniqueImages,
-
-].filter(Boolean).slice(0, 3);
+  return null;
 }
+
+// =====================================================
+// BUILD IMAGES
+// =====================================================
+
+const images: string[] = [];
+
+finalExperiences.forEach(
+  (experience) => {
+
+    const image =
+
+      getBestImage(
+        experience
+      );
+
+    if (image) {
+
+      images.push(
+        image
+      );
+    }
+  }
+);
+
+// =====================================================
+// UNIQUE IMAGES
+// =====================================================
+
+const uniqueImages =
+
+  [...new Set(images)];
+
+// =====================================================
+// DEBUG
+// =====================================================
+
+console.log(
+  "FINAL EXPERIENCES",
+  finalExperiences
+);
+
+console.log(
+  "FINAL IMAGES",
+  uniqueImages
+);
+
+// =====================================================
+// RETURN
+// =====================================================
+
+return uniqueImages.slice(0, 3);}
