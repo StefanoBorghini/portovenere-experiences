@@ -28,10 +28,10 @@ export const experienceConflicts: Record<
   ],
 
   trekking: [
-    "horseriding",
+    "horsers",
   ],
 
-  horseriding: [
+  horsers: [
     "trekking",
   ],
 };

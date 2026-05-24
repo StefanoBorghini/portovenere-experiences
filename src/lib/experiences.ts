@@ -45,6 +45,34 @@ export interface Experience {
   | "gourmet"
   | "atmosphere";
 
+  energyScores: {
+
+  luxury: number;
+
+  romantic: number;
+
+  cinematic: number;
+
+  adventure: number;
+
+  slow: number;
+};
+
+visualStyleScores: {
+
+  luxury: number;
+
+  cinematic: number;
+
+  warm: number;
+
+  nature: number;
+
+  dark: number;
+};
+
+narrativePriority: number;
+
   heroCombinations?: {
     [key: string]: string;
   };
@@ -145,7 +173,35 @@ export const experiences: Experience[] = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sailing/dino/cinematic.webp",slot: "hero",
+      "/images/sailing/dino/cinematic.webp",
+      slot: "hero",
+      energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -328,7 +384,35 @@ included: [],
     basePrice: 2200,
 
     heroImage:
-      "/images/yachts/aphrodite/hero-web.webp",slot: "hero",
+      "/images/yachts/aphrodite/hero-web.webp",
+      slot: "hero",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -407,7 +491,35 @@ included: [],
     basePrice: 2800,
 
     heroImage:
-      "/images/sailing/velamica/cinematic.jpg",slot: "hero",
+      "/images/sailing/velamica/cinematic.jpg",
+      slot: "hero",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -480,7 +592,35 @@ included: [],
     basePrice: 3200,
 
     heroImage:
-      "/images/sailing/velagiovane/cinematic.jpg",slot: "hero",
+      "/images/sailing/velagiovane/cinematic.jpg",
+      slot: "hero",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -557,7 +697,35 @@ included: [],
     basePrice: 1800,
 
     heroImage:
-      "/images/flying/aereo/img-1.jpg",slot: "hero",
+      "/images/flying/aereo/img-1.jpg",
+      slot: "hero",
+       energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -634,7 +802,35 @@ included: [],
     basePrice: 2000,
 
     heroImage:
-      "/images/flying/mongolfiera/mongolfiera.jpg",slot: "hero",
+      "/images/flying/mongolfiera/mongolfiera.jpg",
+      slot: "hero",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 10,
 
     heroCombinations: {
 
@@ -711,7 +907,35 @@ included: [],
     basePrice: 700,
 
     heroImage:
-         "/images/dining/ristorante/authentic.jpg",slot: "gourmet",
+         "/images/dining/ristorante/authentic.jpg",
+         slot: "gourmet",
+           energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 7,
 
     heroCombinations: {
 
@@ -788,6 +1012,34 @@ included: [],
     heroImage:
       "/images/dining/onboard/authentic.jpg",
 slot: "gourmet",
+  energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 8,
+
     heroCombinations: {
 
       "Gourmet Escape":
@@ -865,7 +1117,34 @@ slot: "gourmet",
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/adventure.jpg",slot: "activity",
+      "/images/wild/trekking/adventure.jpg",
+      slot: "activity",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+      narrativePriority: 5,
 
     heroCombinations: {
 
@@ -942,6 +1221,34 @@ slot: "gourmet",
     heroImage:
       "/images/wild/underwater/snorkeling/default.jpg",
 slot: "activity",
+  energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 6,
+
     heroCombinations: {
 
       "Wild Escape":
@@ -1013,7 +1320,35 @@ slot: "activity",
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/underwater/mermaiding/cinematic.jpg",slot: "activity",
+      "/images/wild/underwater/mermaiding/cinematic.jpg",
+      slot: "activity",
+        energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 8,
 
     heroCombinations: {
 
@@ -1091,7 +1426,35 @@ slot: "activity",
     basePrice: 1300,
 
     heroImage:
-      "/images/wild/horses/default.jpg",slot: "activity",
+      "/images/wild/horses/default.jpg",
+      slot: "activity",
+       energyScores: {
+
+  luxury: 5,
+
+  romantic: 4,
+
+  cinematic: 3,
+
+  adventure: 1,
+
+  slow: 2,
+},
+
+visualStyleScores: {
+
+  luxury: 5,
+
+  cinematic: 4,
+
+  warm: 2,
+
+  nature: 1,
+
+  dark: 1,
+},
+
+      narrativePriority: 5,
 
     heroCombinations: {
 

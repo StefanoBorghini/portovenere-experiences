@@ -6,6 +6,10 @@ import {
 } from "@/lib/experienceCompatibility";
 
 import {
+  calculateTotalCompatibility,
+} from "./experienceScoring";
+
+import {
   experienceConflicts,
 } from "@/lib/experienceConflicts";
 
@@ -296,60 +300,62 @@ export function buildProposalGallery({
 
     const fallbackExperiences =
 
-      experiences.filter(
-        (experience) => {
+  experiences
 
-          // no hero
+    .filter(
+      (experience) => {
 
-          if (
-            experience.id ===
-            heroExperienceId
-          ) {
-            return false;
-          }
+        // no hero
 
-          // no duplicates
-
-          if (
-            addonIds.includes(
-              experience.id
-            )
-          ) {
-            return false;
-          }
-
-          // no same category
-
-          if (
-            experience.macroCategory ===
-            mainCategory
-          ) {
-            return false;
-          }
-
-          // no duplicate narrative type
-
-          const experienceType =
-
-            addonTypes[
-              experience.id
-            ];
-
-          if (
-            experienceType &&
-            usedNarrativeTypes[
-              experienceType
-            ]
-          ) {
-            return false;
-          }
-
-          // compatible categories only
-
-          return compatibleCategories.includes(
-            experience.macroCategory
-          );
+        if (
+          experience.id ===
+          heroExperienceId
+        ) {
+          return false;
         }
+
+        // no duplicates
+
+        if (
+          addonIds.includes(
+            experience.id
+          )
+        ) {
+          return false;
+        }
+
+        // compatible only
+
+        return compatibility?.compatibleWith.includes(
+          experience.macroCategory
+        );
+      }
+    )
+
+    .map(
+      (experience) => ({
+
+        experience,
+
+        score:
+          calculateTotalCompatibility(
+
+            heroExperience,
+
+            experience
+          ),
+      })
+    )
+
+    .sort(
+      (a, b) =>
+        b.score - a.score
+    )
+
+    .map(
+      (item) =>
+        item.experience
+    
       );
 
     fallbackExperiences.forEach(
