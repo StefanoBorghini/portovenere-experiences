@@ -308,7 +308,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
           {/* CARD 3 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="/images/flying/img-1.jpg"
+              src="/images/flying/aereo/img-1.jpg"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Mediterranean Sunset Dinner"
             />
