@@ -112,4 +112,21 @@ export const experienceConflicts: Record<
 
 
 ],
+
+ airplane: [
+
+  "mermaiding",
+
+  "snorkeling",
+
+  "foodwine",
+
+  "mongolfiera",
+
+    "motorboat",
+
+     "sailing",
+
+
+],
 };
