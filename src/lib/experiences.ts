@@ -5,6 +5,7 @@
 
 export interface Experience {
 
+
   id: string;
 
   title: string;
@@ -38,6 +39,11 @@ export interface Experience {
   basePrice: number;
 
   heroImage: string;
+  slot:
+  | "hero"
+  | "activity"
+  | "gourmet"
+  | "atmosphere";
 
   heroCombinations?: {
     [key: string]: string;
@@ -77,8 +83,13 @@ export interface Experience {
 
       Authentic?: string[];
     };
+    
   };
+
+  
 };
+
+
 }
 
 // =========================================================
@@ -134,7 +145,7 @@ export const experiences: Experience[] = [
     basePrice: 1200,
 
     heroImage:
-      "/images/sailing/dino/cinematic.webp",
+      "/images/sailing/dino/cinematic.webp",slot: "hero",
 
     heroCombinations: {
 
@@ -317,7 +328,7 @@ included: [],
     basePrice: 2200,
 
     heroImage:
-      "/images/yachts/aphrodite/hero-web.webp",
+      "/images/yachts/aphrodite/hero-web.webp",slot: "hero",
 
     heroCombinations: {
 
@@ -396,7 +407,7 @@ included: [],
     basePrice: 2800,
 
     heroImage:
-      "/images/sailing/velamica/cinematic.jpg",
+      "/images/sailing/velamica/cinematic.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -469,7 +480,7 @@ included: [],
     basePrice: 3200,
 
     heroImage:
-      "/images/sailing/velagiovane/cinematic.jpg",
+      "/images/sailing/velagiovane/cinematic.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -546,7 +557,7 @@ included: [],
     basePrice: 1800,
 
     heroImage:
-      "/images/flying/aereo/img-1.jpg",
+      "/images/flying/aereo/img-1.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -623,7 +634,7 @@ included: [],
     basePrice: 2000,
 
     heroImage:
-      "/images/flying/mongolfiera/mongolfiera.jpg",
+      "/images/flying/mongolfiera/mongolfiera.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -700,7 +711,7 @@ included: [],
     basePrice: 700,
 
     heroImage:
-         "/images/dining/ristorante/authentic.jpg",
+         "/images/dining/ristorante/authentic.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -776,7 +787,7 @@ included: [],
 
     heroImage:
       "/images/dining/onboard/authentic.jpg",
-
+slot: "hero",
     heroCombinations: {
 
       "Gourmet Escape":
@@ -854,7 +865,7 @@ included: [],
     basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/adventure.jpg",
+      "/images/wild/trekking/adventure.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -930,7 +941,7 @@ included: [],
 
     heroImage:
       "/images/wild/underwater/snorkeling/default.jpg",
-
+slot: "hero",
     heroCombinations: {
 
       "Wild Escape":
@@ -1002,7 +1013,7 @@ included: [],
     basePrice: 1100,
 
     heroImage:
-      "/images/wild/underwater/mermaiding/cinematic.jpg",
+      "/images/wild/underwater/mermaiding/cinematic.jpg",slot: "hero",
 
     heroCombinations: {
 
@@ -1080,7 +1091,7 @@ included: [],
     basePrice: 1300,
 
     heroImage:
-      "/images/wild/horses/default.jpg",
+      "/images/wild/horses/default.jpg",slot: "hero",
 
     heroCombinations: {
 

@@ -497,59 +497,97 @@ function getBestImage(
 
 const firstGallery =
   galleryValues[0];
-  }
 
+if (
+  firstGallery &&
+  firstGallery[0]
+) {
+
+  return firstGallery[0];
+}
   return null;
 }
 
-// =====================================================
+// ======================================================
+// EXPERIENCE SLOT SYSTEM
+// ======================================================
+
+
+
+const activityExperience =
+  finalExperiences.find(
+    (exp) => exp?.slot === "activity"
+  );
+
+const gourmetExperience =
+  finalExperiences.find(
+    (exp) => exp?.slot === "gourmet"
+  );
+
+const atmosphereExperience =
+  finalExperiences.find(
+    (exp) => exp?.slot === "atmosphere"
+  );
+
+// ======================================================
+// FINAL GALLERY EXPERIENCES
+// ======================================================
+
+const galleryExperiences = [
+
+  heroExperience,
+
+  activityExperience,
+
+  gourmetExperience ||
+
+    atmosphereExperience,
+
+].filter(Boolean);
+
+// ======================================================
 // BUILD IMAGES
-// =====================================================
+// ======================================================
 
 const images: string[] = [];
 
-finalExperiences.forEach(
+galleryExperiences.forEach(
   (experience) => {
 
-    const image =
+    if (!experience) return;
 
-      getBestImage(
-        experience
+    const galleryValues =
+      Object.values(
+        experience.gallery || {}
       );
 
-    if (image) {
+    const firstGallery =
+      galleryValues[0] as string[];
+
+    if (
+      firstGallery &&
+      firstGallery[0]
+    ) {
 
       images.push(
-        image
+        firstGallery[0]
       );
     }
   }
 );
 
-// =====================================================
-// UNIQUE IMAGES
-// =====================================================
+// ======================================================
+// REMOVE DUPLICATES
+// ======================================================
 
-const uniqueImages =
+const finalImages = [
+  ...new Set(images),
+];
 
-  [...new Set(images)];
 
-// =====================================================
-// DEBUG
-// =====================================================
-
-console.log(
-  "FINAL EXPERIENCES",
-  finalExperiences
-);
-
-console.log(
-  "FINAL IMAGES",
-  uniqueImages
-);
 
 // =====================================================
 // RETURN
 // =====================================================
 
-return uniqueImages.slice(0, 3);}
+return finalImages.slice(0, 3);}}

@@ -381,7 +381,7 @@ const price =
 
     <div className="grid md:grid-cols-3 gap-6">
 
-  {galleryImages.map(
+  {galleryImages?.map(
     (
       image: string,
       index: number
