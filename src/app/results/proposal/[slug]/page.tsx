@@ -524,13 +524,12 @@ const expiresAt =
     ">
       Private Reservation
     </p>
-<div className="
-  text-5xl
-  md:text-7xl
-  font-light
-  mb-10
-">
-  72h 00m
+<div className="mb-12">
+
+  <Countdown
+    expiresAt={expiresAt}
+  />
+
 </div>
 
     <h2 className="
