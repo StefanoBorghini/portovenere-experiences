@@ -515,15 +515,7 @@ const expiresAt =
 
   <div className="max-w-4xl mx-auto text-center">
 
-    <p className="
-      uppercase
-      tracking-[0.35em]
-      text-xs
-      text-zinc-600
-      mb-8
-    ">
-      Private Reservation
-    </p>
+   
 <div className="mb-12">
 
   <Countdown

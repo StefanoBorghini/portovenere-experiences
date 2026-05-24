@@ -6,15 +6,21 @@ import {
 } from "react";
 
 interface CountdownProps {
+
   expiresAt: string;
 }
 
 export default function Countdown({
+
   expiresAt,
+
 }: CountdownProps) {
 
   const [timeLeft, setTimeLeft] =
     useState("");
+
+  const [expired, setExpired] =
+    useState(false);
 
   useEffect(() => {
 
@@ -32,18 +38,37 @@ export default function Countdown({
         const difference =
           target - now;
 
+        // =====================================================
+        // EXPIRED
+        // =====================================================
+
         if (difference <= 0) {
 
+          setExpired(true);
+
           setTimeLeft(
-            "Proposal expired"
+            "Private reservation expired"
           );
 
           clearInterval(
             interval
           );
 
+          // redirect after short delay
+
+          setTimeout(() => {
+
+            window.location.href =
+              "/proposal-expired";
+
+          }, 3000);
+
           return;
         }
+
+        // =====================================================
+        // TIME
+        // =====================================================
 
         const hours =
           Math.floor(
@@ -60,11 +85,36 @@ export default function Countdown({
             (1000 * 60)
           );
 
-        setTimeLeft(
-          `${hours}h ${minutes}m remaining`
-        );
+        const seconds =
+          Math.floor(
+            (
+              difference %
+              (1000 * 60)
+            ) /
+            1000
+          );
 
-      }, 1000);
+        const formattedHours =
+
+  String(hours)
+    .padStart(2, "0");
+
+const formattedMinutes =
+
+  String(minutes)
+    .padStart(2, "0");
+
+const formattedSeconds =
+
+  String(seconds)
+    .padStart(2, "0");
+
+setTimeLeft(
+
+  `${formattedHours}h ${formattedMinutes}m ${formattedSeconds}s`
+);
+
+      }, 950);
 
     return () =>
       clearInterval(
@@ -77,13 +127,38 @@ export default function Countdown({
 
     <div className="text-center">
 
-      <p className="uppercase tracking-[0.25em] text-[11px] text-zinc-500 mb-3">
+      <p className="
+        uppercase
+        tracking-[0.3em]
+        text-[11px]
+        text-zinc-500
+        mb-5
+      ">
         Private proposal reserved for
       </p>
 
-      <p className="text-2xl font-light text-white">
+      <div className="
+        text-5xl
+        md:text-7xl
+        font-light
+        tracking-tight
+      ">
+
         {timeLeft}
-      </p>
+
+      </div>
+
+      {expired && (
+
+        <p className="
+          mt-6
+          text-zinc-500
+          text-sm
+        ">
+          Redirecting...
+        </p>
+
+      )}
 
     </div>
   );
