@@ -161,7 +161,7 @@ export const experiences: Experience[] = [
 
       // CATEGORY CROSSOVER
       "Sea Escape-Gourmet Escape-Romantic":
-        "/images/sailing/dino/img-2.webp",
+       "/images/sailing/dino/romantic.webp",
 
       "Sea Escape-Wild Escape-Adventure":
          "/images/sailing/dino/adventure.webp",
