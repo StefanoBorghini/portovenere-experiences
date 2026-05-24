@@ -671,4 +671,46 @@ while (
   galleryExperiences.push(
     heroExperience
   );
-}}
+}
+// =====================================================
+// BUILD IMAGES
+// =====================================================
+
+const images: string[] = [];
+
+galleryExperiences.forEach(
+  (experience) => {
+
+    if (!experience) {
+      return;
+    }
+
+    const bestImage =
+      getBestImage(
+        experience
+      );
+
+    if (bestImage) {
+
+      images.push(
+        bestImage
+      );
+    }
+  }
+);
+
+// =====================================================
+// REMOVE DUPLICATES
+// =====================================================
+
+const finalImages = [
+
+  ...new Set(images),
+];
+
+// =====================================================
+// RETURN
+// =====================================================
+
+return finalImages.slice(0, 3);
+}
