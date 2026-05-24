@@ -700,7 +700,7 @@ included: [],
     basePrice: 700,
 
     heroImage:
-         "/images/dining/ristorante/authentic.webp",
+         "/images/dining/ristorante/authentic.jpg",
 
     heroCombinations: {
 
@@ -708,7 +708,7 @@ included: [],
         "/images/dining/ristorante/romantic-two.jpg",
 
       "Gourmet Escape-Authentic":
-        "/images/dining/ristorante/authentic.webp",
+        "/images/dining/ristorante/authentic.jpg",
 
       "Sea Escape-Gourmet Escape-Romantic":
        "/images/dining/ristorante/romantic.jpg",
@@ -718,9 +718,9 @@ included: [],
 
       gourmet: [
 
-        "/images/dining/ristorante/romantic-two.jpg",
+        "/images/dining/ristorante/cinematic.jpg",
 
-       "/images/dining/ristorante/authentic.webp",
+       "/images/dining/ristorante/authentic.jpg",
 
       "/images/dining/ristorante/romantic.jpg",
       ],
