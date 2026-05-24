@@ -5,6 +5,9 @@
 
 import { experiences }
 from "./experiences";
+import {
+  proposalTitles,
+} from "@/lib/proposalCopy";
 
 import {
   experienceCompatibility,
@@ -282,61 +285,39 @@ const bestExperience =
     };
   }
 
-  // =========================================================
-  // HERO TITLE
-  // =========================================================
+ // =========================================================
+// HERO TITLE
+// =========================================================
 
-  let heroTitle =
+const primaryMood =
 
-    "Mediterranean Escape";
+  moodsSelected?.[0];
 
-  if (
+const availableTitles =
 
-    moodsSelected.includes(
-      "Romantic"
+  proposalTitles[
+    bestExperience
+      ?.macroCategory as keyof typeof proposalTitles
+  ]?.[
+    primaryMood as keyof typeof proposalTitles["Sea Escape"]
+  ] || [];
+
+const heroTitle =
+
+  availableTitles[
+    Math.floor(
+      Math.random() *
+      availableTitles.length
     )
+  ] ||
 
-  ) {
+  bestExperience?.title ||
 
-    heroTitle =
-      "Romantic Riviera Escape";
-  }
+  "Private Riviera Experience";
 
-  if (
-
-    moodsSelected.includes(
-      "Adventure"
-    )
-
-  ) {
-
-    heroTitle =
-      "Mediterranean Adventure";
-  }
-
-  if (
-
-    moodsSelected.includes(
-      "Authentic"
-    )
-
-  ) {
-
-    heroTitle =
-      "Authentic Riviera Escape";
-  }
-
-  if (
-
-    moodsSelected.includes(
-      "Cinematic"
-    )
-
-  ) {
-
-    heroTitle =
-      "Cinematic Mediterranean Escape";
-  }
+// =========================================================
+// HERO IMAGE
+// =========================================================
 
   // =========================================================
   // HERO IMAGE
