@@ -50,7 +50,17 @@ export default function PrivateAccessPage() {
       <div className="w-full max-w-md space-y-6">
 
         <div className="space-y-2 text-center">
-
+ <img
+    src="/images/logo-white.png"
+    alt="Portovenere Experiences"
+    className="
+      w-28
+      md:w-36
+      object-contain
+      mb-6
+      opacity-95
+    "
+  />
           <p className="uppercase tracking-[0.3em] text-sm opacity-60">
             Portovenere Experiences
           </p>
