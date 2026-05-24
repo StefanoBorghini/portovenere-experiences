@@ -49,7 +49,7 @@ export default function PrivateAccessPage() {
 
       <div className="w-full max-w-md space-y-6">
 
-     <div className="flex flex-col items-center mb-10">
+     <div className="flex flex-col items-center text-center mb-14">
 
   <img
     src="/logo-white.png"
@@ -58,30 +58,50 @@ export default function PrivateAccessPage() {
       w-28
       md:w-36
       object-contain
-      mb-6
+      mb-8
       opacity-95
     "
   />
 
-  <p className="
-    uppercase
-    tracking-[0.3em]
-    text-sm
-    text-zinc-500
-  ">
+  <p
+    className="
+      uppercase
+      tracking-[0.35em]
+      text-xs
+      md:text-sm
+      text-zinc-500
+      mb-6
+    "
+  >
     PORTOVENERE EXPERIENCES
   </p>
 
-          <h1 className="text-4xl font-light">
-            Private Guest Access
-          </h1>
+  <h1
+    className="
+      text-4xl
+      md:text-5xl
+      font-light
+      leading-tight
+      mb-5
+    "
+  >
+    Private Guest Access
+  </h1>
 
-          <p className="opacity-70 text-sm">
-            Enter your private credentials
-            to access your curated proposal.
-          </p>
+  <p
+    className="
+      text-zinc-400
+      text-sm
+      md:text-base
+      leading-relaxed
+      max-w-sm
+    "
+  >
+    Enter your private credentials
+    to access your curated proposal.
+  </p>
 
-        </div>
+</div>
 
         <div className="space-y-4">
 
