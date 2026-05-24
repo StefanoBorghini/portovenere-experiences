@@ -404,15 +404,25 @@ traveling_with_children:
       } = await supabase
         .from("Proposal")
         .insert([
-          {
-            lead_id: leadData.id,
 
-            slug,
+  {
 
-            proposal_data: {
+    lead_id:
+      leadData.id,
 
-  name:
-    formData.name,
+    slug,
+
+    expires_at:
+      new Date(
+        Date.now() +
+        48 * 60 * 60 * 1000
+      ).toISOString(),
+
+    proposal_data: {
+
+      name:
+        formData.name,
+
 
   email:
     formData.email,

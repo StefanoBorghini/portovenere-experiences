@@ -147,19 +147,69 @@ const price =
 // COUNTDOWN
 // =========================================================
 
-const createdAt =
-
-  proposal.created_at;
-
 const expiresAt =
+  proposal.expires_at;
 
-  new Date(
-    new Date(
-      createdAt
-    ).getTime() +
+const isExpired =
 
-    72 * 60 * 60 * 1000
-  ).toISOString();
+  new Date(expiresAt)
+    .getTime() <
+
+  Date.now();
+
+if (isExpired) {
+
+  return (
+
+    <main className="
+      min-h-screen
+      bg-black
+      text-white
+      flex
+      items-center
+      justify-center
+      px-6
+    ">
+
+      <div className="text-center max-w-2xl">
+
+        <p className="
+          uppercase
+          tracking-[0.4em]
+          text-zinc-600
+          text-xs
+          mb-8
+        ">
+          Private Reservation
+        </p>
+
+        <h1 className="
+          text-4xl
+          md:text-7xl
+          font-light
+          mb-10
+        ">
+          This proposal has expired
+        </h1>
+
+        <p className="
+          text-zinc-400
+          text-lg
+          leading-8
+        ">
+          Your private reservation window is no longer active.
+          Contact us directly to request a new curated proposal.
+        </p>
+
+      </div>
+
+    </main>
+  );
+}
+
+
+
+  
   // WHATSAPP CTA
 
   const whatsappMessage =
