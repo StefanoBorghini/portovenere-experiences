@@ -10,7 +10,8 @@ from "@/components/countdown";
 
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 
-
+import ProposalHero
+from "@/components/proposal/ProposalHero";
 
 interface ProposalPageProps {
   params: Promise<{
@@ -230,51 +231,13 @@ if (isExpired) {
 
       {/* HERO */}
 
-      <section
-        className="relative h-screen bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage:
-            `url(${heroImage})`,
-        }}
-      >
+     <ProposalHero
+  heroImage={proposal.heroImage}
+  heroTitle={proposal.heroTitle}
+  guests={proposal.guests}
+  totalPrice={proposal.totalPrice}
+/>
 
-        <div className="absolute inset-0 bg-black/50" />
-
-        <div className="relative z-10 text-center px-6 max-w-5xl">
-
-          <img
-            src="/logo-white.png"
-            alt="Portovenere Experiences"
-            className="mx-auto w-44 mb-10 opacity-90"
-          />
-
-          <p className="uppercase tracking-[0.4em] text-sm mb-6">
-            Private Proposal
-          </p>
-
-          <h1 className="text-4xl md:text-8xl font-light leading-none mb-10">
-            {heroTitle}
-          </h1>
-
-          <p className="text-xl md:text-3xl mb-12 text-zinc-200">
-            Tailored for {lead.name}
-          </p>
-
-          <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
-
-            <p className="uppercase tracking-[0.3em] text-xs mb-2">
-              Starting From
-            </p>
-
-            <p className="text-4xl font-light">
-              {price}
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
 
       {/* DIVIDER */}
 
