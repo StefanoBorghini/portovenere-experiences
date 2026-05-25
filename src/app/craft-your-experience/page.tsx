@@ -473,10 +473,12 @@ traveling_with_children:
 
       // REDIRECT
 
-      router.push(
+     {/* T router.push(
         `/results/proposal/${proposalData.slug}`
-      );
-
+      );*/}
+router.push(
+  `/results/proposal-staging/${proposalData.slug}`
+)
     } catch (err) {
 
       console.error(
