@@ -5,6 +5,8 @@ import ProposalNarrative
 from "@/components/proposal/ProposalNarrative";
 import FeaturedExperience
 from "@/components/proposal/FeaturedExperience";
+import IncludedExperiences
+from "@/components/proposal/IncludedExperiences";
 
 import {
   calculateProposalPrice,
@@ -41,6 +43,7 @@ export default async function ProposalPage({
   
 
   // GET PROPOSAL
+
 
   const { data: proposal, error } =
     await supabase
@@ -165,6 +168,66 @@ const isExpired =
 const featuredOperator =
   "Sail Boat King";
 
+  const includedExperiences = [
+
+  {
+    image: galleryImages[0],
+
+    title:
+      "Sunset Riviera Aperitivo",
+
+    description:
+      "A private culinary moment designed around Mediterranean sunset atmosphere and slow coastal navigation.",
+
+    details: [
+
+      "Local wine selection",
+
+      "Private onboard setup",
+
+      "Sunset aperitivo",
+    ],
+  },
+
+  {
+    image: galleryImages[1],
+
+    title:
+      "Hidden Coves Escape",
+
+    description:
+      "Discover secluded Riviera locations accessible only through private coastal navigation.",
+
+    details: [
+
+      "Private navigation",
+
+      "Hidden swimming spots",
+
+      "Slow luxury atmosphere",
+    ],
+  },
+
+  {
+    image: galleryImages[2],
+
+    title:
+      "Cinematic Riviera Moments",
+
+    description:
+      "Curated Riviera experiences designed around cinematic atmosphere and Mediterranean storytelling.",
+
+    details: [
+
+      "Editorial atmosphere",
+
+      "Private experience",
+
+      "Mediterranean scenery",
+    ],
+  },
+];
+
 const featuredSubtitle =
   "Private Riviera Sailing Experience";
 
@@ -277,6 +340,11 @@ if (isExpired) {
   subtitle={featuredSubtitle}
   description={featuredDescription}
   essentials={featuredEssentials}
+/>
+<IncludedExperiences
+  experiences={
+    includedExperiences
+  }
 />
       {/* GALLERY */}
 
