@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  motion,
   useAnimationFrame,
 } from "framer-motion";
 
@@ -11,8 +10,7 @@ import {
   useEffect,
 } from "react";
 
-const [isPaused, setIsPaused] =
-  useState(false);
+
 
   
 
