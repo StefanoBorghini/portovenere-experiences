@@ -156,7 +156,7 @@ export default function ProposalHero({
             md:text-3xl
             font-light
           ">
-<br></br>
+
             €{totalPrice.toLocaleString()}
 
           </span>
