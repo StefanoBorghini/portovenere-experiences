@@ -142,6 +142,7 @@ export default function CinematicGallery({
       <div className="
         absolute
         top-1/2
+        pointer-events-auto
         left-6
         z-20
         hidden
@@ -183,6 +184,7 @@ export default function CinematicGallery({
       <div className="
         absolute
         top-1/2
+        pointer-events-auto
         right-6
         z-20
         hidden
@@ -225,11 +227,11 @@ export default function CinematicGallery({
 
       <motion.div
         ref={containerRef}
-        drag="x"
-        dragConstraints={{
-          left: -1000,
-          right: 1000,
-        }}
+      
+
+        style={{
+  touchAction: "pan-y",
+}}
         onMouseEnter={() =>
           setIsPaused(true)
         }
