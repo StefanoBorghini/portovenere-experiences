@@ -8,7 +8,13 @@ import {
 import {
   useRef,
   useState,
+  useEffect,
 } from "react";
+
+const [isPaused, setIsPaused] =
+  useState(false);
+
+  
 
 import {
   ChevronLeft,
@@ -31,6 +37,120 @@ export default function CinematicGallery({
 
   const [isPaused, setIsPaused] =
     useState(false);
+
+    useEffect(() => {
+
+  const slider =
+    containerRef.current;
+
+  if (!slider) return;
+
+  let isDown = false;
+
+  let startX: number;
+
+  let scrollLeft: number;
+
+  const handleMouseDown = (
+    e: MouseEvent
+  ) => {
+
+    isDown = true;
+
+    slider.classList.add(
+      "cursor-grabbing"
+    );
+
+    startX =
+      e.pageX -
+      slider.offsetLeft;
+
+    scrollLeft =
+      slider.scrollLeft;
+  };
+
+  const handleMouseLeave =
+    () => {
+
+      isDown = false;
+
+      slider.classList.remove(
+        "cursor-grabbing"
+      );
+    };
+
+  const handleMouseUp = () => {
+
+    isDown = false;
+
+    slider.classList.remove(
+      "cursor-grabbing"
+    );
+  };
+
+  const handleMouseMove = (
+    e: MouseEvent
+  ) => {
+
+    if (!isDown) return;
+
+    e.preventDefault();
+
+    const x =
+      e.pageX -
+      slider.offsetLeft;
+
+    const walk =
+      (x - startX) * 1.5;
+
+    slider.scrollLeft =
+      scrollLeft - walk;
+  };
+
+  slider.addEventListener(
+    "mousedown",
+    handleMouseDown
+  );
+
+  slider.addEventListener(
+    "mouseleave",
+    handleMouseLeave
+  );
+
+  slider.addEventListener(
+    "mouseup",
+    handleMouseUp
+  );
+
+  slider.addEventListener(
+    "mousemove",
+    handleMouseMove
+  );
+
+  return () => {
+
+    slider.removeEventListener(
+      "mousedown",
+      handleMouseDown
+    );
+
+    slider.removeEventListener(
+      "mouseleave",
+      handleMouseLeave
+    );
+
+    slider.removeEventListener(
+      "mouseup",
+      handleMouseUp
+    );
+
+    slider.removeEventListener(
+      "mousemove",
+      handleMouseMove
+    );
+  };
+
+}, []);
 
   // =====================================================
   // AUTO SCROLL
@@ -225,7 +345,7 @@ export default function CinematicGallery({
 
       {/* GALLERY */}
 
-      <motion.div
+      <div
         ref={containerRef}
       
 
@@ -298,7 +418,7 @@ export default function CinematicGallery({
           )
         )}
 
-      </motion.div>
+      </div>
 
     </section>
   );
