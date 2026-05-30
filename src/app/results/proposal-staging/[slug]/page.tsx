@@ -3,6 +3,8 @@ import { generateProposal } from "@/lib/generateProposal";
 import { buildProposalGallery } from "@/lib/buildProposalGallery";
 import ProposalNarrative
 from "@/components/proposal/ProposalNarrative";
+import FeaturedExperience
+from "@/components/proposal/FeaturedExperience";
 
 import {
   calculateProposalPrice,
@@ -160,6 +162,26 @@ const isExpired =
 
   Date.now();
 
+const featuredOperator =
+  "Sail Boat King";
+
+const featuredSubtitle =
+  "Private Riviera Sailing Experience";
+
+const featuredDescription =
+  "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
+
+const featuredEssentials = [
+
+  "Private skipper",
+
+  "Sunset navigation",
+
+  "Hidden coves access",
+
+  "Onboard aperitivo",
+];
+
 if (isExpired) {
 
   return (
@@ -249,175 +271,13 @@ if (isExpired) {
 />
 
 {/* EXPERIENCE DETAILS */}
-
-<section className="py-20 md:py-32 px-6">
-
-  <div className="max-w-6xl mx-auto">
-
-    <div className="text-center mb-20">
-
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Curated Experience
-      </p>
-
-      <h2 className="text-3xl md:text-7xl font-light leading-tight">
-        Designed around your travel profile.
-      </h2>
-
-    </div>
-
-    <div className="grid md:grid-cols-2 gap-8">
-
-      {/* EXPERIENCE */}
-
-      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-          Featured Experience
-        </p>
-
-        <h2 className="
-          text-4xl
-          md:text-6xl
-          font-light
-          mb-8
-          leading-tight
-        ">
-          {featuredExperience?.operator || "Experience"}
-        </h2>
-
-        <p className="text-zinc-400 leading-8 text-lg">
-
-          {
-            featuredExperience
-              ?.included?.[0]
-              ?.description ||
-
-            "A private curated Riviera experience tailored around your selected atmosphere."
-          }
-
-        </p>
-
-      </div>
-
-      {/* PROFILE */}
-
-      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-          Guest Profile
-        </p>
-
-        <div className="space-y-5 text-lg">
-
-          <p>
-            Experiences:
-            {" "}
-            {lead.experiences?.join(", ")}
-          </p>
-
-          <p>
-            Atmosphere:
-            {" "}
-            {lead.moods?.join(", ")}
-          </p>
-
-          <p>
-            Guests:
-            {" "}
-            {lead.guests}
-          </p>
-
-          <p>
-            Budget:
-            {" "}
-            {lead.budget}
-          </p>
-
-          <p>
-            Travel Dates:
-            {" "}
-            {lead.start_date}
-            {" "}
-            —
-            {" "}
-            {lead.end_date}
-          </p>
-
-          <p>
-            Children:
-            {" "}
-            {lead.traveling_with_children
-              ? "Yes"
-              : "No"}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-{/* INCLUDED */}
-
-<section className="pb-32 px-6">
-
-  <div className="max-w-5xl mx-auto">
-
-    <h2 className="
-      text-4xl
-      md:text-6xl
-      font-light
-      mb-20
-      text-center
-      leading-tight
-    ">
-      Included in your experience
-    </h2>
-
-    <div className="grid md:grid-cols-2 gap-6">
-
-      {includedSections?.map(
-        (
-          section: any,
-          index: number
-        ) => (
-
-          <div
-            key={index}
-            className="border border-white/10 rounded-2xl p-8 bg-white/5"
-          >
-
-            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-5">
-              {section.title}
-            </p>
-
-            <p className="text-zinc-300 leading-8 whitespace-pre-line">
-              {section.text}
-            </p>
-
-            {section.optional && (
-
-              <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
-                * Optional curated activity available upon request
-              </p>
-
-            )}
-
-          </div>
-
-        )
-      )}
-
-    </div>
-
-  </div>
-
-</section>
+<FeaturedExperience
+  image={heroImage}
+  operator={featuredOperator}
+  subtitle={featuredSubtitle}
+  description={featuredDescription}
+  essentials={featuredEssentials}
+/>
       {/* GALLERY */}
 
 <section className="pb-32 px-6">
