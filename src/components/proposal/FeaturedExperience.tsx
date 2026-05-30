@@ -34,19 +34,23 @@ export default function FeaturedExperience({
       bg-black
     ">
 
-      <div className="
-        max-w-7xl
-        mx-auto
-        grid
-        grid-cols-1
-        lg:grid-cols-2
-        gap-14
-        items-center
-      ">
+    <div className="
+  max-w-7xl
+  mx-auto
+  grid
+  grid-cols-1
+  lg:grid-cols-2
+  gap-14
+  items-center
+">
 
         {/* IMAGE */}
 
-        <div className="relative">
+       <div className="
+  relative
+  order-2
+  lg:order-1
+">
 
           <img
             src={image}
@@ -72,7 +76,10 @@ export default function FeaturedExperience({
 
         {/* CONTENT */}
 
-        <div>
+      <div className="
+  order-1
+  lg:order-2
+">
 
           {/* LABEL */}
 
