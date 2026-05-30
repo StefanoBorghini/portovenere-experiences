@@ -76,9 +76,12 @@ export default function FeaturedExperience({
 
         {/* CONTENT */}
 
-      <div className="
+
+<div className="
   order-1
   lg:order-2
+  text-center
+  lg:text-left
 ">
 
           {/* LABEL */}
