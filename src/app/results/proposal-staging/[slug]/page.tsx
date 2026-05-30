@@ -231,11 +231,11 @@ if (isExpired) {
 
       {/* HERO */}
 
-     <ProposalHero
-  heroImage={proposal.heroImage}
-  heroTitle={proposal.heroTitle}
-  guests={proposal.guests}
-  totalPrice={proposal.totalPrice}
+ <ProposalHero
+  heroImage={heroImage}
+  heroTitle={heroTitle}
+  guests={lead.guests}
+  totalPrice={finalPrice}
 />
 
 
