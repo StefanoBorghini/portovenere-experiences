@@ -128,40 +128,43 @@ export default function ProposalHero({
         </p>
 
         {/* PRICE */}
+<div className="
+  inline-flex
+  flex-col
+  items-center
+  justify-center
+  border
+  border-white/20
+  rounded-[40px]
+  px-10
+  py-6
+  backdrop-blur-md
+  bg-white/5
+  min-w-[240px]
+">
 
-        <div className="
-          inline-flex
-          items-center
-          gap-4
-          border
-          border-white/20
-          rounded-full
-          px-7
-          py-4
-          backdrop-blur-md
-          bg-white/5
-        ">
+  <span className="
+    uppercase
+    tracking-[0.35em]
+    text-[11px]
+    text-zinc-300
+    mb-3
+  ">
+    Starting From
+  </span>
 
-          <span className="
-            uppercase
-            tracking-[0.25em]
-            text-[11px]
-            text-zinc-300
-          ">
-            Starting From
-          </span>
+  <span className="
+    text-4xl
+    md:text-5xl
+    font-light
+    tracking-tight
+  ">
 
-          <span className="
-            text-2xl
-            md:text-3xl
-            font-light
-          ">
+    €{totalPrice.toLocaleString()}
 
-            €{totalPrice.toLocaleString()}
+  </span>
 
-          </span>
-
-        </div>
+</div>
 
       </div>
 
