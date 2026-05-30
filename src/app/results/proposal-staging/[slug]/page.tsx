@@ -7,6 +7,8 @@ import FeaturedExperience
 from "@/components/proposal/FeaturedExperience";
 import IncludedExperiences
 from "@/components/proposal/IncludedExperiences";
+import CinematicGallery
+from "@/components/proposal/CinematicGallery";
 
 import {
   calculateProposalPrice,
@@ -348,60 +350,9 @@ if (isExpired) {
 />
       {/* GALLERY */}
 
-<section className="pb-32 px-6">
-
-  <div className="max-w-7xl mx-auto">
-
-    <div className="text-center mb-20">
-
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Experience Gallery
-      </p>
-
-      <h2 className="text-5xl md:text-6xl font-light">
-        Moments from the Riviera
-      </h2>
-
-    </div>
-
-    <div className="grid md:grid-cols-3 gap-6">
-
-  {galleryImages?.map(
-    (
-      image: string,
-      index: number
-    ) => (
-
-      <div
-        key={index}
-        className="relative overflow-hidden rounded-[32px] group"
-      >
-
-        <img
-          src={image}
-          alt="Experience"
-          className="
-            h-[520px]
-            w-full
-            object-cover
-            transition-all
-            duration-700
-            group-hover:scale-105
-          "
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-      </div>
-
-    )
-  )}
-
-</div>
-
-  </div>
-
-</section>
+<CinematicGallery
+  images={galleryImages}
+/>
 
       {/* PDF DOWNLOAD */}
 
