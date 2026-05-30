@@ -150,7 +150,7 @@ export default function ProposalHero({
           ">
             Starting From
           </span>
-
+<br></br>
           <span className="
             text-2xl
             md:text-3xl
