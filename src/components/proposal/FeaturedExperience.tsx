@@ -141,9 +141,13 @@ export default function FeaturedExperience({
 
           {/* ESSENTIALS */}
 
-          <div className="
-            space-y-4
-          ">
+         <div className="
+  space-y-4
+  flex
+  flex-col
+  items-center
+  lg:items-start
+">
 
             {essentials.map(
               (item) => (
