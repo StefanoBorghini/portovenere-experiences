@@ -1,6 +1,8 @@
 import { supabase } from "@/lib/supabase";
 import { generateProposal } from "@/lib/generateProposal";
 import { buildProposalGallery } from "@/lib/buildProposalGallery";
+import ProposalNarrative
+from "@/components/proposal/ProposalNarrative";
 
 import {
   calculateProposalPrice,
@@ -241,45 +243,10 @@ if (isExpired) {
 
       {/* DIVIDER */}
 
-<section className="py-32 md:py-40 px-6 border-y border-white/10 bg-black">
-
-  <div className="max-w-5xl mx-auto text-center">
-
-    <p className="
-      uppercase
-      tracking-[0.4em]
-      text-zinc-600
-      text-xs
-      mb-8
-    ">
-      Mediterranean Luxury
-    </p>
-
-    <h2 className="
-      text-4xl
-      md:text-7xl
-      font-light
-      leading-[1.1]
-      tracking-tight
-      mb-12
-    ">
-      {dynamicIntroTitle}
-    </h2>
-
-    <p className="
-      text-zinc-400
-      text-lg
-      md:text-2xl
-      leading-relaxed
-      max-w-3xl
-      mx-auto
-    ">
-      {dynamicIntroParagraph}
-    </p>
-
-  </div>
-
-</section>
+<ProposalNarrative
+  title={dynamicIntroTitle}
+  paragraph={dynamicIntroParagraph}
+/>
 
 {/* EXPERIENCE DETAILS */}
 
