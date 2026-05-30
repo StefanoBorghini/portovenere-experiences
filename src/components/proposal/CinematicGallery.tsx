@@ -1,3 +1,20 @@
+"use client";
+
+import {
+  motion,
+  useAnimationFrame,
+} from "framer-motion";
+
+import {
+  useRef,
+  useState,
+} from "react";
+
+import {
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
 interface CinematicGalleryProps {
 
   images: string[];
@@ -9,6 +26,75 @@ export default function CinematicGallery({
 
 }: CinematicGalleryProps) {
 
+  const containerRef =
+    useRef<HTMLDivElement>(null);
+
+  const [isPaused, setIsPaused] =
+    useState(false);
+
+  // =====================================================
+  // AUTO SCROLL
+  // =====================================================
+
+  useAnimationFrame(() => {
+
+    if (
+      !containerRef.current ||
+      isPaused
+    ) return;
+
+    containerRef.current.scrollLeft +=
+      0.35;
+
+    // infinite loop illusion
+
+    if (
+
+      containerRef.current.scrollLeft >=
+
+      containerRef.current.scrollWidth / 2
+
+    ) {
+
+      containerRef.current.scrollLeft =
+        0;
+    }
+  });
+
+  // duplicate images for infinite illusion
+
+  const loopImages = [
+    ...images,
+    ...images,
+  ];
+
+  // =====================================================
+  // MANUAL NAVIGATION
+  // =====================================================
+
+  function scrollGallery(
+    direction: "left" | "right"
+  ) {
+
+    if (!containerRef.current)
+      return;
+
+    const amount =
+      window.innerWidth < 768
+        ? window.innerWidth * 0.9
+        : window.innerWidth * 0.35;
+
+    containerRef.current.scrollBy({
+
+      left:
+        direction === "left"
+          ? -amount
+          : amount,
+
+      behavior: "smooth",
+    });
+  }
+
   return (
 
     <section className="
@@ -16,6 +102,7 @@ export default function CinematicGallery({
       md:py-40
       bg-black
       overflow-hidden
+      relative
     ">
 
       {/* HEADER */}
@@ -50,21 +137,117 @@ export default function CinematicGallery({
 
       </div>
 
-      {/* SCROLL AREA */}
+      {/* ARROWS */}
 
       <div className="
-        flex
-        gap-6
-        overflow-x-auto
-        snap-x
-        snap-mandatory
-        scroll-smooth
-        px-6
-        pb-4
-        no-scrollbar
+        absolute
+        top-1/2
+        left-6
+        z-20
+        hidden
+        md:block
       ">
 
-        {images.map(
+        <button
+          onClick={() =>
+            scrollGallery("left")
+          }
+          className="
+            px-4
+            py-2
+            text-white/70
+            hover:text-white
+            transition
+            border-white/20
+            bg-black/40
+            backdrop-blur-md
+            flex
+            items-center
+            justify-center
+            hover:border-white/40
+            transition
+          "
+        >
+
+<span className="
+  text-5xl
+  font-thin
+  leading-none
+">
+  ‹
+</span>
+        </button>
+
+      </div>
+
+      <div className="
+        absolute
+        top-1/2
+        right-6
+        z-20
+        hidden
+        md:block
+      ">
+
+        <button
+          onClick={() =>
+            scrollGallery("right")
+          }
+          className="
+           px-4
+            py-2
+            text-white/70
+            hover:text-white
+            transition
+            border-white/20
+            bg-black/40
+            backdrop-blur-md
+            flex
+            items-center
+            justify-center
+            hover:border-white/40
+            transition
+          "
+        >
+
+<span className="
+  text-5xl
+  font-thin
+  leading-none
+">
+  ›
+</span>
+        </button>
+
+      </div>
+
+      {/* GALLERY */}
+
+      <motion.div
+        ref={containerRef}
+        drag="x"
+        dragConstraints={{
+          left: -1000,
+          right: 1000,
+        }}
+        onMouseEnter={() =>
+          setIsPaused(true)
+        }
+        onMouseLeave={() =>
+          setIsPaused(false)
+        }
+        className="
+          flex
+          gap-6
+          overflow-x-scroll
+          no-scrollbar
+          px-6
+          cursor-grab
+          active:cursor-grabbing
+        "
+      >
+
+        {loopImages.map(
           (
             image,
             index
@@ -75,13 +258,12 @@ export default function CinematicGallery({
               className="
                 relative
                 shrink-0
-                snap-center
 
                 w-[88vw]
-                md:w-[31vw]
+                md:w-[30vw]
 
                 h-[65vh]
-                md:h-[75vh]
+                md:h-[80vh]
 
                 overflow-hidden
                 rounded-[32px]
@@ -114,7 +296,7 @@ export default function CinematicGallery({
           )
         )}
 
-      </div>
+      </motion.div>
 
     </section>
   );
