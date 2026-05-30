@@ -162,7 +162,7 @@ export default function CinematicGallery({
     ) return;
 
     containerRef.current.scrollLeft +=
-      0.35;
+  0.8;
 
     // infinite loop illusion
 
@@ -348,7 +348,7 @@ export default function CinematicGallery({
       
 
         style={{
-  touchAction: "pan-y",
+  touchAction: "pan-x",
 }}
         onMouseEnter={() =>
           setIsPaused(true)
@@ -356,10 +356,18 @@ export default function CinematicGallery({
         onMouseLeave={() =>
           setIsPaused(false)
         }
+
+        onTouchStart={() =>
+  setIsPaused(true)
+}
+
+onTouchEnd={() =>
+  setIsPaused(false)
+}
         className="
           flex
           gap-6
-          overflow-x-scroll
+          overflow-x-auto
           no-scrollbar
           px-6
           cursor-grab
@@ -397,10 +405,12 @@ export default function CinematicGallery({
                 className="
                   w-full
                   h-full
+                   gallery-drag
                   object-cover
                   transition-transform
                   duration-700
                   group-hover:scale-[1.03]
+                  draggable={false}
                 "
               />
 

@@ -98,3 +98,24 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.gallery-drag {
+
+  -webkit-user-drag: none;
+
+  -webkit-user-select: none;
+
+  user-select: none;
+
+  pointer-events: none;
+}
