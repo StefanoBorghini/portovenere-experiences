@@ -742,7 +742,9 @@ router.push(
     e.target.blur()
   }
 
+preventOpenOnFocus={true}
 
+shouldCloseOnSelect={true}
         selected={
           formData.startDate
             ? new Date(
@@ -813,7 +815,9 @@ router.push(
        onFocus={(e) =>
     e.target.blur()
   }
+preventOpenOnFocus={true}
 
+shouldCloseOnSelect={true}
 
         selected={
           formData.endDate
