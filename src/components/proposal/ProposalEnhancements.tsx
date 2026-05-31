@@ -4,88 +4,88 @@ import { useState } from "react";
 
 interface Enhancement {
 
-  image: string;
+    image: string;
 
-  title: string;
+    title: string;
 
-  description: string;
+    description: string;
 }
 
 interface ProposalEnhancementsProps {
 
-  enhancements: Enhancement[];
+    enhancements: Enhancement[];
 }
 
 export default function ProposalEnhancements({
 
-  enhancements,
+    enhancements,
 
 }: ProposalEnhancementsProps) {
 
-  const [
-    selectedEnhancements,
-    setSelectedEnhancements,
-  ] = useState<string[]>([]);
+    const [
+        selectedEnhancements,
+        setSelectedEnhancements,
+    ] = useState<string[]>([]);
 
-  function toggleEnhancement(
-    title: string
-  ) {
-
-    if (
-      selectedEnhancements.includes(
-        title
-      )
+    function toggleEnhancement(
+        title: string
     ) {
 
-      setSelectedEnhancements(
+        if (
+            selectedEnhancements.includes(
+                title
+            )
+        ) {
 
-        selectedEnhancements.filter(
-          (item) =>
-            item !== title
-        )
-      );
+            setSelectedEnhancements(
 
-    } else {
+                selectedEnhancements.filter(
+                    (item) =>
+                        item !== title
+                )
+            );
 
-      setSelectedEnhancements([
-        ...selectedEnhancements,
-        title,
-      ]);
+        } else {
+
+            setSelectedEnhancements([
+                ...selectedEnhancements,
+                title,
+            ]);
+        }
     }
-  }
 
-  return (
+    return (
 
-    <section className="
+        <section className="
       py-28
       md:py-40
       px-6
       bg-black
     ">
 
-      <div className="
+            <div className="
         max-w-7xl
         mx-auto
       ">
 
-        {/* HEADER */}
+                {/* HEADER */}
 
-        <div className="
+                <div className="
           text-center
           mb-24
         ">
 
-          <p className="
+                    <p className="
             uppercase
             tracking-[0.35em]
             text-zinc-500
             text-xs
             mb-6
           ">
-            Optional Enhancements
-          </p>
+                        Optional Enhancements
+                    </p>
 
-          <h2 className="
+                    <h2 className="
             text-4xl
             md:text-7xl
             font-light
@@ -94,11 +94,11 @@ export default function ProposalEnhancements({
             mb-8
           ">
 
-            Enhance Your Riviera Escape
+                        Enhance Your Riviera Escape
 
-          </h2>
+                    </h2>
 
-          <p className="
+                    <p className="
             text-zinc-400
             text-lg
             max-w-3xl
@@ -106,17 +106,17 @@ export default function ProposalEnhancements({
             leading-relaxed
           ">
 
-            Additional private services
-            available to further personalize
-            your Riviera experience.
+                        Additional private services
+                        available to further personalize
+                        your Riviera experience.
 
-          </p>
+                    </p>
 
-        </div>
+                </div>
 
-        {/* GRID */}
+                {/* GRID */}
 
-        <div className="
+                <div className="
           grid
           grid-cols-1
           md:grid-cols-2
@@ -124,26 +124,26 @@ export default function ProposalEnhancements({
           gap-8
         ">
 
-          {enhancements.map(
-            (enhancement) => {
+                    {enhancements.map(
+                        (enhancement) => {
 
-              const isSelected =
-                selectedEnhancements.includes(
-                  enhancement.title
-                );
+                            const isSelected =
+                                selectedEnhancements.includes(
+                                    enhancement.title
+                                );
 
-              return (
+                            return (
 
-                <button
-                  key={
-                    enhancement.title
-                  }
-                  onClick={() =>
-                    toggleEnhancement(
-                      enhancement.title
-                    )
-                  }
-                  className={`
+                                <button
+                                    key={
+                                        enhancement.title
+                                    }
+                                    onClick={() =>
+                                        toggleEnhancement(
+                                            enhancement.title
+                                        )
+                                    }
+                                    className={`
                     group
                     text-left
                     overflow-hidden
@@ -154,54 +154,54 @@ export default function ProposalEnhancements({
                     bg-white/[0.03]
                     min-h-[520px]
                     md:min-h-[580px]
+                    p-0
 
-                    ${
-                      isSelected
+                    ${isSelected
 
-                        ? `
+                                            ? `
                           border-white/40
 bg-white
 text-white
 shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                         `
 
-                        : `
+                                            : `
                           border-white/10
                           hover:border-white/30
                         `
-                    }
+                                        }
                   `}
-                >
+                                >
 
-                  {/* IMAGE */}
+                                    {/* IMAGE */}
 
-                  <img
-                    src={
-                      enhancement.image
-                    }
-                    alt={
-                      enhancement.title
-                    }
-                    className="
-                      w-full
-                      h-[220px]
-                      object-cover
-                      transition-transform
-                      duration-700
-                      group-hover:scale-[1.03]
-                      rounded-t-[32px]
-                    "
-                  />
+                                    <img
+                                        src={
+                                            enhancement.image
+                                        }
+                                        alt={
+                                            enhancement.title
+                                        }
+                                        className="
+  w-full
+  h-[220px]
+  object-cover
+  rounded-t-[32px]
+  transition-transform
+  duration-700
+  group-hover:scale-[1.03]
+"
+                                    />
 
-                  {/* CONTENT */}
+                                    {/* CONTENT */}
 
-                  <div className="
+                                    <div className="
   px-8
   pb-8
   pt-6
 ">
 
-                    <h3 className="
+                                        <h3 className="
                       text-2xl
                       md:text-3xl
                       font-light
@@ -209,25 +209,25 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                       mb-5
                     ">
 
-                      {
-                        enhancement.title
-                      }
+                                            {
+                                                enhancement.title
+                                            }
 
-                    </h3>
+                                        </h3>
 
-                    <p className="
+                                        <p className="
                       text-zinc-400
                       leading-relaxed
                       mb-8
                     ">
 
-                      {
-                        enhancement.description
-                      }
+                                            {
+                                                enhancement.description
+                                            }
 
-                    </p>
+                                        </p>
 
-                    <div className="
+                                        <div className="
                       inline-flex
                       items-center
                       justify-center
@@ -246,9 +246,10 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                           ? `
                             border-white/40
+border-white/20
 bg-white
 text-black
-shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+shadow-[0_0_0_6px_rgba(255,255,255,0.08)]
                           `
 
                           : `
@@ -258,25 +259,25 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                       }
                     ">
 
-                      {isSelected
+                                            {isSelected
 
-                        ? "Enhancement Requested"
+                                                ? "Enhancement Requested"
 
-                        : "Request Enhancement"}
+                                                : "Request Enhancement"}
 
-                    </div>
+                                        </div>
 
-                  </div>
+                                    </div>
 
-                </button>
-              );
-            }
-          )}
+                                </button>
+                            );
+                        }
+                    )}
 
-        </div>
+                </div>
 
-      </div>
+            </div>
 
-    </section>
-  );
+        </section>
+    );
 }
