@@ -1,82 +1,182 @@
+
+"use client";
+
+import { motion } from "framer-motion";
+
 interface ProposalNarrativeProps {
-
-title?: string;
-
-paragraph?: string;
+  title?: string;
+  paragraph?: string;
 }
 
 export default function ProposalNarrative({
-
   title,
-
   paragraph,
-
 }: ProposalNarrativeProps) {
 
   return (
 
-    <section className="
-      py-32
-      md:py-40
-      px-6
-      border-y
-      border-white/10
-      bg-black
-    ">
+    <section
+      className="
+        relative
+        overflow-hidden
+        py-40
+        md:py-[220px]
+        px-6
+        bg-black
+      "
+    >
 
-      <div className="
-        max-w-5xl
-        mx-auto
-        text-center
-      ">
+      {/* ATMOSPHERIC BACKGROUND */}
+
+      <div
+        className="
+          absolute
+          inset-0
+          opacity-[0.04]
+          pointer-events-none
+          bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_70%)]
+        "
+      />
+
+      {/* TOP GRADIENT */}
+
+      <div
+        className="
+          absolute
+          top-0
+          left-0
+          w-full
+          h-40
+          bg-gradient-to-b
+          from-black
+          to-transparent
+        "
+      />
+
+      {/* BOTTOM GRADIENT */}
+
+      <div
+        className="
+          absolute
+          bottom-0
+          left-0
+          w-full
+          h-40
+          bg-gradient-to-t
+          from-black
+          to-transparent
+        "
+      />
+
+      <motion.div
+
+        initial={{
+          opacity: 0,
+          y: 30,
+          filter: "blur(14px)",
+        }}
+
+        whileInView={{
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+        }}
+
+        viewport={{
+          once: true,
+          amount: 0.3,
+        }}
+
+        transition={{
+          duration: 1.8,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+
+        className="
+          relative
+          z-10
+          max-w-5xl
+          mx-auto
+          text-center
+        "
+      >
 
         {/* LABEL */}
 
-        <p className="
-          uppercase
-          tracking-[0.4em]
-          text-zinc-600
-          text-xs
-          mb-8
-        ">
+        <p
+          className="
+            uppercase
+            tracking-[0.35em]
+            text-[11px]
+            text-white/38
+            mb-10
+          "
+        >
           Mediterranean Luxury
         </p>
 
         {/* TITLE */}
 
-        <h2 className="
-          text-4xl
-          md:text-7xl
-          font-light
-          leading-[1.1]
-          tracking-tight
-          mb-12
-        ">
+        <h2
+          className="
+            text-[42px]
+            leading-[0.98]
+            tracking-[-0.05em]
+            font-light
 
-          {title || "Curated Around Your Riviera Journey"}
+            md:text-[110px]
+            md:leading-[0.92]
+
+            max-w-[340px]
+            md:max-w-5xl
+
+            mx-auto
+            mb-16
+          "
+        >
+
+          {title || (
+            <>
+              Curated Around
+              <br />
+              Your Riviera
+              <br />
+              Journey
+            </>
+          )}
 
         </h2>
 
         {/* PARAGRAPH */}
 
-        <p className="
-          text-zinc-400
-          text-lg
-          md:text-2xl
-          leading-relaxed
-          max-w-3xl
-          mx-auto
-        ">
+        <p
+          className="
+            text-[16px]
+            md:text-[22px]
 
-         {
-  paragraph ||
-  "A private Riviera proposal designed around atmosphere, cinematic moments and curated Mediterranean experiences."
-}
+            leading-[1.95]
+            tracking-[-0.01em]
+
+            text-white/62
+
+            max-w-[320px]
+            md:max-w-2xl
+
+            mx-auto
+          "
+        >
+
+          {
+            paragraph ||
+
+            "A private Riviera proposal designed around atmosphere, cinematic moments, Mediterranean elegance and unforgettable emotional experiences."
+          }
 
         </p>
 
-      </div>
+      </motion.div>
 
     </section>
   );
 }
+
