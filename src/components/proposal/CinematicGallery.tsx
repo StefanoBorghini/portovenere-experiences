@@ -84,6 +84,35 @@ export default function CinematicGallery({
     slider.classList.remove(
       "cursor-grabbing"
     );
+
+    let touchStartX = 0;
+
+let touchScrollLeft = 0;
+
+const handleTouchStart = (
+  e: TouchEvent
+) => {
+
+  touchStartX =
+    e.touches[0].pageX;
+
+  touchScrollLeft =
+    slider.scrollLeft;
+};
+
+const handleTouchMove = (
+  e: TouchEvent
+) => {
+
+  const touchX =
+    e.touches[0].pageX;
+
+  const walk =
+    (touchX - touchStartX) * 1.2;
+
+  slider.scrollLeft =
+    touchScrollLeft - walk;
+};
   };
 
   const handleMouseMove = (
@@ -105,10 +134,51 @@ export default function CinematicGallery({
       scrollLeft - walk;
   };
 
+  let touchStartX = 0;
+
+let touchScrollLeft = 0;
+
+const handleTouchStart = (
+  e: TouchEvent
+) => {
+
+  touchStartX =
+    e.touches[0].pageX;
+
+  touchScrollLeft =
+    slider.scrollLeft;
+};
+
+const handleTouchMove = (
+  e: TouchEvent
+) => {
+
+  const touchX =
+    e.touches[0].pageX;
+
+  const walk =
+    (touchX - touchStartX) * 1.2;
+
+  slider.scrollLeft =
+    touchScrollLeft - walk;
+};
+
+    
+
   slider.addEventListener(
     "mousedown",
     handleMouseDown
   );
+
+  slider.addEventListener(
+  "touchstart",
+  handleTouchStart
+);
+
+slider.addEventListener(
+  "touchmove",
+  handleTouchMove
+);
 
   slider.addEventListener(
     "mouseleave",
@@ -133,6 +203,16 @@ export default function CinematicGallery({
     );
 
     slider.removeEventListener(
+  "touchstart",
+  handleTouchStart
+);
+
+slider.removeEventListener(
+  "touchmove",
+  handleTouchMove
+);
+
+    slider.removeEventListener(
       "mouseleave",
       handleMouseLeave
     );
@@ -146,6 +226,15 @@ export default function CinematicGallery({
       "mousemove",
       handleMouseMove
     );
+    slider.addEventListener(
+  "touchstart",
+  handleTouchStart
+);
+
+slider.addEventListener(
+  "touchmove",
+  handleTouchMove
+);
   };
 
 }, []);
@@ -348,7 +437,7 @@ export default function CinematicGallery({
       
 
         style={{
-  touchAction: "pan-x",
+  touchAction: "pan-y pinch-zoom",
 }}
         onMouseEnter={() =>
           setIsPaused(true)
