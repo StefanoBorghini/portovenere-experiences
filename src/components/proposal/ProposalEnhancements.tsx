@@ -147,6 +147,9 @@ export default function ProposalEnhancements({
                     group
                     text-left
                     overflow-hidden
+                    flex
+                    flex-col
+                    justify-start
                     rounded-[32px]
                     border
                     transition-all
@@ -196,9 +199,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                                     {/* CONTENT */}
 
                                     <div className="
-  px-8
-  pb-8
-  pt-6
+  p-8
 ">
 
                                         <h3 className="
