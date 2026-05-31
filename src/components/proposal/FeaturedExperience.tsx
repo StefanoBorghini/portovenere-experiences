@@ -1,5 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
+
+
 interface FeaturedExperienceProps {
 
   image: string;
@@ -19,7 +22,6 @@ interface FeaturedExperienceProps {
   guests?: string;
 }
 
-import { motion } from "framer-motion";
 
 export default function FeaturedExperience({
 
