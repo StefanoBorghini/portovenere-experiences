@@ -57,21 +57,44 @@ export default function ProposalHero({
 
       {/* OVERLAY */}
 
-      <div className="
-        absolute
-        inset-0
-        bg-black/50
-      " />
+<div
+  className="
+    absolute
+    inset-0
+    bg-gradient-to-b
+    from-black/70
+    via-black/30
+    to-black/80
+  "
+/>
+
+<div
+  className="
+    absolute
+    inset-0
+    bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03),transparent_65%)]
+  "
+/>
 
       {/* CONTENT */}
 
    <motion.div
-  initial={{ opacity: 0, y: 40 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{
-    duration: 1.2,
-    ease: "easeOut",
-  }}
+ initial={{
+  opacity: 0,
+  y: 18,
+  filter: "blur(10px)",
+}}
+
+animate={{
+  opacity: 1,
+  y: 0,
+  filter: "blur(0px)",
+}}
+
+transition={{
+  duration: 1.8,
+  ease: [0.22, 1, 0.36, 1],
+}}
   className="
     relative
     z-20
@@ -81,7 +104,7 @@ export default function ProposalHero({
     justify-center
     text-center
     px-6
-    max-w-6xl
+    max-w-5xl
     mx-auto
   "
 >
@@ -96,7 +119,8 @@ export default function ProposalHero({
             md:w-36
             object-contain
             mx-auto
-            mb-8
+            mb-12
+md:mb-14
             opacity-95
           "
         />
@@ -121,9 +145,11 @@ export default function ProposalHero({
     text-5xl
     md:text-8xl
     font-light
-    leading-[0.95]
-    tracking-tight
-    mb-8
+    leading-[0.92]
+tracking-[-0.04em]
+font-[450]
+    mb-12
+md:mb-14
     text-center
     max-w-6xl
     mx-auto
@@ -140,17 +166,15 @@ export default function ProposalHero({
         {/* SUBTITLE */}
 
         <p className="
-          text-zinc-200
-          text-base
-          md:text-xl
-          text-center
-          leading-8
-         max-w-2xl
-          mx-auto
-          mb-10
-          text-4xl
-md:text-8xl
-        ">
+  text-[15px]
+  md:text-[19px]
+  leading-[1.9]
+  tracking-[-0.01em]
+  text-white/72
+  max-w-2xl
+  mx-auto
+  mb-14
+">
 
           Tailored for {guests} guests
           across curated Riviera experiences,
@@ -170,7 +194,7 @@ md:text-8xl
   rounded-[40px]
   px-10
   py-6
-  backdrop-blur-md
+  backdrop-blur-[6px]
   bg-white/5
   min-w-[240px]
 ">
@@ -189,7 +213,8 @@ md:text-8xl
     text-4xl
     md:text-5xl
     font-light
-    tracking-tight
+    tracking-[-0.03em]
+font-[300]
   ">
 
     €{totalPrice.toLocaleString()}
