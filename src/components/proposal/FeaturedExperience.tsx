@@ -1,3 +1,5 @@
+"use client";
+
 interface FeaturedExperienceProps {
 
   image: string;
