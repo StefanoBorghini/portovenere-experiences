@@ -269,7 +269,8 @@ export default function FeaturedExperience({
               alt={operator}
               className="
                 w-full
-                h-[700px]
+                h-[420px]
+                md:h-[700px]
                 object-cover
               "
             />
