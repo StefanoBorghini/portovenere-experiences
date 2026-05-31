@@ -152,7 +152,8 @@ export default function ProposalEnhancements({
                     transition-all
                     duration-500
                     bg-white/[0.03]
-                    min-h-[620px]
+                    min-h-[520px]
+                    md:min-h-[580px]
 
                     ${
                       isSelected
@@ -186,14 +187,17 @@ export default function ProposalEnhancements({
                       transition-transform
                       duration-700
                       group-hover:scale-[1.03]
+                      rounded-t-[32px]
                     "
                   />
 
                   {/* CONTENT */}
 
                   <div className="
-                    p-8
-                  ">
+  px-8
+  pb-8
+  pt-6
+">
 
                     <h3 className="
                       text-2xl
@@ -239,9 +243,10 @@ export default function ProposalEnhancements({
                         isSelected
 
                           ? `
-                            border-white
-                            bg-white
-                            text-black
+                            border-white/40
+bg-white
+text-black
+shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                           `
 
                           : `
