@@ -1,36 +1,57 @@
-
 "use client";
 
 import { motion } from "framer-motion";
+
+import Section
+from "@/components/layout/Section";
+
+import SectionContainer
+from "@/components/layout/SectionContainer";
+
+import SectionHeader
+from "@/components/layout/SectionHeader";
+
 import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
+// =====================================================
+// TYPES
+// =====================================================
+
 interface ExperienceCard {
+
   image: string;
+
   title: string;
+
   description: string;
+
   details: string[];
 }
 
 interface IncludedExperiencesProps {
+
   experiences: ExperienceCard[];
 }
 
+// =====================================================
+// COMPONENT
+// =====================================================
+
 export default function IncludedExperiences({
+
   experiences,
+
 }: IncludedExperiencesProps) {
 
   return (
 
-    <section
+    <Section
       className="
-        relative
-        py-32
-        md:py-48
-        px-6
         bg-black
         overflow-hidden
+        relative
       "
     >
 
@@ -46,10 +67,8 @@ export default function IncludedExperiences({
         "
       />
 
-      <div
+      <SectionContainer
         className="
-          max-w-7xl
-          mx-auto
           relative
           z-10
         "
@@ -59,11 +78,11 @@ export default function IncludedExperiences({
 
         <motion.div
 
-         variants={fadeReveal}
+          variants={fadeReveal}
 
-initial="initial"
+          initial="initial"
 
-whileInView="animate"
+          whileInView="animate"
 
           viewport={{
             once: true,
@@ -74,41 +93,12 @@ whileInView="animate"
             duration: 1.4,
             ease: [0.22, 1, 0.36, 1],
           }}
-
-          className="
-            text-center
-            mb-32
-            md:mb-40
-          "
         >
 
-          <p
-            className="
-              uppercase
-              tracking-[0.35em]
-              text-[11px]
-              text-white/40
-              mb-8
-            "
-          >
-            Included Experiences
-          </p>
-
-          <h2
-            className="
-              text-4xl
-              md:text-7xl
-              font-light
-              tracking-[-0.04em]
-              leading-[0.98]
-              max-w-5xl
-              mx-auto
-            "
-          >
-
-            Curated Riviera Moments
-
-          </h2>
+          <SectionHeader
+            label="Included Experiences"
+            title="Curated Riviera Moments"
+          />
 
         </motion.div>
 
@@ -135,11 +125,11 @@ whileInView="animate"
 
                 key={experience.title}
 
-               variants={fadeReveal}
+                variants={fadeReveal}
 
-initial="initial"
+                initial="initial"
 
-whileInView="animate"
+                whileInView="animate"
 
                 viewport={{
                   once: true,
@@ -329,8 +319,8 @@ whileInView="animate"
 
         </div>
 
-      </div>
+      </SectionContainer>
 
-    </section>
+    </Section>
   );
 }
