@@ -29,7 +29,7 @@ export default function ProposalHero({
     <section
       className="
         relative
-        h-screen
+        min-h-[100dvh]
         flex
         items-center
         justify-center
@@ -45,16 +45,18 @@ export default function ProposalHero({
 
       <motion.img
       initial={{
-  scale: 1.06,
+  scale: 1.08,
+  opacity: 0,
 }}
 
 animate={{
   scale: 1,
+  opacity: 1,
 }}
 
 transition={{
-  duration: 12,
-  ease: "linear",
+  duration: 1.8,
+  ease: [0.22, 1, 0.36, 1],
 }}
         src={heroImage}
         alt={heroTitle}
@@ -69,6 +71,7 @@ transition={{
 
       <div
   className="
+  will-change-transform
     absolute
     inset-0
     opacity-[0.03]
