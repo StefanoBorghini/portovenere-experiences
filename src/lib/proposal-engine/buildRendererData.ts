@@ -189,23 +189,6 @@ export function buildRendererData({
   // PRICE
   // ===================================================
 
-  {/* const finalPrice =
-
-    calculateProposalPrice({
-
-      selectedExperiences:
-          lead.experiences || [],
-
-      moodsSelected:
-        lead.moods || [],
-
-      guests:
-        lead.guests,
-
-      travelingWithChildren:
-        lead.traveling_with_children || false,
-    });
-*/}
 
 const finalPrice = 2800;
   // ===================================================

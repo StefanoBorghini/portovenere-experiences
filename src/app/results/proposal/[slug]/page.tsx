@@ -2,9 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { generateProposal } from "@/lib/generateProposal";
 import { buildProposalGallery } from "@/lib/buildProposalGallery";
 
-import {
-  calculateProposalPrice,
-} from "@/lib/pricing";
+
 import Countdown
 from "@/components/countdown";
 
@@ -37,6 +35,10 @@ export default async function ProposalPage({
 
   // GET PROPOSAL
 
+  
+const featuredDescription =
+
+  "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
   const { data: proposal, error } =
     await supabase
       .from("Proposal")
@@ -106,8 +108,7 @@ console.log(
 const featuredExperience =
   generatedProposal.featuredExperience;
 
-const scoredExperiences =
-  generatedProposal.scoredExperiences;
+
 
 const galleryImages =
   buildProposalGallery({
@@ -123,26 +124,7 @@ const galleryImages =
   });
 
 // PRICING ENGINE
-
-const finalPrice =
-  calculateProposalPrice({
-
-    selectedExperiences:
-      scoredExperiences || [],
-
-    moodsSelected:
-      lead.moods || [],
-
-    guests:
-      lead.guests,
-
-    travelingWithChildren:
-      lead.traveling_with_children || false,
-  });
-
-const price =
-  `€${finalPrice.toLocaleString()}`;
-
+const finalPrice = 2800;
   // =========================================================
 // COUNTDOWN
 // =========================================================
@@ -267,7 +249,7 @@ if (isExpired) {
             </p>
 
             <p className="text-4xl font-light">
-              {price}
+              {finalPrice}
             </p>
 
           </div>
@@ -359,11 +341,7 @@ if (isExpired) {
         <p className="text-zinc-400 leading-8 text-lg">
 
           {
-            featuredExperience
-              ?.included?.[0]
-              ?.description ||
-
-            "A private curated Riviera experience tailored around your selected atmosphere."
+            featuredDescription
           }
 
         </p>
