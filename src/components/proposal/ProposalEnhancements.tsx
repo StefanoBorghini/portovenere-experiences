@@ -260,14 +260,15 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       md:w-auto
       rounded-full
       border
-      px-5
-      py-3
+      h-[64px]
+      px-8
       text-sm
       tracking-[0.2em]
       uppercase
       text-center
       transition-all
       duration-300
+      whitespace-nowrap
 
       ${
         isSelected
