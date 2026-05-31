@@ -386,9 +386,10 @@ const dynamicClosingParagraph =
 
     const combinationHero =
 
-      bestExperience.heroCombinations?.[
-        key as keyof typeof bestExperience.heroCombinations
-      ];
+  (bestExperience as any)
+    ?.heroCombinations?.[
+      key
+    ];
 
     if (combinationHero) {
 
@@ -419,9 +420,10 @@ const dynamicClosingParagraph =
 
     const combinationHero =
 
-      bestExperience.heroCombinations?.[
-        key as keyof typeof bestExperience.heroCombinations
-      ];
+  (bestExperience as any)
+    ?.heroCombinations?.[
+      key
+    ];
 
     if (combinationHero) {
 
@@ -451,9 +453,10 @@ const dynamicClosingParagraph =
 
     const combinationHero =
 
-      bestExperience.heroCombinations?.[
-        key as keyof typeof bestExperience.heroCombinations
-      ];
+  (bestExperience as any)
+    ?.heroCombinations?.[
+      key
+    ];
 
     if (combinationHero) {
 
@@ -487,9 +490,10 @@ const dynamicClosingParagraph =
 
     const combinationHero =
 
-      bestExperience.heroCombinations?.[
-        key as keyof typeof bestExperience.heroCombinations
-      ];
+  (bestExperience as any)
+    ?.heroCombinations?.[
+      key
+    ];
 
     if (combinationHero) {
 
@@ -530,7 +534,8 @@ const orderedCategories =
 
   const includedSections =
 
-    bestExperience.included || [];
+  (bestExperience as any)
+    ?.included || [];
 
   // =========================================================
   // RETURN
