@@ -417,7 +417,7 @@ if (isExpired) {
 
       {/* PDF DOWNLOAD */}
 
-      <section className="pb-20 px-6 print:hidden">
+      <section className="pb-20 pt-20 px-6 print:hidden">
 
         <div className="max-w-4xl mx-auto flex justify-center">
 
