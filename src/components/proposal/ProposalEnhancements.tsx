@@ -161,7 +161,7 @@ export default function ProposalEnhancements({
                         ? `
                           border-white/40
 bg-white
-text-black
+text-white
 shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                         `
 
@@ -253,7 +253,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                           : `
                             border-white/20
-                            text-white
+                            text-black
                           `
                       }
                     ">
