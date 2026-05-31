@@ -194,7 +194,7 @@ export function buildRendererData({
     calculateProposalPrice({
 
       selectedExperiences:
-        generatedProposal.scoredExperiences || [],
+          lead.experiences || [],
 
       moodsSelected:
         lead.moods || [],
