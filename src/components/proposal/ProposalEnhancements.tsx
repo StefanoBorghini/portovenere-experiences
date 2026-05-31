@@ -227,29 +227,32 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                                             }
 
                                         </p>
-
-                                        <div
+<div
   className={`
+    relative
     inline-flex
     rounded-full
-    transition-all
-    duration-500
+  `
+  
+  }>
 
-    ${
-      isSelected
+  {
+  isSelected && (
 
-        ? `
-          p-[3px]
-          border
-          border-white/15
-        `
+    <div
+      className="
+        absolute
+        -inset-[4px]
+        rounded-full
+        border
+        border-white/15
+        pointer-events-none
+      "
+    />
 
-        : `
-          p-0
-        `
-    }
-  `}
->
+  )
+}
+
 
   <div
     className={`
@@ -267,7 +270,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       text-center
       transition-all
       duration-300
-      whitespace-nowrap
+     
 
       ${
         isSelected
