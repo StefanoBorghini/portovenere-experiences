@@ -246,10 +246,11 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                           ? `
                             border-white/40
-border-white/20
-bg-white
-text-black
-shadow-[0_0_0_6px_rgba(255,255,255,0.08)]
+border-transparent
+  bg-white
+  text-black
+  shadow-[0_0_0_1px_rgba(255,255,255,0.12),
+  0_0_0_8px_rgba(255,255,255,0.06)]
                           `
 
                           : `
