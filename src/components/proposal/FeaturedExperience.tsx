@@ -23,7 +23,7 @@ interface FeaturedExperienceProps {
 }
 
 
-export default function FeaturedExperience({
+export default async function FeaturedExperience({
 
   image,
 
