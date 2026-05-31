@@ -171,11 +171,22 @@ const galleryImages =
     image: galleryImages[3],
 
     title:
-      "Private Chef / Sommelier",
+      "Private Chef",
 
     description:
-      "Elevated onboard culinary and wine experiences designed around Mediterranean atmosphere.",
+      "Elevated onboard culinary experiences designed around Mediterranean atmosphere.",
   },
+
+  {
+    image: galleryImages[3],
+
+    title:
+      "Sommelier onboard",
+
+    description:
+      "Elevated onboard wine experiences designed around Mediterranean atmosphere.",
+  },
+
 
   {
   image: galleryImages[4],
