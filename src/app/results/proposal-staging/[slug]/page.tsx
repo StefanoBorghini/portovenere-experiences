@@ -11,6 +11,8 @@ import CinematicGallery
 from "@/components/proposal/CinematicGallery";
 import ProposalEnhancements
 from "@/components/proposal/ProposalEnhancements";
+import ReservationSection
+from "@/components/proposal/ReservationSection";
 
 import {
   calculateProposalPrice,
@@ -425,102 +427,16 @@ if (isExpired) {
 
       </section>
 
-      {/* CTA */}
 
      {/* CTA */}
 
-<section className="pb-40 px-6">
-
-  <div className="max-w-4xl mx-auto text-center">
-
-   
-<div className="mb-12">
-
-  <Countdown
-    expiresAt={expiresAt}
-  />
-
-</div>
-
-    <h2 className="
-      text-3xl
-      md:text-6xl
-      font-light
-      leading-tight
-      mb-10
-    ">
-      Ready to reserve your experience?
-    </h2>
-
-    <div className="
-      text-zinc-400
-      leading-8
-      md:leading-9
-      mb-14
-      space-y-6
-      max-w-3xl
-      mx-auto
-    ">
-
-      <p className="text-lg md:text-xl">
-
-        {dynamicClosingParagraph}
-
-      </p>
-
-      <div className="
-        pt-10
-        text-sm
-        uppercase
-        tracking-[0.25em]
-        text-zinc-500
-        space-y-3
-      ">
-
-        <p>
-          Stefano
-        </p>
-
-        <p>
-          Portovenere Experiences
-        </p>
-
-        <p>
-          info@portovenere.com
-        </p>
-
-        <p>
-          +39 348 714 0722
-        </p>
-
-      </div>
-
-    </div>
-
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      className="
-        inline-block
-        bg-white
-        text-black
-        px-10
-        py-5
-        rounded-full
-        uppercase
-        tracking-[0.25em]
-        text-xs
-        hover:scale-105
-        transition-all
-        duration-500
-      "
-    >
-      Request Private Booking
-    </a>
-
-  </div>
-
-</section>
+<ReservationSection
+  expiresAt={expiresAt}
+  closingParagraph={
+    dynamicClosingParagraph
+  }
+  whatsappUrl={whatsappUrl}
+/>
 
       {/* FOOTER */}
 
