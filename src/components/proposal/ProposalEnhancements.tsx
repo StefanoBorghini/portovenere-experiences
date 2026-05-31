@@ -155,8 +155,8 @@ export default function ProposalEnhancements({
                     transition-all
                     duration-500
                     bg-white/[0.03]
-                    min-h-[520px]
-                    md:min-h-[580px]
+                  
+                    
                     p-0
 
                     ${isSelected
@@ -239,7 +239,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       isSelected
 
         ? `
-          p-[6px]
+          p-[3px]
           border
           border-white/15
         `
@@ -256,6 +256,8 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       inline-flex
       items-center
       justify-center
+      w-full
+      md:w-auto
       rounded-full
       border
       px-5
@@ -263,6 +265,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       text-sm
       tracking-[0.2em]
       uppercase
+      text-center
       transition-all
       duration-300
 
