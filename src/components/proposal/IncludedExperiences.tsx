@@ -2,6 +2,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
 
 interface ExperienceCard {
   image: string;
@@ -56,17 +59,11 @@ export default function IncludedExperiences({
 
         <motion.div
 
-          initial={{
-            opacity: 0,
-            y: 20,
-            filter: "blur(10px)",
-          }}
+         variants={fadeReveal}
 
-          whileInView={{
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-          }}
+initial="initial"
+
+whileInView="animate"
 
           viewport={{
             once: true,
@@ -138,17 +135,11 @@ export default function IncludedExperiences({
 
                 key={experience.title}
 
-                initial={{
-                  opacity: 0,
-                  y: 30,
-                  filter: "blur(12px)",
-                }}
+               variants={fadeReveal}
 
-                whileInView={{
-                  opacity: 1,
-                  y: 0,
-                  filter: "blur(0px)",
-                }}
+initial="initial"
+
+whileInView="animate"
 
                 viewport={{
                   once: true,
@@ -168,8 +159,9 @@ export default function IncludedExperiences({
                   rounded-[36px]
                   bg-white/[0.02]
                   border
-                  border-white/[0.06]
+                  border-white/[0.08]
                   backdrop-blur-[4px]
+                  will-change-transform
 
                   ${
                     index === 1
@@ -257,7 +249,7 @@ export default function IncludedExperiences({
                       tracking-[-0.03em]
                       font-light
                       mb-7
-                      max-w-[90%]
+                      max-w-[85%]
                     "
                   >
 
@@ -273,7 +265,7 @@ export default function IncludedExperiences({
                       tracking-[-0.01em]
                       text-white/62
                       mb-10
-                      max-w-[90%]
+                      max-w-[85%]
                     "
                   >
 
