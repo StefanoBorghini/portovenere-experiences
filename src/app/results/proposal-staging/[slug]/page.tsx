@@ -181,7 +181,7 @@ const galleryImages =
     image: galleryImages[3],
 
     title:
-      "Sommelier onboard",
+      "Sommelier Onboard",
 
     description:
       "Elevated onboard wine experiences designed around Mediterranean atmosphere.",

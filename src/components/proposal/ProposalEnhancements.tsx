@@ -120,7 +120,7 @@ export default function ProposalEnhancements({
           grid
           grid-cols-1
           md:grid-cols-2
-          xl:grid-cols-4
+          xl:grid-cols-3
           gap-8
         ">
 
@@ -152,6 +152,7 @@ export default function ProposalEnhancements({
                     transition-all
                     duration-500
                     bg-white/[0.03]
+                    min-h-[620px]
 
                     ${
                       isSelected
@@ -180,7 +181,7 @@ export default function ProposalEnhancements({
                     }
                     className="
                       w-full
-                      h-[280px]
+                      h-[220px]
                       object-cover
                       transition-transform
                       duration-700
@@ -195,7 +196,8 @@ export default function ProposalEnhancements({
                   ">
 
                     <h3 className="
-                      text-3xl
+                      text-2xl
+                      md:text-3xl
                       font-light
                       tracking-tight
                       mb-5
