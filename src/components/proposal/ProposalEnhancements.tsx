@@ -246,7 +246,7 @@ export default function ProposalEnhancements({
 
                           : `
                             border-white/20
-                            text-white
+                            text-black
                           `
                       }
                     ">
