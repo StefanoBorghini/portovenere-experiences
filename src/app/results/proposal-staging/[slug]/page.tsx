@@ -9,6 +9,8 @@ import IncludedExperiences
 from "@/components/proposal/IncludedExperiences";
 import CinematicGallery
 from "@/components/proposal/CinematicGallery";
+import ProposalEnhancements
+from "@/components/proposal/ProposalEnhancements";
 
 import {
   calculateProposalPrice,
@@ -45,8 +47,7 @@ export default async function ProposalPage({
   
 
   // GET PROPOSAL
-
-
+ 
   const { data: proposal, error } =
     await supabase
       .from("Proposal")
@@ -131,6 +132,50 @@ const galleryImages =
     heroExperienceId:
       featuredExperience?.id || "",
   });
+
+   const enhancements = [
+
+  {
+    image: galleryImages[0],
+
+    title:
+      "Private Transfer",
+
+    description:
+      "Private luxury transportation across the Riviera with curated pickup and drop-off experience.",
+  },
+
+  {
+    image: galleryImages[1],
+
+    title:
+      "Boutique Stay",
+
+    description:
+      "Curated overnight stays in selected Riviera boutique properties and private hospitality locations.",
+  },
+
+  {
+    image: galleryImages[2],
+
+    title:
+      "Personal Photographer",
+
+    description:
+      "Editorial-style Riviera photography throughout your curated private experience.",
+  },
+
+  {
+    image: galleryImages[3],
+
+    title:
+      "Private Chef / Sommelier",
+
+    description:
+      "Elevated onboard culinary and wine experiences designed around Mediterranean atmosphere.",
+  },
+];
+
 
 // PRICING ENGINE
 
@@ -347,6 +392,10 @@ if (isExpired) {
   experiences={
     includedExperiences
   }
+/>
+
+<ProposalEnhancements
+  enhancements={enhancements}
 />
       {/* GALLERY */}
 
