@@ -144,12 +144,13 @@ md:pb-0
 }}
 
 animate={{
-  scale: 1,
+  opacity: [0.92, 1, 0.92],
 }}
 
 transition={{
-  duration: 12,
-  ease: "linear",
+  duration: 6,
+  repeat: Infinity,
+  ease: "easeInOut",
 }}
           src="/logo-white.png"
           alt="Portovenere Experiences"
@@ -211,10 +212,8 @@ md:max-w-5xl
   leading-[1.9]
   tracking-[-0.01em]
   text-white/72
-  max-w-2xl
-  mx-auto
-  mt-2
-mb-20
+  max-w-[300px]
+md:max-w-2xl
 ">
 
           Tailored for {guests} guests
