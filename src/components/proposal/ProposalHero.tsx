@@ -120,7 +120,7 @@ transition={{
             object-contain
             mx-auto
             mb-12
-md:mb-14
+md:mb-10
             opacity-95
           "
         />
@@ -153,6 +153,8 @@ md:mb-14
     text-center
     max-w-6xl
     mx-auto
+    max-w-[320px]
+md:max-w-5xl
   "
   style={{
     textShadow:
@@ -173,7 +175,8 @@ md:mb-14
   text-white/72
   max-w-2xl
   mx-auto
-  mb-14
+  mt-2
+mb-20
 ">
 
           Tailored for {guests} guests
@@ -192,11 +195,11 @@ md:mb-14
   border
   border-white/20
   rounded-[40px]
-  px-10
-  py-6
+  px-8
+py-5
   backdrop-blur-[6px]
   bg-white/5
-  min-w-[240px]
+min-w-[220px]
 ">
 
   <span className="
@@ -210,9 +213,12 @@ md:mb-14
   </span>
 
   <span className="
-    text-4xl
+    text-[42px]
+tracking-[-0.04em]
+font-[300]
     md:text-5xl
-    font-light
+    pb-16
+md:pb-0
     tracking-[-0.03em]
 font-[300]
   ">
