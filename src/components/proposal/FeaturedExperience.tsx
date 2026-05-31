@@ -326,7 +326,7 @@ export default function FeaturedExperience({
               "
             />
 
-            <div className="
+                        <div className="
               absolute
               inset-0
               bg-gradient-to-t
@@ -334,12 +334,11 @@ export default function FeaturedExperience({
               to-transparent
             " />
 
-          
+          </motion.div>
 
-        </motion.div>
-</div>
-</div>
-      
+        </div>
+
+      </div>
 
     </section>
   );
