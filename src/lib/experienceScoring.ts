@@ -1,6 +1,44 @@
+
+// =====================================================
+// experienceScoring.ts
+// CLEAN ENGINE VERSION
+// =====================================================
+
 import {
   Experience,
 } from "./experiences";
+
+// =====================================================
+// GENERIC SCORE CALCULATOR
+// =====================================================
+
+function calculateAttributeCompatibility(
+
+  firstObject:
+    Record<string, number>,
+
+  secondObject:
+    Record<string, number>
+) {
+
+  let score = 0;
+
+  Object.entries(
+    firstObject
+  ).forEach(
+    ([key, value]) => {
+
+      const secondValue =
+
+        secondObject[key] || 0;
+
+      score +=
+        value * secondValue;
+    }
+  );
+
+  return score;
+}
 
 // =====================================================
 // ENERGY SCORE
@@ -13,25 +51,12 @@ export function calculateEnergyCompatibility(
   experienceB: Experience
 ) {
 
-  let score = 0;
+  return calculateAttributeCompatibility(
 
-  Object.entries(
-    experienceA.energyScores
-  ).forEach(
-    ([key, value]) => {
+    experienceA.energyScores,
 
-      const secondValue =
-
-        experienceB.energyScores[
-          key as keyof typeof experienceB.energyScores
-        ] || 0;
-
-      score +=
-        value * secondValue;
-    }
+    experienceB.energyScores
   );
-
-  return score;
 }
 
 // =====================================================
@@ -45,25 +70,90 @@ export function calculateVisualCompatibility(
   experienceB: Experience
 ) {
 
+  return calculateAttributeCompatibility(
+
+    experienceA.visualStyleScores,
+
+    experienceB.visualStyleScores
+  );
+}
+
+// =====================================================
+// MOOD SCORE
+// =====================================================
+
+export function calculateMoodCompatibility(
+
+  experienceA: Experience,
+
+  experienceB: Experience
+) {
+
+  if (
+    !experienceA.moods ||
+    !experienceB.moods
+  ) {
+
+    return 0;
+  }
+
   let score = 0;
 
-  Object.entries(
-    experienceA.visualStyleScores
-  ).forEach(
-    ([key, value]) => {
+  experienceA.moods.forEach(
+    (mood) => {
 
-      const secondValue =
+      if (
+        experienceB.moods?.includes(
+          mood
+        )
+      ) {
 
-        experienceB.visualStyleScores[
-          key as keyof typeof experienceB.visualStyleScores
-        ] || 0;
-
-      score +=
-        value * secondValue;
+        score += 40;
+      }
     }
   );
 
   return score;
+}
+
+// =====================================================
+// CATEGORY SCORE
+// =====================================================
+
+export function calculateCategoryCompatibility(
+
+  experienceA: Experience,
+
+  experienceB: Experience
+) {
+
+  if (
+
+    experienceA.macroCategory ===
+
+    experienceB.macroCategory
+
+  ) {
+
+    return -40;
+  }
+
+  return 20;
+}
+
+// =====================================================
+// NARRATIVE SCORE
+// =====================================================
+
+export function calculateNarrativeCompatibility(
+
+  experience: Experience
+) {
+
+  return (
+
+    experience.narrativePriority || 0
+  );
 }
 
 // =====================================================
@@ -77,28 +167,84 @@ export function calculateTotalCompatibility(
   experienceB: Experience
 ) {
 
+  // ===================================================
+  // ENERGY
+  // ===================================================
+
   const energyScore =
 
     calculateEnergyCompatibility(
+
       experienceA,
+
       experienceB
     );
+
+  // ===================================================
+  // VISUAL
+  // ===================================================
 
   const visualScore =
 
     calculateVisualCompatibility(
+
       experienceA,
+
       experienceB
     );
 
+  // ===================================================
+  // MOOD
+  // ===================================================
+
+  const moodScore =
+
+    calculateMoodCompatibility(
+
+      experienceA,
+
+      experienceB
+    );
+
+  // ===================================================
+  // CATEGORY
+  // ===================================================
+
+  const categoryScore =
+
+    calculateCategoryCompatibility(
+
+      experienceA,
+
+      experienceB
+    );
+
+  // ===================================================
+  // NARRATIVE
+  // ===================================================
+
   const narrativeScore =
 
-    experienceB.narrativePriority;
+    calculateNarrativeCompatibility(
+
+      experienceB
+    );
+
+  // ===================================================
+  // FINAL SCORE
+  // ===================================================
 
   return (
 
     energyScore +
+
     visualScore +
+
+    moodScore +
+
+    categoryScore +
+
     narrativeScore
   );
 }
+

@@ -1,10 +1,8 @@
-// =========================================================
+// ============================================================
 // experiences.ts
-// FINAL COMPLETE VERSION
-// =========================================================
+// ============================================================
 
 export interface Experience {
-
 
   id: string;
 
@@ -14,1473 +12,561 @@ export interface Experience {
 
   macroCategory: string;
 
+  moods?: string[];
+
   guests: string[];
-
-  idealGuests: string[];
-
-  luxuryPriority: number;
 
   budgets: string[];
 
-  moodScores: {
+  idealGuests?: string[];
 
-    Romantic: number;
+  familyFriendly?: boolean;
 
-    Authentic: number;
+  luxuryPriority?: number;
 
-    Adventure: number;
+  narrativePriority?: number;
 
-    Cinematic: number;
-    
-  };
+  energyScores: Record<string, number>;
 
-  familyFriendly: boolean;
+  visualStyleScores: Record<string, number>;
 
-  basePrice: number;
+  moodScores: Record<string, number>;
 
-  heroImage: string;
-  slot:
-  | "hero"
-  | "activity"
-  | "gourmet"
-  | "atmosphere";
+  heroImage?: string;
 
-  energyScores: {
+  heroVariants?: {
 
-  luxury: number;
+    moods: string[];
 
-  romantic: number;
+    categories: string[];
 
-  cinematic: number;
+    image: string;
 
-  adventure: number;
+    weight?: number;
 
-  slow: number;
-};
-
-visualStyleScores: {
-
-  luxury: number;
-
-  cinematic: number;
-
-  warm: number;
-
-  nature: number;
-
-  dark: number;
-};
-
-narrativePriority: number;
-
-  heroCombinations?: {
-    [key: string]: string;
-  };
-
-  gallery?: {
-    [key: string]: string[];
-  };
-
-  included?: {
-    title: string;
-    description: string;
   }[];
 
-  compatibleAddons?: {
-
-  default?: {
-
-    Romantic?: string[];
-
-    Adventure?: string[];
-
-    Cinematic?: string[];
-
-    Authentic?: string[];
-  };
-
-  categoryAddons?: {
-
-    [key: string]: {
-
-      Romantic?: string[];
-
-      Adventure?: string[];
-
-      Cinematic?: string[];
-
-      Authentic?: string[];
-    };
-    
-  };
-
-  
-};
-
-
+  gallery?: Record<string, string[]>;
 }
 
-// =========================================================
+// ============================================================
 // EXPERIENCES
-// =========================================================
+// ============================================================
 
 export const experiences: Experience[] = [
 
-  // =========================================================
-  // SEA ESCAPE
-  // =========================================================
+  // ==========================================================
+  // DINO
+  // ==========================================================
 
   {
+
     id: "dino",
 
-    title: "Dino",
+    title: "Private Riviera Boat Escape",
 
     operator: "Dino",
 
     macroCategory: "Sea Escape",
 
+    moods: [
+
+      "Romantic",
+
+      "Authentic",
+
+      "Adventure",
+
+      "Cinematic",
+    ],
+
     guests: [
-      "2",
-      "3-4",
-      "5-7",
+
+      "couple",
+
+      "family",
+    ],
+
+    budgets: [
+
+      "medium",
+
+      "high",
     ],
 
     idealGuests: [
-      "2",
-      "3-4",
+
+      "couple",
     ],
-
-    luxuryPriority: 2,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-    ],
-
-    moodScores: {
-
-      Romantic: 4,
-
-      Authentic: 3,
-
-      Adventure: 2,
-
-      Cinematic: 1,
-    },
 
     familyFriendly: true,
 
-    basePrice: 1200,
+    luxuryPriority: 10,
+
+    narrativePriority: 95,
+
+    energyScores: {
+
+      calm: 9,
+
+      exploration: 8,
+
+      elegance: 7,
+    },
+
+    visualStyleScores: {
+
+      cinematic: 10,
+
+      mediterranean: 10,
+
+      authentic: 9,
+    },
+
+    moodScores: {
+
+      Romantic: 9,
+
+      Cinematic: 10,
+
+      Adventure: 8,
+
+      Authentic: 10,
+    },
 
     heroImage:
-      "/images/sailing/dino/cinematic.webp",
-      slot: "hero",
-      energyScores: {
+      "/images/dino/hero.webp",
 
-  luxury: 5,
+    heroVariants: [
 
-  romantic: 4,
+      {
 
-  cinematic: 3,
+        moods: [
+          "Romantic",
+        ],
 
-  adventure: 1,
+        categories: [
+          "Sea Escape",
+        ],
 
-  slow: 2,
-},
+        image:
+          "/images/dino/romantic.webp",
+      },
 
-visualStyleScores: {
+      {
 
-  luxury: 5,
+        moods: [
+          "Adventure",
+        ],
 
-  cinematic: 4,
+        categories: [
+          "Sea Escape",
+        ],
 
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-      // SINGLE
-
-      "Sea Escape-Romantic":
-        "/images/sailing/dino/romantic.webp",
-
-      "Sea Escape-Authentic":
-        "/images/sailing/dino/authentic.webp",
-
-      "Sea Escape-Adventure":
-        "/images/sailing/dino/adventure.webp",
-
-      "Sea Escape-Cinematic":
-        "/images/sailing/dino/cinematic.webp",
-
-      // DOUBLE MOOD
-      "Sea Escape-Romantic-Cinematic":
-        "/images/sailing/dino/cinematic.webp",
-
-      "Sea Escape-Adventure-Authentic":
-        "/images/sailing/dino/adventure.webp",
-
-      // CATEGORY CROSSOVER
-      "Sea Escape-Gourmet Escape-Romantic":
-       "/images/sailing/dino/romantic.webp",
-
-      "Sea Escape-Wild Escape-Adventure":
-         "/images/sailing/dino/adventure.webp",
-    },
-
-    gallery: {
-
-  sailing: [
-
-    "/images/sailing/dino/adventure.webp",
-
-    "/images/sailing/dino/cinematic.webp",
-
-    "/images/sailing/dino/img-3.webp",
-  ],
-},
-
-compatibleAddons: {
-
-  default: {
-
-    Romantic: [
-
-      "restaurant",
-
-      "foodwine",
-
-      "mermaiding",
-    ],
-
-    Adventure: [
-
-      "snorkeling",
-
-      "trekking",
-    ],
-
-    Cinematic: [
-
-      "mermaiding",
-
-      "foodwine",
-    ],
-
-    Authentic: [
-
-      "trekking",
-
-      "foodwine",
+        image:
+          "/images/dino/adventure.webp",
+      },
     ],
   },
 
-  categoryAddons: {
-
-    "Gourmet Escape": {
-
-      Romantic: [
-
-        "mermaiding",
-      ],
-
-      Adventure: [
-
-        "snorkeling",
-
-        "trekking",
-      ],
-
-      Cinematic: [
-
-        "mermaiding",
-      ],
-
-      Authentic: [
-
-        "trekking",
-      ],
-    },
-
-    "Wild Escape": {
-
-      Romantic: [
-
-        "restaurant",
-
-        "foodwine",
-      ],
-
-      Adventure: [
-
-        "foodwine",
-      ],
-
-      Cinematic: [
-
-        "restaurant",
-      ],
-
-      Authentic: [
-
-        "foodwine",
-      ],
-    },
-  },
-},
-
-included: [],
-  },
-  
+  // ==========================================================
+  // APHRODITE
+  // ==========================================================
 
   {
+
     id: "aphrodite",
 
-    title: "Aphrodite",
+    title: "Luxury Riviera Yacht",
 
     operator: "Aphrodite",
 
     macroCategory: "Sea Escape",
 
+    moods: [
+
+      "Luxury",
+
+      "Romantic",
+
+      "Cinematic",
+
+      "Authentic",
+    ],
+
     guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
+
+      "couple",
+
+      "luxury",
+    ],
+
+    budgets: [
+
+      "high",
+
+      "ultra",
     ],
 
     idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
+
+      "luxury",
+
+      "couple",
     ],
 
-    luxuryPriority: 5,
+    familyFriendly: false,
 
-    budgets: [
-      "€1000 - €3000",
-      "€3000+",
-    ],
+    luxuryPriority: 15,
+
+    narrativePriority: 100,
+
+    energyScores: {
+
+      calm: 10,
+
+      elegance: 10,
+
+      atmosphere: 9,
+    },
+
+    visualStyleScores: {
+
+      cinematic: 10,
+
+      luxury: 10,
+
+      mediterranean: 9,
+    },
 
     moodScores: {
 
-      Authentic: 4,
+      Romantic: 10,
 
-      Romantic: 3,
+      Cinematic: 10,
 
-      Adventure: 3,
+      Luxury: 10,
 
-      Cinematic: 2,
+      Authentic: 7,
     },
-
-    familyFriendly: true,
-
-    basePrice: 2200,
 
     heroImage:
-      "/images/yachts/aphrodite/hero-web.webp",
-      slot: "hero",
-        energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-
-      "Sea Escape-Romantic":
-        "/images/yachts/aphrodite/hero-web.webp",
-
-      "Sea Escape-Cinematic":
-        "/images/yachts/aphrodite/cinematic.jpg",
-
-      "Sea Escape-Authentic":
-        "/images/yachts/aphrodite/authentic.jpg",
-
-      "Sea Escape-Romantic-Cinematic":
-        "/images/yachts/aphrodite/cinematic.jpg",
-
-      "Sea Escape-Gourmet Escape-Romantic":
-        "/images/yachts/aphrodite/vino.jpg",
-
-      "Sea Escape-Aerial Escape-Cinematic":
-         "/images/yachts/aphrodite/cinematic.jpg",
-    },
-
-    gallery: {
-
-      yacht: [
-
-          "/images/yachts/aphrodite/cinematic.jpg",
-
-        "/images/yachts/aphrodite/authentic.jpg",
-
-        "/images/yachts/aphrodite/vino.jpg",
-      ],
-    },
-
-    included: [],
+      "/images/aphrodite/hero.webp",
   },
 
+  // ==========================================================
+  // VELAMICA
+  // ==========================================================
+
   {
+
     id: "velamica",
 
-    title: "Velamica",
+    title: "Authentic Sailing Journey",
 
     operator: "Velamica",
 
     macroCategory: "Sea Escape",
 
+    moods: [
+
+      "Adventure",
+
+      "Authentic",
+
+      "Cinematic",
+    ],
+
     guests: [
-      "8+",
+
+      "couple",
+
+      "friends",
+    ],
+
+    budgets: [
+
+      "medium",
     ],
 
     idealGuests: [
-      "8+",
+
+      "friends",
+
+      "couple",
     ],
-
-    luxuryPriority: 4,
-
-    budgets: [
-      "€1000 - €3000",
-      "€3000+",
-    ],
-
-    moodScores: {
-
-      Adventure: 4,
-
-      Cinematic: 3,
-
-      Authentic: 2,
-
-      Romantic: 1,
-    },
 
     familyFriendly: true,
 
-    basePrice: 2800,
+    luxuryPriority: 6,
 
-    heroImage:
-      "/images/sailing/velamica/cinematic.jpg",
-      slot: "hero",
-        energyScores: {
+    narrativePriority: 80,
 
-  luxury: 5,
+    energyScores: {
 
-  romantic: 4,
+      exploration: 10,
 
-  cinematic: 3,
+      freedom: 9,
 
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-
-      "Sea Escape-Adventure":
-        "/images/sailing/velamica/adventure.jpg",
-
-      "Sea Escape-Cinematic":
-        "/images/sailing/velamica/cinematic.jpg",
-
-      "Sea Escape-Adventure-Cinematic":
-        "/images/sailing/velamica/adventure-cinematic.jpg",
-
-      "Sea Escape-Wild Escape-Adventure":
-        "/images/sailing/velamica/wild-adventure.jpg",
+      atmosphere: 8,
     },
 
-    gallery: {
+    visualStyleScores: {
 
-      sailing: [
+      cinematic: 8,
 
-        "/images/sailing/velamica/wild-adventure.jpg",
+      authentic: 10,
 
-        "/images/sailing/velamica/adventure-cinematic.jpg",
-
-          "/images/sailing/velamica/cinematic.jpg",
-      ],
+      mediterranean: 9,
     },
-
-    included: [],
-  },
-
-  {
-    id: "velagiovane",
-
-    title: "Velagiovane",
-
-    operator: "Velagiovane",
-
-    macroCategory: "Sea Escape",
-
-    guests: [
-      "8+",
-    ],
-
-    idealGuests: [
-      "8+",
-    ],
-
-    luxuryPriority: 4,
-
-    budgets: [
-      "€1000 - €3000",
-      "€3000+",
-    ],
 
     moodScores: {
 
-      Adventure: 4,
+      Adventure: 10,
 
-      Authentic: 3,
+      Cinematic: 8,
 
-      Cinematic: 2,
-
-      Romantic: 1,
+      Authentic: 10,
     },
-
-    familyFriendly: false,
-
-    basePrice: 3200,
 
     heroImage:
-      "/images/sailing/velagiovane/cinematic.jpg",
-      slot: "hero",
-        energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-
-      "Sea Escape-Cinematic":
-        "/images/sailing/velagiovane/cinematic.jpg",
-
-      "Sea Escape-Adventure":
-        "/images/sailing/velagiovane/adventure.jpg",
-
-      "Sea Escape-Romantic-Cinematic":
-     "/images/sailing/velagiovane/cinematic.jpg",
-    },
-
-    gallery: {
-
-      sunset: [
-
-        "/images/sailing/velagiovane/cinematic.jpg",
-
-       "/images/sailing/velagiovane/adventure.jpg",
-
-         "/images/sailing/velagiovane/cinematic.jpg",
-      ],
-    },
-
-    included: [],
+      "/images/velamica/hero.webp",
   },
 
-  // =========================================================
-  // AERIAL ESCAPE
-  // =========================================================
+  // ==========================================================
+  // AIRPLANE
+  // ==========================================================
 
   {
+
     id: "airplane",
 
-    title: "Airplane",
+    title: "Aerial Riviera Experience",
 
-    operator: "Airplane",
+    operator: "Sky Riviera",
 
     macroCategory: "Aerial Escape",
 
+    moods: [
+
+      "Cinematic",
+
+      "Adventure",
+
+      "Authentic",
+    ],
+
     guests: [
-      "2",
-      "3-4",
-      "5-7",
+
+      "couple",
+
+      "friends",
+    ],
+
+    budgets: [
+
+      "high",
     ],
 
     idealGuests: [
-      "2",
-      "3-4",
+
+      "couple",
     ],
-
-    luxuryPriority: 4,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-    ],
-
-    moodScores: {
-
-      Cinematic: 4,
-
-      Authentic: 3,
-
-      Adventure: 2,
-
-      Romantic: 1,
-    },
 
     familyFriendly: false,
 
-    basePrice: 1800,
+    luxuryPriority: 12,
 
-    heroImage:
-      "/images/flying/aereo/img-1.jpg",
-      slot: "hero",
-       energyScores: {
+    narrativePriority: 90,
 
-  luxury: 5,
+    energyScores: {
 
-  romantic: 4,
+      adrenaline: 9,
 
-  cinematic: 3,
+      exploration: 10,
 
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-      "Aerial Escape":
-         "/images/flying/aereo/img-1.jpg",
-
-      "Aerial Escape-Cinematic":
-        "/images/flying/aereo/img-1.jpg",
-
-      "Aerial Escape-Adventure":
-       "/images/flying/aereo/img-1.jpg",
-
-      "Sea Escape-Aerial Escape-Cinematic":
-         "/images/flying/aereo/img-1.jpg",
+      atmosphere: 8,
     },
 
-    gallery: {
+    visualStyleScores: {
 
-      aerial: [
+      cinematic: 10,
 
-         "/images/flying/aereo/img-1.jpg",
+      panoramic: 10,
 
-         "/images/flying/aereo/img-1.jpg",
-
-         "/images/flying/aereo/img-1.jpg",
-      ],
+      luxury: 8,
     },
-
-    included: [],
-  },
-
-  {
-    id: "mongolfiera",
-
-    title: "Mongolfiera",
-
-    operator: "Mongolfiera",
-
-    macroCategory: "Aerial Escape",
-
-    guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
-    ],
-
-    idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
-    ],
-
-    luxuryPriority: 3,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-    ],
 
     moodScores: {
 
-      Adventure: 4,
+      Adventure: 10,
 
-      Cinematic: 3,
+      Cinematic: 10,
 
-      Authentic: 2,
-
-      Romantic: 1,
+      Authentic: 7,
     },
-
-    familyFriendly: true,
-
-    basePrice: 2000,
 
     heroImage:
-      "/images/flying/mongolfiera/mongolfiera.jpg",
-      slot: "hero",
-        energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 10,
-
-    heroCombinations: {
-
-      "Aerial Escape":
-       "/images/flying/mongolfiera/mongolfiera.jpg",
-
-      "Aerial Escape-Adventure":
-        "/images/flying/mongolfiera/mongolfiera.jpg",
-
-      "Aerial Escape-Cinematic":
-       "/images/flying/mongolfiera/mongolfiera.jpg",
-    },
-
-    gallery: {
-
-      balloon: [
-
-       "/images/flying/mongolfiera/mongolfiera.jpg",
-
-        "/images/flying/mongolfiera/mongolfiera.jpg",
-
-        "/images/flying/mongolfiera/mongolfiera.jpg",
-      ],
-    },
-
-    included: [],
+      "/images/airplane/hero.webp",
   },
 
-  // =========================================================
-  // GOURMET ESCAPE
-  // =========================================================
+  // ==========================================================
+  // RESTAURANT
+  // ==========================================================
 
   {
+
     id: "restaurant",
 
-    title: "Prenotazione Ristorante",
+    title: "Riviera Fine Dining",
 
-    operator: "Restaurant",
+    operator: "Portovenere Dining",
 
     macroCategory: "Gourmet Escape",
 
+    moods: [
+
+      "Romantic",
+
+      "Authentic",
+
+      "Luxury",
+    ],
+
     guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
+
+      "couple",
+
+      "family",
+    ],
+
+    budgets: [
+
+      "medium",
+
+      "high",
     ],
 
     idealGuests: [
-      "2",
-      "3-4",
+
+      "couple",
     ],
-
-    luxuryPriority: 5,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-    ],
-
-    moodScores: {
-
-      Romantic: 4,
-
-      Authentic: 3,
-
-      Cinematic: 2,
-
-      Adventure: 1,
-    },
 
     familyFriendly: true,
 
-    basePrice: 700,
+    luxuryPriority: 9,
+
+    narrativePriority: 85,
+
+    energyScores: {
+
+      calm: 8,
+
+      atmosphere: 10,
+
+      elegance: 9,
+    },
+
+    visualStyleScores: {
+
+      cinematic: 8,
+
+      luxury: 9,
+
+      authentic: 8,
+    },
+
+    moodScores: {
+
+      Romantic: 10,
+
+      Luxury: 8,
+
+      Authentic: 8,
+    },
 
     heroImage:
-         "/images/dining/ristorante/authentic.jpg",
-         slot: "gourmet",
-           energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 7,
-
-    heroCombinations: {
-
-      "Gourmet Escape-Romantic":
-        "/images/dining/ristorante/romantic-two.jpg",
-
-      "Gourmet Escape-Authentic":
-        "/images/dining/ristorante/authentic.jpg",
-
-      "Sea Escape-Gourmet Escape-Romantic":
-       "/images/dining/ristorante/romantic.jpg",
-    },
-
-    gallery: {
-
-      gourmet: [
-
-        "/images/dining/ristorante/cinematic.jpg",
-
-       "/images/dining/ristorante/authentic.jpg",
-
-      "/images/dining/ristorante/romantic.jpg",
-      ],
-    },
-
-    included: [],
+      "/images/restaurant/hero.webp",
   },
 
+  // ==========================================================
+  // FOOD & WINE
+  // ==========================================================
+
   {
+
     id: "foodwine",
 
-    title:
-      "On Board Food & Wine Experiences",
+    title: "Food & Wine Experience",
 
-    operator: "Food & Wine",
+    operator: "Cinque Terre Wine",
 
     macroCategory: "Gourmet Escape",
 
+    moods: [
+
+      "Authentic",
+
+      "Luxury",
+
+      "Cinematic",
+    ],
+
     guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
+
+      "couple",
+
+      "friends",
+    ],
+
+    budgets: [
+
+      "medium",
+
+      "high",
     ],
 
     idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
+
+      "friends",
+
+      "couple",
     ],
-
-    luxuryPriority: 4,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-    ],
-
-    moodScores: {
-
-      Adventure: 4,
-
-      Authentic: 3,
-
-      Romantic: 2,
-
-      Cinematic: 1,
-    },
 
     familyFriendly: true,
 
-    basePrice: 1500,
+    luxuryPriority: 8,
 
-    heroImage:
-      "/images/dining/onboard/authentic.jpg",
-slot: "gourmet",
-  energyScores: {
+    narrativePriority: 82,
 
-  luxury: 5,
+    energyScores: {
 
-  romantic: 4,
+      atmosphere: 9,
 
-  cinematic: 3,
+      calm: 8,
 
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 8,
-
-    heroCombinations: {
-
-      "Gourmet Escape":
-        "/images/dining/onboard/authentic.jpg",
-
-      "Gourmet Escape-Adventure":
-        "/images/yachts/aphrodite/vino.jpg",
-
-      "Gourmet Escape-Authentic":
-        "/images/dining/onboard/authentic.jpg",
+      elegance: 8,
     },
 
-    gallery: {
+    visualStyleScores: {
 
-      wine: [
+      cinematic: 8,
 
-         "/images/dining/onboard/authentic.jpg",
+      authentic: 10,
 
-        "/images/yachts/aphrodite/vino.jpg",
-
-        "/images/dining/onboard/authentic.jpg",
-      ],
+      mediterranean: 9,
     },
-
-    included: [],
-  },
-
-  // =========================================================
-  // WILD ESCAPE
-  // =========================================================
-
-  {
-    id: "trekking",
-
-    title: "Trekking",
-
-    operator: "Trekking",
-
-    macroCategory: "Wild Escape",
-
-    guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
-    ],
-
-    idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
-    ],
-
-    luxuryPriority: 2,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-      "€3000+",
-    ],
 
     moodScores: {
 
-      Authentic: 4,
+      Authentic: 10,
 
-      Adventure: 3,
+      Luxury: 7,
 
-      Cinematic: 2,
-
-      Romantic: 1,
+      Cinematic: 8,
     },
-
-    familyFriendly: true,
-
-    basePrice: 600,
 
     heroImage:
-      "/images/wild/trekking/adventure.jpg",
-      slot: "activity",
-        energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-      narrativePriority: 5,
-
-    heroCombinations: {
-
-      "Wild Escape":
-        "/images/wild/trekking/adventure.jpg",
-
-      "Wild Escape-Authentic":
-        "/images/wild/trekking/authentic.jpg",
-
-      "Wild Escape-Adventure":
-        "/images/wild/trekking/adventure.jpg",
-    },
-
-    gallery: {
-
-      trekking: [
-
-        "/images/wild/trekking/adventure.jpg",
-
-         "/images/wild/trekking/authentic.jpg",
-
-         "/images/wild/trekking/authentic.jpg",
-      ],
-    },
-
-    included: [],
+      "/images/foodwine/hero.webp",
   },
-
-  {
-    id: "snorkeling",
-
-    title: "Snorkeling",
-
-    operator: "Snorkeling",
-
-    macroCategory: "Wild Escape",
-
-    guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
-    ],
-
-    idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
-    ],
-
-    luxuryPriority: 3,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-      "€3000+",
-    ],
-
-    moodScores: {
-
-      Adventure: 4,
-
-      Cinematic: 3,
-
-      Authentic: 2,
-
-      Romantic: 1,
-    },
-
-    familyFriendly: true,
-
-    basePrice: 900,
-
-    heroImage:
-      "/images/wild/underwater/snorkeling/default.jpg",
-slot: "activity",
-  energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 6,
-
-    heroCombinations: {
-
-      "Wild Escape":
-         "/images/wild/underwater/snorkeling/default.jpg",
-
-      "Wild Escape-Adventure":
-         "/images/wild/underwater/snorkeling/default.jpg",
-
-      "Wild Escape-Cinematic":
-         "/images/wild/underwater/snorkeling/default.jpg",
-    },
-
-    gallery: {
-
-      snorkeling: [
-
-         "/images/wild/underwater/snorkeling/default.jpg",
-
-         "/images/wild/underwater/snorkeling/default.jpg",
-
-         "/images/wild/underwater/snorkeling/default.jpg",
-      ],
-    },
-
-    included: [],
-  },
-
-  {
-    id: "mermaiding",
-
-    title: "Mermaiding",
-
-    operator: "Mermaiding",
-
-    macroCategory: "Wild Escape",
-
-    guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
-    ],
-
-    idealGuests: [
-      "2",
-    ],
-
-    luxuryPriority: 4,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-      "€3000+",
-    ],
-
-    moodScores: {
-
-      Romantic: 4,
-
-      Adventure: 3,
-
-      Cinematic: 2,
-
-      Authentic: 1,
-    },
-
-    familyFriendly: false,
-
-    basePrice: 1100,
-
-    heroImage:
-      "/images/wild/underwater/mermaiding/cinematic.jpg",
-      slot: "activity",
-        energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 8,
-
-    heroCombinations: {
-
-      "Wild Escape":
-        "/images/wild/underwater/mermaiding/cinematic.jpg",
-
-      "Wild Escape-Romantic":
-        "/images/wild/underwater/mermaiding/romantic.jpg",
-
-      "Wild Escape-Cinematic":
-        "/images/wild/underwater/mermaiding/cinematic.jpg",
-
-      "Wild Escape-Romantic-Cinematic":
-        "/images/wild/underwater/mermaiding/cinematic.jpg",
-    },
-
-    gallery: {
-
-      underwater: [
-
-       "/images/wild/underwater/mermaiding/cinematic.jpg",
-
-        "/images/wild/underwater/mermaiding/romantic.jpg",
-
-        "/images/wild/underwater/mermaiding/romantic.jpg",
-      ],
-    },
-
-    included: [],
-  },
-
-  {
-    id: "horses",
-
-    title: "Horses",
-
-    operator: "Horses",
-
-    macroCategory: "Wild Escape",
-
-    guests: [
-      "2",
-      "3-4",
-      "5-7",
-      "8+",
-    ],
-
-    idealGuests: [
-      "2",
-      "3-4",
-      "5-7",
-    ],
-
-    luxuryPriority: 3,
-
-    budgets: [
-      "€500 - €1000",
-      "€1000 - €3000",
-      "€3000+",
-    ],
-
-    moodScores: {
-
-      Adventure: 4,
-
-      Authentic: 3,
-
-      Cinematic: 2,
-
-      Romantic: 1,
-    },
-
-    familyFriendly: true,
-
-    basePrice: 1300,
-
-    heroImage:
-      "/images/wild/horses/default.jpg",
-      slot: "activity",
-       energyScores: {
-
-  luxury: 5,
-
-  romantic: 4,
-
-  cinematic: 3,
-
-  adventure: 1,
-
-  slow: 2,
-},
-
-visualStyleScores: {
-
-  luxury: 5,
-
-  cinematic: 4,
-
-  warm: 2,
-
-  nature: 1,
-
-  dark: 1,
-},
-
-      narrativePriority: 5,
-
-    heroCombinations: {
-
-      "Wild Escape":
-        "/images/wild/horses/default.webp",
-
-      "Wild Escape-Adventure":
-        "/images/wild/horses/default.webp",
-
-      "Wild Escape-Authentic":
-        "/images/wild/horses/default.jpg",
-    },
-
-    gallery: {
-
-      horses: [
-
-        "/images/wild/horses/default.webp",
-
-        "/images/wild/horses/default.webp",
-
-        "/images/wild/horses/default.webp",
-      ],
-    },
-
-    included: [],
-  },
-
 ];

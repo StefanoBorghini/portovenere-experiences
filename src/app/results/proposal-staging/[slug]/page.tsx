@@ -1,436 +1,454 @@
 import { supabase } from "@/lib/supabase";
-import { generateProposal } from "@/lib/generateProposal";
-import { buildProposalGallery } from "@/lib/buildProposalGallery";
+
+import { generateProposal }
+from "@/lib/generateProposal";
+
 import ProposalNarrative
 from "@/components/proposal/ProposalNarrative";
+
 import FeaturedExperience
 from "@/components/proposal/FeaturedExperience";
+
 import IncludedExperiences
 from "@/components/proposal/IncludedExperiences";
+
 import CinematicGallery
 from "@/components/proposal/CinematicGallery";
+
 import ProposalEnhancements
 from "@/components/proposal/ProposalEnhancements";
+
 import ReservationSection
 from "@/components/proposal/ReservationSection";
 
-import {
-  calculateProposalPrice,
-} from "@/lib/pricing";
-import Countdown
-from "@/components/countdown";
-
-import DownloadPdfButton from "@/components/DownloadPdfButton";
+import DownloadPdfButton
+from "@/components/DownloadPdfButton";
 
 import ProposalHero
 from "@/components/proposal/ProposalHero";
 
+import {
+  buildRendererData,
+} from "@/lib/proposal-engine/buildRendererData";
+
+// =========================================================
+// TYPES
+// =========================================================
+
 interface ProposalPageProps {
+
   params: Promise<{
     slug: string;
   }>;
 }
 
+// =========================================================
+// PAGE
+// =========================================================
 
 export default async function ProposalPage({
+
   params,
+
 }: ProposalPageProps) {
 
-  const { slug } = await params;
+  // =======================================================
+  // PARAMS
+  // =======================================================
 
-  if (!slug || !supabase) {
+  const { slug } =
+    await params;
+
+  // =======================================================
+  // VALIDATION
+  // =======================================================
+
+  if (
+    !slug ||
+    !supabase
+  ) {
+
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
         Missing proposal ID
+
       </main>
     );
   }
 
-  
+  // =======================================================
+  // FETCH PROPOSAL
+  // =======================================================
 
-  // GET PROPOSAL
- 
-  const { data: proposal, error } =
-    await supabase
-      .from("Proposal")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+  const {
+    data: proposal,
+    error,
+  } = await supabase
 
-  const lead = proposal?.proposal_data;
+    .from("Proposal")
 
-  if (error || !lead) {
+    .select("*")
+
+    .eq("slug", slug)
+
+    .single();
+
+  const lead =
+    proposal?.proposal_data;
+
+  // =======================================================
+  // NOT FOUND
+  // =======================================================
+
+  if (
+    error ||
+    !lead
+  ) {
+
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
         Proposal not found
+
       </main>
     );
   }
 
+  // =======================================================
   // GENERATE PROPOSAL
+  // =======================================================
 
   const generatedProposal =
-  generateProposal({
 
-    experiencesSelected:
-      lead.experiences || [],
+    generateProposal({
 
-    moodsSelected:
-      lead.moods || [],
+      experiencesSelected:
+        lead.experiences || [],
 
-    budget:
-      lead.budget,
+      moodsSelected:
+        lead.moods || [],
 
-    guests:
-      lead.guests,
+      budget:
+        lead.budget,
 
-    travelingWithChildren:
-      lead.traveling_with_children || false,
+      guests:
+        lead.guests,
+
+      travelingWithChildren:
+        lead.traveling_with_children || false,
+    });
+
+  // =======================================================
+  // RENDERER DATA
+  // =======================================================
+
+  const {
+
+    galleryImages,
+
+    enhancements,
+
+    includedExperiences,
+
+    finalPrice,
+
+  } = buildRendererData({
+
+    generatedProposal,
+
+    lead,
   });
 
-    const includedSections =
-  generatedProposal.includedSections;
+  // =======================================================
+  // DYNAMIC CONTENT
+  // =======================================================
 
+  const heroTitle =
 
- // =========================================================
-// DYNAMIC CONTENT
-// =========================================================
+  generatedProposal.heroTitle ||
 
-const heroTitle =
-  generatedProposal.heroTitle;
+  "Mediterranean Escape";
 
-const heroImage =
-  generatedProposal.heroImage;
+  const heroImage =
 
-const dynamicIntroTitle =
-  generatedProposal.dynamicIntroTitle;
+  generatedProposal.heroImage ||
 
-const dynamicIntroParagraph =
-  generatedProposal.dynamicIntroParagraph;
+  "/images/default-hero.webp";
 
-const dynamicClosingParagraph =
-  generatedProposal.dynamicClosingParagraph;
+ const dynamicIntroTitle =
 
-console.log(
-  "HERO IMAGE",
-  heroImage
-);
+  generatedProposal.dynamicIntroTitle ||
 
-const featuredExperience =
-  generatedProposal.featuredExperience;
+  "Curated Riviera Experience";
 
-const scoredExperiences =
-  generatedProposal.scoredExperiences;
+  const dynamicIntroParagraph =
+    generatedProposal.dynamicIntroParagraph;
 
-const galleryImages =
-  buildProposalGallery({
+  const dynamicClosingParagraph =
 
-    experiencesSelected:
-      lead.experiences || [],
+  generatedProposal.dynamicClosingParagraph ||
 
-    moodsSelected:
-      lead.moods || [],
+  "We look forward to welcoming you into your private Riviera experience.";
 
-    heroExperienceId:
-      featuredExperience?.id || "",
-  });
+  const featuredExperience =
+    generatedProposal.featuredExperience;
 
-   const enhancements = [
+  // =======================================================
+  // EXPIRATION
+  // =======================================================
 
-  {
-    image: galleryImages[0],
+  const expiresAt =
+    proposal.expires_at;
 
-    title:
-      "Private Transfer",
+  const isExpired =
 
-    description:
-      "Private luxury transportation across the Riviera with curated pickup and drop-off experience.",
-  },
+    new Date(expiresAt)
+      .getTime() <
 
-  {
-    image: galleryImages[1],
+    Date.now();
 
-    title:
-      "Boutique Stay",
+  // =======================================================
+  // EXPIRED
+  // =======================================================
 
-    description:
-      "Curated overnight stays in selected boutique properties and private hospitality locations.",
-  },
+  if (isExpired) {
 
-  {
-    image: galleryImages[2],
+    return (
 
-    title:
-      "Personal Photographer",
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+          px-6
+        "
+      >
 
-    description:
-      "Editorial-style Riviera photography throughout your curated private experience.",
-  },
+        <div
+          className="
+            text-center
+            max-w-2xl
+          "
+        >
 
-  {
-    image: galleryImages[3],
+          <p
+            className="
+              uppercase
+              tracking-[0.4em]
+              text-zinc-600
+              text-xs
+              mb-8
+            "
+          >
 
-    title:
-      "Private Chef",
+            Private Reservation
 
-    description:
-      "Elevated onboard culinary experiences designed around Mediterranean atmosphere.",
-  },
+          </p>
 
-  {
-    image: galleryImages[3],
+          <h1
+            className="
+              text-4xl
+              md:text-7xl
+              font-light
+              leading-[0.92]
+              tracking-[-0.04em]
+              mb-10
+            "
+          >
 
-    title:
-      "Sommelier Onboard",
+            This proposal has expired
 
-    description:
-      "Elevated onboard wine experiences designed around Mediterranean atmosphere.",
-  },
+          </h1>
 
+          <p
+            className="
+              text-zinc-400
+              text-lg
+              leading-[1.9]
+            "
+          >
 
-  {
-  image: galleryImages[4],
+            Your private reservation window is no longer active.
+            Contact us directly to request a new curated proposal.
 
-  title:
-    "Live Onboard Music",
+          </p>
 
-  description:
-    "Live music performances curated around navigation and Mediterranean atmosphere.",
-},
-];
+        </div>
 
+      </main>
+    );
+  }
 
-// PRICING ENGINE
-
-const finalPrice =
-  calculateProposalPrice({
-
-    selectedExperiences:
-      scoredExperiences || [],
-
-    moodsSelected:
-      lead.moods || [],
-
-    guests:
-      lead.guests,
-
-    travelingWithChildren:
-      lead.traveling_with_children || false,
-  });
-
-const price =
-  `€${finalPrice.toLocaleString()}`;
-
-  // =========================================================
-// COUNTDOWN
-// =========================================================
-
-const expiresAt =
-  proposal.expires_at;
-
-const isExpired =
-
-  new Date(expiresAt)
-    .getTime() <
-
-  Date.now();
-
-const featuredOperator =
-  "Sail Boat King";
-
-  const includedExperiences = [
-
-  {
-    image: galleryImages[0],
-
-    title:
-      "Sunset Riviera Aperitivo",
-
-    description:
-      "A private culinary moment designed around Mediterranean sunset atmosphere and slow coastal navigation.",
-
-    details: [
-
-      "Local wine selection",
-
-      "Private onboard setup",
-
-      "Sunset aperitivo",
-    ],
-  },
-
-  {
-    image: galleryImages[1],
-
-    title:
-      "Hidden Coves Escape",
-
-    description:
-      "Discover secluded Riviera locations accessible only through private coastal navigation.",
-
-    details: [
-
-      "Private navigation",
-
-      "Hidden swimming spots",
-
-      "Slow luxury atmosphere",
-    ],
-  },
-
-  {
-    image: galleryImages[2],
-
-    title:
-      "Cinematic Riviera Moments",
-
-    description:
-      "Curated Riviera experiences designed around cinematic atmosphere and Mediterranean storytelling.",
-
-    details: [
-
-      "Editorial atmosphere",
-
-      "Private experience",
-
-      "Mediterranean scenery",
-    ],
-  },
-];
-
-const featuredSubtitle =
-  "Private Riviera Sailing Experience";
-
-const featuredDescription =
-  "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
-
-const featuredEssentials = [
-
-  "Private skipper",
-
-  "Sunset navigation",
-
-  "Hidden coves access",
-
-  "Onboard aperitivo",
-];
-
-if (isExpired) {
-
-  return (
-
-    <main className="
-      min-h-screen
-      bg-black
-      text-white
-      flex
-      items-center
-      justify-center
-      px-6
-    ">
-
-      <div className="text-center max-w-2xl">
-
-        <p className="
-          uppercase
-          tracking-[0.4em]
-          text-zinc-600
-          text-xs
-          mb-8
-        ">
-          Private Reservation
-        </p>
-
-        <h1 className="
-          text-4xl
-          md:text-7xl
-          font-light
-          mb-10
-        ">
-          This proposal has expired
-        </h1>
-
-        <p className="
-          text-zinc-400
-          text-lg
-          leading-8
-        ">
-          Your private reservation window is no longer active.
-          Contact us directly to request a new curated proposal.
-        </p>
-
-      </div>
-
-    </main>
-  );
-}
-
-
-
-  
-  // WHATSAPP CTA
+  // =======================================================
+  // WHATSAPP
+  // =======================================================
 
   const whatsappMessage =
+
     encodeURIComponent(
+
       `Hi Stefano, I'd like to confirm my ${featuredExperience?.title || "experience"} experience proposal for ${lead.guests} guests.`
     );
 
-    
-
   const whatsappUrl =
+
     `https://wa.me/393487140722?text=${whatsappMessage}`;
 
+  // =======================================================
+  // FEATURED EXPERIENCE
+  // =======================================================
+
+  const featuredOperator =
+    "Sail Boat King";
+
+  const featuredSubtitle =
+    "Private Riviera Sailing Experience";
+
+  const featuredDescription =
+    "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
+
+  const featuredEssentials = [
+
+    "Private skipper",
+
+    "Sunset navigation",
+
+    "Hidden coves access",
+
+    "Onboard aperitivo",
+  ];
+
+  // =======================================================
+  // RENDER
+  // =======================================================
+
   return (
+
     <main
       id="proposal-content"
-      className="bg-[#0C0C0C] text-white min-h-screen"
+      className="
+        bg-[#0C0C0C]
+        text-white
+        min-h-screen
+      "
     >
 
       {/* HERO */}
 
- <ProposalHero
-  heroImage={heroImage}
-  heroTitle={heroTitle}
-  guests={lead.guests}
-  totalPrice={finalPrice}
-/>
+      <ProposalHero
 
+        heroImage={heroImage}
 
-      {/* DIVIDER */}
+        heroTitle={heroTitle}
 
-<ProposalNarrative
-  title={dynamicIntroTitle}
-  paragraph={dynamicIntroParagraph}
-/>
+        guests={lead.guests}
 
-{/* EXPERIENCE DETAILS */}
-<FeaturedExperience
-  image={heroImage}
-  operator={featuredOperator}
-  subtitle={featuredSubtitle}
-  description={featuredDescription}
-  essentials={featuredEssentials}
-/>
-<IncludedExperiences
-  experiences={
-    includedExperiences
-  }
-/>
+        totalPrice={finalPrice}
+      />
 
-<ProposalEnhancements
-  enhancements={enhancements}
-/>
+      {/* NARRATIVE */}
+
+      <ProposalNarrative
+
+        title={dynamicIntroTitle}
+
+        paragraph={
+          dynamicIntroParagraph
+        }
+      />
+
+      {/* FEATURED EXPERIENCE */}
+
+      <FeaturedExperience
+
+        image={heroImage}
+
+        operator={
+          featuredOperator
+        }
+
+        subtitle={
+          featuredSubtitle
+        }
+
+        description={
+          featuredDescription
+        }
+
+        essentials={
+          featuredEssentials
+        }
+      />
+
+      {/* INCLUDED EXPERIENCES */}
+
+      <IncludedExperiences
+
+        experiences={
+          includedExperiences
+        }
+      />
+
+      {/* ENHANCEMENTS */}
+
+      <ProposalEnhancements
+
+        enhancements={
+          enhancements
+        }
+      />
+
       {/* GALLERY */}
 
-<CinematicGallery
-  images={galleryImages}
-/>
+      <CinematicGallery
 
-      {/* PDF DOWNLOAD */}
+        images={
+          galleryImages
+        }
+      />
 
-      <section className="pb-20 pt-20 px-6 print:hidden">
+      {/* PDF */}
 
-        <div className="max-w-4xl mx-auto flex justify-center">
+      <section
+        className="
+          py-20
+          px-6
+          print:hidden
+        "
+      >
+
+        <div
+          className="
+            max-w-4xl
+            mx-auto
+            flex
+            justify-center
+          "
+        >
 
           <DownloadPdfButton />
 
@@ -438,37 +456,88 @@ if (isExpired) {
 
       </section>
 
+      {/* CTA */}
 
-     {/* CTA */}
+      <ReservationSection
 
-<ReservationSection
-  expiresAt={expiresAt}
-  closingParagraph={
-    dynamicClosingParagraph
-  }
-  whatsappUrl={whatsappUrl}
-/>
+        expiresAt={expiresAt}
+
+        closingParagraph={
+          dynamicClosingParagraph
+        }
+
+        whatsappUrl={
+          whatsappUrl
+        }
+      />
 
       {/* FOOTER */}
 
-      <footer className="text-center border-t border-white/10 py-12 px-6">
+      <footer
+        className="
+          border-t
+          border-white/10
+          py-12
+          px-6
+        "
+      >
 
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div
+          className="
+            max-w-6xl
+            mx-auto
+            flex
+            flex-col
+            md:flex-row
+            items-center
+            justify-between
+            gap-6
+          "
+        >
 
-          <div>
+          <div
+            className="
+              text-center
+              md:text-left
+            "
+          >
 
-            <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
+            <p
+              className="
+                text-xs
+                uppercase
+                tracking-[0.35em]
+                text-zinc-500
+              "
+            >
+
               Portovenere Experiences
+
             </p>
 
-            <p className="text-zinc-400 mt-2">
+            <p
+              className="
+                text-zinc-400
+                mt-3
+                leading-relaxed
+              "
+            >
+
               Private curated luxury experiences in Liguria
+
             </p>
 
           </div>
 
-          <div className="text-zinc-500 text-sm">
+          <div
+            className="
+              text-zinc-500
+              text-sm
+            "
+          >
+
             info@portovenere.com
+
           </div>
 
         </div>

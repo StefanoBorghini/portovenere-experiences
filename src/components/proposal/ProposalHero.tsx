@@ -12,6 +12,10 @@ interface ProposalHeroProps {
 }
 import { motion } from "framer-motion";
 
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
+
 export default function ProposalHero({
 
   heroImage,
@@ -104,39 +108,18 @@ transition={{
 
       {/* CONTENT */}
 
-   <motion.div
- initial={{
-  opacity: 0,
-  y: 18,
-  filter: "blur(10px)",
-}}
+ <motion.div
 
-animate={{
-  opacity: 1,
-  y: 0,
-  filter: "blur(0px)",
-}}
+  variants={fadeReveal}
 
-transition={{
-  duration: 1.8,
-  ease: [0.22, 1, 0.36, 1],
-}}
+  initial="initial"
 
+  animate="animate"
 
-  className="
-    relative
-    z-20
-    flex
-    flex-col
-    items-center
-    justify-center
-    text-center
-    px-6
-    max-w-5xl
-    mx-auto
-    pb-16
-md:pb-0
-  "
+  transition={{
+    duration: 1.8,
+    ease: [0.22, 1, 0.36, 1],
+  }}
 >
 
         {/* LOGO */}
