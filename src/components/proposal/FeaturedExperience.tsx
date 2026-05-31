@@ -17,6 +17,8 @@ interface FeaturedExperienceProps {
   guests?: string;
 }
 
+import { motion } from "framer-motion";
+
 export default function FeaturedExperience({
 
   image,
@@ -58,11 +60,34 @@ export default function FeaturedExperience({
 
         {/* LEFT INFO */}
 
-        <div className="
-          order-1
-          text-center
-          lg:text-left
-        ">
+       <motion.div
+
+  initial={{
+    opacity: 0,
+    y: 24,
+  }}
+
+  whileInView={{
+    opacity: 1,
+    y: 0,
+  }}
+
+  viewport={{
+    once: true,
+    amount: 0.2,
+  }}
+
+  transition={{
+    duration: 0.9,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+
+  className="
+    order-1
+    text-center
+    lg:text-left
+  "
+>
 
           <div className="
             bg-white/[0.03]
@@ -250,7 +275,7 @@ export default function FeaturedExperience({
 
           </div>
 
-        </div>
+        </motion.div>
 
         {/* RIGHT IMAGE */}
 
@@ -258,12 +283,34 @@ export default function FeaturedExperience({
           order-2
         ">
 
-          <div className="
-            relative
-            overflow-hidden
-            rounded-[36px]
-          ">
+          <motion.div
 
+  initial={{
+    opacity: 0,
+    scale: 1.04,
+  }}
+
+  whileInView={{
+    opacity: 1,
+    scale: 1,
+  }}
+
+  viewport={{
+    once: true,
+    amount: 0.3,
+  }}
+
+  transition={{
+    duration: 1.2,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+
+  className="
+    relative
+    overflow-hidden
+    rounded-[36px]
+  "
+>
             <img
               src={image}
               alt={operator}
@@ -283,11 +330,12 @@ export default function FeaturedExperience({
               to-transparent
             " />
 
-          </div>
+          
 
-        </div>
-
-      </div>
+        </motion.div>
+</div>
+</div>
+      
 
     </section>
   );

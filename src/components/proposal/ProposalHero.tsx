@@ -8,6 +8,7 @@ interface ProposalHeroProps {
 
   totalPrice: number;
 }
+import { motion } from "framer-motion";
 
 export default function ProposalHero({
 
@@ -58,13 +59,27 @@ export default function ProposalHero({
 
       {/* CONTENT */}
 
-      <div className="
-        relative
-        z-10
-        text-center
-        px-6
-        max-w-5xl
-      ">
+    <motion.div
+  initial={{
+    opacity: 0,
+    y: 24,
+  }}
+
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+
+  transition={{
+    duration: 1,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+
+  className="
+    relative
+    z-10
+  "
+>
 
         {/* LOGO */}
 
@@ -166,7 +181,7 @@ export default function ProposalHero({
 
 </div>
 
-      </div>
+      </motion.div>
 
     </section>
   );
