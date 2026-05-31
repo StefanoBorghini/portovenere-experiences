@@ -494,7 +494,7 @@ export default function CinematicGallery({
         className="
           relative
           z-10
-
+          select-none
           flex
 
           gap-8
@@ -524,7 +524,7 @@ export default function CinematicGallery({
               className={`
                 relative
                 shrink-0
-
+                will-change-transform
                 w-[88vw]
                 md:w-[30vw]
 
@@ -564,7 +564,8 @@ export default function CinematicGallery({
               <img
                 src={image}
                 alt="Experience"
-
+                pointer-events-none
+                select-none
                 draggable={false}
 
                 className="
