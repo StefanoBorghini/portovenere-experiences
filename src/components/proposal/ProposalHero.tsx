@@ -43,7 +43,19 @@ export default function ProposalHero({
 
       {/* BACKGROUND */}
 
-      <img
+      <motion.img
+      initial={{
+  scale: 1.06,
+}}
+
+animate={{
+  scale: 1,
+}}
+
+transition={{
+  duration: 12,
+  ease: "linear",
+}}
         src={heroImage}
         alt={heroTitle}
         className="
@@ -54,6 +66,17 @@ export default function ProposalHero({
           object-cover
         "
       />
+
+      <div
+  className="
+    absolute
+    inset-0
+    opacity-[0.03]
+    mix-blend-soft-light
+    pointer-events-none
+    bg-[url('/noise.png')]
+  "
+/>
 
       {/* OVERLAY */}
 
@@ -95,6 +118,8 @@ transition={{
   duration: 1.8,
   ease: [0.22, 1, 0.36, 1],
 }}
+
+
   className="
     relative
     z-20
@@ -106,12 +131,26 @@ transition={{
     px-6
     max-w-5xl
     mx-auto
+    pb-16
+md:pb-0
   "
 >
 
         {/* LOGO */}
 
-        <img
+        <motion.img
+        initial={{
+  scale: 1.06,
+}}
+
+animate={{
+  scale: 1,
+}}
+
+transition={{
+  duration: 12,
+  ease: "linear",
+}}
           src="/logo-white.png"
           alt="Portovenere Experiences"
           className="
@@ -131,7 +170,7 @@ md:mb-10
           uppercase
           tracking-[0.35em]
           text-[11px]
-          text-zinc-300
+          text-white/52
           text-center
           mb-6
         ">
@@ -143,7 +182,7 @@ md:mb-10
        <h1
   className="
     text-5xl
-    md:text-8xl
+    md:text-[110px]
     font-light
     leading-[0.92]
 tracking-[-0.04em]
@@ -151,8 +190,7 @@ font-[450]
     mb-12
 md:mb-14
     text-center
-    max-w-6xl
-    mx-auto
+  
     max-w-[320px]
 md:max-w-5xl
   "
@@ -193,7 +231,7 @@ mb-20
   items-center
   justify-center
   border
-  border-white/20
+  border-white/12
   rounded-[40px]
   px-8
 py-5
@@ -206,7 +244,7 @@ min-w-[220px]
     uppercase
     tracking-[0.35em]
     text-[11px]
-    text-zinc-300
+    text-white/52
     mb-3
   ">
     Starting From
@@ -217,8 +255,7 @@ min-w-[220px]
 tracking-[-0.04em]
 font-[300]
     md:text-5xl
-    pb-16
-md:pb-0
+    
     tracking-[-0.03em]
 font-[300]
   ">
