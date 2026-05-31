@@ -259,9 +259,8 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
       w-full
       md:w-auto
       rounded-full
-      border
-      h-[64px]
-      px-8
+      px-5
+      py-3
       text-sm
       tracking-[0.2em]
       uppercase
@@ -280,8 +279,9 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
           `
 
           : `
-            border-white/20
-            text-white
+           border-transparent
+  text-white
+  shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]
           `
       }
     `}
