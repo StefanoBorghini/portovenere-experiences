@@ -6,26 +6,58 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { experiences } from "@/lib/experiences";
 import DatePicker from "react-datepicker";
+import { forwardRef } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function CraftYourExperience() {
 
-  const minimumBookingDate =
-  new Date();
-
-minimumBookingDate.setDate(
-  minimumBookingDate.getDate() + 14
-);
-
-const minDate =
-  minimumBookingDate
-    .toLocaleDateString(
-      "en-CA",
+  const CustomDateInput =
+  forwardRef<
+    HTMLButtonElement,
+    any
+  >(
+    (
       {
-        timeZone:
-          "Europe/Rome",
-      }
-    );
+        value,
+        onClick,
+        placeholder,
+        className,
+      },
+      ref
+    ) => (
+
+      <button
+        type="button"
+        onClick={onClick}
+        ref={ref}
+        className={className}
+      >
+
+        {value || placeholder}
+
+      </button>
+    )
+  );
+
+CustomDateInput.displayName =
+  "CustomDateInput";
+
+  const minimumBookingDate =
+    new Date();
+
+  minimumBookingDate.setDate(
+    minimumBookingDate.getDate() + 14
+  );
+
+  const minDate =
+    minimumBookingDate
+      .toLocaleDateString(
+        "en-CA",
+        {
+          timeZone:
+            "Europe/Rome",
+        }
+      );
 
   const router = useRouter();
 
@@ -39,16 +71,16 @@ const minDate =
     guests: "",
     budget: "",
 
-    
-  startDate: "",
-  endDate: "",
 
-  travelingWithChildren: false,
+    startDate: "",
+    endDate: "",
+
+    travelingWithChildren: false,
 
     termsAccepted: false,
   });
 
-  
+
 
 
 
@@ -72,173 +104,173 @@ const minDate =
   };
 
   // MULTI SELECT
-const [errors, setErrors] =
-  useState<string[]>([]);
+  const [errors, setErrors] =
+    useState<string[]>([]);
 
-const [selectionWarning, setSelectionWarning] =
-  useState("");
+  const [selectionWarning, setSelectionWarning] =
+    useState("");
 
   const incompatibleExperiences:
-Record<string, string[]> = {
+    Record<string, string[]> = {
 
-  "Sea Escape": [
-    "Aerial Escape",
-  ],
+    "Sea Escape": [
+      "Aerial Escape",
+    ],
 
-  "Aerial Escape": [
-    "Sea Escape",
-  ],
-};
+    "Aerial Escape": [
+      "Sea Escape",
+    ],
+  };
 
-// MULTI SELECT
+  // MULTI SELECT
 
-const handleMultiSelect = (
-  field: "experiences" | "moods",
-  value: string,
-  max: number
-) => {
+  const handleMultiSelect = (
+    field: "experiences" | "moods",
+    value: string,
+    max: number
+  ) => {
 
-  setSelectionWarning("");
+    setSelectionWarning("");
 
-  setFormData((prev) => {
+    setFormData((prev) => {
 
-    const currentValues = prev[field];
+      const currentValues = prev[field];
 
-    const alreadySelected =
-      currentValues.includes(value);
+      const alreadySelected =
+        currentValues.includes(value);
 
       // =====================================================
-// EXPERIENCE CONFLICTS
-// =====================================================
+      // EXPERIENCE CONFLICTS
+      // =====================================================
 
-if (
-  field === "experiences" &&
-  !alreadySelected
-) {
+      if (
+        field === "experiences" &&
+        !alreadySelected
+      ) {
 
-  const hasConflict =
+        const hasConflict =
 
-    currentValues.some(
-      (selected) =>
+          currentValues.some(
+            (selected) =>
 
-        incompatibleExperiences[
-          selected
-        ]?.includes(value)
+              incompatibleExperiences[
+                selected
+              ]?.includes(value)
+          );
+
+        if (hasConflict) {
+
+          setSelectionWarning(
+            "These experiences cannot be combined"
+          );
+
+          return prev;
+        }
+      }
+
+      // DESELECT
+
+      // DESELECT
+
+      if (alreadySelected) {
+
+        return {
+          ...prev,
+          [field]:
+            currentValues.filter(
+              (item) =>
+                item !== value
+            ),
+        };
+      }
+
+      // LIMIT REACHED
+
+      if (currentValues.length >= max) {
+
+        setSelectionWarning(
+
+          field === "experiences"
+            ? "Maximum 2 experiences allowed"
+            : "Maximum 2 atmosphere selections allowed"
+
+        );
+
+        return prev;
+      }
+
+      // SELECT
+
+      return {
+        ...prev,
+        [field]: [
+          ...currentValues,
+          value,
+        ],
+      };
+    });
+
+    setErrors((prev) =>
+      prev.filter(
+        (error) => error !== field
+      )
     );
-
-  if (hasConflict) {
-
-    setSelectionWarning(
-      "These experiences cannot be combined"
-    );
-
-    return prev;
-  }
-}
-
-    // DESELECT
-
-  // DESELECT
-
-if (alreadySelected) {
-
-  return {
-    ...prev,
-    [field]:
-      currentValues.filter(
-        (item) =>
-          item !== value
-      ),
   };
-}
-
-    // LIMIT REACHED
-
-    if (currentValues.length >= max) {
-
-      setSelectionWarning(
-
-        field === "experiences"
-          ? "Maximum 2 experiences allowed"
-          : "Maximum 2 atmosphere selections allowed"
-
-      );
-
-      return prev;
-    }
-
-    // SELECT
-
-    return {
-      ...prev,
-      [field]: [
-        ...currentValues,
-        value,
-      ],
-    };
-  });
-
-  setErrors((prev) =>
-    prev.filter(
-      (error) => error !== field
-    )
-  );
-};
 
   // VALIDATION
 
   const scrollToError = (
-  field: string
-) => {
+    field: string
+  ) => {
 
-  const map: Record<string, string> = {
+    const map: Record<string, string> = {
 
-    name:
-      "name-section",
+      name:
+        "name-section",
 
-    email:
-      "email-section",
+      email:
+        "email-section",
 
-    experiences:
-      "experiences-section",
+      experiences:
+        "experiences-section",
 
-    moods:
-      "moods-section",
+      moods:
+        "moods-section",
 
-    guests:
-      "guests-section",
+      guests:
+        "guests-section",
 
-    budget:
-      "budget-section",
+      budget:
+        "budget-section",
 
-    startDate:
-      "dates-section",
+      startDate:
+        "dates-section",
 
-    endDate:
-      "dates-section",
+      endDate:
+        "dates-section",
 
-    terms:
-      "terms-section",
+      terms:
+        "terms-section",
+    };
+
+    const elementId =
+      map[field];
+
+    if (!elementId) return;
+
+    const element =
+      document.getElementById(
+        elementId
+      );
+
+    if (element) {
+
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
   };
-
-  const elementId =
-    map[field];
-
-  if (!elementId) return;
-
-  const element =
-    document.getElementById(
-      elementId
-    );
-
-  if (element) {
-
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  }
-};
 
   const validateForm = () => {
 
@@ -275,28 +307,28 @@ if (alreadySelected) {
       newErrors.push("budget");
 
     if (!formData.startDate)
-  newErrors.push("startDate");
+      newErrors.push("startDate");
 
-if (!formData.endDate)
-  newErrors.push("endDate");
+    if (!formData.endDate)
+      newErrors.push("endDate");
 
     if (!formData.termsAccepted)
       newErrors.push("terms");
 
-    
 
-  setErrors(newErrors);
 
-if (newErrors.length > 0) {
+    setErrors(newErrors);
 
-  scrollToError(
-    newErrors[0]
-  );
+    if (newErrors.length > 0) {
 
-  return false;
-}
+      scrollToError(
+        newErrors[0]
+      );
 
-return true;
+      return false;
+    }
+
+    return true;
   };
 
   // SUBMIT
@@ -343,14 +375,14 @@ return true;
             budget:
               formData.budget,
 
-              start_date:
-  formData.startDate,
+            start_date:
+              formData.startDate,
 
-end_date:
-  formData.endDate,
+            end_date:
+              formData.endDate,
 
-traveling_with_children:
-  formData.travelingWithChildren,
+            traveling_with_children:
+              formData.travelingWithChildren,
           },
         ])
         .select()
@@ -362,13 +394,13 @@ traveling_with_children:
       ) {
 
         console.error(
-  "Lead error full:",
-  JSON.stringify(
-    leadError,
-    null,
-    2
-  )
-);
+          "Lead error full:",
+          JSON.stringify(
+            leadError,
+            null,
+            2
+          )
+        );
 
         return;
       }
@@ -405,49 +437,49 @@ traveling_with_children:
         .from("Proposal")
         .insert([
 
-  {
+          {
 
-    lead_id:
-      leadData.id,
+            lead_id:
+              leadData.id,
 
-    slug,
+            slug,
 
-    expires_at:
-      new Date(
-        Date.now() +
-        48 * 60 * 60 * 1000
-      ).toISOString(),
+            expires_at:
+              new Date(
+                Date.now() +
+                48 * 60 * 60 * 1000
+              ).toISOString(),
 
-    proposal_data: {
+            proposal_data: {
 
-      name:
-        formData.name,
+              name:
+                formData.name,
 
 
-  email:
-    formData.email,
+              email:
+                formData.email,
 
-  experiences:
-    formData.experiences,
+              experiences:
+                formData.experiences,
 
-  moods:
-    formData.moods,
+              moods:
+                formData.moods,
 
-  guests:
-    formData.guests,
+              guests:
+                formData.guests,
 
-  budget:
-    formData.budget,
+              budget:
+                formData.budget,
 
-  start_date:
-    formData.startDate,
+              start_date:
+                formData.startDate,
 
-  end_date:
-    formData.endDate,
+              end_date:
+                formData.endDate,
 
-  traveling_with_children:
-    formData.travelingWithChildren,
-},
+              traveling_with_children:
+                formData.travelingWithChildren,
+            },
 
             total_price: 0,
           },
@@ -461,26 +493,27 @@ traveling_with_children:
       ) {
 
         console.log(
-  "Proposal error:",
-  JSON.stringify(
-    errors,
-    null,
-    2
-  )
-);
+          "Proposal error:",
+          JSON.stringify(
+            errors,
+            null,
+            2
+          )
+        );
         return;
       }
 
       // REDIRECT
 
-    /*  router.push(
-        `/results/proposal/${proposalData.slug}`
-      );
-*/
-       {
-router.push(
-  `/results/proposal-staging/${proposalData.slug}`
-)}
+      /*  router.push(
+          `/results/proposal/${proposalData.slug}`
+        );
+  */
+      {
+        router.push(
+          `/results/proposal-staging/${proposalData.slug}`
+        )
+      }
     } catch (err) {
 
       console.error(
@@ -497,31 +530,31 @@ router.push(
 
         {/* TOP */}
 
-<div className="text-center pt-0 pb-16 md:pt-20 md:pb-28">
+        <div className="text-center pt-0 pb-16 md:pt-20 md:pb-28">
 
-  <div className="flex justify-center -mt-15 mb-5 md:mb-8">
-    <img
-      src="/logo-white.png"
-      alt="Portovenere Experiences"
-      className="w-24 md:w-32 opacity-80"
-    />
-  </div>
+          <div className="flex justify-center -mt-15 mb-5 md:mb-8">
+            <img
+              src="/logo-white.png"
+              alt="Portovenere Experiences"
+              className="w-24 md:w-32 opacity-80"
+            />
+          </div>
 
-  <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6 md:mb-8">
-    Private Experience Curation
-  </p>
+          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6 md:mb-8">
+            Private Experience Curation
+          </p>
 
-  <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8 md:mb-10">
-    Craft Your
-    <br />
-    Mediterranean Escape
-  </h1>
+          <h1 className="text-5xl md:text-7xl font-light leading-[0.95] mb-8 md:mb-10">
+            Craft Your
+            <br />
+            Mediterranean Escape
+          </h1>
 
-  <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
-    Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
-  </p>
+          <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed">
+            Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.
+          </p>
 
-</div>
+        </div>
 
         {/* FORM */}
 
@@ -545,13 +578,12 @@ router.push(
             </div>
 
             <div
-              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${
-                errors.includes(
-                  "experiences"
-                )
+              className={`grid md:grid-cols-2 gap-4 rounded-3xl p-2 ${errors.includes(
+                "experiences"
+              )
                   ? "border border-red-500"
                   : ""
-              }`}
+                }`}
             >
 
               {[
@@ -559,8 +591,8 @@ router.push(
                 "Aerial Escape",
                 "Gourmet Escape",
                 "Wild Escape",
-               
-                
+
+
               ].map((item) => (
 
                 <button
@@ -573,13 +605,12 @@ router.push(
                       2
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
-                    formData.experiences.includes(
-                      item
-                    )
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.experiences.includes(
+                    item
+                  )
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
-                  }`}
+                    }`}
                 >
                   {item}
                 </button>
@@ -617,13 +648,12 @@ router.push(
             </div>
 
             <div
-              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2 ${
-                errors.includes(
-                  "moods"
-                )
+              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2 ${errors.includes(
+                "moods"
+              )
                   ? "border border-red-500"
                   : ""
-              }`}
+                }`}
             >
 
               {[
@@ -631,8 +661,8 @@ router.push(
                 "Cinematic",
                 "Authentic",
                 "Adventure",
-                
-                
+
+
               ].map((item) => (
 
                 <button
@@ -645,13 +675,12 @@ router.push(
                       2
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
-                    formData.moods.includes(
-                      item
-                    )
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.moods.includes(
+                    item
+                  )
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
-                  }`}
+                    }`}
                 >
                   {item}
                 </button>
@@ -662,8 +691,8 @@ router.push(
 
           </div>
 
-          
-         
+
+
 
           {/* GUESTS */}
 
@@ -697,11 +726,10 @@ router.push(
                       item
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
-                    formData.guests === item
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.guests === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
-                  }`}
+                    }`}
                 >
                   {item}
                 </button>
@@ -712,222 +740,260 @@ router.push(
 
           </div>
 
-{/* DATES */}
+          {/* DATES */}
 
-<div
-  id="dates-section"
-  className="space-y-6"
->
+          <div
+            id="dates-section"
+            className="space-y-6"
+          >
 
-  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
 
-    Travel Dates
+              Travel Dates
 
-  </p>
+            </p>
 
-  <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
 
-    {/* START DATE */}
+              {/* START DATE */}
 
-    <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3">
 
-      <p className="text-sm text-zinc-500">
+                <p className="text-sm text-zinc-500">
 
-        Start Date
+                  Start Date
 
-      </p>
+                </p>
 
-      <DatePicker
-       onFocus={(e) =>
-    e.target.blur()
-  }
+                <DatePicker
+                  customInput={
 
-preventOpenOnFocus={true}
+  <CustomDateInput
 
-shouldCloseOnSelect={true}
-        selected={
-          formData.startDate
-            ? new Date(
-                formData.startDate
-              )
-            : null
-        }
+    className={`
+      w-full
+      rounded-2xl
+      px-6
+      py-6
+      text-left
+      text-lg
+      bg-white/5
+      border
+      text-white
+      outline-none
+      transition
+      backdrop-blur-md
 
-        onChange={(
-          date: Date | null
-        ) => {
+      ${
+        errors.includes(
+          "startDate"
+        )
 
-          setFormData({
-            ...formData,
+          ? "border-red-500 bg-red-500/10"
 
-            startDate:
-              date
-                ? date
-                    .toISOString()
-                    .split("T")[0]
-                : "",
-          });
+          : "border-white/10 hover:border-white/30"
+      }
+    `}
+  />
+}
 
-          setErrors((prev) =>
-            prev.filter(
-              (error) =>
-                error !==
-                "startDate"
-            )
-          );
-        }}
+                  shouldCloseOnSelect={true}
+                  selected={
+                    formData.startDate
+                      ? new Date(
+                        formData.startDate
+                      )
+                      : null
+                  }
 
-        minDate={
-          minimumBookingDate
-        }
+                  onChange={(
+                    date: Date | null
+                  ) => {
 
-        placeholderText="Select start date"
+                    setFormData({
+                      ...formData,
 
-        dateFormat="MMMM d, yyyy"
+                      startDate:
+                        date
+                          ? date
+                            .toISOString()
+                            .split("T")[0]
+                          : "",
+                    });
 
-        calendarClassName="custom-calendar"
+                    setErrors((prev) =>
+                      prev.filter(
+                        (error) =>
+                          error !==
+                          "startDate"
+                      )
+                    );
+                  }}
 
-        wrapperClassName="w-full"
+                  minDate={
+                    minimumBookingDate
+                  }
 
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-          errors.includes(
-            "startDate"
-          )
-            ? "border-red-500 bg-red-500/10"
-            : "border-white/10 hover:border-white/30 focus:border-white/50"
-        }`}
-      />
+                  placeholderText="Select start date"
 
-    </div>
+                  dateFormat="MMMM d, yyyy"
 
-    {/* END DATE */}
+                  calendarClassName="custom-calendar"
 
-    <div className="flex flex-col gap-3">
+                  wrapperClassName="w-full"
 
-      <p className="text-sm text-zinc-500">
+                  
+                />
 
-        End Date
+              </div>
 
-      </p>
+              {/* END DATE */}
 
-      <DatePicker
+              <div className="flex flex-col gap-3">
 
-       onFocus={(e) =>
-    e.target.blur()
-  }
-preventOpenOnFocus={true}
+                <p className="text-sm text-zinc-500">
 
-shouldCloseOnSelect={true}
+                  End Date
 
-        selected={
-          formData.endDate
-            ? new Date(
-                formData.endDate
-              )
-            : null
-        }
+                </p>
 
-        onChange={(
-          date: Date | null
-        ) => {
+                <DatePicker
 
-          setFormData({
-            ...formData,
+                 customInput={
 
-            endDate:
-              date
-                ? date
-                    .toISOString()
-                    .split("T")[0]
-                : "",
-          });
+  <CustomDateInput
 
-          setErrors((prev) =>
-            prev.filter(
-              (error) =>
-                error !==
-                "endDate"
-            )
-          );
-        }}
+    className={`
+      w-full
+      rounded-2xl
+      px-6
+      py-6
+      text-left
+      text-lg
+      bg-white/5
+      border
+      text-white
+      outline-none
+      transition
+      backdrop-blur-md
 
-        minDate={
-          formData.startDate
-            ? new Date(
-                formData.startDate
-              )
-            : minimumBookingDate
-        }
+      ${
+        errors.includes(
+          "startDate"
+        )
 
-        placeholderText="Select end date"
+          ? "border-red-500 bg-red-500/10"
 
-        dateFormat="MMMM d, yyyy"
+          : "border-white/10 hover:border-white/30"
+      }
+    `}
+  />
+}
 
-        calendarClassName="custom-calendar"
+                  shouldCloseOnSelect={true}
 
-        wrapperClassName="w-full"
+                  selected={
+                    formData.endDate
+                      ? new Date(
+                        formData.endDate
+                      )
+                      : null
+                  }
 
-        className={`w-full rounded-2xl px-6 py-6 text-lg bg-white/5 border text-white outline-none transition backdrop-blur-md ${
-          errors.includes(
-            "endDate"
-          )
-            ? "border-red-500 bg-red-500/10"
-            : "border-white/10 hover:border-white/30 focus:border-white/50"
-        }`}
-      />
+                  onChange={(
+                    date: Date | null
+                  ) => {
 
-    </div>
+                    setFormData({
+                      ...formData,
 
-  </div>
+                      endDate:
+                        date
+                          ? date
+                            .toISOString()
+                            .split("T")[0]
+                          : "",
+                    });
 
-</div>
+                    setErrors((prev) =>
+                      prev.filter(
+                        (error) =>
+                          error !==
+                          "endDate"
+                      )
+                    );
+                  }}
 
-{/* CHILDREN */}
+                  minDate={
+                    formData.startDate
+                      ? new Date(
+                        formData.startDate
+                      )
+                      : minimumBookingDate
+                  }
 
-<div>
+                  placeholderText="Select end date"
 
-  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-    Traveling With Children
-  </p>
+                  dateFormat="MMMM d, yyyy"
 
-  <div className="grid md:grid-cols-2 gap-4">
+                  calendarClassName="custom-calendar"
 
-    {[
-      {
-        label: "Yes",
-        value: true,
-      },
-      {
-        label: "No",
-        value: false,
-      },
-    ].map((item) => (
+                  wrapperClassName="w-full"
 
-      <button
-        type="button"
-        key={item.label}
-        onClick={() => {
+                  
+                />
 
-          setFormData({
-            ...formData,
-            travelingWithChildren:
-              item.value,
-          });
-        }}
-        className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${
-          formData.travelingWithChildren === item.value
-            ? "border-white bg-white text-black"
-            : "border-white/10 bg-white/5 hover:border-white/40"
-        }`}
-      >
-        {item.label}
-      </button>
+              </div>
 
-    ))}
+            </div>
 
-  </div>
+          </div>
 
-</div>
+          {/* CHILDREN */}
+
+          <div>
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+              Traveling With Children
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-4">
+
+              {[
+                {
+                  label: "Yes",
+                  value: true,
+                },
+                {
+                  label: "No",
+                  value: false,
+                },
+              ].map((item) => (
+
+                <button
+                  type="button"
+                  key={item.label}
+                  onClick={() => {
+
+                    setFormData({
+                      ...formData,
+                      travelingWithChildren:
+                        item.value,
+                    });
+                  }}
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${formData.travelingWithChildren === item.value
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                    }`}
+                >
+                  {item.label}
+                </button>
+
+              ))}
+
+            </div>
+
+          </div>
 
 
 
@@ -942,11 +1008,10 @@ shouldCloseOnSelect={true}
             </p>
 
             <div
-              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${
-                errors.includes("budget")
+              className={`grid md:grid-cols-3 gap-4 rounded-3xl p-2 ${errors.includes("budget")
                   ? "border border-red-500"
                   : ""
-              }`}
+                }`}
             >
 
               {[
@@ -964,11 +1029,10 @@ shouldCloseOnSelect={true}
                       item
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${
-                    formData.budget === item
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.budget === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
-                  }`}
+                    }`}
                 >
                   {item}
                 </button>
@@ -980,7 +1044,7 @@ shouldCloseOnSelect={true}
           </div>
 
 
-          
+
           {/* NAME */}
 
           <div id="name-section">
@@ -1008,11 +1072,10 @@ shouldCloseOnSelect={true}
                   )
                 );
               }}
-              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-                errors.includes("name")
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${errors.includes("name")
                   ? "border border-red-500 bg-red-500/10"
                   : "border border-white/10 bg-white/5 focus:border-white/40"
-              }`}
+                }`}
             />
 
           </div>
@@ -1043,11 +1106,10 @@ shouldCloseOnSelect={true}
                   )
                 );
               }}
-              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${
-                errors.includes("email")
+              className={`w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none transition ${errors.includes("email")
                   ? "border border-red-500 bg-red-500/10"
                   : "border border-white/10 bg-white/5 hover:border-white/40 focus:border-white/40"
-              }`}
+                }`}
             />
 
           </div>
