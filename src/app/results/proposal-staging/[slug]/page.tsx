@@ -174,6 +174,16 @@ const galleryImages =
     description:
       "Elevated onboard culinary and wine experiences designed around Mediterranean atmosphere.",
   },
+
+  {
+  image: galleryImages[4],
+
+  title:
+    "Live Onboard Music",
+
+  description:
+    "Live Riviera music performances curated around sunset navigation and Mediterranean atmosphere.",
+},
 ];
 
 
