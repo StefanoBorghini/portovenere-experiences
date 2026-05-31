@@ -253,7 +253,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                           : `
                             border-white/20
-                            text-black
+                            text-white
                           `
                       }
                     ">
