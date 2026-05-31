@@ -195,7 +195,7 @@ const galleryImages =
     "Live Onboard Music",
 
   description:
-    "Live music performances curated around sunset navigation and Mediterranean atmosphere.",
+    "Live music performances curated around navigation and Mediterranean atmosphere.",
 },
 ];
 
