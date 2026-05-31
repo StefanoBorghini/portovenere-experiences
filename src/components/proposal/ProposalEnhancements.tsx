@@ -228,46 +228,70 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                                         </p>
 
-                                        <div className="
-                      inline-flex
-                      items-center
-                      justify-center
-                      rounded-full
-                      border
-                      px-5
-                      py-3
-                      text-sm
-                      tracking-[0.2em]
-                      uppercase
-                      transition-all
-                      duration-300
+                                        <div
+  className={`
+    inline-flex
+    rounded-full
+    transition-all
+    duration-500
 
-                      ${
-                        isSelected
+    ${
+      isSelected
 
-                          ? `
-                            
-border-transparent
-  bg-white
-  text-black
-  shadow-[0_0_0_1px_rgba(255,255,255,0.12),
-  0_0_0_8px_rgba(255,255,255,0.06)]
-                          `
+        ? `
+          p-[6px]
+          border
+          border-white/15
+        `
 
-                          : `
-                            border-white/20
-                            text-black
-                          `
-                      }
-                    ">
+        : `
+          p-0
+        `
+    }
+  `}
+>
 
-                                            {isSelected
+  <div
+    className={`
+      inline-flex
+      items-center
+      justify-center
+      rounded-full
+      border
+      px-5
+      py-3
+      text-sm
+      tracking-[0.2em]
+      uppercase
+      transition-all
+      duration-300
 
-                                                ? "Enhancement Requested"
+      ${
+        isSelected
 
-                                                : "Request Enhancement"}
+          ? `
+            border-transparent
+            bg-white
+            text-black
+          `
 
-                                        </div>
+          : `
+            border-white/20
+            text-white
+          `
+      }
+    `}
+  >
+
+    {isSelected
+
+      ? "Enhancement Requested"
+
+      : "Request Enhancement"}
+
+  </div>
+
+</div>
 
                                     </div>
 
