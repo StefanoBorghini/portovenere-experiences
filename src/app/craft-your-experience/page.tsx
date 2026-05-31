@@ -738,6 +738,10 @@ router.push(
       </p>
 
       <DatePicker
+       onFocus={(e) =>
+    e.target.blur()
+  }
+
 
         selected={
           formData.startDate
@@ -805,6 +809,11 @@ router.push(
       </p>
 
       <DatePicker
+
+       onFocus={(e) =>
+    e.target.blur()
+  }
+
 
         selected={
           formData.endDate
