@@ -1,3 +1,5 @@
+"use client";
+
 interface ProposalHeroProps {
 
   heroImage: string;
