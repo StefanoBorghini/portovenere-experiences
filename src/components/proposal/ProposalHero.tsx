@@ -35,6 +35,10 @@ export default function ProposalHero({
         justify-center
         overflow-hidden
       "
+
+      style={{
+  perspective: "1200px",
+}}
     >
 
       {/* BACKGROUND */}
@@ -61,25 +65,24 @@ export default function ProposalHero({
 
       {/* CONTENT */}
 
-    <motion.div
-  initial={{
-    opacity: 0,
-    y: 24,
-  }}
-
-  animate={{
-    opacity: 1,
-    y: 0,
-  }}
-
+   <motion.div
+  initial={{ opacity: 0, y: 40 }}
+  animate={{ opacity: 1, y: 0 }}
   transition={{
-    duration: 1,
-    ease: [0.22, 1, 0.36, 1],
+    duration: 1.2,
+    ease: "easeOut",
   }}
-
   className="
     relative
-    z-10
+    z-20
+    flex
+    flex-col
+    items-center
+    justify-center
+    text-center
+    px-6
+    max-w-6xl
+    mx-auto
   "
 >
 
@@ -105,6 +108,7 @@ export default function ProposalHero({
           tracking-[0.35em]
           text-[11px]
           text-zinc-300
+          text-center
           mb-6
         ">
           Private Riviera Proposal
@@ -112,15 +116,23 @@ export default function ProposalHero({
 
         {/* TITLE */}
 
-        <h1 className="
-          text-5xl
-          md:text-8xl
-          font-light
-          leading-none
-          tracking-tight
-          mb-8
-        ">
-
+       <h1
+  className="
+    text-5xl
+    md:text-8xl
+    font-light
+    leading-[0.95]
+    tracking-tight
+    mb-8
+    text-center
+    max-w-6xl
+    mx-auto
+  "
+  style={{
+    textShadow:
+      "0 4px 30px rgba(0,0,0,0.35)",
+  }}
+>
           {heroTitle}
 
         </h1>
@@ -131,10 +143,13 @@ export default function ProposalHero({
           text-zinc-200
           text-base
           md:text-xl
+          text-center
           leading-8
-          max-w-3xl
+         max-w-2xl
           mx-auto
           mb-10
+          text-4xl
+md:text-8xl
         ">
 
           Tailored for {guests} guests
