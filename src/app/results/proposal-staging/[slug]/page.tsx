@@ -154,7 +154,7 @@ const galleryImages =
       "Boutique Stay",
 
     description:
-      "Curated overnight stays in selected Riviera boutique properties and private hospitality locations.",
+      "Curated overnight stays in selected boutique properties and private hospitality locations.",
   },
 
   {
@@ -195,7 +195,7 @@ const galleryImages =
     "Live Onboard Music",
 
   description:
-    "Live Riviera music performances curated around sunset navigation and Mediterranean atmosphere.",
+    "Live music performances curated around sunset navigation and Mediterranean atmosphere.",
 },
 ];
 
