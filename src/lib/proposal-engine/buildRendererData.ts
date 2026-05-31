@@ -189,7 +189,7 @@ export function buildRendererData({
   // PRICE
   // ===================================================
 
-  const finalPrice =
+  {/* const finalPrice =
 
     calculateProposalPrice({
 
@@ -205,7 +205,9 @@ export function buildRendererData({
       travelingWithChildren:
         lead.traveling_with_children || false,
     });
+*/}
 
+const finalPrice = 2800;
   // ===================================================
   // RETURN
   // ===================================================
