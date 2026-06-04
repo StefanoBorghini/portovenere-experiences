@@ -3,6 +3,19 @@
 
 import { motion } from "framer-motion";
 
+import Section
+from "@/components/layout/Section";
+
+import SectionContainer
+from "@/components/layout/SectionContainer";
+
+import SectionHeader
+from "@/components/layout/SectionHeader";
+
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
+
 interface ProposalNarrativeProps {
   title?: string;
   paragraph?: string;
@@ -15,16 +28,13 @@ export default function ProposalNarrative({
 
   return (
 
-    <section
-      className="
-        relative
-        overflow-hidden
-        py-40
-        md:py-[220px]
-        px-6
-        bg-black
-      "
-    >
+   <Section
+  className="
+    relative
+    overflow-hidden
+    bg-black
+  "
+>
 
       {/* ATMOSPHERIC BACKGROUND */}
 
@@ -67,40 +77,33 @@ export default function ProposalNarrative({
           to-transparent
         "
       />
+<SectionContainer>
+
 
       <motion.div
 
-        initial={{
-          opacity: 0,
-          y: 30,
-          filter: "blur(14px)",
-        }}
+  variants={fadeReveal}
 
-        whileInView={{
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        }}
+  initial="initial"
 
-        viewport={{
-          once: true,
-          amount: 0.3,
-        }}
+  whileInView="animate"
 
-        transition={{
-          duration: 1.8,
-          ease: [0.22, 1, 0.36, 1],
-        }}
+  viewport={{
+    once: true,
+    amount: 0.3,
+  }}
 
-        className="
-          relative
-          z-10
-          max-w-5xl
-          mx-auto
-          text-center
-        "
-      >
+  transition={{
+    duration: 1.8,
+    ease: [0.22, 1, 0.36, 1],
+  }}
 
+  className="
+    relative
+    z-10
+    text-center
+  "
+>
         {/* LABEL */}
 
         <p
@@ -175,8 +178,8 @@ export default function ProposalNarrative({
         </p>
 
       </motion.div>
-
-    </section>
+</SectionContainer>
+    </Section>
   );
 }
 
