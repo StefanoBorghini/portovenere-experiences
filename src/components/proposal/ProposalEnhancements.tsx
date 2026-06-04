@@ -2,6 +2,22 @@
 
 import { useState } from "react";
 
+
+import { motion } from "framer-motion";
+
+import Section
+from "@/components/layout/Section";
+
+import SectionContainer
+from "@/components/layout/SectionContainer";
+
+import SectionHeader
+from "@/components/layout/SectionHeader";
+
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
+
 interface Enhancement {
 
     image: string;
@@ -56,63 +72,37 @@ export default function ProposalEnhancements({
 
     return (
 
-        <section className="
-      py-28
-      md:py-40
-      px-6
-      bg-black
-    ">
+     <Section className="bg-black">
 
-            <div className="
-        max-w-7xl
-        mx-auto
-      ">
+          <SectionContainer>
 
                 {/* HEADER */}
 
-                <div className="
-          text-center
-          mb-24
-        ">
+             <motion.div
 
-                    <p className="
-            uppercase
-            tracking-[0.35em]
-            text-zinc-500
-            text-xs
-            mb-6
-          ">
-                        Optional Enhancements
-                    </p>
+  variants={fadeReveal}
 
-                    <h2 className="
-            text-4xl
-            md:text-7xl
-            font-light
-            tracking-tight
-            leading-none
-            mb-8
-          ">
+  initial="initial"
 
-                        Enhance Your Riviera Escape
+  whileInView="animate"
 
-                    </h2>
+  viewport={{
+    once: true,
+    amount: 0.3,
+  }}
 
-                    <p className="
-            text-zinc-400
-            text-lg
-            max-w-3xl
-            mx-auto
-            leading-relaxed
-          ">
+  transition={{
+    duration: 1.4,
+    ease: [0.22, 1, 0.36, 1],
+  }}
+>
 
-                        Additional private services
-                        available to further personalize
-                        your Riviera experience.
+  <SectionHeader
+    label="Optional Enhancements"
+    title="Enhance Your Riviera Escape"
+  />
 
-                    </p>
-
-                </div>
+</motion.div>
 
                 {/* GRID */}
 
@@ -309,8 +299,8 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                 </div>
 
-            </div>
+            </SectionContainer>
 
-        </section>
+        </Section>
     );
 }
