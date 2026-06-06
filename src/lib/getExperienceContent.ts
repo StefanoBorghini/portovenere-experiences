@@ -11,3 +11,14 @@ export function getExperienceContent(
       item.id === experienceId
   );
 }
+
+export function getExperiencePrice(
+  experienceId: string
+) {
+
+  return (
+    getExperienceContent(
+      experienceId
+    )?.basePrice || 0
+  );
+}
