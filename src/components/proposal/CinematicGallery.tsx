@@ -5,6 +5,22 @@ import {
   useAnimationFrame,
 } from "framer-motion";
 
+import { motion }
+from "framer-motion";
+
+import Section
+from "@/components/layout/Section";
+
+import SectionContainer
+from "@/components/layout/SectionContainer";
+
+import SectionHeader
+from "@/components/layout/SectionHeader";
+
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
+
 import {
   useRef,
   useState,
@@ -12,11 +28,22 @@ import {
 } from "react";
 
 interface CinematicGalleryProps {
+
   images: string[];
+
+  label?: string;
+
+  title?: string;
 }
 
 export default function CinematicGallery({
+
   images,
+
+  label = "Experience Gallery",
+
+  title = "Moments from the Riviera",
+
 }: CinematicGalleryProps) {
 
   const containerRef =
@@ -271,17 +298,7 @@ export default function CinematicGallery({
 
   return (
 
-    <section
-      className="
-        group
-        relative
-        overflow-hidden
-        bg-black
-
-        py-40
-        md:py-56
-      "
-    >
+    <Section>
 
       {/* ATMOSPHERIC BACKGROUND */}
 
@@ -296,54 +313,42 @@ export default function CinematicGallery({
       />
 
       {/* HEADER */}
+<SectionContainer>
 
-      <div
-        className="
-          relative
-          z-10
+  <motion.div
 
-          text-center
-          px-6
+    variants={fadeReveal}
 
-          mb-28
-          md:mb-40
-        "
-      >
+    initial="initial"
 
-        <p
-          className="
-            uppercase
-            tracking-[0.35em]
-            text-[11px]
-            text-white/40
-            mb-8
-          "
-        >
-          Experience Gallery
-        </p>
+    whileInView="animate"
 
-        <h2
-          className="
-            text-4xl
-            md:text-7xl
+    viewport={{
+      once: true,
+      amount: 0.2,
+    }}
 
-            font-light
+    transition={{
+      duration: 1.4,
+      ease: [0.22, 1, 0.36, 1],
+    }}
 
-            tracking-[-0.04em]
-            leading-[0.98]
+    className="
+      relative
+      z-10
+      mb-28
+      md:mb-40
+    "
+  >
 
-            max-w-5xl
-            mx-auto
-          "
-        >
+    <SectionHeader
+      label={label}
+      title={title}
+    />
 
-          Moments from
-          <br />
-          the Riviera
+  </motion.div>
 
-        </h2>
-
-      </div>
+</SectionContainer>
 
       {/* LEFT ARROW */}
 
@@ -613,6 +618,6 @@ export default function CinematicGallery({
 
       </div>
 
-    </section>
+    </Section>
   );
 }

@@ -3,6 +3,16 @@
 
 import { motion } from "framer-motion";
 
+import Section
+from "@/components/layout/Section";
+
+import SectionContainer
+from "@/components/layout/SectionContainer";
+
+import {
+  fadeReveal,
+} from "@/lib/motion/fadeReveal";
+
 interface ReservationSectionProps {
   expiresAt: string;
   closingParagraph?: string;
@@ -20,19 +30,13 @@ export default function ReservationSection({
 
   return (
 
-    <section
-      className="
-        relative
-        overflow-hidden
-
-        bg-black
-
-        py-40
-        md:py-[220px]
-
-        px-6
-      "
-    >
+    <Section
+  className="
+    relative
+    overflow-hidden
+    bg-black
+  "
+>
 
       {/* ATMOSPHERIC BACKGROUND */}
 
@@ -76,40 +80,23 @@ export default function ReservationSection({
       />
 
       {/* CONTENT */}
-
+<SectionContainer>
       <motion.div
+variants={fadeReveal}
 
-        initial={{
-          opacity: 0,
-          y: 24,
-          filter: "blur(12px)",
-        }}
+  initial="initial"
 
-        whileInView={{
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-        }}
+  whileInView="animate"
 
-        viewport={{
-          once: true,
-          amount: 0.25,
-        }}
+  viewport={{
+    once: true,
+    amount: 0.25,
+  }}
 
-        transition={{
-          duration: 1.8,
-          ease: [0.22, 1, 0.36, 1],
-        }}
-
-        className="
-          relative
-          z-10
-
-          max-w-5xl
-          mx-auto
-
-          text-center
-        "
+  transition={{
+    duration: 1.8,
+    ease: [0.22, 1, 0.36, 1],
+  }}
       >
 
         {/* COUNTDOWN */}
@@ -155,9 +142,7 @@ export default function ReservationSection({
             md:leading-[0.92]
 
             max-w-[340px]
-            md:max-w-5xl
-
-            mx-auto
+           
 
             mb-16
           "
@@ -344,8 +329,8 @@ export default function ReservationSection({
         </div>
 
       </motion.div>
-
-    </section>
+</SectionContainer>
+    </Section>
   );
 }
 

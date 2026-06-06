@@ -9,8 +9,6 @@ from "@/components/layout/Section";
 import SectionContainer
 from "@/components/layout/SectionContainer";
 
-import SectionHeader
-from "@/components/layout/SectionHeader";
 
 import {
   fadeReveal,
