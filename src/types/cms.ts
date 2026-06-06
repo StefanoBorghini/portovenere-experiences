@@ -43,9 +43,11 @@ export interface ProposalConfig {
 
   enhancements: EnhancementsConfig;
 
+  cta: CTAConfig;
+
   reservation: ReservationConfig;
 
-  cta: CTAConfig;
+  theme: ThemeConfig;
 }
 
 export interface NarrativeConfig {
@@ -77,3 +79,13 @@ export interface CTAConfig {
 
   secondaryLabel: string;
 }
+
+export interface ThemeConfig {
+
+  primaryColor: string;
+
+  backgroundColor: string;
+
+  accentColor: string;
+}
+

@@ -81,6 +81,7 @@ cta: {
 
 
 
+
   reservation: {
 
     label:
@@ -91,5 +92,18 @@ cta: {
 
     description:
       "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity.",
+  },
+
+  
+  theme: {
+
+    primaryColor:
+      "#ffffff",
+
+    backgroundColor:
+      "#000000",
+
+    accentColor:
+      "#d6c6a5",
   },
 };

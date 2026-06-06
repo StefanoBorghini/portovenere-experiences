@@ -208,16 +208,7 @@ md:max-w-2xl
           >
 {proposalConfig.brand.name}          </p>
 
-          <p
-            className="
-              uppercase
-              tracking-[0.22em]
-              text-[11px]
-              text-white/32
-            "
-          >
-            Portovenere Experiences
-          </p>
+         
 
           <p
             className="
