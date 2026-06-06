@@ -167,8 +167,8 @@ export default function ReservationSection({
 
             text-white/62
 
-            max-w-[320px]
-            md:max-w-2xl
+           max-w-[420px]
+md:max-w-2xl
 
             mx-auto
 
