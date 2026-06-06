@@ -81,23 +81,23 @@ export default function ReservationSection({
 
       {/* CONTENT */}
 <SectionContainer>
-      <motion.div
-variants={fadeReveal}
-
+<motion.div
+  variants={fadeReveal}
   initial="initial"
-
   whileInView="animate"
+  className="
+    relative
+    z-10
+    max-w-5xl
+    mx-auto
 
-  viewport={{
-    once: true,
-    amount: 0.25,
-  }}
+    flex
+    flex-col
+    items-center
 
-  transition={{
-    duration: 1.8,
-    ease: [0.22, 1, 0.36, 1],
-  }}
-      >
+    text-center
+  "
+>
 
         {/* COUNTDOWN */}
 
@@ -132,27 +132,28 @@ variants={fadeReveal}
         {/* TITLE */}
 
         <h2
-          className="
-            text-[44px]
-            leading-[0.98]
-            tracking-[-0.05em]
-            font-light
+  className="
+    text-[44px]
+    leading-[0.98]
+    tracking-[-0.05em]
+    font-light
 
-            md:text-[110px]
-            md:leading-[0.92]
+    md:text-[110px]
+    md:leading-[0.92]
 
-            max-w-[340px]
-           
+    max-w-4xl
 
-            mb-16
-          "
-        >
+    text-center
 
-          Your Riviera
-          <br />
-          experience awaits
+    mb-16
+  "
+>
 
-        </h2>
+  Your Riviera experience
+  <br />
+  awaits
+
+</h2>
 
         {/* PARAGRAPH */}
 
