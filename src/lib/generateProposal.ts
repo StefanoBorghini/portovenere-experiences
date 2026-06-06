@@ -21,6 +21,10 @@ import {
   experienceCompatibility,
 } from "./experienceCompatibility";
 
+import {
+  getExperienceContent,
+} from "@/lib/getExperienceContent";
+
 interface GenerateProposalProps {
 
   experiencesSelected:
@@ -292,7 +296,11 @@ const bestExperience =
         null,
     };
   }
+const experienceContent =
 
+  getExperienceContent(
+    bestExperience.id
+  );
  // =========================================================
 // HERO TITLE
 // =========================================================
@@ -553,8 +561,25 @@ const orderedCategories =
 
     dynamicClosingParagraph,
 
-    featuredExperience:
-      bestExperience,
+  featuredExperience: {
+
+  ...bestExperience,
+
+  title:
+    experienceContent?.title ||
+
+    bestExperience.title,
+
+  operator:
+    experienceContent?.operator ||
+
+    bestExperience.operator,
+
+  heroImage:
+    experienceContent?.heroImage ||
+
+    bestExperience.heroImage,
+},
 
     scoredExperiences:
       sortedExperiences,
