@@ -27,6 +27,10 @@ import {
   useEffect,
 } from "react";
 
+import {
+  proposalConfig,
+} from "@/config/proposalConfig";
+
 interface CinematicGalleryProps {
 
   images: string[];
@@ -40,9 +44,9 @@ export default function CinematicGallery({
 
   images,
 
-  label = "Experience Gallery",
+  label = proposalConfig.gallery.label,
 
-  title = "Moments from the Riviera",
+  title = proposalConfig.gallery.title,
 
 }: CinematicGalleryProps) {
 

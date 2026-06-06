@@ -14,6 +14,10 @@ import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
+import {
+  proposalConfig,
+} from "@/config/proposalConfig";
+
 interface ProposalNarrativeProps {
   title?: string;
   paragraph?: string;
@@ -113,7 +117,7 @@ export default function ProposalNarrative({
             mb-10
           "
         >
-          Mediterranean Luxury
+          {proposalConfig.narrative.label}
         </p>
 
         {/* TITLE */}
@@ -136,15 +140,7 @@ export default function ProposalNarrative({
           "
         >
 
-          {title || (
-            <>
-              Curated Around
-              <br />
-              Your Riviera
-              <br />
-              Journey
-            </>
-          )}
+         {proposalConfig.narrative.title}
 
         </h2>
 
@@ -167,11 +163,7 @@ export default function ProposalNarrative({
           "
         >
 
-          {
-            paragraph ||
-
-            "A private Riviera proposal designed around atmosphere, cinematic moments, Mediterranean elegance and unforgettable emotional experiences."
-          }
+         {proposalConfig.narrative.description}
 
         </p>
 

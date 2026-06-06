@@ -18,6 +18,10 @@ import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
+import {
+  proposalConfig,
+} from "@/config/proposalConfig";
+
 interface Enhancement {
 
     image: string;
@@ -98,8 +102,16 @@ export default function ProposalEnhancements({
 >
 
   <SectionHeader
-    label="Optional Enhancements"
-    title="Enhance Your Riviera Escape"
+    label={
+    proposalConfig
+      .enhancements
+      .label
+  }
+  title={
+    proposalConfig
+      .enhancements
+      .title
+  }
   />
 
 </motion.div>

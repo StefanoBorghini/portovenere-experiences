@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  proposalConfig,
+} from "@/config/proposalConfig";
+
 interface ProposalHeroProps {
 
   heroImage: string;
@@ -143,7 +147,7 @@ transition={{
   repeat: Infinity,
   ease: "easeInOut",
 }}
-          src="/logo-white.png"
+          src={proposalConfig.brand.logo}
           alt="Portovenere Experiences"
           className="
             w-28
@@ -166,7 +170,7 @@ md:mb-10
           text-center
           mb-6
         ">
-          Private Riviera Proposal
+          {proposalConfig.hero.label}
         </p>
 
         {/* TITLE */}
@@ -239,8 +243,7 @@ min-w-[190px]
     text-white/52
     mb-2
   ">
-    Starting From
-  </span>
+{proposalConfig.hero.priceLabel}  </span>
 
   <span className="
    text-[38px]

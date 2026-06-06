@@ -3,6 +3,9 @@
 
 import { motion } from "framer-motion";
 
+import { proposalConfig }
+from "@/config/proposalConfig";
+
 import Section
 from "@/components/layout/Section";
 
@@ -126,8 +129,7 @@ export default function ReservationSection({
             mb-10
           "
         >
-          Private Reservation
-        </p>
+{proposalConfig.reservation.label}        </p>
 
         {/* TITLE */}
 
@@ -149,9 +151,7 @@ export default function ReservationSection({
   "
 >
 
-  Your Riviera experience
-  <br />
-  awaits
+ {proposalConfig.reservation.title}
 
 </h2>
 
@@ -206,8 +206,7 @@ md:max-w-2xl
               text-white/32
             "
           >
-            Stefano Borghini
-          </p>
+{proposalConfig.brand.name}          </p>
 
           <p
             className="
@@ -226,8 +225,7 @@ md:max-w-2xl
               tracking-[-0.01em]
             "
           >
-            info@portovenere.com
-          </p>
+{proposalConfig.brand.email}          </p>
 
           <p
             className="
@@ -235,7 +233,7 @@ md:max-w-2xl
               tracking-[-0.01em]
             "
           >
-            +39 348 714 0722
+            {proposalConfig.brand.phone}
           </p>
 
         </div>
