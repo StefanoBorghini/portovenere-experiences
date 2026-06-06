@@ -111,7 +111,12 @@ transition={{
  <motion.div
 
   variants={fadeReveal}
-
+className="
+  flex
+  flex-col
+  items-center
+  text-center
+"
   initial="initial"
 
   animate="animate"
@@ -192,7 +197,8 @@ md:max-w-5xl
 
         {/* SUBTITLE */}
 
-        <p className="
+        <p className="text-center
+mx-auto
   text-[15px]
   md:text-[19px]
   leading-[1.9]
@@ -218,11 +224,11 @@ md:max-w-2xl
   border
   border-white/12
   rounded-[40px]
-  px-8
-py-5
+  px-6
+py-4
   backdrop-blur-[6px]
   bg-white/5
-min-w-[220px]
+min-w-[190px]
 ">
 
   <span className="
@@ -230,16 +236,16 @@ min-w-[220px]
     tracking-[0.35em]
     text-[11px]
     text-white/52
-    mb-3
+    mb-2
   ">
     Starting From
   </span>
 
   <span className="
-    text-[42px]
+   text-[38px]
 tracking-[-0.04em]
 font-[300]
-    md:text-5xl
+    md:text-[46px]
     
     tracking-[-0.03em]
 font-[300]
