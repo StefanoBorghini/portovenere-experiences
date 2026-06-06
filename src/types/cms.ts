@@ -89,3 +89,27 @@ export interface ThemeConfig {
   accentColor: string;
 }
 
+
+export interface BrandConfig {
+
+  name: string;
+
+  logo: string;
+
+  email: string;
+
+  phone: string;
+
+  whatsapp: string;
+
+  primaryColor: string;
+
+  backgroundColor: string;
+
+  accentColor: string;
+
+  headingFont: string;
+
+  bodyFont: string;
+}
+

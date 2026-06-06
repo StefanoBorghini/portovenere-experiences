@@ -4,23 +4,38 @@ import {
 
 export const proposalConfig: ProposalConfig = {
 
-  brand: {
+ brand: {
 
-    name:
-      "Portovenere Experiences",
+  name:
+    "Portovenere Experiences",
 
-    logo:
-      "/logo-white.png",
+  logo:
+    "/logo-white.png",
 
-    email:
-      "info@portovenere.com",
+  email:
+    "info@portovenere.com",
 
-    phone:
-      "+39 348 714 0722",
+  phone:
+    "+39 348 714 0722",
 
-    whatsapp:
-      "https://wa.me/393487140722",
-  },
+  whatsapp:
+    "https://wa.me/393487140722",
+
+  primaryColor:
+    "#ffffff",
+
+  backgroundColor:
+    "#000000",
+
+  accentColor:
+    "#d6c6a5",
+
+  headingFont:
+    "Inter",
+
+  bodyFont:
+    "Inter",
+},
 
   hero: {
 
