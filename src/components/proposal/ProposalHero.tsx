@@ -217,6 +217,7 @@ md:max-w-2xl
 
         {/* PRICE */}
 <div className="
+mt-12
   inline-flex
   flex-col
   items-center
