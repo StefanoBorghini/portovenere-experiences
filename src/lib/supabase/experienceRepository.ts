@@ -196,7 +196,7 @@ updateExperienceFilters(
 
 export async function updateGalleryImage(
   id: string,
-  imageUrl: string
+  updates: any
 ) {
 
   if (!supabase) {
@@ -213,10 +213,9 @@ export async function updateGalleryImage(
       .from(
         "experience_gallery"
       )
-      .update({
-        image_url:
-          imageUrl,
-      })
+      .update(
+        updates
+      )
       .eq(
         "id",
         id
@@ -224,7 +223,10 @@ export async function updateGalleryImage(
 
   if (error) {
 
-    console.error(error);
+    console.error(
+      "GALLERY UPDATE ERROR",
+      error
+    );
 
     return {
       success: false,

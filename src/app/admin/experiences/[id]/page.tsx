@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { supabase }
+from "@/lib/supabase";
 
 import {
   getFullExperiences,
@@ -335,7 +337,87 @@ export default function ExperienceEditor() {
 <div style={{ marginBottom: "20px" }}>
 
   <label>Hero Image</label>
+<input
+  type="file"
+  accept="image/*"
+  onChange={async (e) => {
 
+    const file =
+      e.target.files?.[0];
+
+    if (!file) return;
+
+    const fileName =
+      `${Date.now()}-${file.name}`;
+
+      if (!supabase) {
+
+  alert(
+    "Supabase not initialized"
+  );
+
+  return;
+}
+
+    const { data, error } =
+      await supabase.storage
+        .from("experience-images")
+        .upload(
+          `hero/${fileName}`,
+          file
+        );
+
+    if (error) {
+
+      console.error(error);
+
+      alert(
+        "Upload failed"
+      );
+
+      return;
+    }
+
+  const {
+  data: publicUrlData,
+} = supabase!
+  .storage
+  .from("experience-images")
+  .getPublicUrl(
+    `hero/${fileName}`
+  );
+
+const imageUrl =
+  publicUrlData.publicUrl;
+
+    setExperience({
+
+      ...experience,
+
+      hero_image:
+        imageUrl,
+
+    });
+
+  }}
+/>
+
+{experience.hero_image && (
+
+  <img
+    src={experience.hero_image}
+    alt=""
+    style={{
+      width: "100%",
+      maxWidth: "500px",
+      borderRadius: "12px",
+      marginTop: "15px",
+    }}
+  />
+
+  
+
+)}
   <br />
 
   <input
@@ -463,6 +545,37 @@ Add Image
                 borderRadius: "8px",
               }}
             />
+
+            <textarea
+  value={image.caption || ""}
+  onChange={(e) => {
+
+    const updatedGallery =
+      experience.gallery.map(
+        (g:any) =>
+
+          g.id === image.id
+
+            ? {
+                ...g,
+                caption: e.target.value,
+              }
+
+            : g
+      );
+
+    setExperience({
+      ...experience,
+      gallery: updatedGallery,
+    });
+
+  }}
+  rows={2}
+  style={{
+    width: "100%",
+    marginTop: "10px",
+  }}
+/>
 <input
 
   type="file"
@@ -650,9 +763,29 @@ for (
 
     image.id,
 
-    image.image_url
+    {
+
+      image_url:
+        image.image_url,
+
+      caption:
+        image.caption,
+
+      featured:
+        image.featured,
+
+      active:
+        image.active,
+
+      display_order:
+        image.display_order,
+
+    }
 
   );
+} {
+
+ 
 }
       const filtersResult =
   await updateExperienceFilters(
