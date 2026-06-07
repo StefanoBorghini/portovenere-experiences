@@ -25,3 +25,33 @@ export async function getExperiences() {
   return data;
 }
 
+export async function getExperienceScoring() {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("experience_scoring")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getExperienceFilters() {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("experience_filters")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+

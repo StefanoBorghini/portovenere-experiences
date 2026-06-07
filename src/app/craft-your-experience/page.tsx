@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { getExperiences } from "@/lib/supabase/experienceRepository";
+import {
+  getExperiences,
+  getExperienceScoring,
+  getExperienceFilters,
+} from "@/lib/supabase/experienceRepository";
 
 import { supabase } from "@/lib/supabase";
 
@@ -76,9 +80,18 @@ CustomDateInput.displayName =
       "SUPABASE EXPERIENCES",
       data
     );
+    const experiences = await getExperiences();
+const scoring = await getExperienceScoring();
+const filters = await getExperienceFilters();
+
+console.log("EXPERIENCES", experiences);
+console.log("SCORING", scoring);
+console.log("FILTERS", filters);
   }
 
   test();
+
+  
 }, []);
 
   const [formData, setFormData] = useState({
