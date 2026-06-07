@@ -260,6 +260,101 @@ export default function ExperienceEditor() {
   />
 
 </div>
+<div style={{ marginBottom: "20px" }}>
+
+  <label>Short Description</label>
+
+  <br />
+
+  <textarea
+    value={experience.short_description || ""}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        short_description:
+          e.target.value,
+      })
+    }
+    rows={3}
+    style={{
+      width: "100%",
+      padding: "10px",
+    }}
+  />
+
+</div>
+
+
+<div style={{ marginBottom: "20px" }}>
+
+  <label>
+
+    <input
+      type="checkbox"
+      checked={
+        experience.active || false
+      }
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          active:
+            e.target.checked,
+        })
+      }
+    />
+
+    Active
+
+  </label>
+
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+
+  <label>Featured</label>
+
+  <br />
+
+  <input
+    type="text"
+    value={
+      experience.featured || ""
+    }
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        featured:
+          e.target.value,
+      })
+    }
+  />
+
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+
+  <label>Hero Image</label>
+
+  <br />
+
+  <input
+    type="text"
+    value={
+      experience.hero_image || ""
+    }
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        hero_image:
+          e.target.value,
+      })
+    }
+    style={{
+      width: "100%",
+    }}
+  />
+
+</div>
 
       <hr />
 
@@ -317,9 +412,20 @@ export default function ExperienceEditor() {
             description:
       experience.description,
 
+      short_description:
+  experience.short_description,
+
     category:
       experience.category,
       
+      active:
+  experience.active,
+
+  featured:
+  experience.featured,
+
+  hero_image:
+  experience.hero_image,
 
         }
 
