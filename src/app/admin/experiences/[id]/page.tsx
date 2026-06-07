@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import {
   getFullExperiences,
   updateExperience,
+  updateExperienceFilters,
 } from "@/lib/supabase/experienceRepository";
 
 export default function ExperienceEditor() {
@@ -106,11 +107,113 @@ export default function ExperienceEditor() {
   />
 </div>
 
-      <p>
-        <strong>Category:</strong>
-        {" "}
-        {experience.category}
-      </p>
+      <div style={{ marginBottom: "20px" }}>
+
+  <label>Category</label>
+
+  <br />
+
+  <select
+    value={experience.category}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        category: e.target.value,
+      })
+    }
+  >
+
+    <option value="sea_escape">
+      Sea Escape
+    </option>
+
+    <option value="aerial_escape">
+      Aerial Escape
+    </option>
+
+    <option value="gourmet_escape">
+      Gourmet Escape
+    </option>
+
+    <option value="wild_escape">
+      Wild Escape
+    </option>
+
+  </select>
+
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+
+  <label>
+    <strong>Guests</strong>
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={experience.guest_2 || false}
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          guest_2: e.target.checked,
+        })
+      }
+    />
+    2 Guests
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={experience.guest_3_4 || false}
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          guest_3_4: e.target.checked,
+        })
+      }
+    />
+    3-4 Guests
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={experience.guest_5_7 || false}
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          guest_5_7: e.target.checked,
+        })
+      }
+    />
+    5-7 Guests
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={experience.guest_8_plus || false}
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          guest_8_plus: e.target.checked,
+        })
+      }
+    />
+    8+ Guests
+  </label>
+
+</div>
 
     <div style={{ marginBottom: "20px" }}>
   <label>Base Price</label>
@@ -135,11 +238,28 @@ export default function ExperienceEditor() {
   />
 </div>
 
-      <p>
-        <strong>Description:</strong>
-        {" "}
-        {experience.description}
-      </p>
+     <div style={{ marginBottom: "20px" }}>
+
+  <label>Description</label>
+
+  <br />
+
+  <textarea
+    value={experience.description || ""}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        description: e.target.value,
+      })
+    }
+    rows={6}
+    style={{
+      width: "100%",
+      padding: "10px",
+    }}
+  />
+
+</div>
 
       <hr />
 
@@ -194,9 +314,44 @@ export default function ExperienceEditor() {
           base_price:
             experience.base_price,
 
+            description:
+      experience.description,
+
+    category:
+      experience.category,
+      
+
         }
 
       );
+
+      const filtersResult =
+  await updateExperienceFilters(
+
+    experience.id,
+
+    {
+
+      guest_2:
+        experience.guest_2,
+
+      guest_3_4:
+        experience.guest_3_4,
+
+      guest_5_7:
+        experience.guest_5_7,
+
+      guest_8_plus:
+        experience.guest_8_plus,
+
+    }
+
+  );
+
+console.log(
+  "FILTER RESULT",
+  filtersResult
+);
 
     console.log(
       "UPDATE RESULT",

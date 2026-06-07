@@ -149,3 +149,47 @@ export async function updateExperience(
     success: true,
   };
 }
+
+export async function
+updateExperienceFilters(
+  experienceId: string,
+  updates: any
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+      error:
+        "Supabase not initialized",
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from(
+        "experience_filters"
+      )
+      .update(updates)
+      .eq(
+        "experience_id",
+        experienceId
+      );
+
+  if (error) {
+
+    console.error(
+      "FILTER UPDATE ERROR",
+      error
+    );
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
