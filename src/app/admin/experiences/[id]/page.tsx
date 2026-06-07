@@ -315,19 +315,16 @@ export default function ExperienceEditor() {
 
   <br />
 
-  <input
-    type="text"
-    value={
-      experience.featured || ""
-    }
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        featured:
-          e.target.value,
-      })
-    }
-  />
+ <input
+  type="checkbox"
+  checked={experience.featured || false}
+  onChange={(e) =>
+    setExperience({
+      ...experience,
+      featured: e.target.checked,
+    })
+  }
+/>
 
 </div>
 
