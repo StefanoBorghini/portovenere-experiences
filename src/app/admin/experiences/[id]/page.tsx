@@ -10,6 +10,7 @@ import {
   updateGalleryImage,
   createGalleryImage,
   deleteGalleryImage,
+  uploadImage,
 } from "@/lib/supabase/experienceRepository";
 
 export default function ExperienceEditor() {
@@ -462,6 +463,67 @@ Add Image
                 borderRadius: "8px",
               }}
             />
+<input
+
+  type="file"
+
+  accept="image/*"
+
+  onChange={async (e) => {
+
+    const file =
+
+      e.target.files?.[0];
+
+    if (!file) return;
+
+    const imageUrl =
+
+      await uploadImage(
+        file
+      );
+
+    if (!imageUrl) {
+
+      alert(
+        "Upload failed"
+      );
+
+      return;
+    }
+
+    const updatedGallery =
+
+      experience.gallery.map(
+
+        (g: any) =>
+
+          g.id === image.id
+
+            ? {
+
+                ...g,
+
+                image_url:
+                  imageUrl,
+
+              }
+
+            : g
+
+      );
+
+    setExperience({
+
+      ...experience,
+
+      gallery:
+        updatedGallery,
+
+    });
+  }}
+
+/>
 <label>
 
   <input

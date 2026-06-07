@@ -308,3 +308,39 @@ export async function createGalleryImage(
     success: true,
   };
 }
+
+
+export async function uploadImage(
+  file: File
+) {
+  if (!supabase) return null;
+
+  const fileName =
+    `${Date.now()}-${file.name}`;
+
+  const { error } =
+    await supabase.storage
+      .from(
+        "experience-images"
+      )
+      .upload(
+        fileName,
+        file
+      );
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  const { data } =
+    supabase.storage
+      .from(
+        "experience-images"
+      )
+      .getPublicUrl(
+        fileName
+      );
+
+  return data.publicUrl;
+}
