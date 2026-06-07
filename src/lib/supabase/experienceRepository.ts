@@ -57,8 +57,11 @@ export async function getExperienceFilters() {
 
 export async function getFullExperiences() {
   const experiences = await getExperiences();
-  const scoring = await getExperienceScoring();
-  const filters = await getExperienceFilters();
+const scoring = await getExperienceScoring();
+const filters = await getExperienceFilters();
+const gallery = await getExperienceGallery();
+
+
 
   return experiences.map((experience) => {
     const score = scoring.find(
@@ -68,13 +71,44 @@ export async function getFullExperiences() {
     const filter = filters.find(
       (f) => f.experience_id === experience.id
     );
+const experienceGallery =
+  gallery.filter(
+    (g) =>
+      g.experience_id ===
+      experience.id
+  );
 
+const featuredImage =
+  experienceGallery.find(
+    (g) => g.featured
+  )?.image_url;
     return {
       ...experience,
 
       ...(score || {}),
 
       ...(filter || {}),
+
+      gallery: experienceGallery,
+
+featured_image:
+  featuredImage,
     };
   });
+}
+
+export async function getExperienceGallery() {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("experience_gallery")
+    .select("*")
+    .order("display_order");
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
 }
