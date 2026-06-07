@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
+import { getExperiences } from "@/lib/supabase/experienceRepository";
+
 import { supabase } from "@/lib/supabase";
 
 import { useState } from "react";
@@ -9,7 +12,11 @@ import DatePicker from "react-datepicker";
 import { forwardRef } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 
+
+
 export default function CraftYourExperience() {
+
+  const router = useRouter();
 
   const CustomDateInput =
   forwardRef<
@@ -59,7 +66,20 @@ CustomDateInput.displayName =
         }
       );
 
-  const router = useRouter();
+  
+      
+      useEffect(() => {
+  async function test() {
+    const data = await getExperiences();
+
+    console.log(
+      "SUPABASE EXPERIENCES",
+      data
+    );
+  }
+
+  test();
+}, []);
 
   const [formData, setFormData] = useState({
     name: "",
