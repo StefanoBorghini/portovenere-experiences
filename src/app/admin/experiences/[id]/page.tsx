@@ -8,6 +8,8 @@ import {
   updateExperience,
   updateExperienceFilters,
   updateGalleryImage,
+  createGalleryImage,
+  deleteGalleryImage,
 } from "@/lib/supabase/experienceRepository";
 
 export default function ExperienceEditor() {
@@ -355,7 +357,54 @@ export default function ExperienceEditor() {
 </div>
 
       <hr />
+<button
 
+  onClick={async () => {
+
+    const newImage = {
+
+      id:
+        crypto.randomUUID(),
+
+      experience_id:
+        experience.id,
+
+      image_url: "",
+
+      display_order:
+        experience.gallery.length + 1,
+
+      active: true,
+
+      caption: "",
+
+      featured: false,
+
+    };
+ await createGalleryImage(
+      newImage
+    );
+
+    setExperience({
+
+      ...experience,
+
+      gallery: [
+
+        ...experience.gallery,
+
+        newImage,
+
+      ],
+
+    });
+  }}
+
+>
+
+Add Image
+
+</button>
       <h2>
         Gallery
       </h2>
@@ -413,6 +462,77 @@ export default function ExperienceEditor() {
                 borderRadius: "8px",
               }}
             />
+<label>
+
+  <input
+    type="checkbox"
+    checked={
+      image.featured || false
+    }
+    onChange={() => {
+
+      const updatedGallery =
+
+        experience.gallery.map(
+
+          (g: any) => ({
+
+            ...g,
+
+            featured:
+              g.id === image.id,
+
+          })
+
+        );
+
+      setExperience({
+
+        ...experience,
+
+        gallery:
+          updatedGallery,
+
+      });
+    }}
+  />
+
+  Featured
+
+</label>
+            <button
+
+  onClick={async () => {
+
+    await deleteGalleryImage(
+      image.id
+    );
+
+    const updatedGallery =
+
+      experience.gallery.filter(
+
+        (g: any) =>
+
+          g.id !== image.id
+
+      );
+
+    setExperience({
+
+      ...experience,
+
+      gallery:
+        updatedGallery,
+
+    });
+  }}
+
+>
+
+Delete
+
+</button>
 
           </div>
         )

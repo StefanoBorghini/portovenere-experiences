@@ -236,3 +236,75 @@ export async function updateGalleryImage(
     success: true,
   };
 }
+
+
+export async function deleteGalleryImage(
+  id: string
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from(
+        "experience_gallery"
+      )
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
+
+
+export async function createGalleryImage(
+  image: any
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from(
+        "experience_gallery"
+      )
+      .insert(image);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
