@@ -5,6 +5,7 @@ import {
   getExperiences,
   getExperienceScoring,
   getExperienceFilters,
+  getFullExperiences
 } from "@/lib/supabase/experienceRepository";
 
 import { supabase } from "@/lib/supabase";
@@ -80,13 +81,13 @@ CustomDateInput.displayName =
       "SUPABASE EXPERIENCES",
       data
     );
-    const experiences = await getExperiences();
-const scoring = await getExperienceScoring();
-const filters = await getExperienceFilters();
+const fullExperiences =
+  await getFullExperiences();
 
-console.log("EXPERIENCES", experiences);
-console.log("SCORING", scoring);
-console.log("FILTERS", filters);
+console.log(
+  "FULL EXPERIENCES",
+  fullExperiences
+);
   }
 
   test();

@@ -55,3 +55,26 @@ export async function getExperienceFilters() {
   return data;
 }
 
+export async function getFullExperiences() {
+  const experiences = await getExperiences();
+  const scoring = await getExperienceScoring();
+  const filters = await getExperienceFilters();
+
+  return experiences.map((experience) => {
+    const score = scoring.find(
+      (s) => s.experience_id === experience.id
+    );
+
+    const filter = filters.find(
+      (f) => f.experience_id === experience.id
+    );
+
+    return {
+      ...experience,
+
+      ...(score || {}),
+
+      ...(filter || {}),
+    };
+  });
+}
