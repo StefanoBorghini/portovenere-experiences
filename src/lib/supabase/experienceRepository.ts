@@ -112,3 +112,40 @@ export async function getExperienceGallery() {
 
   return data;
 }
+
+export async function updateExperience(
+  id: string,
+  updates: any
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+      error: "Supabase not initialized",
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from("experience_content")
+      .update(updates)
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(
+      "UPDATE ERROR",
+      error
+    );
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}

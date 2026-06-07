@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 
 import {
   getFullExperiences,
+  updateExperience,
 } from "@/lib/supabase/experienceRepository";
 
 export default function ExperienceEditor() {
@@ -172,16 +173,58 @@ export default function ExperienceEditor() {
           </div>
         )
       )}
+
 <button
-  onClick={() => {
+
+  onClick={async () => {
+
+    const result =
+      await updateExperience(
+
+        experience.id,
+
+        {
+
+          title:
+            experience.title,
+
+          operator:
+            experience.operator,
+
+          base_price:
+            experience.base_price,
+
+        }
+
+      );
+
     console.log(
-      "SAVE",
-      experience
+      "UPDATE RESULT",
+      result
     );
+
+    if (
+      result.success
+    ) {
+
+      alert(
+        "Experience saved!"
+      );
+
+    } else {
+
+      alert(
+        "Error saving experience"
+      );
+    }
   }}
+
 >
+
   Save
+
 </button>
+
     </div>
   );
 }
