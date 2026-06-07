@@ -193,3 +193,46 @@ updateExperienceFilters(
     success: true,
   };
 }
+
+export async function updateGalleryImage(
+  id: string,
+  imageUrl: string
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+      error:
+        "Supabase not initialized",
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from(
+        "experience_gallery"
+      )
+      .update({
+        image_url:
+          imageUrl,
+      })
+      .eq(
+        "id",
+        id
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}

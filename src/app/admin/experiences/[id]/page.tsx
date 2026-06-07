@@ -7,6 +7,7 @@ import {
   getFullExperiences,
   updateExperience,
   updateExperienceFilters,
+  updateGalleryImage,
 } from "@/lib/supabase/experienceRepository";
 
 export default function ExperienceEditor() {
@@ -369,9 +370,40 @@ export default function ExperienceEditor() {
             }}
           >
 
-            <p>
-              {image.image_url}
-            </p>
+            <input
+  type="text"
+  value={image.image_url}
+  onChange={(e) => {
+
+    const updatedGallery =
+      experience.gallery.map(
+        (g: any) =>
+
+          g.id === image.id
+
+            ? {
+                ...g,
+                image_url:
+                  e.target.value,
+              }
+
+            : g
+      );
+
+    setExperience({
+
+      ...experience,
+
+      gallery:
+        updatedGallery,
+
+    });
+  }}
+  style={{
+    width: "100%",
+    marginBottom: "10px",
+  }}
+/>
 
             <img
               src={image.image_url}
@@ -427,7 +459,19 @@ export default function ExperienceEditor() {
         }
 
       );
+for (
+  const image
+  of experience.gallery
+) {
 
+  await updateGalleryImage(
+
+    image.id,
+
+    image.image_url
+
+  );
+}
       const filtersResult =
   await updateExperienceFilters(
 
@@ -448,6 +492,8 @@ export default function ExperienceEditor() {
         experience.guest_8_plus,
 
     }
+
+    
 
   );
 
