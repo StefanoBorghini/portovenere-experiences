@@ -386,39 +386,26 @@ console.log(
 
       // SAVE LEAD
 
-      const {
-        data: leadData,
-        error: leadError,
-      } = await supabase
-        .from("leads")
-        .insert([
-          {
-            name: formData.name,
+    const {
+  data: leadData,
+  error: leadError,
+} = await supabase
+  .from("leads")
+  .insert([
+    {
+      name: formData.name,
+      email: formData.email,
+      experiences: formData.experiences,
+      moods: formData.moods,
+      guests: formData.guests,
+      budget: formData.budget,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      traveling_with_children:
+        formData.travelingWithChildren,
+    },
+  ])
 
-            email: formData.email,
-
-            experiences:
-              formData.experiences,
-
-            moods:
-              formData.moods,
-
-            guests:
-              formData.guests,
-
-            budget:
-              formData.budget,
-
-            start_date:
-              formData.startDate,
-
-            end_date:
-              formData.endDate,
-
-            traveling_with_children:
-              formData.travelingWithChildren,
-          },
-        ])
         .select()
         .single();
 
