@@ -13,7 +13,10 @@ import {
   createGalleryImage,
   deleteGalleryImage,
   uploadImage,
+  updateExperienceScoring,
 } from "@/lib/supabase/experienceRepository";
+
+
 
 export default function ExperienceEditor() {
 
@@ -218,6 +221,150 @@ export default function ExperienceEditor() {
     />
     8+ Guests
   </label>
+
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+
+  <label>
+    <strong>Budget</strong>
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={
+        experience.budget_500_1000 || false
+      }
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          budget_500_1000:
+            e.target.checked,
+        })
+      }
+    />
+    €500 - €1000
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={
+        experience.budget_1000_3000 || false
+      }
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          budget_1000_3000:
+            e.target.checked,
+        })
+      }
+    />
+    €1000 - €3000
+  </label>
+
+  <br />
+
+  <label>
+    <input
+      type="checkbox"
+      checked={
+        experience.budget_3000_plus || false
+      }
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          budget_3000_plus:
+            e.target.checked,
+        })
+      }
+    />
+    €3000+
+  </label>
+
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+
+  <h2>Mood Scores</h2>
+
+  <label>Romantic</label>
+
+  <input
+    type="number"
+    min={1}
+    max={4}
+    value={experience.romantic_score || 1}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        romantic_score:
+          Number(e.target.value),
+      })
+    }
+  />
+
+  <br />
+  <br />
+
+  <label>Authentic</label>
+
+  <input
+    type="number"
+    min={1}
+    max={4}
+    value={experience.authentic_score || 1}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        authentic_score:
+          Number(e.target.value),
+      })
+    }
+  />
+
+  <br />
+  <br />
+
+  <label>Adventure</label>
+
+  <input
+    type="number"
+    min={1}
+    max={4}
+    value={experience.adventure_score || 1}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        adventure_score:
+          Number(e.target.value),
+      })
+    }
+  />
+
+  <br />
+  <br />
+
+  <label>Cinematic</label>
+
+  <input
+    type="number"
+    min={1}
+    max={4}
+    value={experience.cinematic_score || 1}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        cinematic_score:
+          Number(e.target.value),
+      })
+    }
+  />
 
 </div>
 
@@ -783,10 +930,10 @@ for (
     }
 
   );
-} {
+} 
 
  
-}
+
       const filtersResult =
   await updateExperienceFilters(
 
@@ -806,11 +953,48 @@ for (
       guest_8_plus:
         experience.guest_8_plus,
 
+        budget_500_1000:
+    experience.budget_500_1000,
+
+  budget_1000_3000:
+    experience.budget_1000_3000,
+
+  budget_3000_plus:
+    experience.budget_3000_plus,
+
     }
 
     
 
   );
+
+  const scoringResult =
+  await updateExperienceScoring(
+
+    experience.id,
+
+    {
+
+      romantic_score:
+        experience.romantic_score,
+
+      authentic_score:
+        experience.authentic_score,
+
+      adventure_score:
+        experience.adventure_score,
+
+      cinematic_score:
+        experience.cinematic_score,
+
+    }
+
+  );
+
+console.log(
+  "SCORING RESULT",
+  scoringResult
+);
 
 console.log(
   "FILTER RESULT",

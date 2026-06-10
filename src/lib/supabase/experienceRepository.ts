@@ -346,3 +346,40 @@ export async function uploadImage(
 
   return data.publicUrl;
 }
+
+
+export async function updateExperienceScoring(
+  experienceId: string,
+  updates: any
+) {
+
+  if (!supabase) {
+
+    return {
+      success: false,
+    };
+  }
+
+  const { error } =
+    await supabase
+      .from("experience_scoring")
+      .update(updates)
+      .eq(
+        "experience_id",
+        experienceId
+      );
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
