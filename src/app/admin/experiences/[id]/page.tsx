@@ -68,6 +68,8 @@ if (!session) {
 
   return (
 
+    
+
     <div
       style={{
         padding: "30px",
@@ -75,7 +77,24 @@ if (!session) {
         margin: "0 auto",
       }}
     >
+<button
 
+  onClick={async () => {
+
+    if (!supabase) return;
+
+    await supabase.auth.signOut();
+
+    window.location.href =
+      "/admin/login";
+
+  }}
+
+>
+
+Logout
+
+</button>
       <h1>
         Edit Experience
       </h1>
