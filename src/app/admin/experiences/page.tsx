@@ -55,7 +55,24 @@ useEffect(() => {
         Experiences CMS
 
       </h1>
+<button
 
+  onClick={async () => {
+
+    if (!supabase) return;
+
+    await supabase.auth.signOut();
+
+    window.location.href =
+      "/admin/login";
+
+  }}
+
+>
+
+Logout
+
+</button>
       <div className="grid gap-6">
 
         {experiences.map(
