@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
 
 import {
   getFullExperiences,
@@ -11,24 +13,38 @@ export default function AdminExperiencesPage() {
   const [experiences, setExperiences] =
     useState<any[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
 
-    async function loadData() {
+  async function loadData() {
 
-      const data =
-        await getFullExperiences();
+    if (!supabase) return;
 
-      setExperiences(data);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      console.log(
-        "ADMIN EXPERIENCES",
-        data
-      );
+    if (!session) {
+
+      window.location.href =
+        "/admin/login";
+
+      return;
     }
 
-    loadData();
+    const data =
+      await getFullExperiences();
 
-  }, []);
+    setExperiences(data);
+
+    console.log(
+      "ADMIN EXPERIENCES",
+      data
+    );
+  }
+
+  loadData();
+
+}, []);
 
   return (
 

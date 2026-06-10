@@ -28,7 +28,20 @@ export default function ExperienceEditor() {
   useEffect(() => {
 
     async function loadExperience() {
+if (!supabase) return;
 
+const {
+  data: { session },
+} =
+  await supabase.auth.getSession();
+
+if (!session) {
+
+  window.location.href =
+    "/admin/login";
+
+  return;
+}
       const experiences =
         await getFullExperiences();
 
