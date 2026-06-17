@@ -526,14 +526,16 @@ console.log(
         !proposalData
       ) {
 
-        console.log(
-          "Proposal error:",
-          JSON.stringify(
-            errors,
-            null,
-            2
-          )
-        );
+      console.log(
+  "Proposal error:",
+  JSON.stringify(
+    proposalError,
+    null,
+    2
+  )
+);
+
+
         return;
       }
 
