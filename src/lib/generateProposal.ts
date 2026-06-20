@@ -206,19 +206,22 @@ console.log(
         // MOOD REFINEMENT
         // =====================================================
 
-        safeMoodsSelected.forEach(
-          (mood) => {
+       safeMoodsSelected.forEach(
+  (mood) => {
 
-            const moodScore =
+    const moodScore =
 
-              experience.moodScores[
-                mood as keyof typeof experience.moodScores
-              ] || 0;
+      experience.moodScores?.[
+        mood
+      ] ?? 0;
 
-            score += moodScore * 10;
-          }
-        );
-
+    score += moodScore * 10;
+  }
+);
+console.log(
+  "AIRPLANE FULL",
+  filteredExperiences[0]
+);
         // =====================================================
         // FAMILY
         // =====================================================
