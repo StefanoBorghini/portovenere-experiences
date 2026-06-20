@@ -39,6 +39,8 @@ interface GenerateProposalProps {
   allExperiences: any[];
 }
 
+
+
 export function generateProposal({
 
   experiencesSelected,
@@ -54,48 +56,47 @@ export function generateProposal({
   allExperiences,
 
 }: GenerateProposalProps) {
+const safeExperiencesSelected =
+  experiencesSelected ?? [];
 
+const safeMoodsSelected =
+  moodsSelected ?? [];
   // =========================================================
   // FILTER EXPERIENCES
   // =========================================================
 
-  const filteredExperiences =
+  const safeAllExperiences =
+  allExperiences ?? [];
 
-  allExperiences.filter(
+const filteredExperiences =
+  safeAllExperiences.filter(
       (experience) => {
 
         // =====================================================
         // MACRO CATEGORY
         // =====================================================
 
-        const matchesCategory =
+     const matchesCategory =
 
-          experiencesSelected.length === 0 ||
+  safeExperiencesSelected.length === 0 ||
 
-          experiencesSelected.includes(
-            experience.macroCategory
-          );
+  safeExperiencesSelected.includes(
+    experience.macroCategory
+  );
 
         // =====================================================
         // GUESTS
         // =====================================================
 
         const matchesGuests =
+  experience.guests?.includes(
+    guests
+  ) ?? false;
 
-          experience.guests.includes(
-            guests
-          );
-
-        // =====================================================
-        // BUDGET
-        // =====================================================
-
-        const matchesBudget =
-
-          experience.budgets.includes(
-            budget
-          );
-
+const matchesBudget =
+  experience.budgets?.includes(
+    budget
+  ) ?? false;
         return (
 
           matchesCategory &&
@@ -155,7 +156,7 @@ export function generateProposal({
         // MOOD REFINEMENT
         // =====================================================
 
-        moodsSelected.forEach(
+        safeMoodsSelected.forEach(
           (mood) => {
 
             const moodScore =
@@ -250,7 +251,7 @@ const selectedMainCategory =
   narrativePriority.find(
     (category) =>
 
-      experiencesSelected.includes(
+      safeExperiencesSelected.includes(
         category
       )
   );
@@ -305,7 +306,7 @@ const experienceContent =
 
 const primaryMood =
 
-  moodsSelected?.[0];
+ safeMoodsSelected[0];
 
 const availableTitles =
 
@@ -335,6 +336,8 @@ const heroTitle =
 // =========================================================
 // DYNAMIC INTRO COPY
 // =========================================================
+
+
 
 const dynamicIntroTitle =
 
@@ -379,16 +382,13 @@ const dynamicClosingParagraph =
   // =========================================================
 
   if (
-
-    experiencesSelected.length === 1 &&
-
-    moodsSelected.length === 1
-
-  ) {
+  safeExperiencesSelected.length === 1 &&
+  safeMoodsSelected.length === 2
+){
 
     const key =
 
-      `${experiencesSelected[0]}-${moodsSelected[0]}`;
+    `${safeExperiencesSelected[0]}-${safeMoodsSelected[0]}`;
 
     const combinationHero =
 
@@ -409,16 +409,13 @@ const dynamicClosingParagraph =
   // =========================================================
 
   if (
-
-    experiencesSelected.length === 1 &&
-
-    moodsSelected.length === 2
-
-  ) {
+  safeExperiencesSelected.length === 1 &&
+  safeMoodsSelected.length === 1
+) {
 
     const sortedMood =
 
-      [...moodsSelected].sort();
+      [...safeMoodsSelected].sort();
 
     const key =
 
@@ -442,20 +439,16 @@ const dynamicClosingParagraph =
   // DOUBLE CATEGORY + SINGLE MOOD
   // =========================================================
 
-  if (
-
-    experiencesSelected.length === 2 &&
-
-    moodsSelected.length === 1
-
-  ) {
-
-    const orderedCategories =
-  experiencesSelected;
+   if (
+  safeExperiencesSelected.length === 2 &&
+  safeMoodsSelected.length === 1
+) {
+const orderedCategories =
+  safeExperiencesSelected;
 
   const key =
 
-  `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
+  `${orderedCategories[0]}-${orderedCategories[1]}-${safeMoodsSelected[0]}`;
 
     const combinationHero =
 
@@ -475,24 +468,21 @@ const dynamicClosingParagraph =
   // DOUBLE CATEGORY + DOUBLE MOOD
   // =========================================================
 
-  if (
-
-    experiencesSelected.length === 2 &&
-
-    moodsSelected.length === 2
-
-  ) {
+    if (
+  safeExperiencesSelected.length === 2 &&
+  safeMoodsSelected.length === 2
+){
 
   const orderedCategories =
-  experiencesSelected;
+  safeExperiencesSelected;
 
     const sortedMood =
 
-      [...moodsSelected].sort();
+      [...safeMoodsSelected].sort();
 
    const key =
 
-  `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
+  `${orderedCategories[0]}-${orderedCategories[1]}-${safeMoodsSelected[0]}`;
 
     const combinationHero =
 
@@ -516,16 +506,16 @@ const dynamicClosingParagraph =
 
   if (
 
-    experiencesSelected.length >= 2
+   safeExperiencesSelected.length >= 2
 
   ) {
 
 const orderedCategories =
-  experiencesSelected;
+  safeExperiencesSelected;
 
     const compatibilityKey =
 
-     `${orderedCategories[0]}-${orderedCategories[1]}-${moodsSelected[0]}`;
+     `${orderedCategories[0]}-${orderedCategories[1]}-${safeMoodsSelected[0]}`;
 
     compatibilityData =
 
