@@ -76,22 +76,31 @@ const filteredExperiences =
         // MACRO CATEGORY
         // =====================================================
 
-     const matchesCategory =
-
-  safeExperiencesSelected.length === 0 ||
-
-  safeExperiencesSelected.includes(
-    experience.macroCategory
+    const normalizedSelected =
+  safeExperiencesSelected.map(
+    (category) =>
+      category
+        .toLowerCase()
+        .replaceAll(" ", "_")
   );
+
+const matchesCategory =
+
+  normalizedSelected.length === 0 ||
+
+  normalizedSelected.includes(
+    experience.category
+  );
+
 console.log(
   "CATEGORY CHECK",
   experience.id,
-  experience.macroCategory
+  experience.category
 );
 
 console.log(
-  "FIRST EXPERIENCE",
-  safeAllExperiences[0]
+  "NORMALIZED",
+  normalizedSelected
 );
         // =====================================================
         // GUESTS
