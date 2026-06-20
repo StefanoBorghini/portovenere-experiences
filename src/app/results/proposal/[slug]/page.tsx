@@ -1,64 +1,152 @@
 import { supabase } from "@/lib/supabase";
-import { generateProposal } from "@/lib/generateProposal";
-import { buildProposalGallery } from "@/lib/buildProposalGallery";
 
+import { generateProposal }
+from "@/lib/generateProposal";
 
-import Countdown
-from "@/components/countdown";
+import ProposalNarrative
+from "@/components/proposal/ProposalNarrative";
 
-import DownloadPdfButton from "@/components/DownloadPdfButton";
+import FeaturedExperience
+from "@/components/proposal/FeaturedExperience";
 
+import IncludedExperiences
+from "@/components/proposal/IncludedExperiences";
 
+import CinematicGallery
+from "@/components/proposal/CinematicGallery";
+
+import ProposalEnhancements
+from "@/components/proposal/ProposalEnhancements";
+
+import ReservationSection
+from "@/components/proposal/ReservationSection";
+
+import DownloadPdfButton
+from "@/components/DownloadPdfButton";
+
+import ProposalHero
+from "@/components/proposal/ProposalHero";
+
+import {
+  buildRendererData,
+} from "@/lib/proposal-engine/buildRendererData";
+
+import {
+  getFullExperiences,
+} from "@/lib/supabase/experienceRepository";
+
+// =========================================================
+// TYPES
+// =========================================================
 
 interface ProposalPageProps {
+
   params: Promise<{
     slug: string;
   }>;
 }
 
+// =========================================================
+// PAGE
+// =========================================================
 
 export default async function ProposalPage({
+
   params,
+
 }: ProposalPageProps) {
 
-  const { slug } = await params;
+  // =======================================================
+  // PARAMS
+  // =======================================================
 
-  if (!slug || !supabase) {
+  const { slug } =
+    await params;
+
+  // =======================================================
+  // VALIDATION
+  // =======================================================
+
+  if (
+    !slug ||
+    !supabase
+  ) {
+
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
         Missing proposal ID
+
       </main>
     );
   }
 
-  
+  // =======================================================
+  // FETCH PROPOSAL
+  // =======================================================
 
-  // GET PROPOSAL
+  const {
+    data: proposal,
+    error,
+  } = await supabase
 
-  
-const featuredDescription =
+    .from("Proposal")
 
-  "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
-  const { data: proposal, error } =
-    await supabase
-      .from("Proposal")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+    .select("*")
 
-  const lead = proposal?.proposal_data;
+    .eq("slug", slug)
 
-  if (error || !lead) {
+    .single();
+
+  const lead =
+    proposal?.proposal_data;
+
+  // =======================================================
+  // NOT FOUND
+  // =======================================================
+
+  if (
+    error ||
+    !lead
+  ) {
+
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
         Proposal not found
+
       </main>
     );
   }
 
+  // =======================================================
   // GENERATE PROPOSAL
+  // =======================================================
 
-  const generatedProposal =
+  const dynamicExperiences =
+  await getFullExperiences();
+const generatedProposal =
+
   generateProposal({
 
     experiencesSelected:
@@ -75,459 +163,300 @@ const featuredDescription =
 
     travelingWithChildren:
       lead.traveling_with_children || false,
+
+    allExperiences:
+      dynamicExperiences,
+  });
+  // =======================================================
+  // RENDERER DATA
+  // =======================================================
+
+  const {
+
+    galleryImages,
+
+    enhancements,
+
+    includedExperiences,
+
+    finalPrice,
+
+  } = buildRendererData({
+
+    generatedProposal,
+
+    lead,
   });
 
-    const includedSections =
-  generatedProposal.includedSections;
+  // =======================================================
+  // DYNAMIC CONTENT
+  // =======================================================
 
+  const heroTitle =
 
- // =========================================================
-// DYNAMIC CONTENT
-// =========================================================
+  generatedProposal.heroTitle ||
 
-const heroTitle =
-  generatedProposal.heroTitle;
+  "Mediterranean Escape";
 
-const heroImage =
-  generatedProposal.heroImage;
+  const heroImage =
 
-const dynamicIntroTitle =
-  generatedProposal.dynamicIntroTitle;
+  generatedProposal.heroImage ||
 
-const dynamicIntroParagraph =
-  generatedProposal.dynamicIntroParagraph;
+  "/images/default-hero.webp";
 
-const dynamicClosingParagraph =
-  generatedProposal.dynamicClosingParagraph;
+ const dynamicIntroTitle =
 
-console.log(
-  "HERO IMAGE",
-  heroImage
-);
+  generatedProposal.dynamicIntroTitle ||
 
-const featuredExperience =
-  generatedProposal.featuredExperience;
+  "Curated Riviera Experience";
 
+  const dynamicIntroParagraph =
+    generatedProposal.dynamicIntroParagraph;
 
+  const dynamicClosingParagraph =
 
-const galleryImages =
-  buildProposalGallery({
+  generatedProposal.dynamicClosingParagraph ||
 
-    experiencesSelected:
-      lead.experiences || [],
+  "We look forward to welcoming you into your private Riviera experience.";
 
-    moodsSelected:
-      lead.moods || [],
+  const featuredExperience =
+    generatedProposal.featuredExperience;
 
-    heroExperienceId:
-      featuredExperience?.id || "",
-  });
+  // =======================================================
+  // EXPIRATION
+  // =======================================================
 
-// PRICING ENGINE
-const finalPrice = 2800;
-  // =========================================================
-// COUNTDOWN
-// =========================================================
+  const expiresAt =
+    proposal.expires_at;
 
-const expiresAt =
-  proposal.expires_at;
+  const isExpired =
 
-const isExpired =
+    new Date(expiresAt)
+      .getTime() <
 
-  new Date(expiresAt)
-    .getTime() <
+    Date.now();
 
-  Date.now();
+  // =======================================================
+  // EXPIRED
+  // =======================================================
 
-if (isExpired) {
+  if (isExpired) {
 
-  return (
+    return (
 
-    <main className="
-      min-h-screen
-      bg-black
-      text-white
-      flex
-      items-center
-      justify-center
-      px-6
-    ">
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+          px-6
+        "
+      >
 
-      <div className="text-center max-w-2xl">
+        <div
+          className="
+            text-center
+            max-w-2xl
+          "
+        >
 
-        <p className="
-          uppercase
-          tracking-[0.4em]
-          text-zinc-600
-          text-xs
-          mb-8
-        ">
-          Private Reservation
-        </p>
+          <p
+            className="
+              uppercase
+              tracking-[0.4em]
+              text-zinc-600
+              text-xs
+              mb-8
+            "
+          >
 
-        <h1 className="
-          text-4xl
-          md:text-7xl
-          font-light
-          mb-10
-        ">
-          This proposal has expired
-        </h1>
+            Private Reservation
 
-        <p className="
-          text-zinc-400
-          text-lg
-          leading-8
-        ">
-          Your private reservation window is no longer active.
-          Contact us directly to request a new curated proposal.
-        </p>
+          </p>
 
-      </div>
+          <h1
+            className="
+              text-4xl
+              md:text-7xl
+              font-light
+              leading-[0.92]
+              tracking-[-0.04em]
+              mb-10
+            "
+          >
 
-    </main>
-  );
-}
+            This proposal has expired
 
+          </h1>
 
+          <p
+            className="
+              text-zinc-400
+              text-lg
+              leading-[1.9]
+            "
+          >
 
-  
-  // WHATSAPP CTA
+            Your private reservation window is no longer active.
+            Contact us directly to request a new curated proposal.
+
+          </p>
+
+        </div>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // WHATSAPP
+  // =======================================================
 
   const whatsappMessage =
+
     encodeURIComponent(
+
       `Hi Stefano, I'd like to confirm my ${featuredExperience?.title || "experience"} experience proposal for ${lead.guests} guests.`
     );
 
-    
-
   const whatsappUrl =
+
     `https://wa.me/393487140722?text=${whatsappMessage}`;
 
+  // =======================================================
+  // FEATURED EXPERIENCE
+  // =======================================================
+
+  const featuredOperator =
+    "Sail Boat King";
+
+  const featuredSubtitle =
+    "Private Riviera Sailing Experience";
+
+  const featuredDescription =
+    "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
+
+  const featuredEssentials = [
+
+    "Private skipper",
+
+    "Sunset navigation",
+
+    "Hidden coves access",
+
+    "Onboard aperitivo",
+  ];
+
+  // =======================================================
+  // RENDER
+  // =======================================================
+
   return (
+
     <main
       id="proposal-content"
-      className="bg-[#0C0C0C] text-white min-h-screen"
+      className="
+        bg-[#0C0C0C]
+        text-white
+        min-h-screen
+      "
     >
 
       {/* HERO */}
 
-      <section
-        className="relative h-screen bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage:
-            `url(${heroImage})`,
-        }}
-      >
+      <ProposalHero
 
-        <div className="absolute inset-0 bg-black/50" />
+        heroImage={heroImage}
 
-        <div className="relative z-10 text-center px-6 max-w-5xl">
+        heroTitle={heroTitle}
 
-          <img
-            src="/logo-white.png"
-            alt="Portovenere Experiences"
-            className="mx-auto w-44 mb-10 opacity-90"
-          />
+        guests={lead.guests}
 
-          <p className="uppercase tracking-[0.4em] text-sm mb-6">
-            Private Proposal
-          </p>
+        totalPrice={finalPrice}
+      />
 
-          <h1 className="text-4xl md:text-8xl font-light leading-none mb-10">
-            {heroTitle}
-          </h1>
+      {/* NARRATIVE */}
 
-          <p className="text-xl md:text-3xl mb-12 text-zinc-200">
-            Tailored for {lead.name}
-          </p>
+      <ProposalNarrative
 
-          <div className="inline-block border border-white/20 bg-white/10 backdrop-blur-md rounded-full px-10 py-5">
+        title={dynamicIntroTitle}
 
-            <p className="uppercase tracking-[0.3em] text-xs mb-2">
-              Starting From
-            </p>
+        paragraph={
+          dynamicIntroParagraph
+        }
+      />
 
-            <p className="text-4xl font-light">
-              {finalPrice}
-            </p>
+      {/* FEATURED EXPERIENCE */}
 
-          </div>
+      <FeaturedExperience
 
-        </div>
+        image={heroImage}
 
-      </section>
+        operator={
+          featuredOperator
+        }
 
-      {/* DIVIDER */}
+        subtitle={
+          featuredSubtitle
+        }
 
-<section className="py-32 md:py-40 px-6 border-y border-white/10 bg-black">
+        description={
+          featuredDescription
+        }
 
-  <div className="max-w-5xl mx-auto text-center">
+        essentials={
+          featuredEssentials
+        }
+      />
 
-    <p className="
-      uppercase
-      tracking-[0.4em]
-      text-zinc-600
-      text-xs
-      mb-8
-    ">
-      Mediterranean Luxury
-    </p>
+      {/* INCLUDED EXPERIENCES */}
 
-    <h2 className="
-      text-4xl
-      md:text-7xl
-      font-light
-      leading-[1.1]
-      tracking-tight
-      mb-12
-    ">
-      {dynamicIntroTitle}
-    </h2>
+      <IncludedExperiences
 
-    <p className="
-      text-zinc-400
-      text-lg
-      md:text-2xl
-      leading-relaxed
-      max-w-3xl
-      mx-auto
-    ">
-      {dynamicIntroParagraph}
-    </p>
+        experiences={
+          includedExperiences
+        }
+      />
 
-  </div>
-
-</section>
-
-{/* EXPERIENCE DETAILS */}
-
-<section className="py-20 md:py-32 px-6">
+      {/* ENHANCEMENTS */}
 
-  <div className="max-w-6xl mx-auto">
+      <ProposalEnhancements
 
-    <div className="text-center mb-20">
+        enhancements={
+          enhancements
+        }
+      />
 
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Curated Experience
-      </p>
-
-      <h2 className="text-3xl md:text-7xl font-light leading-tight">
-        Designed around your travel profile.
-      </h2>
-
-    </div>
-
-    <div className="grid md:grid-cols-2 gap-8">
-
-      {/* EXPERIENCE */}
-
-      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-          Featured Experience
-        </p>
-
-        <h2 className="
-          text-4xl
-          md:text-6xl
-          font-light
-          mb-8
-          leading-tight
-        ">
-          {featuredExperience?.operator || "Experience"}
-        </h2>
-
-        <p className="text-zinc-400 leading-8 text-lg">
-
-          {
-            featuredDescription
-          }
-
-        </p>
-
-      </div>
-
-      {/* PROFILE */}
-
-      <div className="border border-white/10 rounded-3xl p-6 md:p-10 bg-white/5">
-
-        <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-          Guest Profile
-        </p>
-
-        <div className="space-y-5 text-lg">
-
-          <p>
-            Experiences:
-            {" "}
-            {lead.experiences?.join(", ")}
-          </p>
-
-          <p>
-            Atmosphere:
-            {" "}
-            {lead.moods?.join(", ")}
-          </p>
-
-          <p>
-            Guests:
-            {" "}
-            {lead.guests}
-          </p>
-
-          <p>
-            Budget:
-            {" "}
-            {lead.budget}
-          </p>
-
-          <p>
-            Travel Dates:
-            {" "}
-            {lead.start_date}
-            {" "}
-            —
-            {" "}
-            {lead.end_date}
-          </p>
-
-          <p>
-            Children:
-            {" "}
-            {lead.traveling_with_children
-              ? "Yes"
-              : "No"}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-{/* INCLUDED */}
-
-<section className="pb-32 px-6">
-
-  <div className="max-w-5xl mx-auto">
-
-    <h2 className="
-      text-4xl
-      md:text-6xl
-      font-light
-      mb-20
-      text-center
-      leading-tight
-    ">
-      Included in your experience
-    </h2>
-
-    <div className="grid md:grid-cols-2 gap-6">
-
-      {includedSections?.map(
-        (
-          section: any,
-          index: number
-        ) => (
-
-          <div
-            key={index}
-            className="border border-white/10 rounded-2xl p-8 bg-white/5"
-          >
-
-            <p className="uppercase tracking-[0.25em] text-xs text-zinc-500 mb-5">
-              {section.title}
-            </p>
-
-            <p className="text-zinc-300 leading-8 whitespace-pre-line">
-              {section.text}
-            </p>
-
-            {section.optional && (
-
-              <p className="text-zinc-600 text-[11px] italic mt-5 tracking-[0.08em]">
-                * Optional curated activity available upon request
-              </p>
-
-            )}
-
-          </div>
-
-        )
-      )}
-
-    </div>
-
-  </div>
-
-</section>
       {/* GALLERY */}
 
-<section className="pb-32 px-6">
+      <CinematicGallery
 
-  <div className="max-w-7xl mx-auto">
+        images={
+          galleryImages
+        }
+      />
 
-    <div className="text-center mb-20">
+      {/* PDF */}
 
-      <p className="uppercase tracking-[0.3em] text-sm text-zinc-500 mb-6">
-        Experience Gallery
-      </p>
-
-      <h2 className="text-5xl md:text-6xl font-light">
-        Moments from the Riviera
-      </h2>
-
-    </div>
-
-    <div className="grid md:grid-cols-3 gap-6">
-
-  {galleryImages?.map(
-    (
-      image: string,
-      index: number
-    ) => (
-
-      <div
-        key={index}
-        className="relative overflow-hidden rounded-[32px] group"
+      <section
+        className="
+          py-20
+          px-6
+          print:hidden
+        "
       >
 
-        <img
-          src={image}
-          alt="Experience"
+        <div
           className="
-            h-[520px]
-            w-full
-            object-cover
-            transition-all
-            duration-700
-            group-hover:scale-105
+            max-w-4xl
+            mx-auto
+            flex
+            justify-center
           "
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-
-      </div>
-
-    )
-  )}
-
-</div>
-
-  </div>
-
-</section>
-
-      {/* PDF DOWNLOAD */}
-
-      <section className="pb-20 px-6 print:hidden">
-
-        <div className="max-w-4xl mx-auto flex justify-center">
+        >
 
           <DownloadPdfButton />
 
@@ -537,121 +466,86 @@ if (isExpired) {
 
       {/* CTA */}
 
-     {/* CTA */}
+      <ReservationSection
 
-<section className="pb-40 px-6">
+        expiresAt={expiresAt}
 
-  <div className="max-w-4xl mx-auto text-center">
+        closingParagraph={
+          dynamicClosingParagraph
+        }
 
-   
-<div className="mb-12">
-
-  <Countdown
-    expiresAt={expiresAt}
-  />
-
-</div>
-
-    <h2 className="
-      text-3xl
-      md:text-6xl
-      font-light
-      leading-tight
-      mb-10
-    ">
-      Ready to reserve your experience?
-    </h2>
-
-    <div className="
-      text-zinc-400
-      leading-8
-      md:leading-9
-      mb-14
-      space-y-6
-      max-w-3xl
-      mx-auto
-    ">
-
-      <p className="text-lg md:text-xl">
-
-        {dynamicClosingParagraph}
-
-      </p>
-
-      <div className="
-        pt-10
-        text-sm
-        uppercase
-        tracking-[0.25em]
-        text-zinc-500
-        space-y-3
-      ">
-
-        <p>
-          Stefano
-        </p>
-
-        <p>
-          Portovenere Experiences
-        </p>
-
-        <p>
-          info@portovenere.com
-        </p>
-
-        <p>
-          +39 348 714 0722
-        </p>
-
-      </div>
-
-    </div>
-
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      className="
-        inline-block
-        bg-white
-        text-black
-        px-10
-        py-5
-        rounded-full
-        uppercase
-        tracking-[0.25em]
-        text-xs
-        hover:scale-105
-        transition-all
-        duration-500
-      "
-    >
-      Request Private Booking
-    </a>
-
-  </div>
-
-</section>
+        whatsappUrl={
+          whatsappUrl
+        }
+      />
 
       {/* FOOTER */}
 
-      <footer className="text-center border-t border-white/10 py-12 px-6">
+      <footer
+        className="
+          border-t
+          border-white/10
+          py-12
+          px-6
+        "
+      >
 
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div
+          className="
+            max-w-6xl
+            mx-auto
+            flex
+            flex-col
+            md:flex-row
+            items-center
+            justify-between
+            gap-6
+          "
+        >
 
-          <div>
+          <div
+            className="
+              text-center
+              md:text-left
+            "
+          >
 
-            <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
+            <p
+              className="
+                text-xs
+                uppercase
+                tracking-[0.35em]
+                text-zinc-500
+              "
+            >
+
               Portovenere Experiences
+
             </p>
 
-            <p className="text-zinc-400 mt-2">
+            <p
+              className="
+                text-zinc-400
+                mt-3
+                leading-relaxed
+              "
+            >
+
               Private curated luxury experiences in Liguria
+
             </p>
 
           </div>
 
-          <div className="text-zinc-500 text-sm">
+          <div
+            className="
+              text-zinc-500
+              text-sm
+            "
+          >
+
             info@portovenere.com
+
           </div>
 
         </div>
