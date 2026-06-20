@@ -1259,8 +1259,8 @@ if (
 
           <div
   style={{
-    marginTop: "20px",
-    marginBottom: "20px",
+    marginTop: "10px",
+    marginBottom: "30px",
   }}
 >
 
