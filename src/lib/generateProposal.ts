@@ -219,15 +219,42 @@ const matchesBudget =
 
         b.finalScore - a.finalScore
     );
+
+    
+
+
+    console.log(
+  "EXPERIENCES SELECTED",
+  experiencesSelected
+);
+
+console.log(
+  "MOODS SELECTED",
+  moodsSelected
+);
+
+console.log(
+  "ALL EXPERIENCES",
+  allExperiences.map(e => ({
+    id: e.id,
+    title: e.title
+  }))
+);
+
+console.log(
+  "FILTERED",
+  filteredExperiences.map(e => ({
+    id: e.id,
+    title: e.title
+  }))
+);
+
 console.log(
   "RANKING",
-  sortedExperiences.map(
-    (e) => ({
-      title: e.title,
-      score: e.finalScore,
-      moods: e.moodScores,
-    })
-  )
+  sortedExperiences.map(e => ({
+    id: e.id,
+    score: e.score
+  }))
 );
     // =====================================================
 // MAIN CATEGORY PRIORITY
