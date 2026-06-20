@@ -219,7 +219,16 @@ const matchesBudget =
 
         b.finalScore - a.finalScore
     );
-
+console.log(
+  "RANKING",
+  sortedExperiences.map(
+    (e) => ({
+      title: e.title,
+      score: e.finalScore,
+      moods: e.moodScores,
+    })
+  )
+);
     // =====================================================
 // MAIN CATEGORY PRIORITY
 // =====================================================
