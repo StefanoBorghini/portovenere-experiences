@@ -334,31 +334,31 @@ console.log(
 
 // trova la categoria principale
 // in base alla priorità narrativa
-
 const selectedMainCategory =
 
-  narrativePriority.find(
-    (category) =>
-
-      safeExperiencesSelected.includes(
-        category
-      )
-  );
-
-// prende il miglior operator
-// SOLO della categoria principale
+  safeExperiencesSelected[0]
+    ?.toLowerCase()
+    .replaceAll(" ", "_");
 
 const bestExperience =
 
   sortedExperiences.find(
-    (experience) =>
+    experience =>
 
-      experience.macroCategory ===
+      experience.category ===
       selectedMainCategory
   ) ||
 
   sortedExperiences[0];
-
+console.log(
+  "BEST EXPERIENCE",
+  {
+    id: bestExperience?.id,
+    title: bestExperience?.title,
+    operator: bestExperience?.operator,
+    category: bestExperience?.category
+  }
+);
   // =========================================================
   // FALLBACK
   // =========================================================
