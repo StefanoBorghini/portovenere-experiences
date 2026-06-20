@@ -3,8 +3,7 @@
 // COMPLETE UPDATED VERSION
 // =========================================================
 
-import { experiences }
-from "./experiences";
+
 import {
 
   proposalTitles,
@@ -27,20 +26,17 @@ import {
 
 interface GenerateProposalProps {
 
-  experiencesSelected:
-    string[];
+  experiencesSelected: string[];
 
-  moodsSelected:
-    string[];
+  moodsSelected: string[];
 
-  budget:
-    string;
+  budget: string;
 
-  guests:
-    string;
+  guests: string;
 
-  travelingWithChildren:
-    boolean;
+  travelingWithChildren: boolean;
+
+  allExperiences: any[];
 }
 
 export function generateProposal({
@@ -55,6 +51,8 @@ export function generateProposal({
 
   travelingWithChildren,
 
+  allExperiences,
+
 }: GenerateProposalProps) {
 
   // =========================================================
@@ -63,7 +61,7 @@ export function generateProposal({
 
   const filteredExperiences =
 
-    experiences.filter(
+  allExperiences.filter(
       (experience) => {
 
         // =====================================================
