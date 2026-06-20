@@ -120,6 +120,17 @@ const matchesBudget =
   "SELECTED",
   safeExperiencesSelected
 );
+console.log(
+  experience.id,
+  {
+    matchesCategory,
+    matchesGuests,
+    matchesBudget,
+    guests,
+    budget,
+  }
+);
+
         return (
 
           matchesCategory &&
