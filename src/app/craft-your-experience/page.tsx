@@ -1,5 +1,8 @@
 "use client";
 
+import Turnstile
+from "react-turnstile";
+
 import { useEffect } from "react";
 import {
   getExperiences,
@@ -20,6 +23,11 @@ import "react-datepicker/dist/react-datepicker.css";
 
 
 export default function CraftYourExperience() {
+
+  const [
+  captchaToken,
+  setCaptchaToken,
+] = useState("");
 
   const router = useRouter();
 
@@ -368,6 +376,47 @@ console.log(
   // SUBMIT
 
   const handleSubmit = async () => {
+
+    if (!captchaToken) {
+
+  alert(
+    "Please verify you are human"
+  );
+
+  return;
+}
+
+const verifyResponse =
+  await fetch(
+    "/api/verify-turnstile",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        token:
+          captchaToken,
+      }),
+    }
+  );
+
+const verifyData =
+  await verifyResponse.json();
+
+if (
+  !verifyData.success
+) {
+
+  alert(
+    "Captcha verification failed"
+  );
+
+  return;
+}
 
     const isValid = validateForm();
 
@@ -1207,6 +1256,25 @@ console.log(
           {/* SUBMIT */}
 
           <div className="pt-10 text-center">
+
+          <div
+  style={{
+    marginTop: "20px",
+    marginBottom: "20px",
+  }}
+>
+
+  <Turnstile
+    sitekey={
+      process.env
+        .NEXT_PUBLIC_TURNSTILE_SITE_KEY!
+    }
+    onVerify={(token) =>
+      setCaptchaToken(token)
+    }
+  />
+
+</div>
 
             <button
               type="button"
