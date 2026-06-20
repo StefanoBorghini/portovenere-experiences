@@ -6,6 +6,11 @@ export async function POST(
     const { token } =
       await request.json();
 
+    console.log(
+      "TURNSTILE TOKEN:",
+      token
+    );
+
     const response =
       await fetch(
         "https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -19,8 +24,7 @@ export async function POST(
 
           body: JSON.stringify({
             secret:
-              process.env
-                .TURNSTILE_SECRET_KEY,
+              process.env.TURNSTILE_SECRET_KEY,
 
             response: token,
           }),
@@ -30,11 +34,23 @@ export async function POST(
     const data =
       await response.json();
 
+    console.log(
+      "TURNSTILE RESPONSE:",
+      JSON.stringify(
+        data,
+        null,
+        2
+      )
+    );
+
     return Response.json(data);
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "TURNSTILE ERROR:",
+      error
+    );
 
     return Response.json(
       {
