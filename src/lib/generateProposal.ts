@@ -131,15 +131,7 @@ const matchesBudget =
     ? experience.budget_3000_plus
 
   : true;
-console.log(
-  "FILTER RESULT",
-  experience.id,
-  {
-    matchesCategory,
-    matchesGuests,
-    matchesBudget
-  }
-);
+
   console.log(
   "SELECTED",
   safeExperiencesSelected
