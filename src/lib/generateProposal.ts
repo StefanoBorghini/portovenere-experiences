@@ -83,7 +83,11 @@ const filteredExperiences =
   safeExperiencesSelected.includes(
     experience.macroCategory
   );
-
+console.log(
+  "CATEGORY CHECK",
+  experience.id,
+  experience.macroCategory
+);
         // =====================================================
         // GUESTS
         // =====================================================
@@ -97,6 +101,11 @@ const matchesBudget =
   experience.budgets?.includes(
     budget
   ) ?? false;
+
+  console.log(
+  "SELECTED",
+  safeExperiencesSelected
+);
         return (
 
           matchesCategory &&
