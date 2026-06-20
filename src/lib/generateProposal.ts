@@ -106,15 +106,31 @@ console.log(
         // GUESTS
         // =====================================================
 
-        const matchesGuests =
-  experience.guests?.includes(
-    guests
-  ) ?? false;
+   const matchesGuests =
+
+  guests === "2"
+    ? experience.guest_2
+
+  : guests === "3-4"
+    ? experience.guest_3_4
+
+  : guests === "5-7"
+    ? experience.guest_5_7
+
+  : true;
 
 const matchesBudget =
-  experience.budgets?.includes(
-    budget
-  ) ?? false;
+
+  budget === "€500 - €1000"
+    ? experience.budget_500_1000
+
+  : budget === "€1000 - €3000"
+    ? experience.budget_1000_3000
+
+  : budget === "€3000+"
+    ? experience.budget_3000_plus
+
+  : true;
 
   console.log(
   "SELECTED",
