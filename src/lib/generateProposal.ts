@@ -88,6 +88,11 @@ console.log(
   experience.id,
   experience.macroCategory
 );
+
+console.log(
+  "FIRST EXPERIENCE",
+  safeAllExperiences[0]
+);
         // =====================================================
         // GUESTS
         // =====================================================
