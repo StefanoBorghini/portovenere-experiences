@@ -317,7 +317,7 @@ console.log(
   "RANKING",
   sortedExperiences.map(e => ({
     id: e.id,
-    score: e.score
+    score: e.finalScore
   }))
 );
     // =====================================================

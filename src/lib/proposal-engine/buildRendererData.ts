@@ -21,6 +21,11 @@ export function buildRendererData({
   // GALLERY
   // ===================================================
 
+  const rankedExperiences =
+
+  generatedProposal
+    ?.scoredExperiences || [];
+
   const galleryImages =
 
     buildProposalGallery({
@@ -119,72 +124,44 @@ export function buildRendererData({
   // INCLUDED EXPERIENCES
   // ===================================================
 
-  const includedExperiences = [
+  const includedExperiences =
 
-    {
+  rankedExperiences
+
+    .slice(0, 3)
+
+    .map((experience: any, index: number) => ({
 
       image:
-        galleryImages[0],
+
+        experience.featured_image ||
+
+        galleryImages[index] ||
+
+        "/images/default.webp",
 
       title:
-        "Sunset Riviera Aperitivo",
+
+        experience.title,
 
       description:
-        "A private culinary moment designed around Mediterranean sunset atmosphere and slow coastal navigation.",
+
+        experience.short_description ||
+
+        experience.description ||
+
+        "",
 
       details: [
 
-        "Local wine selection",
+        experience.operator,
 
-        "Private onboard setup",
+        experience.category
+          ?.replaceAll("_", " "),
 
-        "Sunset aperitivo",
+        `From €${experience.base_price}`,
       ],
-    },
-
-    {
-
-      image:
-        galleryImages[1],
-
-      title:
-        "Hidden Coves Escape",
-
-      description:
-        "Discover secluded Riviera locations accessible only through private coastal navigation.",
-
-      details: [
-
-        "Private navigation",
-
-        "Hidden swimming spots",
-
-        "Slow luxury atmosphere",
-      ],
-    },
-
-    {
-
-      image:
-        galleryImages[2],
-
-      title:
-        "Cinematic Riviera Moments",
-
-      description:
-        "Curated Riviera experiences designed around cinematic atmosphere and Mediterranean storytelling.",
-
-      details: [
-
-        "Editorial atmosphere",
-
-        "Private experience",
-
-        "Mediterranean scenery",
-      ],
-    },
-  ];
-
+    }));
   // ===================================================
   // PRICE
   // ===================================================
