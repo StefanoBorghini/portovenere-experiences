@@ -663,7 +663,7 @@ if (
               </p>
 
               <p className="text-zinc-500 text-sm">
-                {formData.experiences.length}/2 selected
+                {formData.experiences.length}/3 selected
               </p>
 
             </div>
@@ -733,7 +733,7 @@ if (
               </p>
 
               <p className="text-zinc-500 text-sm">
-                {formData.moods.length}/2 selected
+                {formData.moods.length}/3 selected
               </p>
 
             </div>
