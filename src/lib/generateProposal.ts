@@ -407,12 +407,28 @@ const experienceContent =
 const primaryMood =
 
  safeMoodsSelected[0];
+console.log(
+  "HERO DEBUG",
+  {
+    category: bestExperience.category,
+    mood: primaryMood
+  }
+);
+const categoryMap = {
+  sea_escape: "Sea Escape",
+  aerial_escape: "Aerial Escape",
+  gourmet_escape: "Gourmet Escape",
+  wild_escape: "Wild Escape",
+};
+
+const proposalCategory =
+  categoryMap[
+    bestExperience.category as keyof typeof categoryMap
+  ];
 
 const availableTitles =
-
   proposalTitles[
-    bestExperience
-      ?.macroCategory as keyof typeof proposalTitles
+    proposalCategory as keyof typeof proposalTitles
   ]?.[
     primaryMood as keyof typeof proposalTitles["Sea Escape"]
   ] || [];

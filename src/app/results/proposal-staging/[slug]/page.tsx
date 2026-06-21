@@ -329,26 +329,17 @@ const generatedProposal =
   // =======================================================
   // FEATURED EXPERIENCE
   // =======================================================
+const featuredOperator =
+  featuredExperience?.operator || "";
 
-  const featuredOperator =
-    "Sail Boat King";
+const featuredSubtitle =
+  featuredExperience?.title || "";
 
-  const featuredSubtitle =
-    "Private Riviera Sailing Experience";
+const featuredDescription =
+  featuredExperience?.description || "";
 
-  const featuredDescription =
-    "A cinematic Riviera sailing experience curated around Mediterranean atmosphere, hidden coves and slow luxury navigation.";
-
-  const featuredEssentials = [
-
-    "Private skipper",
-
-    "Sunset navigation",
-
-    "Hidden coves access",
-
-    "Onboard aperitivo",
-  ];
+const featuredEssentials =
+  featuredExperience?.essentials || [];
 
   // =======================================================
   // RENDER
