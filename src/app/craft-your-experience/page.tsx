@@ -377,11 +377,22 @@ console.log(
 
   const handleSubmit = async () => {
 
-  const isValid2 = validateForm();
+   const isValid = validateForm();
 
-  if (!isValid2) {
-    return;
-  }
+    if (!isValid) return;
+
+    try {
+
+      if (!supabase) {
+
+        console.error(
+          "Supabase not configured"
+        );
+
+        return;
+      }
+
+  
 
   if (!captchaToken) {
 
@@ -417,6 +428,8 @@ if (
   !verifyData.success
 ) {
 
+  setCaptchaToken("");
+
   alert(
     "Captcha verification failed"
   );
@@ -424,20 +437,7 @@ if (
   return;
 }
 
-    const isValid = validateForm();
-
-    if (!isValid) return;
-
-    try {
-
-      if (!supabase) {
-
-        console.error(
-          "Supabase not configured"
-        );
-
-        return;
-      }
+   
 
       // SAVE LEAD
 
