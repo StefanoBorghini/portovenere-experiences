@@ -233,8 +233,8 @@ console.log(
         setSelectionWarning(
 
           field === "experiences"
-            ? "Maximum 2 experiences allowed"
-            : "Maximum 2 atmosphere selections allowed"
+            ? "Maximum 3 experiences allowed"
+            : "Maximum 3 atmospheres selections allowed"
 
         );
 
@@ -659,7 +659,7 @@ if (
             <div className="flex items-center justify-between mb-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                Select up to 2 experiences
+                Select up to 3 experiences
               </p>
 
               <p className="text-zinc-500 text-sm">
@@ -693,7 +693,7 @@ if (
                     handleMultiSelect(
                       "experiences",
                       item,
-                      2
+                      3
                     )
                   }
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.experiences.includes(
@@ -729,7 +729,7 @@ if (
             <div className="flex items-center justify-between mb-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                Select up to 2 atmospheres
+                Select up to 3 atmospheres
               </p>
 
               <p className="text-zinc-500 text-sm">
@@ -763,7 +763,7 @@ if (
                     handleMultiSelect(
                       "moods",
                       item,
-                      2
+                      3
                     )
                   }
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.moods.includes(
