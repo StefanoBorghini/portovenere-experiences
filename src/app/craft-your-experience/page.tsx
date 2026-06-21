@@ -377,18 +377,24 @@ console.log(
 
   const handleSubmit = async () => {
 
-    if (!captchaToken) {
+  const isValid2 = validateForm();
 
-  alert(
-    "Please verify you are human"
-  );
+  if (!isValid2) {
+    return;
+  }
 
-  return;
-}
+  if (!captchaToken) {
 
-const verifyResponse =
-  await fetch(
-    "/api/verify-turnstile",
+    alert(
+      "Please verify you are human"
+    );
+
+    return;
+  }
+
+  const verifyResponse =
+    await fetch(
+      "/api/verify-turnstile",
     {
       method: "POST",
 
