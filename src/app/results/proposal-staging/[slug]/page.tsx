@@ -222,6 +222,7 @@ const generatedProposal =
   const featuredExperience =
     generatedProposal.featuredExperience;
 
+    
   // =======================================================
   // EXPIRATION
   // =======================================================

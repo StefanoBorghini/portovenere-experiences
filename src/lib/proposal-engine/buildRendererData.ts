@@ -21,6 +21,8 @@ export function buildRendererData({
   // GALLERY
   // ===================================================
 
+  
+
   const rankedExperiences =
 
   generatedProposal
@@ -124,32 +126,73 @@ export function buildRendererData({
   // INCLUDED EXPERIENCES
   // ===================================================
 
-  const includedExperiences =
+ const featuredCategory =
+  generatedProposal
+    ?.featuredExperience
+    ?.category;
+
+const featuredId =
+  generatedProposal
+    ?.featuredExperience
+    ?.id;
+console.log(
+  "SECONDARY EXPERIENCES",
+  rankedExperiences
+    .filter(
+      (e: any) =>
+        e.category !== featuredCategory
+    )
+    .map(
+      (e: any) => ({
+        id: e.id,
+        category: e.category,
+      })
+    )
+);
+
+console.log(
+  "RANKED",
+  rankedExperiences.map(
+    (e: any) => ({
+      id: e.id,
+      category: e.category,
+      score: e.finalScore,
+    })
+  )
+);
+const includedExperiences =
 
   rankedExperiences
+
+    .filter(
+      (experience: any) =>
+
+        experience.id !==
+        featuredId
+    )
+
+    .filter(
+      (experience: any) =>
+
+        experience.category !==
+        featuredCategory
+    )
 
     .slice(0, 3)
 
     .map((experience: any, index: number) => ({
 
       image:
-
         experience.featured_image ||
-
         galleryImages[index] ||
-
         "/images/default.webp",
 
       title:
-
         experience.title,
 
       description:
-
         experience.short_description ||
-
         experience.description ||
-
         "",
 
       details: [
