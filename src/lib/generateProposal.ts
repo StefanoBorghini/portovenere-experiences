@@ -206,18 +206,29 @@ console.log(
         // MOOD REFINEMENT
         // =====================================================
 
-       safeMoodsSelected.forEach(
-  (mood) => {
+ safeMoodsSelected.forEach((mood) => {
 
-    const moodScore =
-
-      experience.moodScores?.[
-        mood
-      ] ?? 0;
-
-    score += moodScore * 10;
+  if (mood === "Romantic") {
+    score += (experience.romantic_score ?? 0) * 10;
   }
+
+  if (mood === "Authentic") {
+    score += (experience.authentic_score ?? 0) * 10;
+  }
+
+  if (mood === "Adventure") {
+    score += (experience.adventure_score ?? 0) * 10;
+  }
+
+  if (mood === "Cinematic") {
+    score += (experience.cinematic_score ?? 0) * 10;
+  }
+console.log(
+  "SCORE",
+  experience.id,
+  score
 );
+});
 console.log(
   "AIRPLANE FULL",
   filteredExperiences[0]
