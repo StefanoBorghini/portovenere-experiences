@@ -21,11 +21,15 @@ import {
 
 interface ExperienceCard {
 
+  id: string;
+
   image: string;
 
   title: string;
 
   description: string;
+
+  price: number;
 
   details: string[];
 }

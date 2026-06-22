@@ -180,31 +180,37 @@ const includedExperiences =
 
     .slice(0, 3)
 
-    .map((experience: any, index: number) => ({
+ .map((experience: any, index: number) => ({
 
-      image:
-        experience.featured_image ||
-        galleryImages[index] ||
-        "/images/default.webp",
+  id:
+    experience.id,
 
-      title:
-        experience.title,
+  price:
+    experience.base_price || 0,
 
-      description:
-        experience.short_description ||
-        experience.description ||
-        "",
+  image:
+    experience.featured_image ||
+    galleryImages[index] ||
+    "/images/default.webp",
 
-      details: [
+  title:
+    experience.title,
 
-        experience.operator,
+  description:
+    experience.short_description ||
+    experience.description ||
+    "",
 
-        experience.category
-          ?.replaceAll("_", " "),
+  details: [
 
-        `From €${experience.base_price}`,
-      ],
-    }));
+    experience.operator,
+
+    experience.category
+      ?.replaceAll("_", " "),
+
+    `From €${experience.base_price}`,
+  ],
+}));
   // ===================================================
   // PRICE
   // ===================================================
