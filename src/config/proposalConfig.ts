@@ -49,7 +49,7 @@ export const proposalConfig: ProposalConfig = {
       "Tailored private experiences across the Italian Riviera.",
 
     priceLabel:
-      "Starting From",
+      "${includedExperiences.length + 1} EXPERIENCES IN 1",
   },
 
   narrative: {
