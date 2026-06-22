@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-
+import { useState } from "react";
 import Section
 from "@/components/layout/Section";
 
@@ -45,8 +45,50 @@ export default function IncludedExperiences({
 
 }: IncludedExperiencesProps) {
 
-  return (
+  const [
+  selectedExperiences,
+  setSelectedExperiences,
+] = useState<string[]>(
 
+  experiences.map(
+    experience => experience.title
+  )
+
+);
+
+function toggleExperience(
+title: string
+) {
+
+if (
+selectedExperiences.includes(
+  title
+)
+) {
+
+setSelectedExperiences(
+
+  selectedExperiences.filter(
+    item => item !== title
+  )
+
+);
+
+} else {
+
+setSelectedExperiences([
+  ...selectedExperiences,
+  title,
+]);
+
+}
+
+}
+
+return (
+
+
+    
     <Section
       className="
         bg-black
@@ -116,11 +158,17 @@ export default function IncludedExperiences({
         >
 
           {experiences.map(
-            (
-              experience,
-              index
-            ) => (
+  (
+    experience,
+    index
+  ) => {
 
+    const isSelected =
+      selectedExperiences.includes(
+        experience.title
+      );
+
+    return (
               <motion.div
 
                 key={experience.title}
@@ -313,9 +361,12 @@ export default function IncludedExperiences({
 
                 </div>
 
-              </motion.div>
-            )
-          )}
+            </motion.div>
+
+    );
+
+  }
+)}
 
         </div>
 
