@@ -175,6 +175,12 @@ return (
     return (
               <motion.button
 
+                  onClick={() =>
+    toggleExperience(
+      experience.title
+    )
+  }
+
                 key={experience.title}
 
                 variants={fadeReveal}
@@ -197,6 +203,12 @@ return (
                 className={`
                   group
                   relative
+                  ${
+                  !isSelected
+                  ? "opacity-50"
+                  : ""
+                  }
+
                   overflow-hidden
                   rounded-[36px]
                   bg-white/[0.02]
@@ -204,6 +216,7 @@ return (
                   border-white/[0.08]
                   backdrop-blur-[4px]
                   will-change-transform
+                  
 
                   ${
                     index === 1
@@ -295,10 +308,19 @@ return (
                     "
                   >
 
-                    {experience.title}
+                   {experience.title}
 
                   </h3>
-
+<p
+  className="
+    text-white/80
+    text-[18px]
+    tracking-[-0.02em]
+    mb-6
+  "
+>
+  €{experience.price.toLocaleString()}
+</p>
                   <p
                     className="
                       text-[15px]
