@@ -83,20 +83,46 @@ useEffect(() => {
 
 <div className="mb-12">
 
-  <h1
+  <div
     className="
-      text-5xl
-      font-light
-      tracking-tight
+      flex
+      items-center
+      gap-4
+      mb-4
     "
   >
-    Experiences CMS
-  </h1>
+
+    <img
+      src="/logo-white.png"
+      alt="PV"
+      className="
+        h-10
+        w-auto
+      "
+    />
+
+    <div>
+
+      <h1
+        className="
+          text-4xl
+          md:text-5xl
+          font-light
+          tracking-tight
+        "
+      >
+        Experiences CMS
+      </h1>
+
+     
+    </div>
+
+  </div>
 
   <p
     className="
-      mt-3
-      text-white/50
+      text-white/40
+      max-w-2xl
     "
   >
     Manage experiences, galleries and proposal engine data.
@@ -547,7 +573,36 @@ onChange={(e) =>
   </table>
 
 </div>
+<footer
+  className="
+    mt-20
+    pt-8
+    border-t
+    border-white/5
+    flex
+    justify-center
+  "
+>
 
+  <div
+    className="
+      px-4
+      py-2
+      rounded-full
+      border
+      border-white/10
+      text-[11px]
+      tracking-[0.2em]
+      uppercase
+      text-white/40
+    "
+  >
+
+    Powered by Ductavia
+
+  </div>
+
+</footer>
     </main>
   );
 }
