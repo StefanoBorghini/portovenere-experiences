@@ -240,102 +240,175 @@ useEffect(() => {
   </div>
 
 </div>
-      <div className="grid gap-6">
-
-        {experiences.map(
-          (experience) => (
-
-            <div
-              key={experience.id}
-              className="
-                border
-                border-zinc-700
-                rounded-xl
-                p-6
-                bg-zinc-900
-              "
-            >
-
-              <div className="mb-4">
-
-                <img
-                  src={
-                    experience.featured_image ||
-                    experience.hero_image
-                  }
-                  alt={experience.title}
-                  className="
-                    w-full
-                    max-w-md
-                    rounded-lg
-                  "
-                />
-
-              </div>
-
-              <h2 className="text-2xl font-semibold">
-
-                {experience.title}
-
-              </h2>
-
-              <p className="text-zinc-400">
-
-                {experience.operator}
-
-              </p>
-
-              <p className="mt-2">
-
-                Category:
-                {" "}
-                {experience.category}
-
-              </p>
-
-              <p>
-
-                Price:
-                {" "}
-                €
-                {experience.base_price}
-
-              </p>
-
-              <p>
-
-                Gallery:
-                {" "}
-                {experience.gallery?.length || 0}
-                {" "}
-                images
-
-              </p>
-<Link
-  href={`/admin/experiences/${experience.id}`}
+<div
   className="
-    inline-flex
-    mt-4
-    px-4
-    py-2
-    rounded-xl
-    bg-white
-    text-black
-    font-medium
-    hover:opacity-90
-    transition-all
+    overflow-hidden
+    rounded-3xl
+    border
+    border-white/10
+    bg-zinc-950
   "
 >
 
-  Edit
+  <table className="w-full">
 
-</Link>
+    <thead>
 
-            </div>
-          )
-        )}
+      <tr
+        className="
+          border-b
+          border-white/10
+          text-white/50
+          text-sm
+        "
+      >
 
-      </div>
+        <th className="p-4 text-left">
+          Image
+        </th>
+
+        <th className="p-4 text-left">
+          Experience
+        </th>
+
+        <th className="p-4 text-left">
+          Operator
+        </th>
+
+        <th className="p-4 text-left">
+          Category
+        </th>
+
+        <th className="p-4 text-left">
+          Price
+        </th>
+
+        <th className="p-4 text-left">
+          Gallery
+        </th>
+
+        <th className="p-4 text-right">
+          Actions
+        </th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {experiences.map(
+        (experience) => (
+
+          <tr
+
+            key={experience.id}
+
+            className="
+              border-b
+              border-white/5
+              hover:bg-white/[0.02]
+              transition-colors
+            "
+          >
+
+            <td className="p-4">
+
+              <img
+                src={
+                  experience.featured_image ||
+                  experience.hero_image
+                }
+                alt={experience.title}
+                className="
+                  w-24
+                  h-16
+                  object-cover
+                  rounded-xl
+                "
+              />
+
+            </td>
+
+            <td className="p-4">
+
+              <div className="font-medium">
+
+                {experience.title}
+
+              </div>
+
+            </td>
+
+            <td className="p-4 text-white/60">
+
+              {experience.operator}
+
+            </td>
+
+            <td className="p-4">
+
+              <span
+                className="
+                  px-3
+                  py-1
+                  rounded-full
+                  text-xs
+                  border
+                  border-white/10
+                  bg-white/[0.03]
+                "
+              >
+
+                {experience.category}
+
+              </span>
+
+            </td>
+
+            <td className="p-4">
+
+              €{experience.base_price}
+
+            </td>
+
+            <td className="p-4 text-white/60">
+
+              {experience.gallery?.length || 0}
+
+            </td>
+
+            <td className="p-4 text-right">
+
+              <Link
+                href={`/admin/experiences/${experience.id}`}
+                className="
+                  inline-flex
+                  px-4
+                  py-2
+                  rounded-xl
+                  bg-white
+                  text-black
+                  font-medium
+                "
+              >
+
+                Edit
+
+              </Link>
+
+            </td>
+
+          </tr>
+
+        )
+      )}
+
+    </tbody>
+
+  </table>
+
+</div>
 
     </main>
   );
