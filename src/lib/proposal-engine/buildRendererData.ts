@@ -166,51 +166,62 @@ const includedExperiences =
 
     .filter(
       (experience: any) =>
-
-        experience.id !==
-        featuredId
+        experience.id !== featuredId
     )
 
     .filter(
       (experience: any) =>
-
-        experience.category !==
-        featuredCategory
+        experience.category !== featuredCategory
     )
 
     .slice(0, 3)
 
- .map((experience: any, index: number) => ({
+    .map((experience: any, index: number) => {
 
-  id:
-    experience.id,
+      console.log(
+        "IMAGE CHECK",
+        {
+          id: experience.id,
+          title: experience.title,
+          featured_image: experience.featured_image,
+          gallery: experience.gallery,
+        }
+      );
 
-  price:
-    experience.base_price || 0,
+      return {
 
-  image:
-    experience.featured_image ||
-    galleryImages[index] ||
-    "/images/default.webp",
+        id:
+          experience.id,
 
-  title:
-    experience.title,
+        price:
+          experience.base_price || 0,
 
-  description:
-    experience.short_description ||
-    experience.description ||
-    "",
+        image:
+          experience.featured_image ||
+          experience.gallery?.[0]?.image_url ||
+          galleryImages[index] ||
+          "/images/default.webp",
 
-  details: [
+        title:
+          experience.title,
 
-    experience.operator,
+        description:
+          experience.short_description ||
+          experience.description ||
+          "",
 
-    experience.category
-      ?.replaceAll("_", " "),
+        details: [
 
-    `From €${experience.base_price}`,
-  ],
-}));
+          experience.operator,
+
+          experience.category
+            ?.replaceAll("_", " "),
+
+          `From €${experience.base_price}`,
+        ],
+      };
+
+    });
   // ===================================================
   // PRICE
   // ===================================================
