@@ -96,7 +96,7 @@ useEffect(() => {
       src="/logo-white.png"
       alt="PV"
       className="
-        h-10
+        h-25
         w-auto
       "
     />
