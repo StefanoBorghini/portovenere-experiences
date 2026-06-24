@@ -75,12 +75,14 @@ useEffect(() => {
 
 <div
   className="
-    flex
-    items-center
-    justify-between
-    mb-8
-    gap-4
-  "
+  flex
+  flex-col
+  md:flex-row
+  md:items-center
+  md:justify-between
+  mb-8
+  gap-4
+"
 >
 
   <button
@@ -240,8 +242,106 @@ useEffect(() => {
   </div>
 
 </div>
+
 <div
   className="
+    md:hidden
+    space-y-4
+  "
+>
+
+  {experiences.map(
+    (experience) => (
+
+      <div
+        key={experience.id}
+        className="
+          p-4
+          rounded-2xl
+          border
+          border-white/10
+          bg-zinc-950
+        "
+      >
+
+        <img
+          src={
+            experience.featured_image ||
+            experience.hero_image
+          }
+          alt={experience.title}
+          className="
+            w-full
+            h-40
+            object-cover
+            rounded-xl
+            mb-4
+          "
+        />
+
+        <h3
+          className="
+            text-lg
+            font-medium
+          "
+        >
+          {experience.title}
+        </h3>
+
+        <p className="text-white/50">
+
+          {experience.operator}
+
+        </p>
+
+        <div
+          className="
+            flex
+            justify-between
+            mt-4
+            text-sm
+          "
+        >
+
+          <span>
+            {experience.category}
+          </span>
+
+          <span>
+            €{experience.base_price}
+          </span>
+
+        </div>
+
+        <Link
+          href={`/admin/experiences/${experience.id}`}
+          className="
+            mt-4
+            w-full
+            flex
+            justify-center
+            py-3
+            rounded-xl
+            bg-white
+            text-black
+            font-medium
+          "
+        >
+
+          Edit
+
+        </Link>
+
+      </div>
+
+    )
+  )}
+
+</div>
+<div
+  className="
+    hidden
+    md:block
     overflow-hidden
     rounded-3xl
     border
@@ -249,7 +349,6 @@ useEffect(() => {
     bg-zinc-950
   "
 >
-
   <table className="w-full">
 
     <thead>
