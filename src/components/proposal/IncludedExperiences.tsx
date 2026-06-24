@@ -420,7 +420,7 @@ ${
 
   {
    isSelected
-  ? `Included · €${experience.price}`
+  ? `Included`
   : `Add Back · €${experience.price}`
   }
 
