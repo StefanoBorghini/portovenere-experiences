@@ -50,29 +50,196 @@ useEffect(() => {
 
     <main className="min-h-screen bg-black text-white p-8">
 
-      <h1 className="text-4xl font-bold mb-8">
+<div className="mb-12">
 
-        Experiences CMS
+  <h1
+    className="
+      text-5xl
+      font-light
+      tracking-tight
+    "
+  >
+    Experiences CMS
+  </h1>
 
-      </h1>
-<button
+  <p
+    className="
+      mt-3
+      text-white/50
+    "
+  >
+    Manage experiences, galleries and proposal engine data.
+  </p>
 
-  onClick={async () => {
+</div>
 
-    if (!supabase) return;
-
-    await supabase.auth.signOut();
-
-    window.location.href =
-      "/admin/login";
-
-  }}
-
+<div
+  className="
+    flex
+    items-center
+    justify-between
+    mb-8
+    gap-4
+  "
 >
 
-Logout
+  <button
 
-</button>
+    onClick={async () => {
+
+      if (!supabase) return;
+
+      await supabase.auth.signOut();
+
+      window.location.href =
+        "/admin/login";
+
+    }}
+
+    className="
+      px-4
+      py-3
+      rounded-xl
+      border
+      border-white/10
+      hover:bg-white/5
+      transition-all
+    "
+  >
+
+    Logout
+
+  </button>
+
+  <input
+    placeholder="Search experience..."
+    className="
+      w-full
+      max-w-md
+      px-4
+      py-3
+      rounded-xl
+      bg-white/[0.04]
+      border
+      border-white/[0.08]
+      outline-none
+    "
+  />
+
+  <button
+    className="
+      px-5
+      py-3
+      rounded-xl
+      bg-white
+      text-black
+      font-medium
+    "
+  >
+
+    New Experience
+
+  </button>
+
+</div>
+
+<div
+  className="
+    grid
+    grid-cols-1
+    md:grid-cols-3
+    gap-4
+    mb-8
+  "
+>
+
+  <div
+    className="
+      p-5
+      rounded-2xl
+      bg-zinc-900
+      border
+      border-white/10
+    "
+  >
+
+    <div className="text-white/50 text-sm">
+
+      Experiences
+
+    </div>
+
+    <div className="text-3xl mt-2">
+
+      {experiences.length}
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      p-5
+      rounded-2xl
+      bg-zinc-900
+      border
+      border-white/10
+    "
+  >
+
+    <div className="text-white/50 text-sm">
+
+      Active
+
+    </div>
+
+    <div className="text-3xl mt-2">
+
+      {
+        experiences.filter(
+          exp => exp.active
+        ).length
+      }
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      p-5
+      rounded-2xl
+      bg-zinc-900
+      border
+      border-white/10
+    "
+  >
+
+    <div className="text-white/50 text-sm">
+
+      Gallery Images
+
+    </div>
+
+    <div className="text-3xl mt-2">
+
+      {
+        experiences.reduce(
+          (total, exp) =>
+            total +
+            (
+              exp.gallery?.length ||
+              0
+            ),
+          0
+        )
+      }
+
+    </div>
+
+  </div>
+
+</div>
       <div className="grid gap-6">
 
         {experiences.map(
