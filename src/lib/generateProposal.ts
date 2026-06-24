@@ -370,6 +370,16 @@ console.log(
     category: bestExperience?.category
   }
 );
+
+console.log(
+  "BEST EXPERIENCE IMAGE",
+  {
+    id: bestExperience.id,
+    featured: bestExperience.featured_image,
+    gallery: bestExperience.gallery?.[0]?.image_url,
+    heroImage: bestExperience.heroImage,
+  }
+);
   // =========================================================
   // FALLBACK
   // =========================================================
@@ -491,7 +501,13 @@ const dynamicClosingParagraph =
 
   let heroImage =
 
-    bestExperience.heroImage;
+   bestExperience.featured_image ||
+
+  bestExperience.gallery?.[0]?.image_url ||
+
+  experienceContent?.heroImage ||
+
+  "/images/default.webp";
 
   // =========================================================
   // SINGLE CATEGORY + SINGLE MOOD
@@ -680,9 +696,14 @@ const orderedCategories =
     bestExperience.operator,
 
   heroImage:
-    experienceContent?.heroImage ||
 
-    bestExperience.heroImage,
+  bestExperience.featured_image ||
+
+  bestExperience.gallery?.[0]?.image_url ||
+
+  experienceContent?.heroImage ||
+
+  "/images/default.webp",
 },
 
     scoredExperiences:
