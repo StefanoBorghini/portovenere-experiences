@@ -55,25 +55,25 @@ export default function IncludedExperiences({
 ] = useState<string[]>(
 
   experiences.map(
-    experience => experience.title
+    experience => experience.id
   )
 
 );
 
 function toggleExperience(
-title: string
+id: string
 ) {
 
 if (
 selectedExperiences.includes(
-  title
+  id
 )
 ) {
 
 setSelectedExperiences(
 
   selectedExperiences.filter(
-    item => item !== title
+    item => item !== id
   )
 
 );
@@ -82,7 +82,7 @@ setSelectedExperiences(
 
 setSelectedExperiences([
   ...selectedExperiences,
-  title,
+  id,
 ]);
 
 }
@@ -169,7 +169,7 @@ return (
 
     const isSelected =
       selectedExperiences.includes(
-        experience.title
+        experience.id
       );
 
     return (
@@ -177,7 +177,7 @@ return (
 
                   onClick={() =>
     toggleExperience(
-      experience.title
+      experience.id
     )
   }
 
@@ -384,7 +384,36 @@ return (
                     )}
 
                   </div>
+<div
+  className={`
+    mt-10
+    inline-flex
+    items-center
+    justify-center
+    rounded-full
+    px-5
+    py-3
+    text-sm
+    tracking-[0.2em]
+    uppercase
+    transition-all
+    duration-300
 
+    ${
+      isSelected
+        ? "bg-white text-black"
+        : "text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]"
+    }
+  `}
+>
+
+  {
+    isSelected
+      ? `Experience Included · €${experience.price}`
+      : `Add Experience · €${experience.price}`
+  }
+
+</div>
                 </div>
 
             </motion.button>
