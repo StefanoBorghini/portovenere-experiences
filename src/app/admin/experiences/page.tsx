@@ -111,7 +111,7 @@ useEffect(() => {
           tracking-tight
         "
       >
-        Experiences CMS
+        Experiences Studio
       </h1>
 
      
