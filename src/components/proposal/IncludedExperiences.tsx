@@ -205,10 +205,9 @@ return (
                   relative
                   ${
                   !isSelected
-                  ? "opacity-50"
+                  ? "opacity-50 grayscale-[20%]"
                   : ""
                   }
-
                   overflow-hidden
                   rounded-[36px]
                   bg-white/[0.02]
