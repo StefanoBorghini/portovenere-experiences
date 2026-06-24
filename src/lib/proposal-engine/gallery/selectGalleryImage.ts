@@ -27,7 +27,10 @@ export function selectGalleryImage({
   if (!experience) {
     return null;
   }
-
+console.log(
+  "GALLERY EXPERIENCE",
+  experience
+);
   // ===================================================
   // HERO VARIANTS
   // ===================================================

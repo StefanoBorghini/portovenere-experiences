@@ -68,7 +68,10 @@ export function buildProposalGallery({
   if (!heroExperience) {
     return [];
   }
-
+console.log(
+  "GALLERY HERO",
+  heroExperience
+);
   // ===================================================
   // MAIN CATEGORY
   // ===================================================
