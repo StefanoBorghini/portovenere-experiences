@@ -213,7 +213,19 @@ return (
                   rounded-[36px]
                   bg-white/[0.02]
                   border
-                  border-white/[0.08]
+
+${
+  isSelected
+
+    ? `
+      border-white/40
+      shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+    `
+
+    : `
+      border-white/[0.08]
+    `
+}
                   backdrop-blur-[4px]
                   will-change-transform
                   
@@ -408,9 +420,9 @@ return (
 >
 
   {
-    isSelected
-      ? `Experience Included · €${experience.price}`
-      : `Add Experience · €${experience.price}`
+   isSelected
+  ? `Included · €${experience.price}`
+  : `Add Back · €${experience.price}`
   }
 
 </div>
