@@ -13,6 +13,37 @@ export default function AdminExperiencesPage() {
   const [experiences, setExperiences] =
     useState<any[]>([]);
 
+    const [search, setSearch] =
+  useState("");
+const filteredExperiences =
+
+  experiences.filter(
+    (experience) => {
+
+      const query =
+        search.toLowerCase();
+
+      return (
+
+        experience.title
+          ?.toLowerCase()
+          .includes(query)
+
+        ||
+
+        experience.operator
+          ?.toLowerCase()
+          .includes(query)
+
+        ||
+
+        experience.category
+          ?.toLowerCase()
+          .includes(query)
+
+      );
+    }
+  );
 useEffect(() => {
 
   async function loadData() {
@@ -114,7 +145,15 @@ useEffect(() => {
   </button>
 
   <input
-    placeholder="Search experience..."
+  value={search}
+
+onChange={(e) =>
+  setSearch(
+    e.target.value
+  )
+}
+
+    placeholder="Search by title, operator or category..."
     className="
       w-full
       max-w-md
@@ -250,7 +289,7 @@ useEffect(() => {
   "
 >
 
-  {experiences.map(
+  {filteredExperiences.map(
     (experience) => (
 
       <div
@@ -396,7 +435,7 @@ useEffect(() => {
 
     <tbody>
 
-      {experiences.map(
+      {filteredExperiences.map(
         (experience) => (
 
           <tr
