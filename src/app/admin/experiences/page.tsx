@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-
+import Link from "next/link";
 
 import {
   getFullExperiences,
@@ -311,21 +311,25 @@ useEffect(() => {
                 images
 
               </p>
+<Link
+  href={`/admin/experiences/${experience.id}`}
+  className="
+    inline-flex
+    mt-4
+    px-4
+    py-2
+    rounded-xl
+    bg-white
+    text-black
+    font-medium
+    hover:opacity-90
+    transition-all
+  "
+>
 
-              <button
-                className="
-                  mt-4
-                  px-4
-                  py-2
-                  rounded
-                  bg-white
-                  text-black
-                "
-              >
+  Edit
 
-                Edit
-
-              </button>
+</Link>
 
             </div>
           )
