@@ -178,16 +178,19 @@ const includedExperiences =
 
     .map((experience: any, index: number) => {
 
-      console.log(
-        "IMAGE CHECK",
-        {
-          id: experience.id,
-          title: experience.title,
-          featured_image: experience.featured_image,
-          gallery: experience.gallery,
-        }
-      );
-
+    console.log(
+  "IMAGE CHECK",
+  {
+    id: experience.id,
+    title: experience.title,
+    featured: experience.featured_image,
+    gallery: experience.gallery?.[0]?.image_url,
+    final:
+      experience.featured_image ||
+      experience.gallery?.[0]?.image_url ||
+      galleryImages[index]
+  }
+);
       return {
 
         id:

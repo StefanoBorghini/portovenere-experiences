@@ -50,7 +50,10 @@ export default function ProposalHero({
     >
 
       {/* BACKGROUND */}
-
+console.log(
+  "HERO IMAGE",
+  heroImage
+);
       <motion.img
       initial={{
   scale: 1.08,

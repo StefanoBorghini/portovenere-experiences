@@ -380,7 +380,10 @@ export default function FeaturedExperience({
                 rounded-[40px]
               "
             >
-
+console.log(
+  "FEATURED IMAGE",
+  image
+);
               <img
                 src={image}
                 alt={operator}
