@@ -382,27 +382,29 @@ const featuredEssentials =
       />
 
       {/* FEATURED EXPERIENCE */}
+<FeaturedExperience
 
-      <FeaturedExperience
+  image={
+    featuredExperience?.detail_image ||
+    featuredExperience?.hero_image
+  }
 
-        image={heroImage}
+  operator={
+    featuredOperator
+  }
 
-        operator={
-          featuredOperator
-        }
+  subtitle={
+    featuredSubtitle
+  }
 
-        subtitle={
-          featuredSubtitle
-        }
+  description={
+    featuredDescription
+  }
 
-        description={
-          featuredDescription
-        }
-
-        essentials={
-          featuredEssentials
-        }
-      />
+  essentials={
+    featuredEssentials
+  }
+/>
 
       {/* INCLUDED EXPERIENCES */}
 

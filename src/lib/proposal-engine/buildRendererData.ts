@@ -200,10 +200,10 @@ const includedExperiences =
           experience.base_price || 0,
 
         image:
-          experience.featured_image ||
-          experience.gallery?.[0]?.image_url ||
-          galleryImages[index] ||
-          "/images/default.webp",
+  experience.detail_image ||
+  experience.hero_image ||
+  experience.gallery?.[0]?.image_url ||
+  "/images/default.webp",
 
         title:
           experience.title,
