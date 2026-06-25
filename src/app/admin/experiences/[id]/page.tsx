@@ -105,13 +105,9 @@ if (!session) {
 
   }}
 
-  onSave={async () => {
-
-    // lo collegheremo dopo
-
-  }}
-
 />
+
+
 <GeneralCard
 
   experience={experience}

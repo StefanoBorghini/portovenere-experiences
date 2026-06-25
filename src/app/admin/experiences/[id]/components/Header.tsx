@@ -10,7 +10,7 @@ interface HeaderProps {
 
   onLogout: () => void;
 
-  onSave: () => void;
+ 
 
 }
 
@@ -26,7 +26,7 @@ export default function Header({
 
   onLogout,
 
-  onSave,
+
 
 }: HeaderProps) {
 
@@ -187,25 +187,7 @@ export default function Header({
 
           </button>
 
-          <button
-
-            onClick={onSave}
-
-            className="
-              px-6
-              py-3
-              rounded-xl
-              bg-white
-              text-black
-              font-medium
-              hover:opacity-90
-              transition-all
-            "
-          >
-
-            Save Changes
-
-          </button>
+    
 
         </div>
 
