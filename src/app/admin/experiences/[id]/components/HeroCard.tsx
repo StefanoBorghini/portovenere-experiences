@@ -37,7 +37,7 @@ mb-8
 "
 >
 
-Hero Image
+Images
 
 </h2>
 
@@ -156,7 +156,140 @@ Hero Image
   </label>
 
 </div>
+<hr
+  className="
+    my-10
+    border-white/10
+  "
+/>
 
+<h3
+  className="
+    text-xl
+    font-light
+    mb-6
+  "
+>
+
+Detail Image
+
+</h3>
+
+<div
+  className="
+    rounded-2xl
+    overflow-hidden
+    border
+    border-white/10
+    bg-black
+    mb-8
+  "
+>
+
+  <img
+    src={experience.detail_image}
+    alt=""
+    className="
+      w-full
+      h-[380px]
+      object-cover
+    "
+  />
+
+</div>
+
+<div
+  className="
+    flex
+    justify-end
+  "
+>
+
+  <label
+    className="
+      h-[52px]
+      px-6
+      rounded-xl
+      bg-white
+      text-black
+      font-medium
+      flex
+      items-center
+      justify-center
+      cursor-pointer
+      hover:opacity-90
+      transition
+    "
+  >
+
+    📤 Upload Detail Image
+
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+
+      onChange={async (e) => {
+
+        const file =
+          e.target.files?.[0];
+
+        if (!file) return;
+
+        if (!supabase) {
+
+          alert("Supabase not initialized");
+
+          return;
+
+        }
+
+        const fileName =
+          `${Date.now()}-${file.name}`;
+
+        const { error } =
+          await supabase.storage
+            .from("experience-images")
+            .upload(
+              `detail/${fileName}`,
+              file
+            );
+
+        if (error) {
+
+          console.error(error);
+
+          alert("Upload failed");
+
+          return;
+
+        }
+
+        const {
+          data,
+        } =
+          supabase.storage
+            .from("experience-images")
+            .getPublicUrl(
+              `detail/${fileName}`
+            );
+
+        setExperience({
+
+          ...experience,
+
+          detail_image:
+            data.publicUrl,
+
+        });
+
+      }}
+
+    />
+
+  </label>
+
+</div>
 </section>
 
   );
