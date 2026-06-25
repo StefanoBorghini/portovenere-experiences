@@ -64,6 +64,99 @@ Hero Image
 
 </div>
 
+<div
+  className="
+    flex
+    justify-end
+  "
+>
+
+  <label
+    className="
+      h-[52px]
+      px-6
+      rounded-xl
+      bg-white
+      text-black
+      font-medium
+      flex
+      items-center
+      justify-center
+      cursor-pointer
+      hover:opacity-90
+      transition
+    "
+  >
+
+    📤 Upload Hero Image
+
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+
+      onChange={async (e) => {
+
+        const file =
+          e.target.files?.[0];
+
+        if (!file) return;
+
+        if (!supabase) {
+
+          alert("Supabase not initialized");
+
+          return;
+
+        }
+
+        const fileName =
+          `${Date.now()}-${file.name}`;
+
+        const { error } =
+          await supabase.storage
+            .from("experience-images")
+            .upload(
+              `hero/${fileName}`,
+              file
+            );
+
+        if (error) {
+
+          console.error(error);
+
+          alert("Upload failed");
+
+          return;
+
+        }
+
+        const {
+          data,
+        } =
+          supabase.storage
+            .from("experience-images")
+            .getPublicUrl(
+              `hero/${fileName}`
+            );
+
+        setExperience({
+
+          ...experience,
+
+          hero_image:
+            data.publicUrl,
+
+        });
+
+      }}
+
+    />
+
+  </label>
+
+</div>
+
 </section>
 
   );
