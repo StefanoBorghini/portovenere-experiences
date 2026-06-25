@@ -1,5 +1,5 @@
 "use client";
-
+import Header from "./components/Header";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase }
@@ -77,162 +77,36 @@ if (!session) {
         margin: "0 auto",
       }}
     >
-<div
-  className="
-    flex
-    flex-col
-    lg:flex-row
-    lg:items-center
-    lg:justify-between
-    gap-6
-    mb-10
-  "
->
+<Header
 
-  <div>
+  title={experience.title}
 
-    <button
+  operator={experience.operator}
 
-      onClick={() =>
+  category={experience.category}
 
-        window.location.href =
-          "/admin/experiences"
+  active={experience.active}
 
-      }
+  onLogout={async () => {
 
-      className="
-        mb-5
-        text-sm
-        text-white/50
-        hover:text-white
-        transition-colors
-      "
-    >
+    if (!supabase) return;
 
-      ← Back to Dashboard
+    await supabase.auth.signOut();
 
-    </button>
+    window.location.href =
+      "/admin/login";
 
-    <div
-      className="
-        flex
-        items-center
-        gap-4
-      "
-    >
+  }}
 
-      <img
-        src="/logo-white.png"
-        alt="PV"
-        className="
-          h-10
-          w-auto
-        "
-      />
+  onSave={async () => {
 
-      <div>
+    // lo collegheremo dopo
 
-        <h1
-          className="
-            text-4xl
-            font-light
-            tracking-tight
-          "
-        >
+  }}
 
-          {experience.title}
+/>
 
-        </h1>
-
-        <p
-          className="
-            text-white/40
-            mt-1
-          "
-        >
-
-          {experience.operator}
-          ·
-          {" "}
-          {experience.category}
-
-        </p>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div
-    className="
-      flex
-      gap-3
-    "
-  >
-
-    <button
-
-      onClick={async () => {
-
-        if (!supabase) return;
-
-        await supabase.auth.signOut();
-
-        window.location.href =
-          "/admin/login";
-
-      }}
-
-      className="
-        px-5
-        py-3
-        rounded-xl
-        border
-        border-white/10
-        hover:bg-white/5
-      "
-    >
-
-      Logout
-
-    </button>
-
-  </div>
-
-</div>
-
-<div
-  className="
-    mb-10
-    rounded-3xl
-    overflow-hidden
-    border
-    border-white/10
-    bg-zinc-950
-  "
->
-
-  <img
-
-    src={
-      experience.hero_image ||
-      experience.featured_image
-    }
-
-    alt={experience.title}
-
-    className="
-      w-full
-      h-[340px]
-      object-cover
-    "
-
-  />
-
-</div>
-
-      <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+      <div style={{ marginBottom: "20px" }}>
   <label>Title</label>
 
   <br />
@@ -252,7 +126,7 @@ if (!session) {
     }}
   />
 </div>
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
   <label>Operator</label>
 
   <br />
@@ -273,7 +147,7 @@ if (!session) {
   />
 </div>
 
-      <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+      <div style={{ marginBottom: "20px" }}>
 
   <label>Category</label>
 
@@ -309,7 +183,7 @@ if (!session) {
 
 </div>
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>
     <strong>Guests</strong>
@@ -381,7 +255,7 @@ if (!session) {
 
 </div>
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>
     <strong>Budget</strong>
@@ -446,7 +320,7 @@ if (!session) {
 
 </div>
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <h2>Mood Scores</h2>
 
@@ -525,7 +399,7 @@ if (!session) {
 
 </div>
 
-    <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+    <div style={{ marginBottom: "20px" }}>
   <label>Base Price</label>
 
   <br />
@@ -548,7 +422,7 @@ if (!session) {
   />
 </div>
 
-     <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+     <div style={{ marginBottom: "20px" }}>
 
   <label>Description</label>
 
@@ -570,7 +444,7 @@ if (!session) {
   />
 
 </div>
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>Short Description</label>
 
@@ -595,7 +469,7 @@ if (!session) {
 </div>
 
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>
 
@@ -619,7 +493,7 @@ if (!session) {
 
 </div>
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>Featured</label>
 
@@ -638,7 +512,7 @@ if (!session) {
 
 </div>
 
-<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
+<div style={{ marginBottom: "20px" }}>
 
   <label>Hero Image</label>
 <input
