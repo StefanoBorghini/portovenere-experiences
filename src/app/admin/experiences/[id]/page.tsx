@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import GeneralCard from "./components/GeneralCard";
 import FiltersCard from "./components/FiltersCard";
 import MoodCard from "./components/MoodCard";
+import HeroCard from "./components/HeroCard";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -133,7 +134,13 @@ setExperience={setExperience}
 
 />
      
+<HeroCard
 
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
 
 
     
