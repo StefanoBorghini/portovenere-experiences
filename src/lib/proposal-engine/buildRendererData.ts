@@ -30,18 +30,28 @@ export function buildRendererData({
 
   const galleryImages =
 
-    buildProposalGallery({
+  rankedExperiences
 
-      experiencesSelected:
-        lead.experiences || [],
+    .flatMap(
+      (experience: any) =>
+        experience.gallery || []
+    )
 
-      moodsSelected:
-        lead.moods || [],
+    .filter(
+      (image: any) =>
+        image.active
+    )
 
-      heroExperienceId:
-        generatedProposal
-          ?.featuredExperience?.id || "",
-    });
+    .sort(
+      () => Math.random() - 0.5
+    )
+
+    .map(
+      (image: any) =>
+        image.image_url
+    )
+
+    .slice(0, 6);
 
   // ===================================================
   // ENHANCEMENTS
