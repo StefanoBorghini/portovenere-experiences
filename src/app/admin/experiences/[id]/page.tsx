@@ -155,38 +155,40 @@ setExperience={setExperience}
     const result =
       await updateExperience(
 
-        experience.id,
+  experience.id,
 
-        {
+  {
 
-          title: experience.title,
+    title: experience.title,
 
-          operator: experience.operator,
+    operator: experience.operator,
 
-          base_price: experience.base_price,
+    base_price: experience.base_price,
 
-          description:
-            experience.description,
+    description:
+      experience.description,
 
-          short_description:
-            experience.short_description,
+    short_description:
+      experience.short_description,
 
-          category:
-            experience.category,
+    category:
+      experience.category,
 
-          active:
-            experience.active,
+    active:
+      experience.active,
 
-          featured:
-            experience.featured,
+    featured:
+      experience.featured,
 
-          hero_image:
-            experience.hero_image,
+    hero_image:
+      experience.hero_image,
 
-        }
+    detail_image:
+      experience.detail_image,
 
-      );
+  }
 
+);
     for (const image of experience.gallery) {
 
       await updateGalleryImage(
