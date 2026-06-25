@@ -232,7 +232,7 @@ if (!session) {
 
 </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
   <label>Title</label>
 
   <br />
@@ -252,7 +252,7 @@ if (!session) {
     }}
   />
 </div>
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
   <label>Operator</label>
 
   <br />
@@ -273,7 +273,7 @@ if (!session) {
   />
 </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>Category</label>
 
@@ -309,7 +309,7 @@ if (!session) {
 
 </div>
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>
     <strong>Guests</strong>
@@ -381,7 +381,7 @@ if (!session) {
 
 </div>
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>
     <strong>Budget</strong>
@@ -446,7 +446,7 @@ if (!session) {
 
 </div>
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <h2>Mood Scores</h2>
 
@@ -525,7 +525,7 @@ if (!session) {
 
 </div>
 
-    <div style={{ marginBottom: "20px" }}>
+    <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
   <label>Base Price</label>
 
   <br />
@@ -548,7 +548,7 @@ if (!session) {
   />
 </div>
 
-     <div style={{ marginBottom: "20px" }}>
+     <div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>Description</label>
 
@@ -570,7 +570,7 @@ if (!session) {
   />
 
 </div>
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>Short Description</label>
 
@@ -595,7 +595,7 @@ if (!session) {
 </div>
 
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>
 
@@ -619,7 +619,7 @@ if (!session) {
 
 </div>
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>Featured</label>
 
@@ -638,7 +638,7 @@ if (!session) {
 
 </div>
 
-<div style={{ marginBottom: "20px" }}>
+<div className="rounded-2xl border border-white/10 bg-zinc-950 p-6">
 
   <label>Hero Image</label>
 <input
