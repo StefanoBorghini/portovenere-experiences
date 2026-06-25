@@ -4,6 +4,7 @@ import GeneralCard from "./components/GeneralCard";
 import FiltersCard from "./components/FiltersCard";
 import MoodCard from "./components/MoodCard";
 import HeroCard from "./components/HeroCard";
+import GalleryCard from "./components/GalleryCard";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -142,7 +143,13 @@ setExperience={setExperience}
 
 />
 
+<GalleryCard
 
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
     
 
     
