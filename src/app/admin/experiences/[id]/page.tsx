@@ -150,37 +150,7 @@ setExperience={setExperience}
 
       <div style={{ marginBottom: "20px" }}>
 
-  <label>Category</label>
-
-  <br />
-
-  <select
-    value={experience.category}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        category: e.target.value,
-      })
-    }
-  >
-
-    <option value="sea_escape">
-      Sea Escape
-    </option>
-
-    <option value="aerial_escape">
-      Aerial Escape
-    </option>
-
-    <option value="gourmet_escape">
-      Gourmet Escape
-    </option>
-
-    <option value="wild_escape">
-      Wild Escape
-    </option>
-
-  </select>
+  
 
 </div>
 
