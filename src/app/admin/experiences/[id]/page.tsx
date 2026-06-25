@@ -2,6 +2,7 @@
 import Header from "./components/Header";
 import GeneralCard from "./components/GeneralCard";
 import FiltersCard from "./components/FiltersCard";
+import MoodCard from "./components/MoodCard";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -123,86 +124,17 @@ experience={experience}
 setExperience={setExperience}
 
 />
+
+<MoodCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
      
 
-<div style={{ marginBottom: "20px" }}>
 
-  <h2>Mood Scores</h2>
-
-  <label>Romantic</label>
-
-  <input
-    type="number"
-    min={1}
-    max={4}
-    value={experience.romantic_score || 1}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        romantic_score:
-          Number(e.target.value),
-      })
-    }
-  />
-
-  <br />
-  <br />
-
-  <label>Authentic</label>
-
-  <input
-    type="number"
-    min={1}
-    max={4}
-    value={experience.authentic_score || 1}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        authentic_score:
-          Number(e.target.value),
-      })
-    }
-  />
-
-  <br />
-  <br />
-
-  <label>Adventure</label>
-
-  <input
-    type="number"
-    min={1}
-    max={4}
-    value={experience.adventure_score || 1}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        adventure_score:
-          Number(e.target.value),
-      })
-    }
-  />
-
-  <br />
-  <br />
-
-  <label>Cinematic</label>
-
-  <input
-    type="number"
-    min={1}
-    max={4}
-    value={experience.cinematic_score || 1}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        cinematic_score:
-          Number(e.target.value),
-      })
-    }
-  />
-
-</div>
 
     
 
