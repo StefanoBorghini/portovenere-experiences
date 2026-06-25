@@ -6,6 +6,25 @@ interface FiltersCardProps {
 
 }
 
+const guestOptions = [
+  {
+    label: "2 Guests",
+    key: "guest_2",
+  },
+  {
+    label: "3–4 Guests",
+    key: "guest_3_4",
+  },
+  {
+    label: "5–7 Guests",
+    key: "guest_5_7",
+  },
+  {
+    label: "8+ Guests",
+    key: "guest_8_plus",
+  },
+];
+
 export default function FiltersCard({
 
   experience,
@@ -103,7 +122,63 @@ Experience Filters
 
   </div>
 
+  <div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+    Guests
+  </label>
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+  {guestOptions.map((guest) => (
+
+    <label
+      key={guest.key}
+      className="
+        flex
+        items-center
+        gap-2
+        rounded-xl
+        border
+        border-white/10
+        bg-white/5
+        px-4
+        py-3
+        cursor-pointer
+      "
+    >
+
+      <input
+        type="checkbox"
+        checked={experience[guest.key] || false}
+        onChange={(e) =>
+          setExperience({
+            ...experience,
+            [guest.key]: e.target.checked,
+          })
+        }
+      />
+
+      {guest.label}
+
+    </label>
+
+  ))}
+
 </div>
+
+</div>
+
+</div>
+
+
 </section>
 
 )}
