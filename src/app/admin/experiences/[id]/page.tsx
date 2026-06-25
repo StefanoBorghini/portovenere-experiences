@@ -77,35 +77,160 @@ if (!session) {
         margin: "0 auto",
       }}
     >
-<button
-
-  onClick={async () => {
-
-    if (!supabase) return;
-
-    await supabase.auth.signOut();
-
-    window.location.href =
-      "/admin/login";
-
-  }}
-
+<div
+  className="
+    flex
+    flex-col
+    lg:flex-row
+    lg:items-center
+    lg:justify-between
+    gap-6
+    mb-10
+  "
 >
 
-Logout
+  <div>
 
-</button>
-      <h1>
-        Edit Experience
-      </h1>
+    <button
 
-      <hr />
+      onClick={() =>
 
-      <p>
-        <strong>ID:</strong>
-        {" "}
-        {experience.id}
-      </p>
+        window.location.href =
+          "/admin/experiences"
+
+      }
+
+      className="
+        mb-5
+        text-sm
+        text-white/50
+        hover:text-white
+        transition-colors
+      "
+    >
+
+      ← Back to Dashboard
+
+    </button>
+
+    <div
+      className="
+        flex
+        items-center
+        gap-4
+      "
+    >
+
+      <img
+        src="/logo-white.png"
+        alt="PV"
+        className="
+          h-10
+          w-auto
+        "
+      />
+
+      <div>
+
+        <h1
+          className="
+            text-4xl
+            font-light
+            tracking-tight
+          "
+        >
+
+          {experience.title}
+
+        </h1>
+
+        <p
+          className="
+            text-white/40
+            mt-1
+          "
+        >
+
+          {experience.operator}
+          ·
+          {" "}
+          {experience.category}
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div
+    className="
+      flex
+      gap-3
+    "
+  >
+
+    <button
+
+      onClick={async () => {
+
+        if (!supabase) return;
+
+        await supabase.auth.signOut();
+
+        window.location.href =
+          "/admin/login";
+
+      }}
+
+      className="
+        px-5
+        py-3
+        rounded-xl
+        border
+        border-white/10
+        hover:bg-white/5
+      "
+    >
+
+      Logout
+
+    </button>
+
+  </div>
+
+</div>
+
+<div
+  className="
+    mb-10
+    rounded-3xl
+    overflow-hidden
+    border
+    border-white/10
+    bg-zinc-950
+  "
+>
+
+  <img
+
+    src={
+      experience.hero_image ||
+      experience.featured_image
+    }
+
+    alt={experience.title}
+
+    className="
+      w-full
+      h-[340px]
+      object-cover
+    "
+
+  />
+
+</div>
 
       <div style={{ marginBottom: "20px" }}>
   <label>Title</label>
