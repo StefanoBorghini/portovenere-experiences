@@ -114,24 +114,8 @@ if (!session) {
 
 />
       <div style={{ marginBottom: "20px" }}>
-  <label>Title</label>
+  
 
-  <br />
-
-  <input
-    type="text"
-    value={experience.title}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        title: e.target.value,
-      })
-    }
-    style={{
-      width: "100%",
-      padding: "10px",
-    }}
-  />
 </div>
 <div style={{ marginBottom: "20px" }}>
   <label>Operator</label>
