@@ -41,6 +41,29 @@ Hero Image
 
 </h2>
 
+<div
+  className="
+    rounded-2xl
+    overflow-hidden
+    border
+    border-white/10
+    bg-black
+    mb-8
+  "
+>
+
+  <img
+    src={experience.hero_image}
+    alt={experience.title}
+    className="
+      w-full
+      h-[380px]
+      object-cover
+    "
+  />
+
+</div>
+
 </section>
 
   );
