@@ -224,7 +224,140 @@ outline-none
 resize-none
 "
 />
+<div
+  className="
+    flex
+    justify-between
+    items-center
+    mt-5
+    gap-3
+  "
+>
 
+  <label
+    className="
+      flex-1
+      h-12
+      rounded-xl
+      bg-white
+      text-black
+      font-medium
+      flex
+      items-center
+      justify-center
+      cursor-pointer
+      hover:opacity-90
+      transition
+    "
+  >
+
+    📤 Replace Image
+
+    <input
+
+      type="file"
+
+      accept="image/*"
+
+      className="hidden"
+
+      onChange={async (e)=>{
+
+        const file =
+          e.target.files?.[0];
+
+        if(!file) return;
+
+        const imageUrl =
+          await uploadImage(file);
+
+        if(!imageUrl){
+
+          alert("Upload failed");
+
+          return;
+
+        }
+
+        const updatedGallery =
+
+          experience.gallery.map(
+
+            (g:any)=>
+
+              g.id===image.id
+
+              ?{
+
+                  ...g,
+
+                  image_url:
+                    imageUrl,
+
+                }
+
+              :g
+
+          );
+
+        setExperience({
+
+          ...experience,
+
+          gallery:
+            updatedGallery,
+
+        });
+
+      }}
+
+    />
+
+  </label>
+
+  <button
+
+    onClick={async()=>{
+
+      await deleteGalleryImage(
+        image.id
+      );
+
+      setExperience({
+
+        ...experience,
+
+        gallery:
+
+          experience.gallery.filter(
+
+            (g:any)=>
+
+              g.id!==image.id
+
+          ),
+
+      });
+
+    }}
+
+    className="
+      h-12
+      px-5
+      rounded-xl
+      bg-red-600
+      text-white
+      hover:bg-red-500
+      transition
+    "
+
+  >
+
+    Delete
+
+  </button>
+
+</div>
 </div>
 
 </div>
