@@ -128,24 +128,7 @@ setExperience={setExperience}
 
 </div>
 <div style={{ marginBottom: "20px" }}>
-  <label>Operator</label>
 
-  <br />
-
-  <input
-    type="text"
-    value={experience.operator || ""}
-    onChange={(e) =>
-      setExperience({
-        ...experience,
-        operator: e.target.value,
-      })
-    }
-    style={{
-      width: "100%",
-      padding: "10px",
-    }}
-  />
 </div>
 
       <div style={{ marginBottom: "20px" }}>
