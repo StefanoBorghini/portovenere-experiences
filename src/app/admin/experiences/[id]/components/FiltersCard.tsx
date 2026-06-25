@@ -192,6 +192,8 @@ Experience Filters
   ))}
 
 </div>
+
+</div>
 <div>
 
   <label
@@ -249,6 +251,95 @@ Experience Filters
       </label>
 
     ))}
+
+  </div>
+
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+
+    Status
+
+  </label>
+
+  <div className="grid md:grid-cols-2 gap-3">
+
+    <label
+      className="
+        flex
+        items-center
+        justify-between
+        rounded-xl
+        border
+        border-white/10
+        bg-white/5
+        px-4
+        py-4
+        cursor-pointer
+      "
+    >
+
+      <span>Active</span>
+
+      <input
+        type="checkbox"
+        checked={experience.active || false}
+        onChange={(e)=>
+
+          setExperience({
+
+            ...experience,
+
+            active:e.target.checked,
+
+          })
+
+        }
+      />
+
+    </label>
+
+    <label
+      className="
+        flex
+        items-center
+        justify-between
+        rounded-xl
+        border
+        border-white/10
+        bg-white/5
+        px-4
+        py-4
+        cursor-pointer
+      "
+    >
+
+      <span>Featured</span>
+
+      <input
+        type="checkbox"
+        checked={experience.featured || false}
+        onChange={(e)=>
+
+          setExperience({
+
+            ...experience,
+
+            featured:e.target.checked,
+
+          })
+
+        }
+      />
+
+    </label>
 
   </div>
 
