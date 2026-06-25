@@ -6,31 +6,30 @@ interface MoodCardProps {
 
 }
 
-const moodOptions = [
+const moods = [
 
   {
     label: "Romantic",
-    key: "mood_romantic",
-  },
-
-  {
-    label: "Adventure",
-    key: "mood_adventure",
+    icon: "♥",
+    key: "romantic_score",
   },
 
   {
     label: "Authentic",
-    key: "mood_authentic",
+    icon: "✦",
+    key: "authentic_score",
   },
 
   {
-    label: "Luxury",
-    key: "mood_luxury",
+    label: "Adventure",
+    icon: "▲",
+    key: "adventure_score",
   },
 
   {
     label: "Cinematic",
-    key: "mood_cinematic",
+    icon: "🎬",
+    key: "cinematic_score",
   },
 
 ];
@@ -45,76 +44,138 @@ export default function MoodCard({
 
   return (
 
-    <section
-      className="
-        rounded-3xl
-        border
-        border-white/10
-        bg-zinc-950
-        p-8
-        mt-8
-      "
-    >
+<section
+className="
+rounded-3xl
+border
+border-white/10
+bg-zinc-950
+p-8
+mt-8
+"
+>
 
-      <h2
-        className="
-          text-2xl
-          font-light
-          mb-8
-        "
-      >
-        Mood Compatibility
-      </h2>
+<div className="mb-8">
 
-      <div className="grid md:grid-cols-3 gap-3">
+<h2
+className="
+text-2xl
+font-light
+"
+>
 
-        {moodOptions.map((mood) => (
+Mood Scoring
 
-          <label
-            key={mood.key}
-            className="
-              flex
-              items-center
-              gap-3
-              rounded-xl
-              border
-              border-white/10
-              bg-white/5
-              px-4
-              py-3
-              cursor-pointer
-            "
-          >
+</h2>
 
-            <input
-              type="checkbox"
-              checked={
-                experience[mood.key] || false
-              }
-              onChange={(e) =>
+<p
+className="
+text-sm
+text-white/40
+mt-2
+"
+>
 
-                setExperience({
+Fine tune how the AI perceives this experience.
 
-                  ...experience,
+</p>
 
-                  [mood.key]:
-                    e.target.checked,
+</div>
 
-                })
+<div className="space-y-8">
 
-              }
-            />
+{moods.map((mood)=>(
 
-            {mood.label}
+<div key={mood.key}>
 
-          </label>
+<div
+className="
+flex
+justify-between
+items-center
+mb-3
+"
+>
 
-        ))}
+<div
+className="
+flex
+items-center
+gap-3
+"
+>
 
-      </div>
+<span className="text-xl">
 
-    </section>
+{mood.icon}
 
-  );
+</span>
+
+<span>
+
+{mood.label}
+
+</span>
+
+</div>
+
+<div
+className="
+text-white/60
+text-sm
+font-medium
+"
+>
+
+{experience[mood.key]}/10
+
+</div>
+
+</div>
+
+<input
+
+type="range"
+
+min="1"
+
+max="10"
+
+step="1"
+
+value={
+experience[mood.key] || 5
+}
+
+onChange={(e)=>
+
+setExperience({
+
+...experience,
+
+[mood.key]:
+Number(e.target.value),
+
+})
+
+}
+
+className="
+w-full
+accent-white
+cursor-pointer
+"
+
+/>
+
+</div>
+
+))}
+
+</div>
+
+</section>
+
+);
 
 }
