@@ -1,5 +1,6 @@
 "use client";
 import Header from "./components/Header";
+import GeneralCard from "./components/GeneralCard";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase }
@@ -105,7 +106,13 @@ if (!session) {
   }}
 
 />
+<GeneralCard
 
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
       <div style={{ marginBottom: "20px" }}>
   <label>Title</label>
 
