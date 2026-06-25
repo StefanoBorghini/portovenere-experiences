@@ -5,6 +5,7 @@ import FiltersCard from "./components/FiltersCard";
 import MoodCard from "./components/MoodCard";
 import HeroCard from "./components/HeroCard";
 import GalleryCard from "./components/GalleryCard";
+import SaveBar from "./components/SaveBar";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -151,21 +152,9 @@ setExperience={setExperience}
 
 />
     
+<SaveBar
 
-    
-
-
-
-
-
-
-
-
- 
-
-<button
-
-  onClick={async () => {
+  onSave={async () => {
 
     const result =
       await updateExperience(
@@ -174,163 +163,145 @@ setExperience={setExperience}
 
         {
 
-          title:
-            experience.title,
+          title: experience.title,
 
-          operator:
-            experience.operator,
+          operator: experience.operator,
 
-          base_price:
-            experience.base_price,
+          base_price: experience.base_price,
 
-            description:
-      experience.description,
+          description:
+            experience.description,
 
-      short_description:
-  experience.short_description,
+          short_description:
+            experience.short_description,
 
-    category:
-      experience.category,
-      
-      active:
-  experience.active,
+          category:
+            experience.category,
 
-  featured:
-  experience.featured,
+          active:
+            experience.active,
 
-  hero_image:
-  experience.hero_image,
+          featured:
+            experience.featured,
+
+          hero_image:
+            experience.hero_image,
 
         }
 
       );
-for (
-  const image
-  of experience.gallery
-) {
 
-  await updateGalleryImage(
+    for (const image of experience.gallery) {
 
-    image.id,
+      await updateGalleryImage(
 
-    {
+        image.id,
 
-      image_url:
-        image.image_url,
+        {
 
-      caption:
-        image.caption,
+          image_url:
+            image.image_url,
 
-      featured:
-        image.featured,
+          caption:
+            image.caption,
 
-      active:
-        image.active,
+          featured:
+            image.featured,
 
-      display_order:
-        image.display_order,
+          active:
+            image.active,
 
-    }
+          display_order:
+            image.display_order,
 
-  );
-} 
+        }
 
- 
-
-      const filtersResult =
-  await updateExperienceFilters(
-
-    experience.id,
-
-    {
-
-      guest_2:
-        experience.guest_2,
-
-      guest_3_4:
-        experience.guest_3_4,
-
-      guest_5_7:
-        experience.guest_5_7,
-
-      guest_8_plus:
-        experience.guest_8_plus,
-
-        budget_500_1000:
-    experience.budget_500_1000,
-
-  budget_1000_3000:
-    experience.budget_1000_3000,
-
-  budget_3000_plus:
-    experience.budget_3000_plus,
+      );
 
     }
 
-    
+    const filtersResult =
+      await updateExperienceFilters(
 
-  );
+        experience.id,
 
-  const scoringResult =
-  await updateExperienceScoring(
+        {
 
-    experience.id,
+          guest_2:
+            experience.guest_2,
 
-    {
+          guest_3_4:
+            experience.guest_3_4,
 
-      romantic_score:
-        experience.romantic_score,
+          guest_5_7:
+            experience.guest_5_7,
 
-      authentic_score:
-        experience.authentic_score,
+          guest_8_plus:
+            experience.guest_8_plus,
 
-      adventure_score:
-        experience.adventure_score,
+          budget_500_1000:
+            experience.budget_500_1000,
 
-      cinematic_score:
-        experience.cinematic_score,
+          budget_1000_3000:
+            experience.budget_1000_3000,
 
-    }
+          budget_3000_plus:
+            experience.budget_3000_plus,
 
-  );
+        }
 
-console.log(
-  "SCORING RESULT",
-  scoringResult
-);
+      );
 
-console.log(
-  "FILTER RESULT",
-  filtersResult
-);
+    const scoringResult =
+      await updateExperienceScoring(
+
+        experience.id,
+
+        {
+
+          romantic_score:
+            experience.romantic_score,
+
+          authentic_score:
+            experience.authentic_score,
+
+          adventure_score:
+            experience.adventure_score,
+
+          cinematic_score:
+            experience.cinematic_score,
+
+        }
+
+      );
+
+    console.log(
+      "SCORING RESULT",
+      scoringResult
+    );
+
+    console.log(
+      "FILTER RESULT",
+      filtersResult
+    );
 
     console.log(
       "UPDATE RESULT",
       result
     );
 
-    if (
-      result.success
-    ) {
+    if (result.success) {
 
-      alert(
-        "Experience saved!"
-      );
+      alert("Experience saved!");
 
     } else {
 
-      alert(
-        "Error saving experience"
-      );
+      alert("Error saving experience");
+
     }
+
   }}
 
->
+/>
 
-  Save
-
-</button>
-
-    </div>
-  );
-}
+</div>)}
