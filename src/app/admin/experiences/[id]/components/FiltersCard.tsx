@@ -25,6 +25,25 @@ const guestOptions = [
   },
 ];
 
+const budgetOptions = [
+
+  {
+    label: "€500 - €1000",
+    key: "budget_500_1000",
+  },
+
+  {
+    label: "€1000 - €3000",
+    key: "budget_1000_3000",
+  },
+
+  {
+    label: "€3000+",
+    key: "budget_3000_plus",
+  },
+
+];
+
 export default function FiltersCard({
 
   experience,
@@ -173,7 +192,67 @@ Experience Filters
   ))}
 
 </div>
+<div>
 
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+    Budget
+  </label>
+
+  <div className="grid md:grid-cols-3 gap-3">
+
+    {budgetOptions.map((budget)=>(
+
+      <label
+        key={budget.key}
+        className="
+          flex
+          items-center
+          gap-2
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          px-4
+          py-3
+          cursor-pointer
+        "
+      >
+
+        <input
+          type="checkbox"
+          checked={
+            experience[budget.key] || false
+          }
+          onChange={(e)=>
+
+            setExperience({
+
+              ...experience,
+
+              [budget.key]:
+                e.target.checked,
+
+            })
+
+          }
+        />
+
+        {budget.label}
+
+      </label>
+
+    ))}
+
+  </div>
+
+</div>
 </div>
 
 </div>
