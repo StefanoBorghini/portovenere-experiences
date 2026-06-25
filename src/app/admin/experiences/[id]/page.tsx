@@ -123,31 +123,7 @@ experience={experience}
 setExperience={setExperience}
 
 />
-      <div style={{ marginBottom: "20px" }}>
-  
-
-</div>
-<div style={{ marginBottom: "20px" }}>
-
-</div>
-
-      <div style={{ marginBottom: "20px" }}>
-
-  
-
-</div>
-
-<div style={{ marginBottom: "20px" }}>
-
- 
-
-</div>
-
-<div style={{ marginBottom: "20px" }}>
-
-  
-
-</div>
+     
 
 <div style={{ marginBottom: "20px" }}>
 
