@@ -254,6 +254,8 @@ Experience Filters
 
   </div>
 
+
+</div>
 <div>
 
   <label
@@ -344,8 +346,6 @@ Experience Filters
   </div>
 
 </div>
-</div>
-
 </div>
 
 
