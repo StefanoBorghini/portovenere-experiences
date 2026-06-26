@@ -64,6 +64,8 @@ export async function createExperience() {
 
       .insert({
 
+        id: `new-experience-${Date.now()}`,
+
         title: "New Experience",
 
         operator: "",
