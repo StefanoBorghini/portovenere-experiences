@@ -8,7 +8,7 @@ import {
 } from "@/lib/supabase/experienceRepository";
 
 import EnhancementCard from "./components/EnhancementCard";
-import SaveBar from "@/app/admin/experiences/[id]/components/SaveBar";
+import SaveBar from "../../experiences/[id]/components/SaveBar";
 
 import {
   updateEnhancement,
