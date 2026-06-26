@@ -60,6 +60,9 @@ export function buildRendererData({
   // ===================================================
   // ENHANCEMENTS
   // ===================================================
+
+  console.log("RAW ENHANCEMENTS", enhancements);
+
 const enhancementCards =
 
   enhancements.map(
@@ -82,6 +85,11 @@ const enhancementCards =
  console.log(
   "ENHANCEMENTS RECEIVED",
   enhancements
+);
+
+console.log(
+  "FINAL ENHANCEMENTS",
+  enhancementCards
 );
   // ===================================================
   // INCLUDED EXPERIENCES

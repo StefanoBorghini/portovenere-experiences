@@ -563,3 +563,4 @@ const featuredEssentials =
     </main>
   );
 }
+
