@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 
+
+
 export async function getExperiences() {
   if (!supabase) {
     console.error("Supabase not initialized");
@@ -413,39 +415,42 @@ export async function getEnhancements() {
 
 }
 
-export async function createEnhancement(
-  enhancement: any
-) {
+export async function createEnhancement() {
 
-  if (!supabase)
-    return { success:false };
+  if (!supabase) return null;
 
-  const { error } =
+  const { data, error } =
     await supabase
-
       .from("enhancement_content")
+      .insert({
 
-      .insert(enhancement);
+        title: "New Enhancement",
+
+        description: "",
+
+        image: "",
+
+        button_text: "Request Enhancement",
+
+        display_order: 999,
+
+        active: true,
+
+      })
+
+      .select()
+
+      .single();
 
   if (error) {
 
     console.error(error);
 
-    return {
-
-      success:false,
-
-      error,
-
-    };
+    return null;
 
   }
 
-  return {
-
-    success:true,
-
-  };
+  return data;
 
 }
 

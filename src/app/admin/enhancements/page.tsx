@@ -85,49 +85,34 @@ export default function EnhancementsPage() {
 
           </div>
 
-          <button
+         <button
 
-            onClick={async()=>{
+  onClick={async () => {
 
-              const newEnhancement={
+    const enhancement =
+      await createEnhancement();
 
-                title:"New Enhancement",
+    if (!enhancement) return;
 
-                description:"",
+    window.location.href =
+      `/admin/enhancements/${enhancement.id}`;
 
-                image:"",
+  }}
 
-                button_text:"Request Enhancement",
+  className="
+    px-6
+    py-4
+    rounded-xl
+    bg-white
+    text-black
+    font-medium
+  "
 
-                display_order:
-                  enhancements.length+1,
+>
 
-                active:true,
+  + New Enhancement
 
-              };
-
-              await createEnhancement(
-                newEnhancement
-              );
-
-              load();
-
-            }}
-
-            className="
-              px-6
-              py-4
-              rounded-2xl
-              bg-white
-              text-black
-              font-medium
-            "
-
-          >
-
-            + New Enhancement
-
-          </button>
+</button>
 
         </div>
 
