@@ -149,37 +149,33 @@ useEffect(() => {
 "
 >
 
- <button
+  <button
 
-  onClick={async () => {
+    onClick={async () => {
 
-    const experience =
-      await createExperience();
+      if (!supabase) return;
 
-    if (!experience) return;
+      await supabase.auth.signOut();
 
-    router.push(
-      `/admin/experiences/${experience.id}`
-    );
+      window.location.href =
+        "/admin/login";
 
-  }}
+    }}
 
-  className="
-    px-5
-    py-3
-    rounded-xl
-    bg-white
-    text-black
-    font-medium
-    hover:opacity-90
-    transition
-  "
+    className="
+      px-4
+      py-3
+      rounded-xl
+      border
+      border-white/10
+      hover:bg-white/5
+      transition-all
+    "
+  >
 
->
+    Logout
 
-  + New Experience
-
-</button>
+  </button>
 
   <input
   value={search}
