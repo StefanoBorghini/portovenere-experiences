@@ -8,7 +8,7 @@ import {
 
 import {
   getEnhancements,
-} from "@/lib/supabase/experienceRepository";
+} from "@/lib/supabase/enhancementRepository";
 
 import EnhancementCard from "./components/EnhancementCard";
 import SaveBar from "../../experiences/[id]/components/SaveBar";
@@ -16,7 +16,7 @@ import SaveBar from "../../experiences/[id]/components/SaveBar";
 import {
   updateEnhancement,
   deleteEnhancement,
-} from "@/lib/supabase/experienceRepository";
+} from "@/lib/supabase/enhancementRepository";
 
 export default function EnhancementEditor() {
 

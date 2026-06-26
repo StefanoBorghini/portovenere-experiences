@@ -4,7 +4,7 @@ import { supabase } from "@/lib/supabase";
 
 import {
   uploadEnhancementImage,
-} from "@/lib/supabase/experienceRepository";
+} from "@/lib/supabase/enhancementRepository";
 
 interface Props {
 
