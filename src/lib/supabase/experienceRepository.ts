@@ -508,11 +508,7 @@ export async function createEnhancement() {
 
         image: "",
 
-        unselected_button_text:
-      "Request Enhancement",
-
-    selected_button_text:
-      "Enhancement Requested",
+        button_text: "Request Enhancement",
 
         display_order: 999,
 
