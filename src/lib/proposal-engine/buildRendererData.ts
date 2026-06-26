@@ -78,7 +78,10 @@ const enhancementCards =
     })
 
   );
- 
+ console.log(
+  "ENHANCEMENTS RECEIVED",
+  enhancements
+);
   // ===================================================
   // INCLUDED EXPERIENCES
   // ===================================================

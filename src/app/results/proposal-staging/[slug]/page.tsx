@@ -150,6 +150,11 @@ export default async function ProposalPage({
 
   const dynamicEnhancements =
   await getEnhancements();
+
+  console.log(
+  "ENHANCEMENTS FROM DB",
+  dynamicEnhancements
+);
   
 const generatedProposal =
 
