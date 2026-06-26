@@ -46,7 +46,8 @@ export function buildRendererData({
     )
 
     .sort(
-      () => Math.random() - 0.5
+      (a: any, b: any) =>
+        a.display_order - b.display_order
     )
 
     .map(
