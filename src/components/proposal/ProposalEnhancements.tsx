@@ -24,11 +24,15 @@ import {
 
 interface Enhancement {
 
+    id: number;
+
     image: string;
 
     title: string;
 
     description: string;
+
+    button_text: string;
 }
 
 interface ProposalEnhancementsProps {
@@ -42,18 +46,17 @@ export default function ProposalEnhancements({
 
 }: ProposalEnhancementsProps) {
 
-    const [
-        selectedEnhancements,
-        setSelectedEnhancements,
-    ] = useState<string[]>([]);
+   const [selectedEnhancements,
+setSelectedEnhancements] =
+useState<number[]>([]);
 
     function toggleEnhancement(
-        title: string
+        id: number
     ) {
 
         if (
             selectedEnhancements.includes(
-                title
+                id
             )
         ) {
 
@@ -61,7 +64,7 @@ export default function ProposalEnhancements({
 
                 selectedEnhancements.filter(
                     (item) =>
-                        item !== title
+                        item !== id
                 )
             );
 
@@ -69,7 +72,7 @@ export default function ProposalEnhancements({
 
             setSelectedEnhancements([
                 ...selectedEnhancements,
-                title,
+                id,
             ]);
         }
     }
@@ -131,18 +134,18 @@ export default function ProposalEnhancements({
 
                             const isSelected =
                                 selectedEnhancements.includes(
-                                    enhancement.title
+                                    enhancement.id
                                 );
 
                             return (
 
                                 <button
                                     key={
-                                        enhancement.title
+                                        enhancement.id
                                     }
                                     onClick={() =>
                                         toggleEnhancement(
-                                            enhancement.title
+                                            enhancement.id
                                         )
                                     }
                                     className={`
