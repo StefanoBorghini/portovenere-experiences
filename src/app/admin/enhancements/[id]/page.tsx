@@ -109,14 +109,19 @@ export default function EnhancementEditor() {
                   image:
                     enhancement.image,
 
-                  button_text:
-                    enhancement.button_text,
+                  unselected_button_text:
+                    enhancement.unselected_button_text,
+                  
+                  selected_button_text:
+                    enhancement.selected_button_text,
 
                   display_order:
                     enhancement.display_order,
 
                   active:
                     enhancement.active,
+
+                    
 
                 }
 
