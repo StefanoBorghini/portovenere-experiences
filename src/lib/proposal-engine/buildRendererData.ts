@@ -65,23 +65,25 @@ export function buildRendererData({
 
 const enhancementCards =
 
-  enhancements.map(
+  enhancements
 
-    (item: any, index: number) => ({
+    .filter(
+      (item: any) => item.active
+    )
 
-      ...item,
+    .map(
+      (item: any, index: number) => ({
 
-      image:
+        ...item,
 
-        item.image ||
+        image:
+          item.image ||
+          galleryImages[
+            index % galleryImages.length
+          ],
 
-        galleryImages[
-          index % galleryImages.length
-        ],
-
-    })
-
-  );
+      })
+    );
  console.log(
   "ENHANCEMENTS RECEIVED",
   enhancements

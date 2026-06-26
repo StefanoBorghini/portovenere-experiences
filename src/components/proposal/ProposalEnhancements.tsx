@@ -295,11 +295,9 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
     `}
   >
 
-    {isSelected
-
-      ? "Enhancement Requested"
-
-      : "Request Enhancement"}
+  {isSelected
+    ? "Requested"
+    : enhancement.button_text}
 
   </div>
 
