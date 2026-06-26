@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
-
+import {
+  getEnhancements,
+} from "@/lib/supabase/experienceRepository";
 import { generateProposal }
 from "@/lib/generateProposal";
 
@@ -145,6 +147,10 @@ export default async function ProposalPage({
 
   const dynamicExperiences =
   await getFullExperiences();
+
+  const dynamicEnhancements =
+  await getEnhancements();
+  
 const generatedProposal =
 
   generateProposal({
@@ -186,6 +192,9 @@ const generatedProposal =
     generatedProposal,
 
     lead,
+
+    enhancements:
+    dynamicEnhancements,
   });
 
   // =======================================================

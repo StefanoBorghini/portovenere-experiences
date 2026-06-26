@@ -15,6 +15,9 @@ export function buildRendererData({
   generatedProposal,
 
   lead,
+
+  enhancements,
+
 }: any) {
 
   // ===================================================
@@ -56,82 +59,26 @@ export function buildRendererData({
   // ===================================================
   // ENHANCEMENTS
   // ===================================================
+const enhancementCards =
 
-  const enhancements = [
+  enhancements.map(
 
-    {
+    (item: any, index: number) => ({
 
-      image:
-        galleryImages[0],
-
-      title:
-        "Private Transfer",
-
-      description:
-        "Private luxury transportation across the Riviera with curated pickup and drop-off experience.",
-    },
-
-    {
+      ...item,
 
       image:
-        galleryImages[1],
 
-      title:
-        "Boutique Stay",
+        item.image ||
 
-      description:
-        "Curated overnight stays in selected boutique properties and private hospitality locations.",
-    },
+        galleryImages[
+          index % galleryImages.length
+        ],
 
-    {
+    })
 
-      image:
-        galleryImages[2],
-
-      title:
-        "Personal Photographer",
-
-      description:
-        "Editorial-style Riviera photography throughout your curated private experience.",
-    },
-
-    {
-
-      image:
-        galleryImages[3],
-
-      title:
-        "Private Chef",
-
-      description:
-        "Elevated onboard culinary experiences designed around Mediterranean atmosphere.",
-    },
-
-    {
-
-      image:
-        galleryImages[4],
-
-      title:
-        "Sommelier Onboard",
-
-      description:
-        "Elevated onboard wine experiences designed around Mediterranean atmosphere.",
-    },
-
-    {
-
-      image:
-        galleryImages[5],
-
-      title:
-        "Live Onboard Music",
-
-      description:
-        "Live music performances curated around navigation and Mediterranean atmosphere.",
-    },
-  ];
-
+  );
+ 
   // ===================================================
   // INCLUDED EXPERIENCES
   // ===================================================
@@ -249,7 +196,8 @@ const finalPrice = 2800;
 
     galleryImages,
 
-    enhancements,
+    enhancements:
+  enhancementCards,
 
     includedExperiences,
 

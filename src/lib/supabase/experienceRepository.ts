@@ -383,3 +383,25 @@ export async function updateExperienceScoring(
     success: true,
   };
 }
+
+export async function getEnhancements() {
+
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("enhancement_content")
+    .select("*")
+    .eq("active", true)
+    .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
