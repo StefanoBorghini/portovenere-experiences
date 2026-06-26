@@ -1,5 +1,83 @@
 import { supabase } from "@/lib/supabase";
 
+export async function createExperience() {
+
+  if (!supabase) {
+
+    return null;
+
+  }
+
+  // crea experience
+
+  const { data, error } =
+    await supabase
+
+      .from("experience_content")
+
+      .insert({
+
+        title: "New Experience",
+
+        operator: "",
+
+        category: "sea_escape",
+
+        base_price: 0,
+
+        description: "",
+
+        short_description: "",
+
+        hero_image: "",
+
+        detail_image: "",
+
+        featured: false,
+
+        active: true,
+
+      })
+
+      .select()
+
+      .single();
+
+  if (error) {
+
+    console.error(error);
+
+    return null;
+
+  }
+
+  // crea filters
+
+  await supabase
+
+    .from("experience_filters")
+
+    .insert({
+
+      experience_id: data.id,
+
+    });
+
+  // crea scoring
+
+  await supabase
+
+    .from("experience_scoring")
+
+    .insert({
+
+      experience_id: data.id,
+
+    });
+
+  return data;
+
+}
 
 
 export async function getExperiences() {
@@ -430,7 +508,11 @@ export async function createEnhancement() {
 
         image: "",
 
-        button_text: "Request Enhancement",
+        unselected_button_text:
+      "Request Enhancement",
+
+    selected_button_text:
+      "Enhancement Requested",
 
         display_order: 999,
 

@@ -1,8 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+const router = useRouter();
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+
+import { createExperience }
+from "@/lib/supabase/experienceRepository";
+
+import { useRouter }
+from "next/navigation";
 
 import {
   getFullExperiences,
@@ -142,33 +149,37 @@ useEffect(() => {
 "
 >
 
-  <button
+ <button
 
-    onClick={async () => {
+  onClick={async () => {
 
-      if (!supabase) return;
+    const experience =
+      await createExperience();
 
-      await supabase.auth.signOut();
+    if (!experience) return;
 
-      window.location.href =
-        "/admin/login";
+    router.push(
+      `/admin/experiences/${experience.id}`
+    );
 
-    }}
+  }}
 
-    className="
-      px-4
-      py-3
-      rounded-xl
-      border
-      border-white/10
-      hover:bg-white/5
-      transition-all
-    "
-  >
+  className="
+    px-5
+    py-3
+    rounded-xl
+    bg-white
+    text-black
+    font-medium
+    hover:opacity-90
+    transition
+  "
 
-    Logout
+>
 
-  </button>
+  + New Experience
+
+</button>
 
   <input
   value={search}
