@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import {
   getEnhancements,
   createEnhancement,
-} from "@/lib/supabase/experienceRepository";
+} from "@/lib/supabase/enhancementRepository";
 
 export default function EnhancementsPage() {
 

@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import {
   getEnhancements,
-} from "@/lib/supabase/experienceRepository";
+} from "@/lib/supabase/enhancementRepository";
 import { generateProposal }
 from "@/lib/generateProposal";
 
