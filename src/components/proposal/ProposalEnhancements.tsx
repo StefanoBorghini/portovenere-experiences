@@ -33,6 +33,9 @@ interface Enhancement {
     description: string;
 
     button_text: string;
+
+    selected_button_text: string;
+
 }
 
 interface ProposalEnhancementsProps {
@@ -295,9 +298,11 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
     `}
   >
 
-  {isSelected
-    ? "Requested"
-    : enhancement.button_text}
+ {isSelected
+
+  ? enhancement.selected_button_text
+
+  : enhancement.button_text}
 
   </div>
 
