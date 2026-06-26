@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+} from "next/navigation";
 
 import {
   getEnhancements,
@@ -12,11 +15,13 @@ import SaveBar from "../../experiences/[id]/components/SaveBar";
 
 import {
   updateEnhancement,
+  deleteEnhancement,
 } from "@/lib/supabase/experienceRepository";
 
 export default function EnhancementEditor() {
 
   const params = useParams();
+  const router = useRouter();
 
   const [enhancement,setEnhancement] =
     useState<any>(null);
@@ -89,55 +94,71 @@ export default function EnhancementEditor() {
 
         />
 
-        <SaveBar
+       <SaveBar
 
-          onSave={async()=>{
+  onSave={async () => {
 
-            const result =
-              await updateEnhancement(
+    const result =
+      await updateEnhancement(
 
-                enhancement.id,
+        enhancement.id,
 
-                {
+        {
 
-                  title:
-                    enhancement.title,
+          title: enhancement.title,
 
-                  description:
-                    enhancement.description,
+          description: enhancement.description,
 
-                  image:
-                    enhancement.image,
+          image: enhancement.image,
 
-                  unselected_button_text:
-                    enhancement.unselected_button_text,
-                  
-                  selected_button_text:
-                    enhancement.selected_button_text,
+          unselected_button_text:
+            enhancement.unselected_button_text,
 
-                  display_order:
-                    enhancement.display_order,
+          selected_button_text:
+            enhancement.selected_button_text,
 
-                  active:
-                    enhancement.active,
+          display_order:
+            enhancement.display_order,
 
-                    
+          active:
+            enhancement.active,
 
-                }
+        }
 
-              );
+      );
 
-            if(result.success){
+    if(result.success){
 
-              alert(
-                "Enhancement saved!"
-              );
+      alert("Enhancement saved!");
 
-            }
+    }
 
-          }}
+  }}
 
-        />
+  onDelete={async()=>{
+
+    const ok = confirm(
+      "Delete this enhancement?"
+    );
+
+    if(!ok) return;
+
+    const result =
+      await deleteEnhancement(
+        enhancement.id
+      );
+
+    if(result.success){
+
+      router.push(
+        "/admin/enhancements"
+      );
+
+    }
+
+  }}
+
+/>
 
       </div>
 
