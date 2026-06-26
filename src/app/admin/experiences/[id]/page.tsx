@@ -8,7 +8,10 @@ import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import {
+  useParams,
+  useRouter,
+} from "next/navigation";
 import { supabase }
 from "@/lib/supabase";
 
@@ -19,6 +22,7 @@ import {
   updateGalleryImage,
   createGalleryImage,
   deleteGalleryImage,
+  deleteExperience,
   uploadImage,
   updateExperienceScoring,
 } from "@/lib/supabase/experienceRepository";
@@ -28,6 +32,8 @@ import {
 export default function ExperienceEditor() {
 
   const params = useParams();
+
+  const router = useRouter();
 
   const [experience, setExperience] =
     useState<any>(null);
@@ -149,6 +155,41 @@ setExperience={setExperience}
 />
     
 <SaveBar
+
+  deleteLabel="Delete Experience"
+
+  onDelete={async () => {
+
+    if (
+      !confirm(
+        "Delete this experience?"
+      )
+    ) return;
+
+    const result =
+      await deleteExperience(
+        experience.id
+      );
+
+    if (result.success) {
+
+      alert(
+        "Experience deleted!"
+      );
+
+      router.push(
+        "/admin/experiences"
+      );
+
+    } else {
+
+      alert(
+        "Unable to delete experience."
+      );
+
+    }
+
+  }}
 
   onSave={async () => {
 

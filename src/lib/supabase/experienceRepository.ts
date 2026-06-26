@@ -1,5 +1,52 @@
 import { supabase } from "@/lib/supabase";
 
+export async function deleteExperience(id: string) {
+
+  if (!supabase)
+    return { success: false };
+
+  // elimina gallery
+  await supabase
+    .from("experience_gallery")
+    .delete()
+    .eq("experience_id", id);
+
+  // elimina scoring
+  await supabase
+    .from("experience_scoring")
+    .delete()
+    .eq("experience_id", id);
+
+  // elimina filters
+  await supabase
+    .from("experience_filters")
+    .delete()
+    .eq("experience_id", id);
+
+  // elimina experience
+  const { error } =
+    await supabase
+      .from("experience_content")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
 export async function createExperience() {
 
   if (!supabase) {
