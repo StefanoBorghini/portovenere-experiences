@@ -290,12 +290,39 @@ Active
 </label>
 
 <label className="block mb-2 text-white/50">
+Unselect Select Button Text
+</label>
+
+<input
+    type="text"
+    value={enhancement.unselected_button_textbutton_text || ""}
+    onChange={(e)=>
+        setEnhancement({
+            ...enhancement,
+            button_text:e.target.value,
+        })
+    }
+    className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+    "
+/>
+
+</div>
+
+
+<label className="block mb-2 text-white/50">
 Button Text
 </label>
 
 <input
     type="text"
-    value={enhancement.button_text || ""}
+    value={enhancement.selected_button_textbutton_text || ""}
     onChange={(e)=>
         setEnhancement({
             ...enhancement,
@@ -317,7 +344,7 @@ Button Text
 
 </div>
 
-</div>
+
 
 </section>
 
