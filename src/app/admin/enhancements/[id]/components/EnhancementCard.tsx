@@ -208,104 +208,137 @@ py-4
 
 />
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="flex gap-6">
 
-  <div>
-    <label className="block mb-2 text-white/60">
-      Display Order
-    </label>
+<div className="flex-1">
 
-    <input
-      type="number"
-      value={enhancement.display_order || 0}
-      onChange={(e)=>
-        setEnhancement({
-          ...enhancement,
-          display_order:Number(e.target.value),
-        })
-      }
-      className="
-      w-full
-      rounded-xl
-      bg-white/5
-      border
-      border-white/10
-      px-5
-      py-4
-      "
-    />
-  </div>
+<label className="block mb-2">
 
-  <div className="flex items-end">
-    <label className="flex items-center gap-3">
-      <input
-        type="checkbox"
-        checked={enhancement.active}
-        onChange={(e)=>
-          setEnhancement({
-            ...enhancement,
-            active:e.target.checked,
-          })
-        }
-      />
+Display Order
 
-      Active
-    </label>
-  </div>
+</label>
+
+<input
+
+type="number"
+
+value={enhancement.display_order}
+
+onChange={(e)=>
+
+setEnhancement({
+
+...enhancement,
+
+display_order:Number(e.target.value),
+
+})
+
+}
+
+className="
+w-full
+rounded-xl
+bg-white/5
+border
+border-white/10
+px-5
+py-4
+"
+
+/>
 
 </div>
 
-<div className="mt-6">
+<div
+className="
+flex
+items-end
+"
+>
 
-  <label className="block mb-2 text-white/60">
-    Button (Not Selected)
-  </label>
+<label
+className="
+flex
+items-center
+gap-3
+"
+>
 
-  <input
-    value={enhancement.unselected_button_text || ""}
+<input
+
+type="checkbox"
+
+checked={enhancement.active}
+
+onChange={(e)=>
+
+setEnhancement({
+
+...enhancement,
+
+active:e.target.checked,
+
+})
+
+}
+
+/>
+
+Active
+
+</label>
+
+<label className="block mb-2 text-white/50">
+Unselect Select Button Text
+</label>
+
+<input
+    type="text"
+    value={enhancement.unselected_button_textbutton_text || ""}
     onChange={(e)=>
-      setEnhancement({
-        ...enhancement,
-        unselected_button_text:e.target.value,
-      })
+        setEnhancement({
+            ...enhancement,
+            unselected_button_text:e.target.value,
+        })
     }
     className="
-    w-full
-    rounded-xl
-    bg-white/5
-    border
-    border-white/10
-    px-5
-    py-4
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
     "
-  />
+/>
 
 </div>
 
-<div className="mt-6">
 
-  <label className="block mb-2 text-white/60">
-    Button (Selected)
-  </label>
+<label className="block mb-2 text-white/50">
+Button Text
+</label>
 
-  <input
+<input
+    type="text"
     value={enhancement.selected_button_text || ""}
     onChange={(e)=>
-      setEnhancement({
-        ...enhancement,
-        selected_button_text:e.target.value,
-      })
+        setEnhancement({
+            ...enhancement,
+           selected_button_text:e.target.value,
+        })
     }
     className="
-    w-full
-    rounded-xl
-    bg-white/5
-    border
-    border-white/10
-    px-5
-    py-4
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
     "
-  />
+/>
 
 </div>
 
