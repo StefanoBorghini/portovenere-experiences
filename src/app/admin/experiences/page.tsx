@@ -1,27 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-const router = useRouter();
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
-import { createExperience }
-from "@/lib/supabase/experienceRepository";
-
-import { useRouter }
-from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import {
+  createExperience,
   getFullExperiences,
 } from "@/lib/supabase/experienceRepository";
 
 export default function AdminExperiencesPage() {
 
+  const router = useRouter();
+
   const [experiences, setExperiences] =
     useState<any[]>([]);
 
-    const [search, setSearch] =
-  useState("");
+  const [search, setSearch] =
+    useState("");
+
+
 const filteredExperiences =
 
   experiences.filter(
@@ -200,20 +200,40 @@ onChange={(e) =>
     "
   />
 
-  <button
-    className="
-      px-5
-      py-3
-      rounded-xl
-      bg-white
-      text-black
-      font-medium
-    "
-  >
+<button
 
-    New Experience
+  onClick={async () => {
 
-  </button>
+  const experience =
+    await createExperience();
+
+  if (!experience) return;
+
+  const data =
+    await getFullExperiences();
+
+  setExperiences(data);
+
+  router.push(
+    `/admin/experiences/${experience.id}`
+  );
+
+}}
+
+  className="
+    px-5
+    py-3
+    rounded-xl
+    bg-white
+    text-black
+    font-medium
+  "
+
+>
+
+  + New Experience
+
+</button>
 
 </div>
 
