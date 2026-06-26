@@ -116,234 +116,111 @@ image,
 
 <div className="space-y-6">
 
-<input
-
-value={enhancement.title}
-
-onChange={(e)=>
-
-setEnhancement({
-
-...enhancement,
-
-title:e.target.value,
-
-})
-
-}
-
-placeholder="Title"
-
-className="
-w-full
-rounded-xl
-bg-white/5
-border
-border-white/10
-px-5
-py-4
-"
-
-/>
-
-<textarea
-
-rows={5}
-
-value={enhancement.description}
-
-onChange={(e)=>
-
-setEnhancement({
-
-...enhancement,
-
-description:e.target.value,
-
-})
-
-}
-
-placeholder="Description"
-
-className="
-w-full
-rounded-xl
-bg-white/5
-border
-border-white/10
-px-5
-py-4
-"
-
-/>
-
-<input
-
-value={enhancement.button_text}
-
-onChange={(e)=>
-
-setEnhancement({
-
-...enhancement,
-
-button_text:e.target.value,
-
-})
-
-}
-
-placeholder="Button text"
-
-className="
-w-full
-rounded-xl
-bg-white/5
-border
-border-white/10
-px-5
-py-4
-"
-
-/>
-
-<div className="flex gap-6">
-
-<div className="flex-1">
-
-<label className="block mb-2">
-
-Display Order
-
-</label>
-
-<input
-
-type="number"
-
-value={enhancement.display_order}
-
-onChange={(e)=>
-
-setEnhancement({
-
-...enhancement,
-
-display_order:Number(e.target.value),
-
-})
-
-}
-
-className="
-w-full
-rounded-xl
-bg-white/5
-border
-border-white/10
-px-5
-py-4
-"
-
-/>
-
-</div>
-
-<div
-className="
-flex
-items-end
-"
->
-
-<label
-className="
-flex
-items-center
-gap-3
-"
->
-
-<input
-
-type="checkbox"
-
-checked={enhancement.active}
-
-onChange={(e)=>
-
-setEnhancement({
-
-...enhancement,
-
-active:e.target.checked,
-
-})
-
-}
-
-/>
-
-Active
-
-</label>
-
-<label className="block mb-2 text-white/50">
-Unselect Select Button Text
-</label>
-
-<input
-    type="text"
-    value={enhancement.unselected_button_textbutton_text || ""}
+  <input
+    value={enhancement.title}
     onChange={(e)=>
-        setEnhancement({
+      setEnhancement({
+        ...enhancement,
+        title:e.target.value,
+      })
+    }
+    placeholder="Title"
+    className="w-full rounded-xl bg-white/5 border border-white/10 px-5 py-4"
+  />
+
+  <textarea
+    rows={5}
+    value={enhancement.description}
+    onChange={(e)=>
+      setEnhancement({
+        ...enhancement,
+        description:e.target.value,
+      })
+    }
+    placeholder="Description"
+    className="w-full rounded-xl bg-white/5 border border-white/10 px-5 py-4"
+  />
+
+  <div className="grid md:grid-cols-3 gap-6">
+
+    <div>
+
+      <label className="block mb-2 text-white/50">
+        Display Order
+      </label>
+
+      <input
+        type="number"
+        value={enhancement.display_order}
+        onChange={(e)=>
+          setEnhancement({
+            ...enhancement,
+            display_order:Number(e.target.value),
+          })
+        }
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
+      />
+
+    </div>
+
+    <div>
+
+      <label className="block mb-2 text-white/50">
+        Unselected Button
+      </label>
+
+      <input
+        value={enhancement.unselected_button_text || ""}
+        onChange={(e)=>
+          setEnhancement({
             ...enhancement,
             unselected_button_text:e.target.value,
-        })
-    }
-    className="
-        w-full
-        rounded-xl
-        bg-white/5
-        border
-        border-white/10
-        px-4
-        py-3
-    "
-/>
+          })
+        }
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
+      />
 
-</div>
+    </div>
 
+    <div>
 
-<label className="block mb-2 text-white/50">
-Button Text
-</label>
+      <label className="block mb-2 text-white/50">
+        Selected Button
+      </label>
 
-<input
-    type="text"
-    value={enhancement.selected_button_text || ""}
-    onChange={(e)=>
-        setEnhancement({
+      <input
+        value={enhancement.selected_button_text || ""}
+        onChange={(e)=>
+          setEnhancement({
             ...enhancement,
-           selected_button_text:e.target.value,
+            selected_button_text:e.target.value,
+          })
+        }
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
+      />
+
+    </div>
+
+  </div>
+
+  <label className="flex items-center gap-3">
+
+    <input
+      type="checkbox"
+      checked={enhancement.active}
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          active:e.target.checked,
         })
-    }
-    className="
-        w-full
-        rounded-xl
-        bg-white/5
-        border
-        border-white/10
-        px-4
-        py-3
-    "
-/>
+      }
+    />
+
+    Active
+
+  </label>
 
 </div>
-
-</div>
-
 
 
 </section>
