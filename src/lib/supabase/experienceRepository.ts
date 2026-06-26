@@ -513,3 +513,28 @@ export async function updateExperienceScoring(
   };
 }
 
+// ======================================================
+// PROPOSAL CONFIG
+// ======================================================
+
+export async function getProposalConfig() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("proposal_config")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
