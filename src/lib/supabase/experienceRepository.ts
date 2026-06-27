@@ -576,31 +576,41 @@ export async function getExperienceSections() {
 
 }
 
-export async function createExperienceSection(
-  section: any
-) {
+export async function createExperienceSection(section: any) {
 
   if (!supabase)
-    return { success:false };
+    return { success: false };
 
   const { error } =
     await supabase
       .from("experience_sections")
-      .insert(section);
+      .insert({
+
+        experience_id: section.experience_id,
+
+        title: section.title,
+
+        description: section.description,
+
+        display_order: section.display_order,
+
+        active: section.active,
+
+      });
 
   if (error) {
 
     console.error(error);
 
     return {
-      success:false,
+      success: false,
       error,
     };
 
   }
 
   return {
-    success:true,
+    success: true,
   };
 
 }
