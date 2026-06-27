@@ -578,6 +578,8 @@ export async function getExperienceSections() {
 
 export async function createExperienceSection(section: any) {
 
+  
+
   if (!supabase)
     return { success: false };
 
@@ -597,6 +599,24 @@ export async function createExperienceSection(section: any) {
         active: section.active,
 
       });
+
+      await supabase
+  .from("experience_sections")
+  .insert({
+
+    id: section.id,
+
+    experience_id: section.experience_id,
+
+    title: section.title,
+
+    description: section.description,
+
+    display_order: section.display_order,
+
+    active: section.active,
+
+  });
 
   if (error) {
 
