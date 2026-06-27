@@ -538,3 +538,124 @@ export async function getProposalConfig() {
   return data;
 
 }
+
+// ======================================================
+// PROPOSAL CONFIG
+// ======================================================
+
+export async function createProposalConfig() {
+
+  if (!supabase) return null;
+
+  const { data, error } =
+    await supabase
+      .from("proposal_config")
+      .insert({
+
+        id: `proposal-${Date.now()}`,
+
+        key: "new_key",
+
+        value: "",
+
+        display_order: 999,
+
+        active: true,
+
+      })
+
+      .select()
+      .single();
+
+  if (error) {
+
+    console.error(error);
+
+    return null;
+
+  }
+
+  return data;
+
+}
+
+export async function updateProposalConfig(
+
+  id:string,
+
+  updates:any
+
+){
+
+  if(!supabase)
+    return {success:false};
+
+  const {error}=
+    await supabase
+
+      .from("proposal_config")
+
+      .update(updates)
+
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+
+      success:false,
+
+      error,
+
+    };
+
+  }
+
+  return{
+
+    success:true,
+
+  };
+
+}
+
+export async function deleteProposalConfig(
+  id:string
+){
+
+  if(!supabase)
+    return{success:false};
+
+  const {error}=
+    await supabase
+
+      .from("proposal_config")
+
+      .delete()
+
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+
+      success:false,
+
+      error,
+
+    };
+
+  }
+
+  return{
+
+    success:true,
+
+  };
+
+}
+
