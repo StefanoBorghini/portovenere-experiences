@@ -1,5 +1,7 @@
 "use client";
-
+import {
+  deleteExperienceSection,
+} from "@/lib/supabase/experienceRepository";
 interface Props {
 
   experience:any;
@@ -129,21 +131,35 @@ Manage everything included in this experience.
 
 <button
 
-onClick={()=>{
+onClick={async()=>{
 
-const sections=
-
-experience.sections.filter(
-
-(s:any)=>s.id!==section.id
-
+const ok = confirm(
+  "Delete this section?"
 );
+
+if(!ok) return;
+
+if(!section.isNew){
+
+  await deleteExperienceSection(
+    section.id
+  );
+
+}
 
 setExperience({
 
 ...experience,
 
-sections,
+sections:
+
+experience.sections.filter(
+
+(s:any)=>
+
+s.id!==section.id
+
+),
 
 });
 
