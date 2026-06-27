@@ -576,43 +576,45 @@ export async function getExperienceSections() {
 
 }
 
-export async function createExperienceSection(
-  section:any
-){
+export async function createExperienceSection(section: any) {
 
-  console.log("SECTION TO INSERT");
-  console.log(section);
+  if (!supabase)
+    return { success: false };
 
-  if(!supabase)
-    return {success:false};
+  console.log("INSERTING SECTION:", section);
 
   const { data, error } =
     await supabase
       .from("experience_sections")
-      .insert(section)
+      .insert({
+        id: section.id,
+        experience_id: section.experience_id,
+        title: section.title,
+        description: section.description,
+        display_order: section.display_order,
+        active: section.active,
+      })
       .select();
 
-  console.log("INSERT RESULT");
-  console.log(data);
-  console.log(error);
+  console.log("DATA", data);
+  console.log("ERROR", error);
 
-  if(error){
+  if (error) {
 
     console.error(error);
 
-    return{
-      success:false,
+    return {
+      success: false,
       error,
     };
 
   }
 
-  return{
-    success:true,
+  return {
+    success: true,
   };
 
 }
-
 export async function updateExperienceSection(
 
   id:string,
