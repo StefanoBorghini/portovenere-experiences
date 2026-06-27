@@ -395,7 +395,13 @@ setExperience={setExperience}
       alert("Error saving experience");
 
     }
+const experiences = await getFullExperiences();
 
+const updated = experiences.find(
+  e => e.id === experience.id
+);
+
+setExperience(updated);
   }}
 
 />
