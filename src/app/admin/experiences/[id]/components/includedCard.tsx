@@ -131,37 +131,27 @@ Manage everything included in this experience.
 
 <button
 
-onClick={async()=>{
+onClick={async () => {
 
-const ok = confirm(
-  "Delete this section?"
-);
+  const ok = confirm("Delete this section?");
+  if (!ok) return;
 
-if(!ok) return;
+  console.log("Deleting:", section);
 
-if(!section.isNew){
+  if (!section.isNew) {
 
-  await deleteExperienceSection(
-    section.id
-  );
+    const result = await deleteExperienceSection(section.id);
 
-}
+    console.log("Delete result:", result);
 
-setExperience({
+  }
 
-...experience,
-
-sections:
-
-experience.sections.filter(
-
-(s:any)=>
-
-s.id!==section.id
-
-),
-
-});
+  setExperience({
+    ...experience,
+    sections: experience.sections.filter(
+      (s:any) => s.id !== section.id
+    ),
+  });
 
 }}
 
