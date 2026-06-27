@@ -127,6 +127,14 @@ if (!session) {
 
 />
 
+<IncludedCard
+
+    experience={experience}
+
+    setExperience={setExperience}
+
+/>
+
 <FiltersCard
 
 experience={experience}
@@ -159,13 +167,7 @@ setExperience={setExperience}
 
 />
 
-<IncludedCard
 
-    experience={experience}
-
-    setExperience={setExperience}
-
-/>
     
 <SaveBar
 
