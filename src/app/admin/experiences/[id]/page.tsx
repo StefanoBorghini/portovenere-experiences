@@ -25,6 +25,8 @@ import {
   deleteExperience,
   uploadImage,
   updateExperienceScoring,
+  createExperienceSection,
+updateExperienceSection,
 } from "@/lib/supabase/experienceRepository";
 
 import IncludedCard
@@ -203,6 +205,48 @@ setExperience={setExperience}
   }}
 
   onSave={async () => {
+
+    for (const section of experience.sections) {
+
+  if (section.isNew) {
+
+    await createExperienceSection({
+
+      experience_id: experience.id,
+
+      title: section.title,
+
+      description: section.description,
+
+      display_order: section.display_order,
+
+      active: section.active,
+
+    });
+
+  } else {
+
+    await updateExperienceSection(
+
+      section.id,
+
+      {
+
+        title: section.title,
+
+        description: section.description,
+
+        display_order: section.display_order,
+
+        active: section.active,
+
+      }
+
+    );
+
+  }
+
+}
 
     const result =
       await updateExperience(

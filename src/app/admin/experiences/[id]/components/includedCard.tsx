@@ -127,6 +127,43 @@ Manage everything included in this experience.
 
 />
 
+<button
+
+onClick={()=>{
+
+const sections=
+
+experience.sections.filter(
+
+(s:any)=>s.id!==section.id
+
+);
+
+setExperience({
+
+...experience,
+
+sections,
+
+});
+
+}}
+
+className="
+mt-4
+px-4
+py-2
+rounded-xl
+bg-red-600
+text-white
+"
+
+>
+
+Delete
+
+</button>
+
 </div>
 
 ))}
