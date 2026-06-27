@@ -187,14 +187,21 @@ export async function getExperienceFilters() {
 }
 
 export async function getFullExperiences() {
-  const experiences = await getExperiences();
+const experiences = await getExperiences();
 const scoring = await getExperienceScoring();
 const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
-
+const sections =
+  await getExperienceSections();
 
 
   return experiences.map((experience) => {
+    const experienceSections =
+  sections.filter(
+    section =>
+      section.experience_id ===
+      experience.id
+  );
     const score = scoring.find(
       (s) => s.experience_id === experience.id
     );
@@ -219,6 +226,8 @@ const featuredImage =
       ...(score || {}),
 
       ...(filter || {}),
+      sections: experienceSections,
+
 
       gallery: experienceGallery,
 

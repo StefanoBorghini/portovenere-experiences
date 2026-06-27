@@ -47,6 +47,35 @@ Manage everything included in this experience.
 
 </p>
 
+{experience.sections?.map((section:any)=>(
+
+<div
+    key={section.id}
+    className="
+        border
+        border-white/10
+        rounded-2xl
+        p-5
+        mb-5
+    "
+>
+
+<h3 className="text-lg mb-2">
+
+    {section.title}
+
+</h3>
+
+<p className="text-white/50">
+
+    {section.description}
+
+</p>
+
+</div>
+
+))}
+
 </section>
 
   );
