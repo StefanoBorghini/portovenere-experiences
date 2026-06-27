@@ -47,6 +47,8 @@ export async function deleteExperience(id: string) {
 
 }
 
+
+
 export async function createExperience() {
 
   if (!supabase) {
@@ -542,6 +544,121 @@ export async function getProposalConfig() {
 // ======================================================
 // PROPOSAL CONFIG
 // ======================================================
+
+export async function getExperienceSections() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("experience_sections")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
+
+export async function createExperienceSection(
+  section: any
+) {
+
+  if (!supabase)
+    return { success:false };
+
+  const { error } =
+    await supabase
+      .from("experience_sections")
+      .insert(section);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success:false,
+      error,
+    };
+
+  }
+
+  return {
+    success:true,
+  };
+
+}
+
+export async function updateExperienceSection(
+
+  id:string,
+
+  updates:any
+
+){
+
+  if(!supabase)
+    return {success:false};
+
+  const { error } =
+    await supabase
+      .from("experience_sections")
+      .update(updates)
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+      success:false,
+      error,
+    };
+
+  }
+
+  return{
+    success:true,
+  };
+
+}
+
+export async function deleteExperienceSection(
+  id:string
+){
+
+  if(!supabase)
+    return {success:false};
+
+  const { error } =
+    await supabase
+      .from("experience_sections")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+      success:false,
+      error,
+    };
+
+  }
+
+  return{
+    success:true,
+  };
+
+}
 
 export async function createProposalConfig() {
 
