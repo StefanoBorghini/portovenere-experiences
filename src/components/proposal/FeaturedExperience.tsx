@@ -26,7 +26,11 @@ interface FeaturedExperienceProps {
 
   description: string;
 
-  essentials: string[];
+essentials: {
+  id: string;
+  title: string;
+  description: string;
+}[];
 
   embarkPoint?: string;
 
@@ -304,43 +308,60 @@ export default function FeaturedExperience({
                 "
               >
 
-                {essentials.map(
-                  (item) => (
+               {essentials.map((section) => (
 
-                    <div
-                      key={item}
-                      className="
-                        flex
-                        items-center
-                        gap-4
-                        text-white/72
-                      "
-                    >
+  <div
+    key={section.id}
+    className="
+      flex
+      items-start
+      gap-4
+    "
+  >
 
-                      <div
-                        className="
-                          w-1.5
-                          h-1.5
-                          rounded-full
-                          bg-white
-                        "
-                      />
+    <div
+      className="
+        w-2
+        h-2
+        rounded-full
+        bg-white
+        mt-2
+        shrink-0
+      "
+    />
 
-                      <span
-                        className="
-                          text-[15px]
-                          md:text-[17px]
-                          leading-relaxed
-                        "
-                      >
+    <div>
 
-                        {item}
+      <h4
+        className="
+          text-white
+          text-[17px]
+          font-medium
+          mb-1
+        "
+      >
 
-                      </span>
+        {section.title}
 
-                    </div>
-                  )
-                )}
+      </h4>
+
+      <p
+        className="
+          text-white/55
+          text-[15px]
+          leading-relaxed
+        "
+      >
+
+        {section.description}
+
+      </p>
+
+    </div>
+
+  </div>
+
+))}
 
               </div>
 

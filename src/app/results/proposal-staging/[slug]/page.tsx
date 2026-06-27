@@ -354,7 +354,10 @@ const featuredDescription =
   featuredExperience?.description || "";
 
 const featuredEssentials =
-  featuredExperience?.essentials || [];
+    featuredExperience?.sections || [];
+
+  const featuredSections =
+    featuredExperience?.sections || [];
 
   // =======================================================
   // RENDER
@@ -396,28 +399,23 @@ const featuredEssentials =
       />
 
       {/* FEATURED EXPERIENCE */}
+
+      
 <FeaturedExperience
 
-  image={
-    featuredExperience?.detail_image ||
-    featuredExperience?.hero_image
-  }
+    image={
+        featuredExperience?.detail_image ||
+        featuredExperience?.hero_image
+    }
 
-  operator={
-    featuredOperator
-  }
+    operator={featuredOperator}
 
-  subtitle={
-    featuredSubtitle
-  }
+    subtitle={featuredSubtitle}
 
-  description={
-    featuredDescription
-  }
+    description={featuredDescription}
 
-  essentials={
-    featuredEssentials
-  }
+    essentials={featuredSections}
+
 />
 
       {/* INCLUDED EXPERIENCES */}
