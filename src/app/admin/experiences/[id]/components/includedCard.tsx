@@ -47,7 +47,7 @@ Manage everything included in this experience.
 
 </p>
 
-{experience.sections?.map((section:any)=>(
+{experience.sections?.map((section:any,index:number)=>(
 
 <div
     key={section.id}
@@ -60,21 +60,130 @@ Manage everything included in this experience.
     "
 >
 
-<h3 className="text-lg mb-2">
+<input
 
-    {section.title}
+    value={section.title}
 
-</h3>
+    onChange={(e)=>{
 
-<p className="text-white/50">
+        const sections=[...experience.sections];
 
-    {section.description}
+        sections[index].title=e.target.value;
 
-</p>
+        setExperience({
+
+            ...experience,
+
+            sections,
+
+        });
+
+    }}
+
+    className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+        mb-3
+    "
+
+/>
+
+<textarea
+
+    rows={3}
+
+    value={section.description}
+
+    onChange={(e)=>{
+
+        const sections=[...experience.sections];
+
+        sections[index].description=e.target.value;
+
+        setExperience({
+
+            ...experience,
+
+            sections,
+
+        });
+
+    }}
+
+    className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+    "
+
+/>
 
 </div>
 
 ))}
+
+<button
+
+  onClick={()=>
+
+    setExperience({
+
+      ...experience,
+
+      sections:[
+
+        ...experience.sections,
+
+        {
+
+          id:crypto.randomUUID(),
+
+          experience_id:
+            experience.id,
+
+          title:"New Section",
+
+          description:"",
+
+          display_order:
+            experience.sections.length+1,
+
+          active:true,
+
+          isNew:true,
+
+        }
+
+      ]
+
+    })
+
+  }
+
+  className="
+    mt-4
+    px-6
+    py-3
+    rounded-xl
+    bg-white
+    text-black
+    font-medium
+  "
+
+>
+
++ Add Section
+
+</button>
 
 </section>
 
