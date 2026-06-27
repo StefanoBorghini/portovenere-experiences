@@ -27,6 +27,9 @@ import {
   updateExperienceScoring,
 } from "@/lib/supabase/experienceRepository";
 
+import IncludedCard
+from "./components/includedCard";
+
 
 
 export default function ExperienceEditor() {
@@ -151,6 +154,14 @@ setExperience={setExperience}
   experience={experience}
 
   setExperience={setExperience}
+
+/>
+
+<IncludedCard
+
+    experience={experience}
+
+    setExperience={setExperience}
 
 />
     
