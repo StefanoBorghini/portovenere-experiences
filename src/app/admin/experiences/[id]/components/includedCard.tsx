@@ -198,7 +198,7 @@ Delete
 
         {
 
-          id:crypto.randomUUID(),
+         id: crypto.randomUUID?.() ?? `section-${Date.now()}`,
 
           experience_id:
             experience.id,

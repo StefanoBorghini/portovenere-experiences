@@ -212,6 +212,8 @@ setExperience={setExperience}
 
     await createExperienceSection({
 
+      id: section.id,
+
       experience_id: experience.id,
 
       title: section.title,
