@@ -845,19 +845,39 @@ if (
   type="button"
   onClick={() => {
 
-  setGuestCount(9);
+    setGuestCount(9);
 
-  setShowMoreGuests(true);
+    setShowMoreGuests(true);
 
-  setFormData({
-    ...formData,
-    guests: "9",
-  });
+    setFormData({
+      ...formData,
+      guests: "9",
+    });
 
-}}
+  }}
+
+  className={`
+    rounded-2xl
+    border
+    px-6
+    py-8
+    transition-all
+    duration-300
+    cursor-pointer
+
+    ${
+      showMoreGuests
+        ? "border-white bg-white text-black"
+        : "border-white/10 bg-white/5 hover:border-white/40"
+    }
+  `}
 >
 
-  9+
+  <span className="text-xl font-light">
+
+    9+
+
+  </span>
 
 </button>
             </div>
