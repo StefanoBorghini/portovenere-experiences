@@ -800,7 +800,10 @@ if (
             </p>
 
             <div
-              className={`grid grid-cols-2 md:grid-cols-2 gap-4 rounded-3xl p-2
+              className={`grid
+grid-cols-2
+lg:grid-cols-4
+gap-4 rounded-3xl p-2
                 errors.includes("guests")
                   ? "border border-red-500"
                   : ""
@@ -860,7 +863,7 @@ if (
     rounded-2xl
     border
     px-6
-    py-8
+    py-6
     transition-all
     duration-300
     cursor-pointer
