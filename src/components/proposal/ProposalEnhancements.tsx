@@ -15,6 +15,10 @@ import SectionHeader
 from "@/components/layout/SectionHeader";
 
 import {
+  formatPrice,
+} from "../../lib/pricing/formatPrice";
+
+import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
@@ -26,7 +30,7 @@ interface Enhancement {
 
     id: number;
 
-    image: string;
+  image: string;
 
     title: string;
 
@@ -35,6 +39,11 @@ interface Enhancement {
     unselected_button_text: string;
 
     selected_button_text: string;
+
+    base_price: number;
+
+    price_type: string;
+
 
 }
 
@@ -235,6 +244,25 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
                                             }
 
                                         </p>
+
+                                        <p
+  className="
+    text-white
+    text-xl
+    font-medium
+    mb-8
+  "
+>
+
+  {formatPrice(
+
+    enhancement.base_price,
+
+    enhancement.price_type
+
+  )}
+
+</p>
 <div
   className={`
     relative
