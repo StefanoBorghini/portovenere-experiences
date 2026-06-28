@@ -149,6 +149,14 @@ useState<number[]>([]);
                                     enhancement.id
                                 );
 
+                                const price = formatPrice(
+
+    enhancement.base_price,
+
+    enhancement.price_type
+
+);
+
                             return (
 
                                 <button
@@ -245,24 +253,39 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                                         </p>
 
-                                        <p
-  className="
-    text-white
-    text-xl
-    font-medium
-    mb-8
-  "
->
+   
+<div className="mb-8">
 
-  {formatPrice(
+  {price.label && (
 
-    enhancement.base_price,
-
-    enhancement.price_type
+    <p
+      className="
+        text-[12px]
+        uppercase
+        tracking-[0.25em]
+        text-zinc-500
+        mb-2
+      "
+    >
+      {price.label}
+    </p>
 
   )}
 
-</p>
+  <p
+    className="
+      text-3xl
+      font-light
+      tracking-tight
+      text-white
+    "
+  >
+    {price.value}
+  </p>
+
+</div>
+
+
 <div
   className={`
     relative
@@ -336,7 +359,6 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
 </div>
 
-                                    </div>
 
                                 </button>
                             );
