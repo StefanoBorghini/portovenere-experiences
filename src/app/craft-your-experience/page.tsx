@@ -1000,21 +1000,21 @@ ease-out
 
         onClick={() => {
 
-          setChildrenCount(null);
+  setChildrenCount(item);
 
-          setShowMoreChildren(false);
+  setShowMoreChildren(false);
 
-          setFormData({
+  setFormData({
 
-            ...formData,
+    ...formData,
 
-            children:item,
+    children: item,
 
-            travelingWithChildren:item > 0,
+    travelingWithChildren: item > 0,
 
-          });
+  });
 
-        }}
+}}
 
         className={`
 
@@ -1048,15 +1048,7 @@ ease-out
 
     setShowMoreChildren(true);
 
-    setFormData({
-
-      ...formData,
-
-      children: 2,
-
-      travelingWithChildren: true,
-
-    });
+    
 
   }}
 
