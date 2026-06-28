@@ -983,12 +983,12 @@ ease-out
 
         
 
-<div>
+<div id="guests-section"  >
 
   <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
     Number of Children (age 0–12)
   </p>
-  <p className="text-xs text-zinc-500 mt-2">
+  <p className="text-xs pb-2 text-zinc-500 mt-2">
   12 years old and under
 </p>
 
