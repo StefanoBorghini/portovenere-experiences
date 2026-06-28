@@ -702,7 +702,8 @@ if (
                       3
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.experiences.includes(
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
+ease-out cursor-pointer ${formData.experiences.includes(
                     item
                   )
                       ? "border-white bg-white text-black"
@@ -772,7 +773,8 @@ if (
                       3
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.moods.includes(
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
+ease-out cursor-pointer ${formData.moods.includes(
                     item
                   )
                       ? "border-white bg-white text-black"
@@ -798,17 +800,22 @@ if (
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
               Number of Guests
             </p>
+<div
+  className={`
+    grid
+    grid-cols-2
+    lg:grid-cols-4
+    gap-4
+    rounded-3xl
+    p-2
 
-            <div
-              className={`grid
-grid-cols-2
-lg:grid-cols-4
-gap-4 rounded-3xl p-2
-                errors.includes("guests")
-                  ? "border border-red-500"
-                  : ""
-              }`}
-            >
+    ${
+      errors.includes("guests")
+        ? "border border-red-500"
+        : ""
+    }
+  `}
+>
 
              {[
  2,
@@ -831,11 +838,12 @@ gap-4 rounded-3xl p-2
 
   setFormData({
     ...formData,
-    guests: String(item),
+     guests: "",
   });
 
 }}
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${guestCount === item
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
+ease-out cursor-pointer ${guestCount === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                     }`}
@@ -866,7 +874,8 @@ border
 border-white/10
 bg-white/5
 transition-all
-duration-300
+duration-500
+ease-out
 hover:border-white/40
     cursor-pointer
 
@@ -893,7 +902,8 @@ hover:border-white/40
   className={`
     overflow-hidden
     transition-all
-    duration-300
+    duration-500
+ease-out
     ease-in-out
 
     ${
@@ -913,13 +923,16 @@ hover:border-white/40
     </p>
 
     <input
-      type="number"
-      min={9}
-      placeholder="e.g. 12"
+  type="number"
+  min={9}
+  max={40}
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder="e.g. 12"
 
-      value={guestCount || ""}
+  value={guestCount || ""}
 
-      onChange={(e)=>{
+  onChange={(e)=>{
 
         setGuestCount(
           Number(e.target.value)
@@ -945,7 +958,8 @@ hover:border-white/40
         py-5
         outline-none
         transition-all
-        duration-300
+        duration-500
+ease-out
         focus:border-white/40
       "
     />
@@ -1195,7 +1209,8 @@ hover:border-white/40
                         item.value,
                     });
                   }}
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 ${formData.travelingWithChildren === item.value
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
+ease-out ${formData.travelingWithChildren === item.value
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                     }`}
@@ -1243,7 +1258,8 @@ hover:border-white/40
                       item
                     )
                   }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.budget === item
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
+ease-out cursor-pointer ${formData.budget === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                     }`}
