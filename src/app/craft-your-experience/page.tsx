@@ -867,13 +867,13 @@ ease-out cursor-pointer ${guestCount === item
   type="button"
   onClick={() => {
 
-    setGuestCount(9);
+    setGuestCount(null);
 
     setShowMoreGuests(true);
 
     setFormData({
       ...formData,
-      guests: "9",
+      guests: "",
     });
 
   }}
@@ -939,7 +939,7 @@ ease-out
   max={40}
   inputMode="numeric"
   pattern="[0-9]*"
-  placeholder="e.g. 12"
+  placeholder="Enter exact number"
 
   value={guestCount || ""}
 
@@ -1046,19 +1046,15 @@ ease-out
 
       onClick={() => {
 
-        setChildrenCount(null);
+        setChildrenCount(4);
 
-        setShowMoreChildren(true);
+setShowMoreChildren(true);
 
-        setFormData({
-
-          ...formData,
-
-          children:0,
-
-          travelingWithChildren:true,
-
-        });
+setFormData({
+  ...formData,
+  children:4,
+  travelingWithChildren:true,
+});
 
       }}
 
@@ -1081,7 +1077,7 @@ ease-out
       `}
     >
 
-      4+
+      3+
 
     </button>
 
@@ -1124,7 +1120,7 @@ ease-out
 
       pattern="[0-9]*"
 
-      placeholder="e.g. 5"
+      placeholder="Enter exact number"
 
       value={childrenCount || ""}
 
