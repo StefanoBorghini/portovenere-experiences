@@ -988,9 +988,7 @@ ease-out
   <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
     Number of Children (age 0–12)
   </p>
-  <p className="text-xs pb-2 text-zinc-500 mt-2">
-  12 years old and under
-</p>
+
 
   <div className="grid grid-cols-3 gap-4">
 
