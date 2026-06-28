@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { useState } from "react";
+import ProposalClient from "./proposalClient";
 import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
@@ -63,9 +63,7 @@ export default async function ProposalPage({
   // PARAMS
   // =======================================================
 
-  const [selectedEnhancements,
-setSelectedEnhancements] =
-useState<number[]>([]);
+ 
 
   const { slug } =
     await params;
@@ -370,211 +368,32 @@ const featuredEssentials =
 
   return (
 
-    <main
-      id="proposal-content"
-      className="
-        bg-[#0C0C0C]
-        text-white
-        min-h-screen
-      "
-    >
+<ProposalClient
 
-      {/* HERO */}
+    heroImage={heroImage}
 
-      <ProposalHero
+    heroTitle={heroTitle}
 
-        heroImage={heroImage}
+    lead={lead}
 
-        heroTitle={heroTitle}
+    featuredExperience={featuredExperience}
 
-        guests={lead.guests}
-
-        totalPrice={finalPrice}
-      />
-
-      {/* NARRATIVE */}
-
-      <ProposalNarrative
-
-        title={dynamicIntroTitle}
-
-        paragraph={
-          dynamicIntroParagraph
-        }
-      />
-
-      {/* FEATURED EXPERIENCE */}
-
-      
-<FeaturedExperience
-
-    image={
-        featuredExperience?.detail_image ||
-        featuredExperience?.hero_image
-    }
-
-    operator={featuredOperator}
-
-    subtitle={featuredSubtitle}
-
-    description={featuredDescription}
-
-    essentials={featuredSections}
-
-    facts={
-        featuredExperience?.facts ?? []
-    }
-
-/>
-
-      {/* INCLUDED EXPERIENCES */}
-
-      <IncludedExperiences
-
-        experiences={
-          includedExperiences
-        }
-      />
-
-      {/* ENHANCEMENTS */}
-
-     <ProposalEnhancements
+    includedExperiences={includedExperiences}
 
     enhancements={enhancements}
 
-    selectedEnhancements={
-        selectedEnhancements
-    }
+    galleryImages={galleryImages}
 
-    setSelectedEnhancements={
-        setSelectedEnhancements
-    }
+    expiresAt={expiresAt}
+
+    whatsappUrl={whatsappUrl}
+
+  dynamicIntroParagraph={dynamicIntroParagraph ?? ""}
+dynamicClosingParagraph={dynamicClosingParagraph ?? ""}
+dynamicIntroTitle={dynamicIntroTitle ?? ""}
+
+    finalPrice={finalPrice}
 
 />
 
-      {/* GALLERY */}
-
-      <CinematicGallery
-
-        images={
-          galleryImages
-        }
-      />
-
-      {/* PDF */}
-
-      <section
-        className="
-          py-20
-          px-6
-          print:hidden
-        "
-      >
-
-        <div
-          className="
-            max-w-4xl
-            mx-auto
-            flex
-            justify-center
-          "
-        >
-
-          <DownloadPdfButton />
-
-        </div>
-
-      </section>
-
-      {/* CTA */}
-
-      <ReservationSection
-
-        expiresAt={expiresAt}
-
-        closingParagraph={
-          dynamicClosingParagraph
-        }
-
-        whatsappUrl={
-          whatsappUrl
-        }
-      />
-
-      {/* FOOTER */}
-
-      <footer
-        className="
-          border-t
-          border-white/10
-          py-12
-          px-6
-        "
-      >
-
-        <div
-          className="
-            max-w-6xl
-            mx-auto
-            flex
-            flex-col
-            md:flex-row
-            items-center
-            justify-between
-            gap-6
-          "
-        >
-
-          <div
-            className="
-              text-center
-              md:text-left
-            "
-          >
-
-            <p
-              className="
-                text-xs
-                uppercase
-                tracking-[0.35em]
-                text-zinc-500
-              "
-            >
-
-              Portovenere Experiences
-
-            </p>
-
-            <p
-              className="
-                text-zinc-400
-                mt-3
-                leading-relaxed
-              "
-            >
-
-              Private curated luxury experiences in Liguria
-
-            </p>
-
-          </div>
-
-          <div
-            className="
-              text-zinc-500
-              text-sm
-            "
-          >
-
-            info@portovenere.com
-
-          </div>
-
-        </div>
-
-      </footer>
-
-    </main>
-  );
-}
-
+);}
