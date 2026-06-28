@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import { calculatePrice } from "@/lib/pricing/calculatePrice";
 
 import { motion } from "framer-motion";
 
@@ -154,7 +154,15 @@ useState<number[]>([]);
                                 selectedEnhancements.includes(
                                     enhancement.id
                                 );
+const total = calculatePrice(
 
+    enhancement.base_price,
+
+    enhancement.price_type,
+
+    1
+
+);
                                 const price = formatPrice(
 
     enhancement.base_price,

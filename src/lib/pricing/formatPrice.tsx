@@ -1,81 +1,69 @@
 export function formatPrice(
 
-  amount?: number,
+    total: number,
 
-  type?: string
+    priceType?: string
 
 ): {
 
-  label: string;
+    label: string;
 
-  value: string;
+    value: string;
 
 } {
 
-  if (!amount && type !== "included") {
+    switch (priceType) {
 
-    return {
+        case "fixed":
 
-      label: "",
+            return {
 
-      value: "",
+                label: "Price",
 
-    };
+                value: `€${total}`,
 
-  }
+            };
 
-  switch (type) {
+        case "per_person":
 
-    case "fixed":
+            return {
 
-      return {
+                label: "Starting from",
 
-        label: "Price",
+                value: `€${total}`,
 
-        value: `€${amount}`,
+            };
 
-      };
+        case "included":
 
-    case "per_person":
+            return {
 
-      return {
+                label: "",
 
-        label: "Starting from",
+                value: "Included",
 
-        value: `€${amount} / person`,
+            };
 
-      };
+        case "on_request":
 
-    case "included":
+            return {
 
-      return {
+                label: "",
 
-        label: "",
+                value: "On Request",
 
-        value: "Included",
+            };
 
-      };
+        default:
 
-    case "on_request":
+            return {
 
-      return {
+                label: "Price",
 
-        label: "",
+                value: `€${total}`,
 
-        value: "On Request",
+            };
 
-      };
-
-    default:
-
-      return {
-
-        label: "Price",
-
-        value: `€${amount}`,
-
-      };
-
-  }
+    }
 
 }
