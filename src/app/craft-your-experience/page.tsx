@@ -884,9 +884,22 @@ if (
 
           </div>
 
-          {showMoreGuests && (
+ <div
+  className={`
+    overflow-hidden
+    transition-all
+    duration-300
+    ease-in-out
 
-  <div className="mt-6">
+    ${
+      showMoreGuests
+        ? "max-h-48 opacity-100 mt-6"
+        : "max-h-0 opacity-0"
+    }
+  `}
+>
+
+  <div>
 
     <p className="text-zinc-500 mb-3">
 
@@ -899,9 +912,7 @@ if (
       min={9}
       placeholder="e.g. 12"
 
-      value={
-        guestCount || ""
-      }
+      value={guestCount || ""}
 
       onChange={(e)=>{
 
@@ -928,12 +939,15 @@ if (
         px-6
         py-5
         outline-none
+        transition-all
+        duration-300
+        focus:border-white/40
       "
     />
 
   </div>
 
-)}
+</div>
 
           {/* DATES */}
 
