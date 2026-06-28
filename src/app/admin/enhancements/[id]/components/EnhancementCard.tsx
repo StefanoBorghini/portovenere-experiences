@@ -13,45 +13,7 @@ interface Props {
   setEnhancement:any;
 
 }
-export const enhancementCategories = [
-
-  {
-    value: "general",
-    label: "General",
-  },
-
-  {
-    value: "food",
-    label: "Food & Drinks",
-  },
-
-  {
-    value: "transport",
-    label: "Transport",
-  },
-
-  {
-    value: "luxury",
-    label: "Luxury",
-  },
-
-  {
-    value: "photography",
-    label: "Photography",
-  },
-
-  {
-    value: "wellness",
-    label: "Wellness",
-  },
-
-  {
-    value: "activities",
-    label: "Activities",
-  },
-
-];
-
+import { enhancementCategories } from "@/lib/config/enhancementCategories";
 
 export default function EnhancementCard({
 
@@ -302,65 +264,94 @@ image,
   </div>
 
 </div>
-    <div>
+
+
+
 <div className="grid md:grid-cols-3 gap-6">
-      <label className="block mb-2 text-white/50">
-        Display Order
-      </label>
 
-      <input
-        type="number"
-        value={enhancement.display_order}
-        onChange={(e)=>
-          setEnhancement({
-            ...enhancement,
-            display_order:Number(e.target.value),
-          })
-        }
-        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
-      />
+  <div>
 
-    </div>
+    <label className="block mb-2 text-white/50">
+      Display Order
+    </label>
 
-    <div>
+    <input
+      type="number"
+      value={enhancement.display_order}
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          display_order: Number(e.target.value),
+        })
+      }
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
 
-      <label className="block mb-2 text-white/50">
-        Unselected Button
-      </label>
-
-      <input
-        value={enhancement.unselected_button_text || ""}
-        onChange={(e)=>
-          setEnhancement({
-            ...enhancement,
-            unselected_button_text:e.target.value,
-          })
-        }
-        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
-      />
-
-    </div>
-
-    <div>
-
-      <label className="block mb-2 text-white/50">
-        Selected Button
-      </label>
-
-      <input
-        value={enhancement.selected_button_text || ""}
-        onChange={(e)=>
-          setEnhancement({
-            ...enhancement,
-            selected_button_text:e.target.value,
-          })
-        }
-        className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3"
-      />
-
-    </div>
-</div>
   </div>
+
+  <div>
+
+    <label className="block mb-2 text-white/50">
+      Unselected Button
+    </label>
+
+    <input
+      value={enhancement.unselected_button_text || ""}
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          unselected_button_text: e.target.value,
+        })
+      }
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+  <div>
+
+    <label className="block mb-2 text-white/50">
+      Selected Button
+    </label>
+
+    <input
+      value={enhancement.selected_button_text || ""}
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          selected_button_text: e.target.value,
+        })
+      }
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+</div>
 
   <label className="flex items-center gap-3">
 
@@ -379,7 +370,7 @@ image,
 
   </label>
 
-
+</div>
 
 
 </section>
