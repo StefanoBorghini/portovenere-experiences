@@ -60,13 +60,13 @@ interface ProposalEnhancementsProps {
 }
 export default function ProposalEnhancements({
 
-    enhancements,
+    enhancements,selectedEnhancements,
 
-}: ProposalEnhancementsProps) {
+    setSelectedEnhancements,
 
-   const [selectedEnhancements,
-setSelectedEnhancements] =
-useState<number[]>([]);
+}: ProposalEnhancementsProps){
+
+  
 
     function toggleEnhancement(
         id: number
@@ -163,9 +163,10 @@ const total = calculatePrice(
     1
 
 );
-                                const price = formatPrice(
 
-    enhancement.base_price,
+const price = formatPrice(
+
+    total,
 
     enhancement.price_type
 
