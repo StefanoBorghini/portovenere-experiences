@@ -354,7 +354,7 @@ const featuredDescription =
   featuredExperience?.description || "";
 
 const featuredEssentials =
-    featuredExperience?.sections || [];
+  featuredExperience?.essentials || [];
 
   const featuredSections =
     featuredExperience?.sections || [];
@@ -415,6 +415,10 @@ const featuredEssentials =
     description={featuredDescription}
 
     essentials={featuredSections}
+
+    facts={
+        featuredExperience?.facts ?? []
+    }
 
 />
 

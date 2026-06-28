@@ -32,11 +32,11 @@ essentials: {
   description: string;
 }[];
 
-  embarkPoint?: string;
-
-  duration?: string;
-
-  guests?: string;
+  facts: {
+    id: string;
+    label: string;
+    value: string;
+  }[];
 }
 
 // =====================================================
@@ -55,11 +55,7 @@ export default function FeaturedExperience({
 
   essentials,
 
-  embarkPoint = "Portovenere",
-
-  duration = "Full Day",
-
-  guests = "Up to 8 Guests",
+  facts,
 
 }: FeaturedExperienceProps) {
 
@@ -189,112 +185,48 @@ export default function FeaturedExperience({
               {/* TECHNICAL DETAILS */}
 
               <div
-                className="
-                  space-y-5
-                  mb-14
-                "
-              >
+  className="
+    space-y-5
+    mb-14
+  "
+>
 
-                <div
-                  className="
-                    flex
-                    justify-between
-                    items-center
-                    border-b
-                    border-white/10
-                    pb-4
-                  "
-                >
+  {facts.map((fact) => (
 
-                  <span
-                    className="
-                      text-white/45
-                    "
-                  >
+    <div
+      key={fact.id}
+      className="
+        flex
+        justify-between
+        items-center
+        border-b
+        border-white/10
+        pb-4
+      "
+    >
 
-                    Embark Point
+      <span
+        className="
+          text-white/45
+        "
+      >
+        {fact.label}
+      </span>
 
-                  </span>
+      <span
+        className="
+          text-white
+          text-right
+        "
+      >
+        {fact.value}
+      </span>
 
-                  <span
-                    className="
-                      text-white
-                    "
-                  >
+    </div>
 
-                    {embarkPoint}
+  ))}
 
-                  </span>
-
-                </div>
-
-                <div
-                  className="
-                    flex
-                    justify-between
-                    items-center
-                    border-b
-                    border-white/10
-                    pb-4
-                  "
-                >
-
-                  <span
-                    className="
-                      text-white/45
-                    "
-                  >
-
-                    Duration
-
-                  </span>
-
-                  <span
-                    className="
-                      text-white
-                    "
-                  >
-
-                    {duration}
-
-                  </span>
-
-                </div>
-
-                <div
-                  className="
-                    flex
-                    justify-between
-                    items-center
-                    border-b
-                    border-white/10
-                    pb-4
-                  "
-                >
-
-                  <span
-                    className="
-                      text-white/45
-                    "
-                  >
-
-                    Guests
-
-                  </span>
-
-                  <span
-                    className="
-                      text-white
-                    "
-                  >
-
-                    {guests}
-
-                  </span>
-
-                </div>
-
-              </div>
+</div>
 
               {/* ESSENTIALS */}
 
