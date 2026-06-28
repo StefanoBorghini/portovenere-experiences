@@ -191,11 +191,20 @@ const experiences = await getExperiences();
 const scoring = await getExperienceScoring();
 const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
+const facts =
+  await getExperienceFact();
 const sections =
   await getExperienceSections();
 
 
   return experiences.map((experience) => {
+
+    const experienceFacts =
+  facts.filter(
+    fact =>
+      fact.experience_id ===
+      experience.id
+  );
     const experienceSections =
   sections.filter(
     section =>
@@ -220,20 +229,23 @@ const featuredImage =
   experienceGallery.find(
     (g) => g.featured
   )?.image_url;
-    return {
-      ...experience,
+  return {
 
-      ...(score || {}),
+  ...experience,
 
-      ...(filter || {}),
-      sections: experienceSections,
+  ...(score || {}),
 
+  ...(filter || {}),
 
-      gallery: experienceGallery,
+  facts: experienceFacts,
 
-featured_image:
-  featuredImage,
-    };
+  sections: experienceSections,
+
+  gallery: experienceGallery,
+
+  featured_image: featuredImage,
+
+};
   });
 }
 
@@ -547,6 +559,131 @@ export async function getProposalConfig() {
   }
 
   return data;
+
+}
+
+export async function getExperienceFact() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("experience_facts")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
+
+export async function createExperienceFact(section: any) {
+
+  if (!supabase)
+    return { success: false };
+
+  console.log("INSERTING SECTION:", section);
+
+  const { data, error } =
+    await supabase
+      .from("experience_facts")
+      .insert({
+        id: section.id,
+        experience_id: section.experience_id,
+        title: section.title,
+        description: section.description,
+        display_order: section.display_order,
+        active: section.active,
+      })
+      .select();
+
+  console.log("DATA", data);
+  console.log("ERROR", error);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+export async function updateExperienceFact(
+
+  id:string,
+
+  updates:any
+
+){
+
+  if(!supabase)
+    return {success:false};
+
+  const { error } =
+    await supabase
+      .from("experience_facts")
+      .update(updates)
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+      success:false,
+      error,
+    };
+
+  }
+
+  return{
+    success:true,
+  };
+
+}
+
+export async function deleteExperienceFact(
+  id:string
+){
+
+  if(!supabase)
+    return {success:false};
+
+  const { error } =
+    await supabase
+      .from("experience_facts")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    console.error(error);
+
+    return{
+      success:false,
+      error,
+    };
+
+  }
+
+  return{
+    success:true,
+  };
 
 }
 
