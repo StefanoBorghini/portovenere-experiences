@@ -345,17 +345,19 @@ export default function FeaturedExperience({
 
       </h4>
 
-      <p
-        className="
-          text-white/55
-          text-[15px]
-          leading-relaxed
-        "
-      >
-
-        {section.description}
-
-      </p>
+    <div
+  className="
+    text-white/55
+    text-[15px]
+    leading-relaxed
+    prose
+    prose-invert
+    max-w-none
+  "
+  dangerouslySetInnerHTML={{
+    __html: section.description,
+  }}
+/>
 
     </div>
 
