@@ -109,6 +109,12 @@ const [guestCount, setGuestCount] =
 const [showMoreGuests, setShowMoreGuests] =
   useState(false);
 
+const [childrenCount, setChildrenCount] =
+  useState<number | null>(0);
+
+const [showMoreChildren, setShowMoreChildren] =
+  useState(false);  
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -118,7 +124,7 @@ const [showMoreGuests, setShowMoreGuests] =
 
     guests: "",
     budget: "",
-
+    children: 0,
 
     startDate: "",
     endDate: "",
@@ -478,6 +484,9 @@ if (
 
             traveling_with_children:
               formData.travelingWithChildren,
+
+              children:
+  formData.children,
           },
         ])
         .select()
@@ -1179,51 +1188,196 @@ ease-out
 
           {/* CHILDREN */}
 
-          <div>
+          {/* CHILDREN */}
 
-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
-              Traveling With Children
-            </p>
+<div>
 
-            <div className="grid md:grid-cols-2 gap-4">
+  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-6">
+    Number of Children
+  </p>
 
-              {[
-                {
-                  label: "Yes",
-                  value: true,
-                },
-                {
-                  label: "No",
-                  value: false,
-                },
-              ].map((item) => (
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-                <button
-                  type="button"
-                  key={item.label}
-                  onClick={() => {
+    {[0,1,2,3].map((item)=>(
 
-                    setFormData({
-                      ...formData,
-                      travelingWithChildren:
-                        item.value,
-                    });
-                  }}
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
-ease-out ${formData.travelingWithChildren === item.value
-                      ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
-                    }`}
-                >
-                  {item.label}
-                </button>
+      <button
+        key={item}
+        type="button"
 
-              ))}
+        onClick={() => {
 
-            </div>
+          setChildrenCount(item);
 
-          </div>
+          setShowMoreChildren(false);
 
+          setFormData({
+
+            ...formData,
+
+            children:item,
+
+            travelingWithChildren:item > 0,
+
+          });
+
+        }}
+
+        className={`
+
+          border
+          rounded-2xl
+          px-6
+          py-6
+          transition-all
+          duration-500
+          ease-out
+
+          ${
+            childrenCount === item
+              ? "bg-white text-black border-white"
+              : "bg-white/5 border-white/10 hover:border-white/40"
+          }
+
+        `}
+      >
+
+        {item}
+
+      </button>
+
+    ))}
+
+    <button
+
+      type="button"
+
+      onClick={() => {
+
+        setChildrenCount(null);
+
+        setShowMoreChildren(true);
+
+        setFormData({
+
+          ...formData,
+
+          children:0,
+
+          travelingWithChildren:true,
+
+        });
+
+      }}
+
+      className={`
+
+        border
+        rounded-2xl
+        px-6
+        py-6
+        transition-all
+        duration-500
+        ease-out
+
+        ${
+          showMoreChildren
+            ? "bg-white text-black border-white"
+            : "bg-white/5 border-white/10 hover:border-white/40"
+        }
+
+      `}
+    >
+
+      4+
+
+    </button>
+
+  </div>
+
+  <div
+
+    className={`
+
+      overflow-hidden
+      transition-all
+      duration-500
+      ease-out
+
+      ${
+        showMoreChildren
+          ? "max-h-48 opacity-100 mt-6"
+          : "max-h-0 opacity-0"
+      }
+
+    `}
+
+  >
+
+    <p className="text-zinc-500 mb-3">
+
+      Exact number of children
+
+    </p>
+
+    <input
+
+      type="number"
+
+      min={4}
+
+      max={20}
+
+      inputMode="numeric"
+
+      pattern="[0-9]*"
+
+      placeholder="e.g. 5"
+
+      value={childrenCount || ""}
+
+      onChange={(e)=>{
+
+        const value = Number(e.target.value);
+
+        setChildrenCount(value);
+
+        setFormData({
+
+          ...formData,
+
+          children:value,
+
+          travelingWithChildren:value > 0,
+
+        });
+
+      }}
+
+      className="
+
+        w-full
+        rounded-2xl
+        border
+        border-white/10
+        bg-white/5
+        px-6
+        py-5
+        outline-none
+        transition-all
+        duration-500
+        focus:border-white/40
+
+      "
+
+    />
+
+  </div>
+
+</div>
+          
+
+
+          
 
 
 
