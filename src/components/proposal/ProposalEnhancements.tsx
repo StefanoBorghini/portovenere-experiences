@@ -49,9 +49,15 @@ interface Enhancement {
 
 interface ProposalEnhancementsProps {
 
-    enhancements: Enhancement[];
-}
+  enhancements: Enhancement[];
 
+  selectedEnhancements: number[];
+
+  setSelectedEnhancements: React.Dispatch<
+    React.SetStateAction<number[]>
+  >;
+
+}
 export default function ProposalEnhancements({
 
     enhancements,

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
@@ -61,6 +62,10 @@ export default async function ProposalPage({
   // =======================================================
   // PARAMS
   // =======================================================
+
+  const [selectedEnhancements,
+setSelectedEnhancements] =
+useState<number[]>([]);
 
   const { slug } =
     await params;
@@ -433,12 +438,19 @@ const featuredEssentials =
 
       {/* ENHANCEMENTS */}
 
-      <ProposalEnhancements
+     <ProposalEnhancements
 
-        enhancements={
-          enhancements
-        }
-      />
+    enhancements={enhancements}
+
+    selectedEnhancements={
+        selectedEnhancements
+    }
+
+    setSelectedEnhancements={
+        setSelectedEnhancements
+    }
+
+/>
 
       {/* GALLERY */}
 
