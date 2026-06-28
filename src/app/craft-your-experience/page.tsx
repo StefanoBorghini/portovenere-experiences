@@ -103,6 +103,12 @@ console.log(
   
 }, []);
 
+const [guestCount, setGuestCount] =
+  useState<number | null>(null);
+
+const [showMoreGuests, setShowMoreGuests] =
+  useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -801,23 +807,33 @@ if (
               }`}
             >
 
-              {[
-                "2",
-                "3-4",
-                "5-7",
-                "8+",
-              ].map((item) => (
+             {[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+].map((item) => (
 
                 <button
                   type="button"
                   key={item}
-                  onClick={() =>
-                    handleSelect(
-                      "guests",
-                      item
-                    )
-                  }
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${formData.guests === item
+                 onClick={() => {
+
+  setGuestCount(item);
+
+  setShowMoreGuests(false);
+
+  setFormData({
+    ...formData,
+    guests: String(item),
+  });
+
+}}
+                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-300 cursor-pointer ${guestCount === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                     }`}
@@ -826,10 +842,79 @@ if (
                 </button>
 
               ))}
+<button
+  type="button"
+  onClick={() => {
 
+  setGuestCount(9);
+
+  setShowMoreGuests(true);
+
+  setFormData({
+    ...formData,
+    guests: "9",
+  });
+
+}}
+>
+
+  More
+
+</button>
             </div>
 
           </div>
+
+          {showMoreGuests && (
+
+  <div className="mt-6">
+
+    <p className="text-zinc-500 mb-3">
+
+      How many guests?
+
+    </p>
+
+    <input
+      type="number"
+      min={9}
+      placeholder="Enter number"
+
+      value={
+        guestCount || ""
+      }
+
+      onChange={(e)=>{
+
+        setGuestCount(
+          Number(e.target.value)
+        );
+
+        setFormData({
+
+          ...formData,
+
+          guests:e.target.value,
+
+        });
+
+      }}
+
+      className="
+        w-full
+        rounded-2xl
+        border
+        border-white/10
+        bg-white/5
+        px-6
+        py-5
+        outline-none
+      "
+    />
+
+  </div>
+
+)}
 
           {/* DATES */}
 

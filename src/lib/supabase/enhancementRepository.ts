@@ -39,19 +39,25 @@ export async function createEnhancement() {
       .from("enhancement_content")
       .insert({
 
-        title: "New Enhancement",
+    title:"New Enhancement",
 
-        description: "",
+    description:"",
 
-        image: "",
+    image:"",
 
-        button_text: "Request Enhancement",
+    button_text:"Request",
 
-        display_order: 999,
+    base_price:0,
 
-        active: true,
+    price_type:"fixed",
 
-      })
+    category:"general",
+
+    display_order:999,
+
+    active:true,
+
+})
 
       .select()
 
