@@ -268,37 +268,44 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                                         </p>
 
-   
-<div className="mb-8">
+{(price.label || price.value) && (
 
-  {price.label && (
+  <div className="mb-8">
 
-    <p
-      className="
-        text-[12px]
-        uppercase
-        tracking-[0.25em]
-        text-zinc-500
-        mb-2
-      "
-    >
-      {price.label}
-    </p>
+    {price.label && (
 
-  )}
+      <p
+        className="
+          text-[12px]
+          uppercase
+          tracking-[0.25em]
+          text-zinc-500
+          mb-2
+        "
+      >
+        {price.label}
+      </p>
 
-  <p
-    className="
-      text-3xl
-      font-light
-      tracking-tight
-      text-white
-    "
-  >
-    {price.value}
-  </p>
+    )}
 
-</div>
+    {price.value && (
+
+      <p
+        className="
+          text-3xl
+          font-light
+          tracking-tight
+          text-white
+        "
+      >
+        {price.value}
+      </p>
+
+    )}
+
+  </div>
+
+)}
 
 
 <div
