@@ -887,7 +887,7 @@ hover:border-white/40
   `}
 >
 
-  <span className="text-xl font-light">
+  <span className="text font-light">
 
     9+
 
