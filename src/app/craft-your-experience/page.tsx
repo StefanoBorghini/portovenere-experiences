@@ -572,6 +572,9 @@ if (
               guests:
                 formData.guests,
 
+                children:
+  formData.children,
+
               budget:
                 formData.budget,
 
@@ -847,8 +850,7 @@ ease-out cursor-pointer ${formData.moods.includes(
 
   setFormData({
     ...formData,
-     guests: "",
-  });
+guests: String(item),  });
 
 }}
                   className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500
@@ -1106,7 +1108,7 @@ ease-out
 
     <p className="text-zinc-500 mb-3">
 
-      Exact number of children
+      How many children?
 
     </p>
 
