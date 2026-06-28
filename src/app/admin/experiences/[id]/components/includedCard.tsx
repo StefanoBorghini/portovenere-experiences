@@ -9,7 +9,7 @@ interface Props {
   setExperience:any;
 
 }
-
+import RichTextEditor from "../components/admin/richTextEditor";
 export default function IncludedCard({
 
   experience,
@@ -95,40 +95,21 @@ Manage everything included in this experience.
 
 />
 
-<textarea
+<RichTextEditor
+  value={section.description}
+  onChange={(value) => {
 
-    rows={3}
+    const sections = [...experience.sections];
 
-    value={section.description}
+    sections[index].description = value;
 
-    onChange={(e)=>{
+    setExperience({
+      ...experience,
+      sections,
+    });
 
-        const sections=[...experience.sections];
-
-        sections[index].description=e.target.value;
-
-        setExperience({
-
-            ...experience,
-
-            sections,
-
-        });
-
-    }}
-
-    className="
-        w-full
-        rounded-xl
-        bg-white/5
-        border
-        border-white/10
-        px-4
-        py-3
-    "
-
+  }}
 />
-
 <button
 
 onClick={async () => {
