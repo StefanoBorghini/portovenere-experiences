@@ -860,12 +860,14 @@ gap-4 rounded-3xl p-2
   }}
 
   className={`
-    rounded-2xl
-    border
-    px-6
-    py-6
-    transition-all
-    duration-300
+    h-20
+rounded-2xl
+border
+border-white/10
+bg-white/5
+transition-all
+duration-300
+hover:border-white/40
     cursor-pointer
 
     ${
