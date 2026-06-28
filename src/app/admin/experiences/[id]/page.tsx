@@ -27,10 +27,15 @@ import {
   updateExperienceScoring,
   createExperienceSection,
 updateExperienceSection,
+createExperienceFact,
+updateExperienceFact,
 } from "@/lib/supabase/experienceRepository";
 
 import IncludedCard
 from "./components/includedCard";
+
+import FactsCard
+from "./components/factsCard";
 
 
 
@@ -135,6 +140,14 @@ if (!session) {
 
 />
 
+<FactsCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
+
 <FiltersCard
 
 experience={experience}
@@ -206,8 +219,52 @@ setExperience={setExperience}
 
   }}
 
-  onSave={async () => {
+  
 
+  onSave={async () => {
+for (const fact of experience.facts) {
+
+  if (fact.isNew) {
+
+    await createExperienceFact({
+
+      id: fact.id,
+
+      experience_id: experience.id,
+
+      label: fact.label,
+
+      value: fact.value,
+
+      display_order: fact.display_order,
+
+      active: fact.active,
+
+    });
+
+  } else {
+
+    await updateExperienceFact(
+
+      fact.id,
+
+      {
+
+        label: fact.label,
+
+        value: fact.value,
+
+        display_order: fact.display_order,
+
+        active: fact.active,
+
+      }
+
+    );
+
+  }
+
+}
     for (const section of experience.sections) {
 
   if (section.isNew) {

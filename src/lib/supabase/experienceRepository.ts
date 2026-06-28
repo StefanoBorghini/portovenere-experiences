@@ -192,7 +192,7 @@ const scoring = await getExperienceScoring();
 const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
 const facts =
-  await getExperienceFact();
+  await getExperienceFacts();
 const sections =
   await getExperienceSections();
 
@@ -562,7 +562,7 @@ export async function getProposalConfig() {
 
 }
 
-export async function getExperienceFact() {
+export async function getExperienceFacts() {
 
   if (!supabase) return [];
 
@@ -584,23 +584,23 @@ export async function getExperienceFact() {
 
 }
 
-export async function createExperienceFact(section: any) {
+export async function createExperienceFact(fact: any) {
 
   if (!supabase)
     return { success: false };
 
-  console.log("INSERTING SECTION:", section);
+  console.log("INSERTING FACT:", fact);
 
   const { data, error } =
     await supabase
       .from("experience_facts")
       .insert({
-        id: section.id,
-        experience_id: section.experience_id,
-        title: section.title,
-        description: section.description,
-        display_order: section.display_order,
-        active: section.active,
+       id: fact.id,
+  experience_id: fact.experience_id,
+  label: fact.label,
+  value: fact.value,
+  display_order: fact.display_order,
+  active: fact.active,
       })
       .select();
 
