@@ -29,11 +29,9 @@ interface Props {
     galleryImages:any[];
     expiresAt:any;
     whatsappUrl:string;
-
-    dynamicIntroTitle?: string;
-    dynamicIntroParagraph?: string;
-    dynamicClosingParagraph?: string;
-
+    dynamicIntroTitle:string;
+    dynamicIntroParagraph:string;
+    dynamicClosingParagraph:string;
     finalPrice:number;
 
 }
