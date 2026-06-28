@@ -989,9 +989,9 @@ ease-out
     Number of Children
   </p>
 
-  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+  <div className="grid grid-cols-3 gap-4">
 
-    {[0,1,2,3].map((item)=>(
+    {[0,1].map((item)=>(
 
       <button
         key={item}
@@ -999,7 +999,7 @@ ease-out
 
         onClick={() => {
 
-          setChildrenCount(item);
+          setChildrenCount(null);
 
           setShowMoreChildren(false);
 
@@ -1039,48 +1039,46 @@ ease-out
       </button>
 
     ))}
+<button
+  type="button"
+  onClick={() => {
 
-    <button
+    setChildrenCount(null);
 
-      type="button"
+    setShowMoreChildren(true);
 
-      onClick={() => {
+    setFormData({
 
-        setChildrenCount(4);
+      ...formData,
 
-setShowMoreChildren(true);
+      children: 2,
 
-setFormData({
-  ...formData,
-  children:4,
-  travelingWithChildren:true,
-});
+      travelingWithChildren: true,
 
-      }}
+    });
 
-      className={`
+  }}
 
-        border
-        rounded-2xl
-        px-6
-        py-6
-        transition-all
-        duration-500
-        ease-out
+  className={`
+    border
+    rounded-2xl
+    px-6
+    py-6
+    transition-all
+    duration-500
+    ease-out
 
-        ${
-          showMoreChildren
-            ? "bg-white text-black border-white"
-            : "bg-white/5 border-white/10 hover:border-white/40"
-        }
+    ${
+      showMoreChildren
+        ? "bg-white text-black border-white"
+        : "bg-white/5 border-white/10 hover:border-white/40"
+    }
+  `}
+>
 
-      `}
-    >
+  2+
 
-      3+
-
-    </button>
-
+</button>
   </div>
 
   <div
@@ -1112,7 +1110,7 @@ setFormData({
 
       type="number"
 
-      min={4}
+      min={3}
 
       max={20}
 
@@ -1120,7 +1118,7 @@ setFormData({
 
       pattern="[0-9]*"
 
-      placeholder="Enter exact number"
+      placeholder="How many children?"
 
       value={childrenCount || ""}
 
