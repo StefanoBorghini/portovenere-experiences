@@ -107,21 +107,21 @@ export default function EnhancementEditor() {
 
           title: enhancement.title,
 
-          description: enhancement.description,
+    description: enhancement.description,
 
-          image: enhancement.image,
+    image: enhancement.image,
 
-          unselected_button_text:
-            enhancement.unselected_button_text,
+    base_price: enhancement.base_price,
 
-          selected_button_text:
-            enhancement.selected_button_text,
+    price_type: enhancement.price_type,
 
-          display_order:
-            enhancement.display_order,
+    display_order: enhancement.display_order,
 
-          active:
-            enhancement.active,
+    active: enhancement.active,
+
+    selected_button_text: enhancement.selected_button_text,
+
+    unselected_button_text: enhancement.unselected_button_text,
 
         }
 

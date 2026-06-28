@@ -13,6 +13,45 @@ interface Props {
   setEnhancement:any;
 
 }
+export const enhancementCategories = [
+
+  {
+    value: "general",
+    label: "General",
+  },
+
+  {
+    value: "food",
+    label: "Food & Drinks",
+  },
+
+  {
+    value: "transport",
+    label: "Transport",
+  },
+
+  {
+    value: "luxury",
+    label: "Luxury",
+  },
+
+  {
+    value: "photography",
+    label: "Photography",
+  },
+
+  {
+    value: "wellness",
+    label: "Wellness",
+  },
+
+  {
+    value: "activities",
+    label: "Activities",
+  },
+
+];
+
 
 export default function EnhancementCard({
 
@@ -141,10 +180,130 @@ image,
     className="w-full rounded-xl bg-white/5 border border-white/10 px-5 py-4"
   />
 
-  <div className="grid md:grid-cols-3 gap-6">
+<div className="grid md:grid-cols-3 gap-6">
 
+  {/* Base Price */}
+
+  <div>
+
+    <label className="block mb-2 text-white/50">
+      Base Price (€)
+    </label>
+
+    <input
+      type="number"
+      value={enhancement.base_price ?? 0}
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          base_price: Number(e.target.value),
+        })
+      }
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+  {/* Price Type */}
+
+  <div>
+
+    <label className="block mb-2 text-white/50">
+      Price Type
+    </label>
+
+    <select
+
+      value={enhancement.price_type ?? "fixed"}
+
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          price_type: e.target.value,
+        })
+      }
+
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+
+    >
+
+      <option value="fixed">
+        Fixed Price
+      </option>
+
+      <option value="per_person">
+        Per Person
+      </option>
+
+    </select>
+
+  </div>
+
+  {/* Category */}
+
+  <div>
+
+    <label className="block mb-2 text-white/50">
+      Category
+    </label>
+
+    <select
+
+      value={enhancement.category ?? "general"}
+
+      onChange={(e)=>
+        setEnhancement({
+          ...enhancement,
+          category: e.target.value,
+        })
+      }
+
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+
+    >
+
+      {enhancementCategories.map((category) => (
+
+        <option
+          key={category.value}
+          value={category.value}
+        >
+          {category.label}
+        </option>
+
+      ))}
+
+    </select>
+
+  </div>
+
+</div>
     <div>
-
+<div className="grid md:grid-cols-3 gap-6">
       <label className="block mb-2 text-white/50">
         Display Order
       </label>
@@ -200,7 +359,7 @@ image,
       />
 
     </div>
-
+</div>
   </div>
 
   <label className="flex items-center gap-3">
@@ -220,7 +379,7 @@ image,
 
   </label>
 
-</div>
+
 
 
 </section>
