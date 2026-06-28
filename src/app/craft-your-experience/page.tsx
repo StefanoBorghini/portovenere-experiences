@@ -808,8 +808,7 @@ if (
             >
 
              {[
-  1,
-  2,
+ 2,
   3,
   4,
   5,
@@ -858,7 +857,7 @@ if (
 }}
 >
 
-  More
+  9+
 
 </button>
             </div>
@@ -871,14 +870,14 @@ if (
 
     <p className="text-zinc-500 mb-3">
 
-      How many guests?
+      Exact number of guests
 
     </p>
 
     <input
       type="number"
       min={9}
-      placeholder="Enter number"
+      placeholder="e.g. 12"
 
       value={
         guestCount || ""
