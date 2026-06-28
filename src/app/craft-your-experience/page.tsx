@@ -860,7 +860,7 @@ gap-4 rounded-3xl p-2
   }}
 
   className={`
-    h-20
+    h-15
 rounded-2xl
 border
 border-white/10
