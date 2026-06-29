@@ -187,12 +187,14 @@ export async function getExperienceFilters() {
 }
 
 export async function getFullExperiences() {
+  
 const experiences = await getExperiences();
 const scoring = await getExperienceScoring();
 const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
 const facts =
   await getExperienceFacts();
+  console.log("ALL FACTS", facts);
 const sections =
   await getExperienceSections();
 
@@ -205,6 +207,17 @@ const sections =
       fact.experience_id ===
       experience.id
   );
+console.log(
+  "FACTS DEBUG",
+  {
+    id: experience.id,
+    title: experience.title,
+    facts: experienceFacts,
+  }
+);
+
+
+  
     const experienceSections =
   sections.filter(
     section =>
