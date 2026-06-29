@@ -20,7 +20,7 @@ import {
 // =====================================================
 
 
-interface ExperienceCard {
+interface ExperienceCardData {
 
   id: string;
 
@@ -36,7 +36,7 @@ interface ExperienceCard {
 }
 interface IncludedExperiencesProps {
 
-  experiences: ExperienceCard[];
+  experiences: ExperienceCardData[];
 }
 
 // =====================================================
@@ -60,32 +60,17 @@ export default function IncludedExperiences({
 
 );
 
-function toggleExperience(
-id: string
-) {
+function toggleExperience(id: string) {
 
-if (
-selectedExperiences.includes(
-  id
-)
-) {
+    setSelectedExperiences(current =>
 
-setSelectedExperiences(
+        current.includes(id)
 
-  selectedExperiences.filter(
-    item => item !== id
-  )
+            ? current.filter(item => item !== id)
 
-);
+            : [...current, id]
 
-} else {
-
-setSelectedExperiences([
-  ...selectedExperiences,
-  id,
-]);
-
-}
+    );
 
 }
 
@@ -161,33 +146,24 @@ return (
           "
         >
 
-          {experiences.map(
-  (
-    experience,
-    index
-  ) => {
+    {experiences.map((experience, index) => {
 
     const isSelected =
-      selectedExperiences.includes(
-        experience.id
-      );
+        selectedExperiences.includes(experience.id);
 
-  return (
+    return (
 
-    <ExperienceCard
-        key={experience.id}
-        experience={experience}
-        index={index}
-        isSelected={isSelected}
-        onToggle={() =>
-            toggleExperience(experience.id)
-        }
-    />
+        <ExperienceCard
+            key={experience.id}
+            experience={experience}
+            index={index}
+            isSelected={isSelected}
+            onToggle={() => toggleExperience(experience.id)}
+        />
 
-);
+    );
 
-  }
-)}
+})}
 
         </div>
 
