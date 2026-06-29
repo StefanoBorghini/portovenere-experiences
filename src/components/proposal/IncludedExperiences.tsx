@@ -177,6 +177,12 @@ console.log(
   "Facts",
   experience.experience?.facts
 );
+
+console.log(
+      "SECTIONS",
+      experience.title,
+      experience.experience?.sections
+    );
     const isSelected =
       selectedExperiences.includes(
         experience.id
