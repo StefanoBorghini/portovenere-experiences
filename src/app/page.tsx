@@ -87,24 +87,24 @@ export default function HomePage() {
             </div>
 
             {/* DESKTOP MENU */}
-            <div className="flex items-center gap-6 md:gap-10 text-xs md:text-sm text-zinc-300">
-              <a href="#how-it-works" className="hover:text-[#EDEBE7] transition">
-                How it works
-              </a>
+         <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
 
-              <a href="#manifesto" className="hover:text-[#EDEBE7] transition">
-                Manifesto
-              </a>
+    <a href="/" className="block">
+        <img
+            src="/images/logo-white.png"
+            alt="Portovenere Experiences"
+            className="h-9 md:h-10 w-auto"
+        />
+    </a>
 
-              
+    <a
+        href="/craft-your-experience"
+        className="bg-[#EDEBE7] text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
+    >
+        Craft Your Experience
+    </a>
 
-              <a
-                href="/craft-your-experience"
-                className="bg-[#EDEBE7] text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
-              >
-                Craft Experience
-              </a>
-            </div>
+</div>
 
             {/* MOBILE BUTTON */}
            
@@ -141,7 +141,7 @@ export default function HomePage() {
               </a>
 
               <a
-                href="#how-it-workss"
+                href="#how-it-works"
                 className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Explore Experiences
@@ -174,7 +174,7 @@ export default function HomePage() {
 
       {/* EXPERIENCES */}
       <section
-        id="experiences"
+        id="how-it-works"
         className="py-24 md:py-32 -120px max-w-7xl mx-auto"
       >
         <div className="text-center mb-24">
@@ -183,9 +183,8 @@ export default function HomePage() {
           </p>
 
           <h2 className="text-5xl md:text-8xl font-light leading-[0.95]">
-            From your vision<br></br>
-to the perfect<br></br>
-Mediterranean escape.
+            Build your perfect<br></br>
+Mediterranean escape
           </h2>
         </div>
 
@@ -289,7 +288,7 @@ Within 24–48 hours you'll receive a beautifully curated proposal with availabi
               <a
               href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                View a Sample Proposal
+               Start Planning
               </a>
             </div>
           </div>
