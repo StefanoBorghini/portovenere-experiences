@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import Section
 from "@/components/layout/Section";
-import ExperienceFacts from "@/components/experience/ExperienceFacts";
+import ExperienceFacts from "@/components/experience/experienceFacts";
 import SectionContainer
 from "@/components/layout/SectionContainer";
 
