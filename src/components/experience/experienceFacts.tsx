@@ -24,7 +24,7 @@ export default function ExperienceFacts({
       "
     >
 
-      <div className="space-y-5">
+      <div className="space-y-7">
 
         {facts.map((fact,index)=>(
 
@@ -41,7 +41,7 @@ export default function ExperienceFacts({
                 uppercase
                 tracking-[0.24em]
                 text-[11px]
-                mb-2
+                mb-1
               "
             >
               {fact.label}

@@ -228,7 +228,13 @@ console.log(
                   bg-white/[0.02]
                   border
                   mt-auto
-                  pt-14
+pt-12
+min-w-[180px]
+self-center
+
+inline-flex
+items-center
+justify-center
 
 ${
   isSelected
@@ -333,14 +339,15 @@ ${
 
                   <h3
                     className="
-                      text-[32px]
-                      md:text-[38px]
-                      leading-[1.02]
-                      tracking-[-0.03em]
-                      font-light
-                      mb-10
-                      max-w-[85%]
-                    "
+text-[32px]
+md:text-[38px]
+leading-[1.02]
+tracking-[-0.03em]
+font-light
+mb-10
+max-w-[85%]
+mx-auto
+"
                   >
 
                    {experience.title}
@@ -349,9 +356,10 @@ ${
 <p
   className="
     text-white/80
-    text-[18px]
-    tracking-[-0.02em]
-    mb-6
+    text-[24px]
+font-light
+tracking-[-0.03em]
+mb-10
   "
 >
  €{experience.experience.base_price?.toLocaleString() ?? "0"}

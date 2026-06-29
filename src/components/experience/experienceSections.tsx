@@ -17,25 +17,24 @@ export default function ExperienceSections({
     <div
       className="
         mt-10
-        pt-10
-        border-t
-        border-white/10
+        
       "
     >
       <p
-        className="
-          text-center
-          uppercase
-          tracking-[0.32em]
-          text-[11px]
-          text-white/35
-          mb-10
-        "
-      >
+  className="
+    text-center
+    uppercase
+    tracking-[0.32em]
+    text-[11px]
+    text-white/35
+    mb-8
+  "
+>
         Included Highlights
       </p>
 
-      <div className="space-y-10">
+      <div className="mt-6
+space-y-8">
 
         {sections.map((section) => (
 
