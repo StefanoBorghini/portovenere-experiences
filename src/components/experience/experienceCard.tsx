@@ -133,13 +133,13 @@ export default function ExperienceCard({
 
 <div
   className="
-    flex
+   flex
     flex-col
-    items-center
-    text-center
+    flex-1
     p-10
     md:p-12
-    h-full
+    items-center
+    text-center
   "
 >
 
