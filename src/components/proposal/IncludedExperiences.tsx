@@ -10,7 +10,8 @@ from "@/components/layout/SectionContainer";
 
 import SectionHeader
 from "@/components/layout/SectionHeader";
-
+import ExperienceCard
+from "@/components/experience/experienceCard";
 import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
