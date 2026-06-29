@@ -184,9 +184,9 @@ export default function HomePage() {
 
           <h2 className="text-5xl md:text-8xl font-light leading-[0.95]">
             Build
-            <br />
+            
             your own
-            <br />
+            
             Adventure
           </h2>
         </div>

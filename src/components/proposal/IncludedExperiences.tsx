@@ -19,6 +19,7 @@ import {
 // TYPES
 // =====================================================
 
+
 interface ExperienceCard {
 
   id: string;
@@ -29,11 +30,11 @@ interface ExperienceCard {
 
   description: string;
 
-  price: number;
-
   details: string[];
-}
 
+  experience: any;
+
+}
 interface IncludedExperiencesProps {
 
   experiences: ExperienceCard[];
@@ -330,7 +331,7 @@ ${
     mb-6
   "
 >
-  €{experience.price.toLocaleString()}
+ €{experience.experience.base_price?.toLocaleString() ?? "0"}
 </p>
                   <p
                     className="
@@ -421,7 +422,7 @@ ${
   {
    isSelected
   ? `Included`
-  : `Add Back · €${experience.price}`
+  : `Add Back · €{experience.experience.base_price ?? 0}`
   }
 
 </div>

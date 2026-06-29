@@ -4,6 +4,7 @@ export function buildProposalExperienceCard(
   experience: any
 ) {
   return {
+
     id: experience.id,
 
     title: experience.title,
@@ -15,6 +16,17 @@ export function buildProposalExperienceCard(
       experience.description ??
       "",
 
+    details: [
+
+      experience.operator,
+
+      experience.category?.replaceAll("_", " "),
+
+      `From €${experience.base_price}`
+
+    ],
+
     experience,
+
   };
 }
