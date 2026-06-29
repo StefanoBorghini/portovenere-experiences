@@ -10,42 +10,61 @@ interface ExperienceFactsProps {
 export default function ExperienceFacts({
   facts = [],
 }: ExperienceFactsProps) {
+
   if (!facts.length) return null;
 
   return (
-    <div className="space-y-4">
-      {facts.map((fact, index) => (
-        <div
-          key={index}
-          className="
-            flex
-            justify-between
-            items-center
-            gap-6
-            border-b
-            border-white/10
-            pb-3
-          "
-        >
-          <span
-            className="
-              text-white/55
-              text-[14px]
-            "
-          >
-            {fact.label}
-          </span>
 
-          <span
+    <div
+      className="
+        mt-10
+        pt-8
+        border-t
+        border-white/10
+      "
+    >
+
+      <div className="space-y-5">
+
+        {facts.map((fact,index)=>(
+
+          <div
+            key={index}
             className="
-              text-white
-              text-[14px]
+              text-center
             "
           >
-            {fact.value}
-          </span>
-        </div>
-      ))}
+
+            <p
+              className="
+                text-white/35
+                uppercase
+                tracking-[0.24em]
+                text-[11px]
+                mb-2
+              "
+            >
+              {fact.label}
+            </p>
+
+            <p
+              className="
+                text-white
+                text-[16px]
+                font-light
+              "
+            >
+              {fact.value}
+            </p>
+
+          </div>
+
+        ))}
+
+      </div>
+
     </div>
+
   );
+
 }

@@ -227,6 +227,8 @@ console.log(
                   rounded-[36px]
                   bg-white/[0.02]
                   border
+                  mt-auto
+                  pt-14
 
 ${
   isSelected
@@ -315,14 +317,18 @@ ${
 
                 {/* CONTENT */}
 
-                <div
-  className="
-    p-10
-    md:p-12
-    flex
-    flex-col
-    h-full
-  "
+ <div
+    className="
+        p-10
+        md:p-12
+
+        flex
+        flex-col
+
+        h-full
+
+        text-center
+    "
 >
 
                   <h3
@@ -332,7 +338,7 @@ ${
                       leading-[1.02]
                       tracking-[-0.03em]
                       font-light
-                      mb-7
+                      mb-10
                       max-w-[85%]
                     "
                   >
@@ -357,8 +363,9 @@ ${
                       leading-[1.9]
                       tracking-[-0.01em]
                       text-white/62
-                      mb-10
-                      max-w-[85%]
+                      max-w-[320px]
+mx-auto
+mb-12
                     "
                   >
 

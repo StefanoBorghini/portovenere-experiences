@@ -60,24 +60,20 @@ export default function ExperienceSections({
             </h4>
 
             <div
-              className="
-                text-white/60
-                text-[15px]
-                leading-8
-                prose
-                prose-invert
-                prose-p:my-0
-                prose-ul:my-4
-                prose-li:my-1
-                prose-li:text-white/60
-                prose-strong:text-white
-                max-w-none
-                mx-auto
-              "
-              dangerouslySetInnerHTML={{
-                __html: section.description,
-              }}
-            />
+    className="
+        text-white/60
+        text-[15px]
+        leading-8
+        text-center
+        [&_p]:m-0
+        [&_ul]:list-none
+        [&_ul]:pl-0
+        [&_li]:my-2
+    "
+    dangerouslySetInnerHTML={{
+        __html: section.description
+    }}
+/>
 
           </div>
 
