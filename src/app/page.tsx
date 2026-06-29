@@ -192,7 +192,8 @@ Mediterranean escape
           {/* CARD 1 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="https://www.portovenere.com/wp-content/uploads/2026/02/352.webp"
+                         src="/step-one.jpg"
+
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Private Sailing Experience"
             />
@@ -227,8 +228,7 @@ Start Your Request           </a>
           {/* CARD 2 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="https://i0.wp.com/www.portovenere.com/wp-content/uploads/2026/04/DSC_2636-1-scaled.webp?resize=939%2C1024&ssl=1"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
+src="/step-two.jpg"              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Underwater Storytelling"
             />
 
@@ -260,7 +260,7 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
           {/* CARD 3 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
-              src="/images/flying/aereo/img-1.jpg"
+              src="/step-three.jpg"
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
               alt="Mediterranean Sunset Dinner"
             />
