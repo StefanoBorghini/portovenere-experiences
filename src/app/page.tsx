@@ -144,7 +144,7 @@ export default function HomePage() {
                 href="#how-it-works"
                 className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
-                Explore Experiences
+                How it Works
               </a>
             </div>
 
