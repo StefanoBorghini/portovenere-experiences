@@ -57,6 +57,9 @@ export default function ExperienceCard({
   className={`
     group
     relative
+    flex
+    flex-col
+
     overflow-hidden
     rounded-[36px]
     bg-white/[0.02]
@@ -71,10 +74,7 @@ export default function ExperienceCard({
     ${!isSelected ? "opacity-50 grayscale-[20%]" : ""}
 
     backdrop-blur-[4px]
-
-    ${index === 1 ? "md:translate-y-16" : ""}
-    ${index === 2 ? "md:-translate-y-6" : ""}
-  `}
+`}
 >
 {/* IMAGE */}
 
@@ -98,19 +98,19 @@ export default function ExperienceCard({
 
       ${
         index === 0
-          ? "h-[360px] md:h-[460px]"
+          ? "h-[420px] md:h-[520px]"
           : ""
       }
 
       ${
         index === 1
-          ? "h-[420px] md:h-[560px]"
+          ? "h-[420px] md:h-[520px]"
           : ""
       }
 
       ${
         index === 2
-          ? "h-[380px] md:h-[500px]"
+          ? "h-[420px] md:h-[520px]"
           : ""
       }
     `}
@@ -185,7 +185,6 @@ export default function ExperienceCard({
   </p>
 <div
     className="
-        flex-1
         w-full
     "
 >
