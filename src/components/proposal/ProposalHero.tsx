@@ -13,6 +13,8 @@ interface ProposalHeroProps {
   guests: string;
 
   totalPrice: number;
+
+  proposalSummary: string;
 }
 import { motion } from "framer-motion";
 
@@ -29,6 +31,8 @@ export default function ProposalHero({
   guests,
 
   totalPrice,
+
+  proposalSummary,
 
 }: ProposalHeroProps) {
 
@@ -200,24 +204,21 @@ md:max-w-5xl
         </h1>
 
         {/* SUBTITLE */}
-
-        <p className="text-center
-mx-auto
-  text-[15px]
-  md:text-[19px]
-  leading-[1.9]
-  tracking-[-0.01em]
-  text-white/72
-  max-w-[300px]
-md:max-w-2xl
-">
-
-          Tailored for {guests} guests
-          across curated Riviera experiences,
-          cinematic atmosphere and
-          Mediterranean moments.
-
-        </p>
+<p
+  className="
+    text-center
+    mx-auto
+    text-[15px]
+    md:text-[19px]
+    leading-[1.9]
+    tracking-[-0.01em]
+    text-white/72
+    max-w-[320px]
+    md:max-w-3xl
+  "
+>
+  {proposalSummary}
+</p>
 
         {/* PRICE */}
 <div className="

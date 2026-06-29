@@ -1,7 +1,7 @@
 import { buildProposalGallery } from "@/lib/buildProposalGallery";
 import { calculateProposalPrice } from "@/lib/pricing";
 import { buildProposalExperienceCard } from "../buildProposalExperienceCard";
-
+import { buildProposalSummary } from "./buildProposalSummary";
 // =====================================================
 // BUILD RENDERER DATA
 // =====================================================
@@ -101,7 +101,11 @@ export function buildRendererData({
   // ===================================================
   // RETURN
   // ===================================================
-
+const proposalSummary =
+  buildProposalSummary(
+    lead,
+    generatedProposal
+  );
   return {
 
     galleryImages,
@@ -112,6 +116,8 @@ export function buildRendererData({
     includedExperiences,
 
     finalPrice,
+
+    proposalSummary,
 
   };
 

@@ -33,6 +33,7 @@ interface Props {
     dynamicIntroParagraph:string;
     dynamicClosingParagraph:string;
     finalPrice:number;
+    proposalSummary: string;
 
 }
 
@@ -51,6 +52,8 @@ export default function ProposalClient({
     dynamicIntroParagraph,
     dynamicClosingParagraph,
     finalPrice,
+        proposalSummary,
+
 
 }:Props){
 
@@ -75,6 +78,7 @@ export default function ProposalClient({
         heroTitle={heroTitle}
         guests={lead.guests}
         totalPrice={finalPrice}
+        proposalSummary={proposalSummary}
     />
 
     <ProposalNarrative

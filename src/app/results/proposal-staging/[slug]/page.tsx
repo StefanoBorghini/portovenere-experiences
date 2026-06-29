@@ -195,6 +195,8 @@ const generatedProposal =
 
     finalPrice,
 
+    proposalSummary,
+
   } = buildRendererData({
 
     generatedProposal,
@@ -387,12 +389,15 @@ const featuredEssentials =
     expiresAt={expiresAt}
 
     whatsappUrl={whatsappUrl}
+    
 
   dynamicIntroParagraph={dynamicIntroParagraph ?? ""}
 dynamicClosingParagraph={dynamicClosingParagraph ?? ""}
 dynamicIntroTitle={dynamicIntroTitle ?? ""}
 
     finalPrice={finalPrice}
+
+    proposalSummary={proposalSummary}
 
 />
 
