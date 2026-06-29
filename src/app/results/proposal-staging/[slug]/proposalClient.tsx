@@ -78,12 +78,12 @@ export default function ProposalClient({
         heroTitle={heroTitle}
         guests={lead.guests}
         totalPrice={finalPrice}
-        proposalSummary={proposalSummary}
+        
     />
 
     <ProposalNarrative
         title={dynamicIntroTitle}
-        paragraph={dynamicIntroParagraph}
+        paragraph={proposalSummary}
     />
 
     <FeaturedExperience
