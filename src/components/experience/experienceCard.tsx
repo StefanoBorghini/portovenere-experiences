@@ -183,8 +183,62 @@ export default function ExperienceCard({
   >
     {experience.description}
   </p>
+<div
+    className="
+        flex-1
+        w-full
+    "
+>
+
+    <ExperienceFacts
+        facts={experience.experience.facts}
+    />
+
+    <ExperienceSections
+        sections={experience.experience.sections}
+    />
 
 </div>
+
+<div
+    className="
+        mt-12
+        w-full
+        flex
+        justify-center
+    "
+>
+
+    <div
+        className={`
+            min-w-[210px]
+            rounded-full
+            px-8
+            py-4
+            uppercase
+            tracking-[0.22em]
+            text-[12px]
+            transition-all
+            duration-300
+
+            ${
+                isSelected
+                    ? "bg-white text-black"
+                    : "border border-white/15 text-white/75"
+            }
+        `}
+    >
+
+        {isSelected
+            ? "Included"
+            : `Add Experience · €${experience.experience.base_price}`}
+
+    </div>
+
+</div>
+
+</div>
+
 </motion.button>
 
   );
