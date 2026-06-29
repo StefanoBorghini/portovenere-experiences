@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import Section
 from "@/components/layout/Section";
-
+import ExperienceFacts from "@/components/experience/ExperienceFacts";
 import SectionContainer
 from "@/components/layout/SectionContainer";
 
@@ -348,7 +348,9 @@ ${
                     {experience.description}
 
                   </p>
-
+<ExperienceFacts
+  facts={experience.experience.facts}
+/>
                   {/* DETAILS */}
 
                   <div
