@@ -1,8 +1,12 @@
 import { getExperienceImage } from "./getExperienceImage";
 
+import { Experience } from "@/types/experience";
+import { ProposalExperienceCard } from "@/types/proposal";
+
 export function buildProposalExperienceCard(
-  experience: any
-) {
+  experience: Experience
+): ProposalExperienceCard {
+
   return {
 
     id: experience.id,
@@ -16,8 +20,18 @@ export function buildProposalExperienceCard(
       experience.description ??
       "",
 
+    details: [
+
+      experience.operator ?? "",
+
+      experience.category?.replaceAll("_", " ") ?? "",
+
+      `From €${experience.base_price}`,
+
+    ],
 
     experience,
 
   };
+
 }
