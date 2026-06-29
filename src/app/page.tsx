@@ -88,35 +88,13 @@ export default function HomePage() {
       <img
         src="/logo-white.png"
         alt="Portovenere Experiences"
-        className="h-16 w-auto"
+        className="h-16 md:h-20 w-auto"
       />
 
-      <span className="uppercase tracking-[0.35em] text-[11px] md:text-xs leading-tight">
-        Experiences
-      </span>
+      
     </a>
 
-    {/* CTA */}
-    <a
-      href="/craft-your-experience"
-      className="
-        bg-[#EDEBE7]
-        text-black
-        px-7
-        md:px-8
-        py-3.5
-        rounded-full
-        uppercase
-        tracking-[0.25em]
-        text-[11px]
-        hover:scale-105
-        transition-all
-        duration-300
-      "
-    >
-      Craft Experience
-    </a>
-
+   
   </div>
 </nav>
 
@@ -130,7 +108,7 @@ export default function HomePage() {
             </p>
 
             <h1 className="text-[58px] leading-[0.9] md:text-[140px] font-light tracking-tight mb-10">
-              Beyond
+              Beyond the
               <br />
               Cinque Terre
             </h1>
@@ -228,7 +206,19 @@ Share your travel dates, group size and the kind of atmosphere you're looking fo
 
               <a
                 href="/craft-your-experience"
-                className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
+                className="
+bg-[#EDEBE7]
+text-black
+px-10
+py-5
+rounded-full
+uppercase
+tracking-[0.25em]
+text-xs
+hover:scale-105
+transition-all
+duration-500
+"
               >
 Start Your Request           </a>
             </div>
@@ -260,8 +250,19 @@ We personally select the finest experiences, trusted local partners and hidden p
 
               <a
                 href="/craft-your-experience"
-className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-               Discover Our Process
+className="
+bg-[#EDEBE7]
+text-black
+px-10
+py-5
+rounded-full
+uppercase
+tracking-[0.25em]
+text-xs
+hover:scale-105
+transition-all
+duration-500
+">               Discover Our Process
               </a>
             </div>
           </div>
@@ -296,8 +297,19 @@ Within 24–48 hours you'll receive a beautifully curated proposal with availabi
 
               <a
               href="/craft-your-experience"
-className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-               Start Planning
+className="
+bg-[#EDEBE7]
+text-black
+px-10
+py-5
+rounded-full
+uppercase
+tracking-[0.25em]
+text-xs
+hover:scale-105
+transition-all
+duration-500
+">               Start Planning
               </a>
             </div>
           </div>
