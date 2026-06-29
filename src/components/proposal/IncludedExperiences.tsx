@@ -30,7 +30,6 @@ interface ExperienceCard {
 
   description: string;
 
-  details: string[];
 
   experience: any;
 
@@ -317,11 +316,14 @@ ${
                 {/* CONTENT */}
 
                 <div
-                  className="
-                    p-10
-                    md:p-12
-                  "
-                >
+  className="
+    p-10
+    md:p-12
+    flex
+    flex-col
+    h-full
+  "
+>
 
                   <h3
                     className="
@@ -367,60 +369,17 @@ ${
   facts={experience.experience.facts}
 />
 
-<ExperienceSections
-  sections={experience.experience.sections}
-/>
-                  {/* DETAILS */}
-
-                  <div
-                    className="
-                      space-y-4
-                    "
-                  >
-
-                    {experience.details.map(
-                      (detail) => (
-
-                        <div
-                          key={detail}
-                          className="
-                            flex
-                            items-center
-                            gap-4
-                            text-white/70
-                          "
-                        >
-
-                          <div
-                            className="
-                              w-1.5
-                              h-1.5
-                              rounded-full
-                              bg-white/70
-                              shrink-0
-                            "
-                          />
-
-                          <span
-                            className="
-                              text-[14px]
-                              tracking-[-0.01em]
-                            "
-                          >
-
-                            {detail}
-
-                          </span>
-
-                        </div>
-                      )
-                    )}
-
-                  </div>
+<div className="mt-8">
+    <ExperienceSections
+        sections={experience.experience.sections}
+    />
+</div>
+                 
 <div
   className={`
-    mt-10
-    inline-flex
+mt-auto
+    pt-12
+        inline-flex
     items-center
     justify-center
     rounded-full

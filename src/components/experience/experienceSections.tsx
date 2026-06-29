@@ -14,22 +14,22 @@ export default function ExperienceSections({
   if (!sections.length) return null;
 
   return (
-    <div className="mt-14 space-y-10">
-
-      <div
-        className="
-          h-px
-          w-16
-          bg-white/15
-        "
-      />
-
+    <div
+      className="
+        mt-10
+        pt-10
+        border-t
+        border-white/10
+      "
+    >
       <p
         className="
+          text-center
           uppercase
-          tracking-[0.28em]
+          tracking-[0.32em]
           text-[11px]
-          text-white/40
+          text-white/35
+          mb-10
         "
       >
         Included Highlights
@@ -41,7 +41,9 @@ export default function ExperienceSections({
 
           <div
             key={section.id ?? section.title}
-            className="space-y-4"
+            className="
+              text-center
+            "
           >
 
             <h4
@@ -51,6 +53,7 @@ export default function ExperienceSections({
                 font-light
                 tracking-[-0.03em]
                 text-white
+                mb-5
               "
             >
               {section.title}
@@ -59,14 +62,17 @@ export default function ExperienceSections({
             <div
               className="
                 text-white/60
+                text-[15px]
                 leading-8
-                text-[16px]
                 prose
                 prose-invert
                 prose-p:my-0
-                prose-ul:my-3
+                prose-ul:my-4
+                prose-li:my-1
                 prose-li:text-white/60
+                prose-strong:text-white
                 max-w-none
+                mx-auto
               "
               dangerouslySetInnerHTML={{
                 __html: section.description,
@@ -78,7 +84,6 @@ export default function ExperienceSections({
         ))}
 
       </div>
-
     </div>
   );
 }

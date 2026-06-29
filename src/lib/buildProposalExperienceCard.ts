@@ -16,15 +16,6 @@ export function buildProposalExperienceCard(
       experience.description ??
       "",
 
-    details: [
-
-      experience.operator,
-
-      experience.category?.replaceAll("_", " "),
-
-      `From €${experience.base_price}`
-
-    ],
 
     experience,
 
