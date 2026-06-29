@@ -20,11 +20,13 @@ import {
 
 interface ProposalNarrativeProps {
   title?: string;
+  summary?: string;
   paragraph?: string;
 }
 
 export default function ProposalNarrative({
   title,
+  summary,
   paragraph,
 }: ProposalNarrativeProps) {
 
@@ -139,33 +141,43 @@ export default function ProposalNarrative({
             mb-16
           "
         >
-
-         {proposalConfig.narrative.title}
+{title ?? proposalConfig.narrative.title}         
 
         </h2>
 
         {/* PARAGRAPH */}
 
-        <p
-          className="
-            text-[16px]
-            md:text-[22px]
+     {summary && (
+  <p
+    className="
+      text-[18px]
+      md:text-[28px]
+      leading-[1.8]
+      tracking-[-0.02em]
+      text-white/90
+      max-w-4xl
+      mx-auto
+      mb-12
+      font-light
+    "
+  >
+    {summary}
+  </p>
+)}
 
-            leading-[1.95]
-            tracking-[-0.01em]
-
-            text-white/62
-
-            max-w-[320px]
-            md:max-w-2xl
-
-            mx-auto
-          "
-        >
-
-         {proposalConfig.narrative.description}
-
-        </p>
+<p
+  className="
+    text-[16px]
+    md:text-[22px]
+    leading-[1.95]
+    tracking-[-0.01em]
+    text-white/62
+    max-w-2xl
+    mx-auto
+  "
+>
+  {paragraph ?? proposalConfig.narrative.description}
+</p>
 
       </motion.div>
 </SectionContainer>

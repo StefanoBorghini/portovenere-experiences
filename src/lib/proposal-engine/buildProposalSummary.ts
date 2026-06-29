@@ -2,9 +2,6 @@ export function buildProposalSummary(
   lead: any,
   generatedProposal: any
 ) {
-  // =====================================================
-  // BASIC DATA
-  // =====================================================
 
   const name =
     lead?.first_name ||
@@ -12,51 +9,30 @@ export function buildProposalSummary(
     "you";
 
   const guests =
-    lead?.guests || 2;
+    Number(lead?.guests) || 2;
 
   const hasChildren =
     lead?.traveling_with_children;
 
-  // =====================================================
-  // EXPERIENCES
-  // =====================================================
+  const moods =
+    lead?.moods || [];
 
   const experiences =
     lead?.experiences || [];
 
-  const experienceText =
-    experiences.length
-      ? experiences.join(", ")
-      : "curated Riviera experiences";
-
-  // =====================================================
-  // MOODS
-  // =====================================================
-
-  const moods =
-    lead?.moods || [];
+  const featured =
+    generatedProposal?.featuredExperience?.title;
 
   const moodText =
     moods.length
       ? moods.join(", ")
-      : "relaxation and authenticity";
+      : "authentic Mediterranean moments";
 
-  // =====================================================
-  // CHILDREN
-  // =====================================================
+  const experienceText =
+    experiences.length
+      ? experiences.join(", ")
+      : "private Riviera experiences";
 
-  const childrenText =
-    hasChildren
-      ? "including children"
-      : "";
+  return `Created exclusively for ${name}, this proposal has been designed for ${guests} guest${guests > 1 ? "s" : ""}${hasChildren ? ", including children," : ","} combining ${experienceText}. Every recommendation has been carefully selected around your preference for ${moodText}, with ${featured} as the heart of your Riviera journey.`;
 
-  // =====================================================
-  // SUMMARY
-  // =====================================================
-
-  return `
-Curated exclusively for ${name}.
-
-Designed for ${guests} guests ${childrenText}, this proposal combines ${experienceText} inspired by your preference for ${moodText}, creating a private Mediterranean experience crafted around your personal travel style.
-`;
 }
