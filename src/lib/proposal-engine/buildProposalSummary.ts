@@ -1,38 +1,44 @@
+import { MOOD_DESCRIPTIONS } from "./summary/moodDescriptions";
+import { EXPERIENCE_DESCRIPTIONS } from "./summary/experienceDescriptions";
+import { sentenceBuilder } from "./summary/sentenceBuilder";
+
 export function buildProposalSummary(
   lead: any,
-  generatedProposal: any
+  proposal: any
 ) {
 
-  const name =
-    lead?.first_name ||
-    lead?.name ||
+  const firstName =
+    lead.first_name ||
+    lead.name ||
     "you";
 
   const guests =
-    Number(lead?.guests) || 2;
-
-  const hasChildren =
-    lead?.traveling_with_children;
+    Number(lead.guests) || 2;
 
   const moods =
-    lead?.moods || [];
+
+    (lead.moods || [])
+
+      .map(
+        (m: string) =>
+          MOOD_DESCRIPTIONS[m] || m
+      );
 
   const experiences =
-    lead?.experiences || [];
 
-  const featured =
-    generatedProposal?.featuredExperience?.title;
+    (lead.experiences || [])
 
-  const moodText =
-    moods.length
-      ? moods.join(", ")
-      : "authentic Mediterranean moments";
+      .map(
+        (e: string) =>
+          EXPERIENCE_DESCRIPTIONS[e] || e
+      );
 
-  const experienceText =
-    experiences.length
-      ? experiences.join(", ")
-      : "private Riviera experiences";
+  const moodSentence =
+    sentenceBuilder(moods);
 
-  return `Created exclusively for ${name}, this proposal has been designed for ${guests} guest${guests > 1 ? "s" : ""}${hasChildren ? ", including children," : ","} combining ${experienceText}. Every recommendation has been carefully selected around your preference for ${moodText}, with ${featured} as the heart of your Riviera journey.`;
+  const experienceSentence =
+    sentenceBuilder(experiences);
+
+  return `Created exclusively for ${firstName} and ${guests} guest${guests > 1 ? "s" : ""}, this proposal has been crafted around ${experienceSentence}. Every experience has been carefully selected to reflect ${moodSentence}, creating a Riviera journey that feels entirely personal.`;
 
 }
