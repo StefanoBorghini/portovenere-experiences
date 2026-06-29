@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-
+import { ProposalExperienceCard } from "@/types/proposal";
 import ExperienceFacts from "@/components/experience/experienceFacts";
 import ExperienceSections from "@/components/experience/experienceSections";
-
+import { Experience } from "@/types/experience";
 import { fadeReveal } from "@/lib/motion/fadeReveal";
 
 interface Props {
 
-  experience: any;
+  experience: ProposalExperienceCard;
 
   index: number;
 
