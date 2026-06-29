@@ -45,7 +45,7 @@ export default function HomePage() {
           className="hidden md:block lg:hidden absolute inset-0 w-full h-full object-cover"
         >
           <source
-            src="/videos/Hero/hero-mobile.mp4"
+            src="/videos/Hero/hero-mobile-def.mp4"
             type="video/mp4"
           />
         </video>
@@ -179,15 +179,13 @@ export default function HomePage() {
       >
         <div className="text-center mb-24">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-5">
-            Experiences
+            HOW IT WORKS
           </p>
 
           <h2 className="text-5xl md:text-8xl font-light leading-[0.95]">
-            Build
-            
-            your own
-            
-            Adventure
+            From your vision<br></br>
+to the perfect<br></br>
+Mediterranean escape.
           </h2>
         </div>
 
@@ -203,12 +201,12 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              SEA ESCAPE
+              STEP 01
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-                Yacht Experience
+                YOUR VISION
               </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
@@ -217,7 +215,7 @@ export default function HomePage() {
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-Share your travel dates, group, interests and the atmosphere you're looking for.              </p>
+Share your travel dates, group size and the kind of atmosphere you're looking for. Every journey starts with your idea.          </p>
 
               <a
                 href="/craft-your-experience"
@@ -238,25 +236,24 @@ Start Your Request           </a>
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              CINEMATIC
+              STEP 02
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-                Underwater Storytelling
-              </p>
+OUR CURATION              </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
                 We curate everything
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-We personally select experiences, trusted local partners and hidden places tailored to your request.              </p>
+We personally select the finest experiences, trusted local partners and hidden places to create a proposal tailored exclusively to you.             </p>
 
               <a
                 href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                Our Curation
+               Discover Our Process
               </a>
             </div>
           </div>
@@ -272,29 +269,27 @@ className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-
             <div className="absolute inset-0 bg-black/45" />
 
             <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              Private Flight
+             STEP 03
             </div>
 
             <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
               <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-                AERIAL EXPERIENCE
+               YOUR PROPOSAL
               </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-               Italian Riviera
-
-                <br />
-               Air Escape
+Receive Your
+Private Proposal
+                
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                A private fly experience across the Riviera coastline, suspended between sea, cliffs and golden Mediterranean light.
-              </p>
+Within 24–48 hours you'll receive a beautifully curated proposal with availability, transparent pricing and optional enhancements.              </p>
 
               <a
               href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                Craft Your Experience
+                View a Sample Proposal
               </a>
             </div>
           </div>
