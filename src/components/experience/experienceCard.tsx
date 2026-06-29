@@ -76,7 +76,115 @@ export default function ExperienceCard({
     ${index === 2 ? "md:-translate-y-6" : ""}
   `}
 >
+{/* IMAGE */}
 
+<div
+  className="
+    relative
+    overflow-hidden
+  "
+>
+
+  <img
+    src={experience.image}
+    alt={experience.title}
+    className={`
+      w-full
+      object-cover
+      transition-transform
+      duration-[1600ms]
+      ease-out
+      group-hover:scale-[1.02]
+
+      ${
+        index === 0
+          ? "h-[360px] md:h-[460px]"
+          : ""
+      }
+
+      ${
+        index === 1
+          ? "h-[420px] md:h-[560px]"
+          : ""
+      }
+
+      ${
+        index === 2
+          ? "h-[380px] md:h-[500px]"
+          : ""
+      }
+    `}
+  />
+
+  <div
+    className="
+      absolute
+      inset-0
+      bg-gradient-to-t
+      from-black/30
+      via-transparent
+      to-transparent
+    "
+  />
+
+</div>
+
+{/* CONTENT */}
+
+<div
+  className="
+    flex
+    flex-col
+    items-center
+    text-center
+    p-10
+    md:p-12
+    h-full
+  "
+>
+
+  <h3
+    className="
+      text-[32px]
+      md:text-[38px]
+      leading-[1.02]
+      tracking-[-0.03em]
+      font-light
+      mb-10
+      mx-auto
+    "
+  >
+    {experience.title}
+  </h3>
+
+  <p
+    className="
+      text-white/80
+      text-[24px]
+      font-light
+      tracking-[-0.03em]
+      mb-10
+    "
+  >
+    €{experience.experience.base_price?.toLocaleString() ?? "0"}
+  </p>
+
+  <p
+    className="
+      text-[15px]
+      md:text-[16px]
+      leading-[1.9]
+      tracking-[-0.01em]
+      text-white/62
+      max-w-[320px]
+      mx-auto
+      mb-12
+    "
+  >
+    {experience.description}
+  </p>
+
+</div>
 </motion.button>
 
   );
