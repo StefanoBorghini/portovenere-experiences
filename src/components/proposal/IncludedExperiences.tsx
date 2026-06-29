@@ -216,54 +216,32 @@ console.log(
                 }}
 
                 className={`
-                  group
-                  relative
-                  ${
-                  !isSelected
-                  ? "opacity-50 grayscale-[20%]"
-                  : ""
-                  }
-                  overflow-hidden
-                  rounded-[36px]
-                  bg-white/[0.02]
-                  border
-                  mt-auto
-pt-12
-min-w-[180px]
-self-center
-
-inline-flex
-items-center
-justify-center
+group
+relative
+overflow-hidden
+rounded-[36px]
+bg-white/[0.02]
+border
 
 ${
   isSelected
-
     ? `
       border-white/40
       shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
     `
-
     : `
       border-white/[0.08]
     `
 }
-                  backdrop-blur-[4px]
-                  will-change-transform
-                  
 
-                  ${
-                    index === 1
-                      ? "md:translate-y-16"
-                      : ""
-                  }
+backdrop-blur-[4px]
+will-change-transform
 
-                  ${
-                    index === 2
-                      ? "md:-translate-y-6"
-                      : ""
-                  }
-                `}
+${!isSelected ? "opacity-50 grayscale-[20%]" : ""}
+
+${index === 1 ? "md:translate-y-16" : ""}
+${index === 2 ? "md:-translate-y-6" : ""}
+`}
               >
 
                 {/* IMAGE */}
@@ -323,29 +301,26 @@ ${
 
                 {/* CONTENT */}
 
- <div
-    className="
-        p-10
-        md:p-12
-
-        flex
-        flex-col
-
-        h-full
-
-        text-center
-    "
+<div
+className="
+flex
+flex-col
+items-center
+text-center
+p-10
+md:p-12
+h-full
+"
 >
 
                   <h3
-                    className="
+                   className="
 text-[32px]
 md:text-[38px]
 leading-[1.02]
 tracking-[-0.03em]
 font-light
 mb-10
-max-w-[85%]
 mx-auto
 "
                   >
@@ -380,49 +355,65 @@ mb-12
                     {experience.description}
 
                   </p>
-<ExperienceFacts
-  facts={experience.experience.facts}
-/>
+<div
+className="
+flex-1
+w-full
+"
+>
 
-<div className="mt-8">
+    <ExperienceFacts
+        facts={experience.experience.facts}
+    />
+
     <ExperienceSections
         sections={experience.experience.sections}
     />
+
 </div>
                  
 <div
   className={`
-mt-auto
-    pt-12
-        inline-flex
-    items-center
-    justify-center
-    rounded-full
-    px-5
-    py-3
-    text-sm
-    tracking-[0.2em]
-    uppercase
-    transition-all
-    duration-300
+    mt-12
 
-    ${
-      isSelected
-        ? "bg-white text-black"
-        : "text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]"
-    }
+    w-full
+    flex
+    justify-center
   `}
 >
 
-<div>
-  {isSelected
-    ? "Included"
-    : `Add Back · €${experience.experience.base_price ?? 0}`
-  }
-</div>
+  <div
+    className={`
+      min-w-[210px]
 
-</div>
-                </div>
+      rounded-full
+
+      px-8
+      py-4
+
+      uppercase
+      tracking-[0.22em]
+      text-[12px]
+
+      transition-all
+      duration-300
+
+      ${
+        isSelected
+          ? "bg-white text-black"
+          : "border border-white/15 text-white/75"
+      }
+    `}
+  >
+
+    {isSelected
+      ? "Included"
+      : `Add Experience · €${experience.experience.base_price}`
+    }
+
+  </div>
+
+</div></div>
 
             </motion.button>
 
