@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 
 import Section
 from "@/components/layout/Section";
-
+import ExperienceFacts from "@/components/experience/experienceFacts";
+import ExperienceSections from "@/components/experience/experienceSections";
 import SectionContainer
 from "@/components/layout/SectionContainer";
 
@@ -181,123 +182,13 @@ export default function FeaturedExperience({
                 {description}
 
               </p>
-
-              {/* TECHNICAL DETAILS */}
-
-              <div
-  className="
-    space-y-5
-    mb-14
-  "
->
-
-  {facts.map((fact) => (
-
-    <div
-      key={fact.id}
-      className="
-        flex
-        justify-between
-        items-center
-        border-b
-        border-white/10
-        pb-4
-      "
-    >
-
-      <span
-        className="
-          text-white/45
-        "
-      >
-        {fact.label}
-      </span>
-
-      <span
-        className="
-          text-white
-          text-right
-        "
-      >
-        {fact.value}
-      </span>
-
-    </div>
-
-  ))}
-
-</div>
-
+<ExperienceFacts facts={facts} />
+          
               {/* ESSENTIALS */}
 
-              <div
-                className="
-                  space-y-4
-                  flex
-                  flex-col
-                  items-center
-                  lg:items-start
-                "
-              >
-
-               {essentials.map((section) => (
-
-  <div
-    key={section.id}
-    className="
-      flex
-      items-start
-      gap-4
-    "
-  >
-
-    <div
-      className="
-        w-2
-        h-2
-        rounded-full
-        bg-white
-        mt-2
-        shrink-0
-      "
-    />
-
-    <div>
-
-      <h4
-        className="
-          text-white
-          text-[17px]
-          font-medium
-          mb-1
-        "
-      >
-
-        {section.title}
-
-      </h4>
-
-    <div
-  className="
-    text-white/55
-    text-[15px]
-    leading-relaxed
-    prose
-    prose-invert
-    max-w-none
-  "
-  dangerouslySetInnerHTML={{
-    __html: section.description,
-  }}
-/>
-
-    </div>
-
-  </div>
-
-))}
-
-              </div>
+             <ExperienceSections
+  sections={essentials}
+/> 
 
             </div>
 
