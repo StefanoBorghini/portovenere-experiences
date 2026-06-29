@@ -70,46 +70,55 @@ export default function HomePage() {
         {/* GRAIN */}
         <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
 
-        {/* NAVBAR */}
-        <nav
-          className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-            scrolled
-              ? "bg-[#0C0C0C]/75 backdrop-blur-xl"
-              : "bg-transparent"
-          }`}
-        >
-          <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
-            {/* LOGO */}
-            <div className="text-[#EDEBE7] text-[11px] md:text-xs uppercase tracking-[0.35em] leading-tight">
-               <a href="/" className="block">
-        <img
-            src="/logo-white.png"
-            alt="Portovenere Experiences"
-            className="h-9 md:h-10 w-auto"
-        />
-    </a>
-              
-              Experiences
-            </div>
+      {/* NAVBAR */}
+<nav
+  className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+    scrolled
+      ? "bg-[#0C0C0C]/75 backdrop-blur-xl"
+      : "bg-transparent"
+  }`}
+>
+  <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex items-center justify-between">
 
-            {/* DESKTOP MENU */}
-         <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
-
-   
-
+    {/* LOGO */}
     <a
-        href="/craft-your-experience"
-        className="bg-[#EDEBE7] text-black px-5 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:scale-105 transition-all duration-300"
+      href="/"
+      className="flex items-center gap-4 shrink-0"
     >
-        Craft Your Experience
+      <img
+        src="/logo-white.png"
+        alt="Portovenere Experiences"
+        className="h-12 md:h-14 w-auto"
+      />
+
+      <span className="uppercase tracking-[0.35em] text-[11px] md:text-xs leading-tight">
+        Experiences
+      </span>
     </a>
 
-</div>
+    {/* CTA */}
+    <a
+      href="/craft-your-experience"
+      className="
+        bg-[#EDEBE7]
+        text-black
+        px-7
+        md:px-8
+        py-3.5
+        rounded-full
+        uppercase
+        tracking-[0.25em]
+        text-[11px]
+        hover:scale-105
+        transition-all
+        duration-300
+      "
+    >
+      Craft Your Experience
+    </a>
 
-            {/* MOBILE BUTTON */}
-           
-          </div>
-        </nav>
+  </div>
+</nav>
 
        
 
