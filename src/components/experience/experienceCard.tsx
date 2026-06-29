@@ -21,39 +21,40 @@ interface Props {
 
 export default function ExperienceCard({
 
-    experience,
+  experience,
 
-    index,
+  index,
 
-    isSelected,
+  isSelected,
 
-    onToggle,
+  onToggle,
 
 }: Props) {
 
-    return (
+  return (
 
-     <motion.button
-    onClick={onToggle}
+    <motion.button
 
-    variants={fadeReveal}
+      onClick={onToggle}
 
-    initial="initial"
+      variants={fadeReveal}
 
-    whileInView="animate"
+      initial="initial"
 
-    viewport={{
+      whileInView="animate"
+
+      viewport={{
         once: true,
         amount: 0.2,
-    }}
+      }}
 
-    transition={{
+      transition={{
         duration: 1.3,
         delay: index * 0.08,
         ease: [0.22, 1, 0.36, 1],
-    }}
+      }}
 
-    className={`
+      className={`
         group
         relative
         overflow-hidden
@@ -62,14 +63,14 @@ export default function ExperienceCard({
         border
 
         ${
-            isSelected
-                ? `
-                    border-white/40
-                    shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
-                  `
-                : `
-                    border-white/[0.08]
-                  `
+          isSelected
+            ? `
+              border-white/40
+              shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+            `
+            : `
+              border-white/[0.08]
+            `
         }
 
         backdrop-blur-[4px]
@@ -79,11 +80,12 @@ export default function ExperienceCard({
 
         ${index === 1 ? "md:translate-y-16" : ""}
         ${index === 2 ? "md:-translate-y-6" : ""}
-    `}
->
+      `}
 
-</motion.button>
+    >
 
-    );
+    </motion.button>
+
+  );
 
 }
