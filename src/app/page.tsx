@@ -70,7 +70,7 @@ export default function HomePage() {
         {/* GRAIN */}
         <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
 
-      {/* NAVBAR */}
+  {/* NAVBAR */}
 <nav
   className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
     scrolled
@@ -78,26 +78,30 @@ export default function HomePage() {
       : "bg-transparent"
   }`}
 >
-  <div className="max-w-7xl mx-auto px-6 md:px-10 py-6 flex items-center justify-between">
+  <div className="max-w-7xl mx-auto flex justify-center py-6 md:py-8">
 
-    {/* LOGO */}
     <a
       href="/"
-      className="flex items-center gap-4 shrink-0"
+      className="block"
     >
       <img
         src="/logo-white.png"
         alt="Portovenere Experiences"
-        className="h-16 md:h-20 w-auto"
+        className={`
+          w-auto
+          transition-all
+          duration-500
+          ${
+            scrolled
+              ? "h-16 md:h-[72px]"
+              : "h-20 md:h-[96px]"
+          }
+        `}
       />
-
-      
     </a>
 
-   
   </div>
 </nav>
-
        
 
         {/* HERO CONTENT */}
@@ -293,7 +297,7 @@ Private Proposal
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-Within 24–48 hours you'll receive a beautifully curated proposal with availability, transparent pricing and optional enhancements.              </p>
+In less than a minute, discover a curated proposal tailored to your vision, complete with experiences, pricing and optional enhancements.              </p>
 
               <a
               href="/craft-your-experience"
