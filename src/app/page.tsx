@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [menuOpen, setMenuOpen] = useState(false);
+
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -87,9 +87,9 @@ export default function HomePage() {
             </div>
 
             {/* DESKTOP MENU */}
-            <div className="hidden md:flex items-center gap-10 text-sm text-zinc-300">
-              <a href="#experiences" className="hover:text-[#EDEBE7] transition">
-                Experiences
+            <div className="flex items-center gap-6 md:gap-10 text-xs md:text-sm text-zinc-300">
+              <a href="#how-it-works" className="hover:text-[#EDEBE7] transition">
+                How it works
               </a>
 
               <a href="#manifesto" className="hover:text-[#EDEBE7] transition">
@@ -107,50 +107,11 @@ export default function HomePage() {
             </div>
 
             {/* MOBILE BUTTON */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden flex flex-col gap-1.5 z-50"
-            >
-              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
-              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
-              <span className="w-6 h-[1px] bg-[#EDEBE7]"></span>
-            </button>
+           
           </div>
         </nav>
 
-        {/* MOBILE MENU */}
-        <div
-          className={`fixed inset-0 bg-black z-40 flex flex-col items-center justify-center gap-10 transition-all duration-500 ${
-            menuOpen
-              ? "opacity-100 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          <a
-            href="#experiences"
-            onClick={() => setMenuOpen(false)}
-            className="text-[#EDEBE7] text-5xl font-light"
-          >
-            Experiences
-          </a>
-
-          <a
-            href="#manifesto"
-            onClick={() => setMenuOpen(false)}
-            className="text-[#EDEBE7] text-5xl font-light"
-          >
-            Manifesto
-          </a>
-
-
-          <a
-            href="/craft-your-experience"
-            onClick={() => setMenuOpen(false)}
-            className="mt-4 bg-[#EDEBE7] text-black px-8 py-4 rounded-full uppercase tracking-[0.2em] text-xs"
-          >
-            Craft Experience
-          </a>
-        </div>
+       
 
         {/* HERO CONTENT */}
         <div className="relative z-20 min-h-screen flex items-center justify-center px-6 text-center">
@@ -180,7 +141,7 @@ export default function HomePage() {
               </a>
 
               <a
-                href="#experiences"
+                href="#how-it-workss"
                 className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
                 Explore Experiences
@@ -222,11 +183,11 @@ export default function HomePage() {
           </p>
 
           <h2 className="text-5xl md:text-8xl font-light leading-[0.95]">
-            Curated
+            Build
             <br />
-            Mediterranean
+            your own
             <br />
-            Escapes
+            Adventure
           </h2>
         </div>
 
@@ -251,20 +212,18 @@ export default function HomePage() {
               </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-                Private
-                <br />
-                Sailing Escape
+               Tell us your vision
+                
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                Private sailing journeys through hidden Riviera coves designed around silence, freedom and Mediterranean light.
-              </p>
+Share your travel dates, group, interests and the atmosphere you're looking for.              </p>
 
               <a
                 href="/craft-your-experience"
                 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
               >
-Craft Your Experience              </a>
+Start Your Request           </a>
             </div>
           </div>
 
@@ -288,19 +247,16 @@ Craft Your Experience              </a>
               </p>
 
               <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-                Mermaid
-                <br />
-                Experience
+                We curate everything
               </h3>
 
               <p className="text-zinc-200 leading-relaxed mb-8">
-                A visual storytelling experience suspended between freediving, sea light and cinematic Mediterranean atmosphere.
-              </p>
+We personally select experiences, trusted local partners and hidden places tailored to your request.              </p>
 
               <a
                 href="/craft-your-experience"
 className="mx-auto md:mx-0 w-fit border border-[#EDEBE7]/30 backdrop-blur-md px-6 py-3 rounded-full uppercase tracking-[0.2em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"              >
-                Craft Your Experience
+                Our Curation
               </a>
             </div>
           </div>
