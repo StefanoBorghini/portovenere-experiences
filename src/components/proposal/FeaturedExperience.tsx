@@ -1,14 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
-
+import { ExperienceFact } from "@/types/experience";
 import Section
 from "@/components/layout/Section";
 import ExperienceFacts from "@/components/experience/experienceFacts";
 import ExperienceSections from "@/components/experience/experienceSections";
 import SectionContainer
 from "@/components/layout/SectionContainer";
-
+import { ExperienceSection } from "@/types/experience";
 import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
@@ -27,17 +27,9 @@ interface FeaturedExperienceProps {
 
   description: string;
 
-essentials: {
-  id: string;
-  title: string;
-  description: string;
-}[];
+essentials: ExperienceSection[];
 
-  facts: {
-    id: string;
-    label: string;
-    value: string;
-  }[];
+ facts: ExperienceFact[];
 }
 
 // =====================================================

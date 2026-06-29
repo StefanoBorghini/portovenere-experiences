@@ -9,13 +9,13 @@ import { fadeReveal } from "@/lib/motion/fadeReveal";
 
 interface Props {
 
-  experience: ProposalExperienceCard;
+    experience: ProposalExperienceCard;
 
-  index: number;
+    index: number;
 
-  isSelected: boolean;
+    isSelected: boolean;
 
-  onToggle: () => void;
+    onToggle: () => void;
 
 }
 

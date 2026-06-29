@@ -1,8 +1,4 @@
-interface ExperienceSection {
-  id?: string;
-  title: string;
-  description: string;
-}
+import { ExperienceSection } from "@/types/experience";
 
 interface ExperienceSectionsProps {
   sections?: ExperienceSection[];

@@ -19,24 +19,10 @@ import {
 // TYPES
 // =====================================================
 
-
-interface ExperienceCardData {
-
-  id: string;
-
-  image: string;
-
-  title: string;
-
-  description: string;
-
-
-  experience: any;
-
-}
+import { ProposalExperienceCard } from "@/types/proposal";
 interface IncludedExperiencesProps {
 
-  experiences: ExperienceCardData[];
+  experiences: ProposalExperienceCard[];
 }
 
 // =====================================================

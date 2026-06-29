@@ -10,6 +10,8 @@ export interface ProposalExperienceCard {
 
     description: string;
 
+    details: string[];
+
     experience: Experience;
 
 }

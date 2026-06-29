@@ -1,7 +1,4 @@
-interface ExperienceFact {
-  label: string;
-  value: string;
-}
+import { ExperienceFact } from "@/types/experience";
 
 interface ExperienceFactsProps {
   facts?: ExperienceFact[];
