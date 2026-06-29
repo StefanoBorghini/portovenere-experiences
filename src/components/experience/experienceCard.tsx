@@ -33,58 +33,51 @@ export default function ExperienceCard({
 
   return (
 
-    <motion.button
+   <motion.button
 
-      onClick={onToggle}
+  onClick={onToggle}
 
-      variants={fadeReveal}
+  variants={fadeReveal}
 
-      initial="initial"
+  initial="initial"
 
-      whileInView="animate"
+  whileInView="animate"
 
-      viewport={{
-        once: true,
-        amount: 0.2,
-      }}
+  viewport={{
+    once: true,
+    amount: 0.2,
+  }}
 
-      transition={{
-        duration: 1.3,
-        delay: index * 0.08,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+  transition={{
+    duration: 1.3,
+    delay: index * 0.08,
+    ease: [0.22, 1, 0.36, 1],
+  }}
 
-      className={`
-        group
-        relative
-        overflow-hidden
-        rounded-[36px]
-        bg-white/[0.02]
-        border
+  className={`
+    group
+    relative
+    overflow-hidden
+    rounded-[36px]
+    bg-white/[0.02]
+    border
 
-        ${
-          isSelected
-            ? `
-              border-white/40
-              shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
-            `
-            : `
-              border-white/[0.08]
-            `
-        }
+    ${
+      isSelected
+        ? "border-white/40 shadow-[0_0_0_2px_rgba(255,255,255,0.15)]"
+        : "border-white/[0.08]"
+    }
 
-        backdrop-blur-[4px]
-        will-change-transform
+    ${!isSelected ? "opacity-50 grayscale-[20%]" : ""}
 
-        ${!isSelected ? "opacity-50 grayscale-[20%]" : ""}
+    backdrop-blur-[4px]
 
-        ${index === 1 ? "md:translate-y-16" : ""}
-        ${index === 2 ? "md:-translate-y-6" : ""}
-      `}
+    ${index === 1 ? "md:translate-y-16" : ""}
+    ${index === 2 ? "md:-translate-y-6" : ""}
+  `}
+>
 
-    >
-
-    </motion.button>
+</motion.button>
 
   );
 
