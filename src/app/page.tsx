@@ -88,7 +88,7 @@ export default function HomePage() {
       <img
         src="/logo-white.png"
         alt="Portovenere Experiences"
-        className="h-12 md:h-14 w-auto"
+        className="h-16 w-auto"
       />
 
       <span className="uppercase tracking-[0.35em] text-[11px] md:text-xs leading-tight">
@@ -114,7 +114,7 @@ export default function HomePage() {
         duration-300
       "
     >
-      Craft Your Experience
+      Craft Experience
     </a>
 
   </div>
@@ -184,9 +184,9 @@ export default function HomePage() {
       {/* EXPERIENCES */}
       <section
         id="how-it-works"
-        className="py-24 md:py-32 -120px max-w-7xl mx-auto"
+        className="max-w-7xl mx-auto px-6 md:px-10 py-24 md:py-32"
       >
-        <div className="text-center mb-24">
+        <div className="text-center mb-16 md:mb-24 px-6 md:px-0">
           <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-5">
             HOW IT WORKS
           </p>
@@ -197,7 +197,7 @@ Mediterranean escape
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {/* CARD 1 */}
           <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
             <img
