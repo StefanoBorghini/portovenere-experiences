@@ -167,7 +167,16 @@ return (
     experience,
     index
   ) => {
+console.log(
+  "Experience",
+  experience.title,
+  experience.experience
+);
 
+console.log(
+  "Facts",
+  experience.experience?.facts
+);
     const isSelected =
       selectedExperiences.includes(
         experience.id
