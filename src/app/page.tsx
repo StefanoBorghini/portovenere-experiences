@@ -81,21 +81,21 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
             {/* LOGO */}
             <div className="text-[#EDEBE7] text-[11px] md:text-xs uppercase tracking-[0.35em] leading-tight">
-              Portovenere
-              <br />
+               <a href="/" className="block">
+        <img
+            src="/logo-white.png"
+            alt="Portovenere Experiences"
+            className="h-9 md:h-10 w-auto"
+        />
+    </a>
+              
               Experiences
             </div>
 
             {/* DESKTOP MENU */}
          <div className="max-w-7xl mx-auto px-6 md:px-10 py-5 flex items-center justify-between">
 
-    <a href="/" className="block">
-        <img
-            src="/images/logo-white.png"
-            alt="Portovenere Experiences"
-            className="h-9 md:h-10 w-auto"
-        />
-    </a>
+   
 
     <a
         href="/craft-your-experience"
