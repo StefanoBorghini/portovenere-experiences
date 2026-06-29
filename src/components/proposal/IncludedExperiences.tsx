@@ -1,6 +1,6 @@
 "use client";
 import ExperienceFacts from "@/components/experience/experienceFacts";
-
+import ExperienceSections from "@/components/experience/experienceSections";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Section
@@ -365,6 +365,10 @@ ${
                   </p>
 <ExperienceFacts
   facts={experience.experience.facts}
+/>
+
+<ExperienceSections
+  sections={experience.experience.sections}
 />
                   {/* DETAILS */}
 
