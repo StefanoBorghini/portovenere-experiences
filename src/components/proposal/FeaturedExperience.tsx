@@ -192,17 +192,17 @@ export default function FeaturedExperience({
                 {description}
 {(price.label || price.value) && (
 
-  <div className="mb-14">
+  <div className="mb-16">
 
     {price.label && (
 
       <p
         className="
-          uppercase
-          tracking-[0.30em]
+           uppercase
+          tracking-[0.35em]
           text-[11px]
-          text-white/40
-          mb-2
+          text-white/35
+          mb-4
         "
       >
         {price.label}
@@ -214,10 +214,10 @@ export default function FeaturedExperience({
 
       <p
         className="
-          text-5xl
-          md:text-6xl
-          font-light
-          tracking-tight
+         text-6xl
+        font-light
+        tracking-tight
+        leading-none
         "
       >
         {price.value}
