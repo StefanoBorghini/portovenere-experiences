@@ -105,15 +105,26 @@ const filtersInsert = await supabase
   .from("experience_filters")
   .insert({
     experience_id: data.id,
+    guest_2: false,
+    guest_3_4: false,
+    guest_5_7: false,
+    guest_8_plus: false,
+    budget_500_1000: false,
+    budget_1000_3000: false,
+    budget_3000_plus: false,
   });
 
 console.log("FILTER ERROR", filtersInsert.error);
 console.log("FILTER DATA", filtersInsert.data);
 
-const scoringInsert = await supabase
+const scoringInsert =await supabase
   .from("experience_scoring")
   .insert({
     experience_id: data.id,
+    romantic_score: 0,
+    authentic_score: 0,
+    adventure_score: 0,
+    cinematic_score: 0,
   });
 
 console.log("SCORING ERROR", scoringInsert.error);
