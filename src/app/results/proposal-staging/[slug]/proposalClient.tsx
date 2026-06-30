@@ -98,7 +98,7 @@ export default function ProposalClient({
         facts={featuredExperience.facts ?? []}
         basePrice={featuredExperience.base_price}
 
-priceType={featuredExperience.price_type}
+priceType={featuredExperience.pricing_type}
     />
 
     <IncludedExperiences
