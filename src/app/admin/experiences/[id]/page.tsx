@@ -376,6 +376,17 @@ for (const fact of experience.facts) {
     }
 
     const filtersResult =
+
+    console.log("FILTER VALUES", {
+  guest_2: experience.guest_2,
+  guest_3_4: experience.guest_3_4,
+  guest_5_7: experience.guest_5_7,
+  guest_8_plus: experience.guest_8_plus,
+
+  budget_500_1000: experience.budget_500_1000,
+  budget_1000_3000: experience.budget_1000_3000,
+  budget_3000_plus: experience.budget_3000_plus,
+});
       await updateExperienceFilters(
 
         experience.id,
@@ -408,6 +419,13 @@ for (const fact of experience.facts) {
       );
 
     const scoringResult =
+
+    console.log("SCORING VALUES", {
+  romantic_score: experience.romantic_score,
+  authentic_score: experience.authentic_score,
+  adventure_score: experience.adventure_score,
+  cinematic_score: experience.cinematic_score,
+});
       await updateExperienceScoring(
 
         experience.id,
