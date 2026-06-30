@@ -7,6 +7,7 @@ import HeroCard from "./components/HeroCard";
 import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
 
+
 import { useEffect, useState } from "react";
 import {
   useParams,
@@ -41,12 +42,16 @@ from "./components/factsCard";
 
 export default function ExperienceEditor() {
 
+
   const params = useParams();
 
   const router = useRouter();
 
   const [experience, setExperience] =
     useState<any>(null);
+
+  const [allExperiences, setAllExperiences] = useState<any[]>([]);
+  const [allEnhancements, setAllEnhancements] = useState<any[]>([]);
 
   useEffect(() => {
 
@@ -475,6 +480,7 @@ for (const fact of experience.facts) {
 
     }
 const experiences = await getFullExperiences();
+setAllExperiences(experiences);
 
 const updated = experiences.find(
   e => e.id === experience.id
