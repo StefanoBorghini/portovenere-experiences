@@ -30,7 +30,7 @@ const [enhancementSearch, setEnhancementSearch] =
   useState("");
 
     const filteredExperiences = useMemo(() => {
-
+console.log(filteredExperiences);
   return experiences
 
     .filter(e => e.id !== experience.id)
