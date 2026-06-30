@@ -6,7 +6,11 @@ import MoodCard from "./components/MoodCard";
 import HeroCard from "./components/HeroCard";
 import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
-
+import {
+  getEnhancements,
+} from "@/lib/supabase/enhancementRepository";
+import CompatibilityCard
+from "./components/compatibilityCard";
 
 import { useEffect, useState } from "react";
 import {
@@ -70,15 +74,22 @@ if (!session) {
 
   return;
 }
-      const experiences =
-        await getFullExperiences();
+     const experiences =
+  await getFullExperiences();
 
-      const found =
-        experiences.find(
-          (e) => e.id === params.id
-        );
+setAllExperiences(experiences);
 
-      setExperience(found);
+const enhancements =
+  await getEnhancements();
+
+setAllEnhancements(enhancements);
+
+const found =
+  experiences.find(
+    (e) => e.id === params.id
+  );
+
+setExperience(found);
     }
 
     loadExperience();
@@ -142,6 +153,18 @@ if (!session) {
     experience={experience}
 
     setExperience={setExperience}
+
+/>
+
+<CompatibilityCard
+
+    experience={experience}
+
+    setExperience={setExperience}
+
+    experiences={allExperiences}
+
+    enhancements={allEnhancements}
 
 />
 
@@ -350,6 +373,12 @@ for (const fact of experience.facts) {
     detail_image:
       experience.detail_image,
 
+       incompatible_experiences:
+      experience.incompatible_experiences,
+
+    incompatible_enhancements:
+      experience.incompatible_enhancements,
+
   }
 
 );
@@ -481,6 +510,11 @@ for (const fact of experience.facts) {
     }
 const experiences = await getFullExperiences();
 setAllExperiences(experiences);
+
+const enhancements =
+  await getEnhancements();
+
+setAllEnhancements(enhancements);
 
 const updated = experiences.find(
   e => e.id === experience.id
