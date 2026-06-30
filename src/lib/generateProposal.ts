@@ -499,16 +499,12 @@ const dynamicClosingParagraph =
   // HERO IMAGE
   // =========================================================
 
-  let heroImage =
-
-   bestExperience.featured_image ||
-
+ let heroImage =
+  bestExperience.hero_image ||
+  bestExperience.featured_image ||
   bestExperience.gallery?.[0]?.image_url ||
-
   experienceContent?.heroImage ||
-
   "/images/default.webp";
-
   // =========================================================
   // SINGLE CATEGORY + SINGLE MOOD
   // =========================================================
