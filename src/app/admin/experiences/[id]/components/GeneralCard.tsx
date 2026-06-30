@@ -123,7 +123,50 @@ export default function GeneralCard({
         />
 
       </div>
+<div>
 
+  <label className="block text-sm text-white/50 mb-2">
+    Price Type
+  </label>
+
+  <select
+    value={experience.price_type ?? "fixed"}
+    onChange={(e)=>
+      setExperience({
+        ...experience,
+        price_type: e.target.value,
+      })
+    }
+    className="
+      w-full
+      rounded-xl
+      bg-white/5
+      border
+      border-white/10
+      px-4
+      py-3
+    "
+  >
+
+    <option value="fixed">
+      Fixed Price
+    </option>
+
+    <option value="per_person">
+      Per Person
+    </option>
+
+    <option value="included">
+      Included
+    </option>
+
+    <option value="on_request">
+      On Request
+    </option>
+
+  </select>
+
+</div>
     </div>
 
     <div>
