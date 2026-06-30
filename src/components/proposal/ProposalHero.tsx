@@ -30,8 +30,11 @@ export default function ProposalHero({
 
   totalPrice,
 
-}: ProposalHeroProps) {
+  
 
+}: ProposalHeroProps) {
+console.log("heroImage", heroImage);
+console.log("heroTitle", heroTitle);
   return (
 
     <section
