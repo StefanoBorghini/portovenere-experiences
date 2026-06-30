@@ -1,12 +1,16 @@
 "use client";
-
+import { useMemo, useState } from "react";
 interface Props {
   experience: any;
-  setExperience: (experience: any) => void;
+  setExperience: (value: any) => void;
   experiences: any[];
   enhancements: any[];
 }
+const [experienceSearch, setExperienceSearch] =
+  useState("");
 
+const [enhancementSearch, setEnhancementSearch] =
+  useState("");
 export default function CompatibilityCard({
 
   experience,
@@ -19,143 +23,131 @@ export default function CompatibilityCard({
 
 }: Props) {
 
-  function toggleExperience(id: string) {
+    const filteredExperiences = useMemo(() => {
 
-    const current =
-      experience.incompatible_experiences ?? [];
+  return experiences
 
-    const updated =
-      current.includes(id)
-        ? current.filter((x: string) => x !== id)
-        : [...current, id];
+    .filter(e => e.id !== experience.id)
 
-    setExperience({
-      ...experience,
-      incompatible_experiences: updated,
-    });
+    .filter(e =>
+      e.title
+        .toLowerCase()
+        .includes(
+          experienceSearch.toLowerCase()
+        )
+    );
 
-  }
+}, [
+  experiences,
+  experience.id,
+  experienceSearch,
+]);
 
-  function toggleEnhancement(id: string) {
+const filteredEnhancements = useMemo(() => {
 
-    const current =
-      experience.incompatible_enhancements ?? [];
+  return enhancements.filter(e =>
+    e.title
+      .toLowerCase()
+      .includes(
+        enhancementSearch.toLowerCase()
+      )
+  );
 
-    const updated =
-      current.includes(id)
-        ? current.filter((x: string) => x !== id)
-        : [...current, id];
-
-    setExperience({
-      ...experience,
-      incompatible_enhancements: updated,
-    });
-
-  }
+}, [
+  enhancements,
+  enhancementSearch,
+]);
 
   return (
 
     <div
-      style={{
-        background: "#fff",
-        borderRadius: 12,
-        padding: 24,
-        marginBottom: 24,
-        border: "1px solid #e5e5e5",
-      }}
+      className="
+        rounded-3xl
+        border
+        border-zinc-800
+        bg-[#0B0B0B]
+        p-8
+        mb-6
+      "
     >
 
-      <h2 style={{ marginBottom: 24 }}>
+      <h2 className="text-2xl font-medium">
+
         Compatibility
+
       </h2>
 
-      {/* EXPERIENCES */}
+      <p className="text-white/50 mt-2 mb-8">
 
-      <h3>Incompatible Experiences</h3>
+        Choose which experiences and enhancements
+        cannot be combined with this experience.
 
-      <div
-        style={{
-          display: "grid",
-          gap: 8,
-          marginTop: 12,
-          marginBottom: 30,
-        }}
-      >
+      </p>
 
-        {experiences
-          .filter(e => e.id !== experience.id)
-          .map(e => (
+      <h3 className="text-lg font-medium mb-3">
+  Incompatible Experiences
+</h3>
 
-            <label key={e.id}>
+<input
+  value={experienceSearch}
+  onChange={(e) =>
+    setExperienceSearch(e.target.value)
+  }
+  placeholder="Search experience..."
+  className="
+    w-full
+    rounded-xl
+    bg-black
+    border
+    border-zinc-700
+    px-4
+    py-3
+    mb-5
+    outline-none
+  "
+/>
 
-              <input
+<div
+  className="
+    max-h-[320px]
+    overflow-y-auto
+    rounded-xl
+    border
+    border-zinc-800
+  "
+>
 
-                type="checkbox"
+  {filteredExperiences.map(exp => (
 
-                checked={
-                  experience
-                    .incompatible_experiences
-                    ?.includes(e.id) ?? false
-                }
+    <div
+      key={exp.id}
+      className="
+        flex
+        items-center
+        justify-between
+        px-5
+        py-3
+        border-b
+        border-zinc-800
+        hover:bg-white/5
+      "
+    >
 
-                onChange={() =>
-                  toggleExperience(e.id)
-                }
+      <span>
+        {exp.title}
+      </span>
 
-              />
+      <input type="checkbox" />
 
-              {" "}
-              {e.title}
+    </div>
 
-            </label>
+  ))}
 
-        ))}
-
-      </div>
-
-      {/* ENHANCEMENTS */}
-
-      <h3>Incompatible Enhancements</h3>
-
-      <div
-        style={{
-          display: "grid",
-          gap: 8,
-          marginTop: 12,
-        }}
-      >
-
-        {enhancements.map(e => (
-
-          <label key={e.id}>
-
-            <input
-
-              type="checkbox"
-
-              checked={
-                experience
-                  .incompatible_enhancements
-                  ?.includes(e.id) ?? false
-              }
-
-              onChange={() =>
-                toggleEnhancement(e.id)
-              }
-
-            />
-
-            {" "}
-            {e.title}
-
-          </label>
-
-        ))}
-
-      </div>
+</div>
 
     </div>
 
   );
 
 }
+
