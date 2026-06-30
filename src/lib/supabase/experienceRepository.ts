@@ -118,7 +118,7 @@ const scoringInsert = await supabase
 console.log("SCORING INSERT", scoringInsert);
   // crea filters
 
- 
+  return data;
 
 }
 
