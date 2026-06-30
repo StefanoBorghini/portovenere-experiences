@@ -65,7 +65,22 @@ function toggleExperience(id: string) {
   });
 
 }
+function toggleEnhancement(id: string) {
 
+  const current =
+    experience.incompatible_enhancements ?? [];
+
+  const updated =
+    current.includes(id)
+      ? current.filter((x: string) => x !== id)
+      : [...current, id];
+
+  setExperience({
+    ...experience,
+    incompatible_enhancements: updated,
+  });
+
+}
 const filteredEnhancements = useMemo(() => {
 
   return enhancements.filter(e =>
@@ -158,7 +173,7 @@ const filteredEnhancements = useMemo(() => {
   justify-between
   px-5
   py-3
-  border-b
+  border-b last:border-b-0
   border-zinc-800
   cursor-pointer
   transition-all
@@ -172,10 +187,17 @@ const filteredEnhancements = useMemo(() => {
 
 
 >
+<div>
 
-      <span>
+    <div className="font-medium">
         {exp.title}
-      </span>
+    </div>
+
+    <div className="text-xs text-white/40">
+        {exp.category}
+    </div>
+
+</div>
 
     <input
   type="checkbox"
@@ -186,8 +208,8 @@ const filteredEnhancements = useMemo(() => {
   onClick={(e) => e.stopPropagation()}
   onChange={() => toggleExperience(exp.id)}
   className="
-    h-5
-    w-5
+    h-6
+    w-6
     cursor-pointer
   "
 />
@@ -196,9 +218,119 @@ const filteredEnhancements = useMemo(() => {
 
   ))}
 
+  {filteredExperiences.length === 0 && (
+
+  <div className="py-8 text-center text-white/40">
+    No experiences found.
+  </div>
+
+)}
+
 </div>
 
+<h3 className="text-lg font-medium mt-10 mb-3">
+  Incompatible Enhancements
+  <span className="ml-2 text-sm text-white/50">
+    (
+    {experience.incompatible_enhancements?.length ?? 0}
+    )
+  </span>
+</h3>
+
+<input
+  value={enhancementSearch}
+  onChange={(e) =>
+    setEnhancementSearch(e.target.value)
+  }
+  placeholder="Search enhancement..."
+  className="
+    w-full
+    rounded-xl
+    bg-black
+    border
+    border-zinc-700
+    px-4
+    py-3
+    mb-5
+    outline-none
+  "
+/>
+
+<div
+  className="
+    max-h-[320px]
+    overflow-y-auto
+    rounded-xl
+    border
+    border-zinc-800
+  "
+>
+
+  {filteredEnhancements.map(enh => (
+
+    <div
+      key={enh.id}
+      onClick={() => toggleEnhancement(enh.id)}
+      className={`
+        flex
+        items-center
+        justify-between
+        px-5
+        py-3
+        border-b last:border-b-0
+        border-zinc-800
+        cursor-pointer
+        transition-all
+
+        ${
+          experience.incompatible_enhancements?.includes(enh.id)
+            ? "bg-white/10"
+            : "hover:bg-white/5"
+        }
+      `}
+    >
+
+      <div>
+
+        <div className="font-medium">
+          {enh.title}
+        </div>
+
+        <div className="text-xs text-white/40">
+          {enh.category}
+        </div>
+
+      </div>
+
+      <input
+        type="checkbox"
+        checked={
+          experience.incompatible_enhancements?.includes(enh.id) ?? false
+        }
+        onClick={(e) => e.stopPropagation()}
+        onChange={() => toggleEnhancement(enh.id)}
+        className="h-6 w-6 cursor-pointer"
+      />
+
     </div>
+
+  ))}
+
+  {filteredEnhancements.length === 0 && (
+
+    <div className="py-8 text-center text-white/40">
+
+      No enhancements found.
+
+    </div>
+
+  )}
+
+</div>
+
+</div>
+
+
 
   );
 
