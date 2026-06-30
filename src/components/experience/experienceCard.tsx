@@ -15,6 +15,8 @@ interface Props {
 
     isSelected: boolean;
 
+    isDisabled: boolean;
+
     onToggle: () => void;
 
 }
@@ -27,6 +29,8 @@ export default function ExperienceCard({
 
   isSelected,
 
+  isDisabled,
+
   onToggle,
 
 }: Props) {
@@ -35,7 +39,13 @@ export default function ExperienceCard({
 
    <motion.button
 
-  onClick={onToggle}
+  onClick={() => {
+
+    if (isDisabled) return;
+
+    onToggle();
+
+}}
 
   variants={fadeReveal}
 
@@ -71,8 +81,13 @@ export default function ExperienceCard({
         : "border-white/[0.08]"
     }
 
-    ${!isSelected ? "opacity-50 grayscale-[20%]" : ""}
-
+${
+    isDisabled
+        ? "opacity-30 grayscale cursor-not-allowed"
+        : !isSelected
+            ? "opacity-50 grayscale-[20%]"
+            : ""
+}
     backdrop-blur-[4px]
 `}
 >
@@ -228,9 +243,13 @@ export default function ExperienceCard({
         `}
     >
 
-        {isSelected
-            ? "Included"
-            : `Add Experience · €${experience.experience.base_price}`}
+        ${
+    isDisabled
+        ? "bg-red-500/10 border border-red-500/30 text-red-300"
+        : isSelected
+            ? "bg-white text-black"
+            : "border border-white/15 text-white/75"
+}
 
     </div>
 

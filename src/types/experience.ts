@@ -56,4 +56,8 @@ export interface Experience {
 
     sections: ExperienceSection[];
 
+    incompatible_experiences: string[];
+
+incompatible_enhancements: string[];
+
 }

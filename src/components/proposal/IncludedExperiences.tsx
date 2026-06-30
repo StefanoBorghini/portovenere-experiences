@@ -46,17 +46,55 @@ export default function IncludedExperiences({
 
 );
 
+const disabledExperiences = new Set<string>();
+
+selectedExperiences.forEach((selectedId) => {
+
+  const selected = experiences.find(
+    experience => experience.id === selectedId
+  );
+
+  if (!selected) return;
+
+  selected.experience.incompatible_experiences?.forEach(
+    (id: string) => disabledExperiences.add(id)
+  );
+
+});
+
 function toggleExperience(id: string) {
 
-    setSelectedExperiences(current =>
+  setSelectedExperiences(current => {
 
-        current.includes(id)
+    // Deselezione normale
+    if (current.includes(id)) {
 
-            ? current.filter(item => item !== id)
+      return current.filter(item => item !== id);
 
-            : [...current, id]
+    }
 
+    // Experience che sto aggiungendo
+    const addedExperience = experiences.find(
+      experience => experience.id === id
     );
+
+    if (!addedExperience) return current;
+
+    const incompatible =
+      addedExperience.experience.incompatible_experiences ?? [];
+
+    // Rimuovo tutte le incompatibili
+    const cleanedSelection = current.filter(
+      selectedId => !incompatible.includes(selectedId)
+    );
+
+    // Aggiungo la nuova
+    return [
+      ...cleanedSelection,
+      id,
+    ];
+
+  });
 
 }
 
@@ -137,14 +175,19 @@ return (
     const isSelected =
         selectedExperiences.includes(experience.id);
 
+        const isDisabled =
+  disabledExperiences.has(experience.id) &&
+  !isSelected;
+
     return (
 
         <ExperienceCard
             key={experience.id}
-            experience={experience}
-            index={index}
-            isSelected={isSelected}
-            onToggle={() => toggleExperience(experience.id)}
+    experience={experience}
+    index={index}
+    isSelected={isSelected}
+    isDisabled={isDisabled}
+    onToggle={() => toggleExperience(experience.id)}
         />
 
     );
