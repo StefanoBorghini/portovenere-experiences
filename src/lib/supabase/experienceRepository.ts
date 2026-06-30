@@ -118,29 +118,7 @@ const scoringInsert = await supabase
 console.log("SCORING INSERT", scoringInsert);
   // crea filters
 
-  await supabase
-
-    .from("experience_filters")
-
-    .insert({
-
-      experience_id: data.id,
-
-    });
-
-  // crea scoring
-
-  await supabase
-
-    .from("experience_scoring")
-
-    .insert({
-
-      experience_id: data.id,
-
-    });
-
-  return data;
+ 
 
 }
 
