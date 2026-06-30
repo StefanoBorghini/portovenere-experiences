@@ -107,18 +107,17 @@ const filtersInsert = await supabase
     experience_id: data.id,
   });
 
-console.log(
-  JSON.stringify(filtersInsert, null, 2)
-);
+console.log("FILTER ERROR", filtersInsert.error);
+console.log("FILTER DATA", filtersInsert.data);
 
 const scoringInsert = await supabase
   .from("experience_scoring")
   .insert({
     experience_id: data.id,
   });
-console.log(
-  JSON.stringify(scoringInsert, null, 2)
-);
+
+console.log("SCORING ERROR", scoringInsert.error);
+console.log("SCORING DATA", scoringInsert.data);
   // crea filters
 
   return data;
