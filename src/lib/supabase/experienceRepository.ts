@@ -101,7 +101,21 @@ export async function createExperience() {
     return null;
 
   }
+const filtersInsert = await supabase
+  .from("experience_filters")
+  .insert({
+    experience_id: data.id,
+  });
 
+console.log("FILTER INSERT", filtersInsert);
+
+const scoringInsert = await supabase
+  .from("experience_scoring")
+  .insert({
+    experience_id: data.id,
+  });
+
+console.log("SCORING INSERT", scoringInsert);
   // crea filters
 
   await supabase
