@@ -6,12 +6,10 @@ interface Props {
   experiences: any[];
   enhancements: any[];
 }
-const [experienceSearch, setExperienceSearch] =
-  useState("");
 
-const [enhancementSearch, setEnhancementSearch] =
-  useState("");
 export default function CompatibilityCard({
+
+    
 
   experience,
 
@@ -21,7 +19,15 @@ export default function CompatibilityCard({
 
   enhancements,
 
+  
+
 }: Props) {
+
+    const [experienceSearch, setExperienceSearch] =
+  useState("");
+
+const [enhancementSearch, setEnhancementSearch] =
+  useState("");
 
     const filteredExperiences = useMemo(() => {
 
@@ -42,6 +48,23 @@ export default function CompatibilityCard({
   experience.id,
   experienceSearch,
 ]);
+
+function toggleExperience(id: string) {
+
+  const current =
+    experience.incompatible_experiences ?? [];
+
+  const updated =
+    current.includes(id)
+      ? current.filter((x: string) => x !== id)
+      : [...current, id];
+
+  setExperience({
+    ...experience,
+    incompatible_experiences: updated,
+  });
+
+}
 
 const filteredEnhancements = useMemo(() => {
 
@@ -84,8 +107,13 @@ const filteredEnhancements = useMemo(() => {
 
       </p>
 
-      <h3 className="text-lg font-medium mb-3">
+     <h3 className="text-lg font-medium mb-3">
   Incompatible Experiences
+  <span className="ml-2 text-sm text-white/50">
+    (
+    {experience.incompatible_experiences?.length ?? 0}
+    )
+  </span>
 </h3>
 
 <input
@@ -120,24 +148,49 @@ const filteredEnhancements = useMemo(() => {
   {filteredExperiences.map(exp => (
 
     <div
-      key={exp.id}
-      className="
-        flex
-        items-center
-        justify-between
-        px-5
-        py-3
-        border-b
-        border-zinc-800
-        hover:bg-white/5
-      "
-    >
+  key={exp.id}
+ onClick={() => toggleExperience(exp.id)}
+
+ 
+  className={`
+  flex
+  items-center
+  justify-between
+  px-5
+  py-3
+  border-b
+  border-zinc-800
+  cursor-pointer
+  transition-all
+
+  ${
+    experience.incompatible_experiences?.includes(exp.id)
+      ? "bg-white/10"
+      : "hover:bg-white/5"
+  }
+`}
+
+
+>
 
       <span>
         {exp.title}
       </span>
 
-      <input type="checkbox" />
+    <input
+  type="checkbox"
+  checked={
+    experience.incompatible_experiences?.includes(exp.id) ?? false
+  }
+
+  onClick={(e) => e.stopPropagation()}
+  onChange={() => toggleExperience(exp.id)}
+  className="
+    h-5
+    w-5
+    cursor-pointer
+  "
+/>
 
     </div>
 
