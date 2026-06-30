@@ -322,7 +322,7 @@ for (const fact of experience.facts) {
 
     base_price: experience.base_price,
 
-    price_type: experience.price_type,
+    pricing_type: experience.pricing_type,
 
     description:
       experience.description,
