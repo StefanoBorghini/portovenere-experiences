@@ -123,7 +123,7 @@ export default function GeneralCard({
         />
 
       </div>
-<div className="grid md:grid-cols-3 gap-6">
+<div>
 
   <label className="block text-sm text-white/50 mb-2">
     Price Type
