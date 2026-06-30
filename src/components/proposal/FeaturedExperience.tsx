@@ -192,7 +192,7 @@ export default function FeaturedExperience({
                 {description}
 {(price.label || price.value) && (
 
-  <div className="mb-16 mt-16">
+  <div className="mb-16 mt-10">
 
     {price.label && (
 
