@@ -12,6 +12,9 @@ import { ExperienceSection } from "@/types/experience";
 import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
+import {
+  formatPrice,
+} from "@/lib/pricing/formatPrice";
 
 // =====================================================
 // TYPES
@@ -27,14 +30,20 @@ interface FeaturedExperienceProps {
 
   description: string;
 
-essentials: ExperienceSection[];
+  basePrice: number;
 
- facts: ExperienceFact[];
+  priceType: string;
+
+  essentials: ExperienceSection[];
+
+  facts: ExperienceFact[];
+
 }
 
 // =====================================================
 // COMPONENT
 // =====================================================
+
 
 export default function FeaturedExperience({
 
@@ -46,11 +55,20 @@ export default function FeaturedExperience({
 
   description,
 
+  basePrice,
+
+  priceType,
+
   essentials,
 
   facts,
 
 }: FeaturedExperienceProps) {
+
+  const price = formatPrice(
+  basePrice,
+  priceType
+);
 
   return (
 
@@ -172,7 +190,44 @@ export default function FeaturedExperience({
               >
 
                 {description}
+{(price.label || price.value) && (
 
+  <div className="mb-14">
+
+    {price.label && (
+
+      <p
+        className="
+          uppercase
+          tracking-[0.30em]
+          text-[11px]
+          text-white/40
+          mb-2
+        "
+      >
+        {price.label}
+      </p>
+
+    )}
+
+    {price.value && (
+
+      <p
+        className="
+          text-5xl
+          md:text-6xl
+          font-light
+          tracking-tight
+        "
+      >
+        {price.value}
+      </p>
+
+    )}
+
+  </div>
+
+)}
               </p>
 <ExperienceFacts facts={facts} />
           
