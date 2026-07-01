@@ -85,35 +85,47 @@ console.log(
   // ===================================================
   // HERO IMAGE
   // ===================================================
+// ===================================================
+// HERO IMAGE
+// ===================================================
 
-  if (experience.heroImage) {
+if (experience.hero_image) {
 
-    return experience.heroImage;
+  return experience.hero_image;
+
+}
+
+// ===================================================
+// GALLERY FALLBACK
+// ===================================================
+
+if (
+  experience.gallery?.length
+) {
+
+  const featured = experience.gallery.find(
+    (image: any) =>
+      image.featured && image.active
+  );
+
+  if (featured) {
+    return featured.image_url;
   }
 
-  // ===================================================
-  // GALLERY FALLBACK
-  // ===================================================
+  const first = experience.gallery.find(
+    (image: any) =>
+      image.active
+  );
 
-  if (experience.gallery) {
-
-    const galleryValues =
-
-      Object.values(
-        experience.gallery
-      ) as string[][];
-
-    const firstGallery =
-      galleryValues[0];
-
-    if (
-      firstGallery?.[0]
-    ) {
-
-      return firstGallery[0];
-    }
+  if (first) {
+    return first.image_url;
   }
 
-  return null;
+}
+
+console.log({
+  hero_image: experience.hero_image,
+  gallery: experience.gallery,
+});
 }
 
