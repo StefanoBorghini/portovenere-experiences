@@ -24,7 +24,11 @@ export function buildRendererData({
   // ===================================================
 
   const galleryImages =
-    buildProposalGallery(generatedProposal);
+    buildProposalGallery({
+      experiencesSelected: lead?.experiences || [],
+      moodsSelected: lead?.moods || [],
+      heroExperienceId: generatedProposal?.featuredExperience?.id,
+    });
 
   // ===================================================
   // ENHANCEMENTS
