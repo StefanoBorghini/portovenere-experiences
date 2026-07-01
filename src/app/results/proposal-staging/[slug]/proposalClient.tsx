@@ -131,36 +131,7 @@ priceType={featuredExperience.pricing_type}
         whatsappUrl={whatsappUrl}
     />
 
-   <footer
-  className="
-    mt-20
-    pt-8
-    border-t
-    border-white/5
-    flex
-    justify-center
-  "
->
-
-  <div
-    className="
-      px-4
-      py-2
-      rounded-full
-      border
-      border-white/10
-      text-[11px]
-      tracking-[0.2em]
-      uppercase
-      text-white/40
-    "
-  >
-
-    Powered by Ductavia
-
-  </div>
-
-</footer>
+ 
 
 </main>
 
