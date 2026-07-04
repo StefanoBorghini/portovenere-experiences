@@ -262,7 +262,7 @@ ${
             ? "bg-red-500/10 text-red-300"
             : isSelected
                 ? "bg-white text-black"
-                : "border text-white/75"
+                : " text-white/75"
     }
 `}
 >
@@ -270,7 +270,7 @@ ${
     ? "Not compatible"
     : isSelected
       ? "Included"
-      : "Add to your escape"}
+      : "Add"}
 </div>
     </div>
 
