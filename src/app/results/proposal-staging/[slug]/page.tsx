@@ -247,6 +247,8 @@ const generatedProposal =
 
 if (!featuredExperience) {
 
+  const debug = generatedProposal.noMatchDebug;
+
   return (
 
     <main
@@ -258,6 +260,7 @@ if (!featuredExperience) {
         items-center
         justify-center
         px-6
+        py-24
       "
     >
 
@@ -302,6 +305,7 @@ if (!featuredExperience) {
             text-zinc-400
             text-lg
             leading-[1.9]
+            mb-12
           "
         >
 
@@ -309,6 +313,56 @@ if (!featuredExperience) {
           Contact us directly to request a new curated proposal.
 
         </p>
+<a
+        
+          href="/craft-your-experience"
+          className="
+            inline-block
+            bg-white
+            text-black
+            px-10
+            py-5
+            rounded-full
+            uppercase
+            tracking-[0.25em]
+            text-xs
+            hover:scale-105
+            transition-all
+            duration-500
+          "
+        >
+          Back to configurator
+        </a>
+
+        {debug && (
+
+          <div
+            className="
+              text-left
+              text-sm
+              text-zinc-500
+              border
+              border-white/10
+              rounded-2xl
+              p-6
+              mt-16
+            "
+          >
+
+            <p className="uppercase tracking-[0.2em] text-zinc-600 text-xs mb-4">
+              Diagnostic — solo per Stefano, da togliere dopo
+            </p>
+
+            <p>Categoria selezionata: {debug.categorySelected.join(", ") || "—"}</p>
+            <p>Ospiti: {debug.guests} — Budget: {debug.budget}</p>
+            <p>Esperienze totali in catalogo: {debug.totalExperiences}</p>
+            <p>Match per categoria: {debug.matchingCategoryCount} ({debug.matchingCategoryTitles.join(", ") || "nessuna"})</p>
+            <p>Di queste, con ospiti giusti: {debug.matchingCategoryAndGuestsCount}</p>
+            <p>Di queste, con budget giusto: {debug.matchingCategoryAndBudgetCount}</p>
+
+          </div>
+
+        )}
 
       </div>
 

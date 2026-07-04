@@ -381,30 +381,60 @@ console.log(
   }
 );
   // =========================================================
-  // FALLBACK
-  // =========================================================
+// FALLBACK + DIAGNOSTIC
+// =========================================================
 
-  if (!bestExperience) {
+if (!bestExperience) {
 
-    return {
+  const normalizedSelected =
+    safeExperiencesSelected.map((category) =>
+      category.toLowerCase().replaceAll(" ", "_")
+    );
 
-      heroTitle:
-        "Mediterranean Escape",
+  const guestCount = Number(guests) || 0;
 
-      heroImage:
-        "/images/default-hero.webp",
+  const matchingCategory = safeAllExperiences.filter(
+    (experience) =>
+      normalizedSelected.length === 0 ||
+      normalizedSelected.includes(experience.category)
+  );
 
-      featuredExperience:
-        null,
+  const matchingCategoryAndGuests = matchingCategory.filter((experience) => {
+    if (guestCount === 2) return experience.guest_2;
+    if (guestCount >= 3 && guestCount <= 4) return experience.guest_3_4;
+    if (guestCount >= 5 && guestCount <= 7) return experience.guest_5_7;
+    if (guestCount >= 8) return experience.guest_8_plus;
+    return true;
+  });
 
-      scoredExperiences: [],
+  const matchingCategoryAndBudget = matchingCategory.filter((experience) => {
+    if (budget === "€500 - €1000") return experience.budget_500_1000;
+    if (budget === "€1000 - €3000") return experience.budget_1000_3000;
+    if (budget === "€3000+") return experience.budget_3000_plus;
+    return true;
+  });
 
-      includedSections: [],
+  return {
 
-      compatibilityData:
-        null,
-    };
-  }
+    heroTitle: "Mediterranean Escape",
+    heroImage: "/images/default-hero.webp",
+    featuredExperience: null,
+    scoredExperiences: [],
+    includedSections: [],
+    compatibilityData: null,
+
+    noMatchDebug: {
+      categorySelected: safeExperiencesSelected,
+      guests,
+      budget,
+      totalExperiences: safeAllExperiences.length,
+      matchingCategoryCount: matchingCategory.length,
+      matchingCategoryTitles: matchingCategory.map((e) => e.title),
+      matchingCategoryAndGuestsCount: matchingCategoryAndGuests.length,
+      matchingCategoryAndBudgetCount: matchingCategoryAndBudget.length,
+    },
+  };
+}
 const experienceContent =
 
   getExperienceContent(
