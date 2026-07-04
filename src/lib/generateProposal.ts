@@ -442,7 +442,7 @@ const experienceContent =
   );
 
 
-  // =========================================================
+// =========================================================
 // SUGGESTED ADD-ONS
 // Solo quando è stata selezionata una sola categoria —
 // altrimenti "Included Experiences" resterebbe vuota
@@ -499,9 +499,9 @@ if (safeExperiencesSelected.length === 1) {
       return { ...experience, finalScore: score };
     })
 
-    .sort((a, b) => b.finalScore - a.finalScore)
+    .sort((a, b) => b.finalScore - a.finalScore);
 
-    .slice(0, 3);
+   
 }
  // =========================================================
 // HERO TITLE
