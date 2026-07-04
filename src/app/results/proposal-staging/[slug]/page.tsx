@@ -515,6 +515,8 @@ const featuredEssentials =
 
     includedExperiences={includedExperiences}
 
+    includedExperiencesPreSelected={includedExperiencesPreSelected}
+
     enhancements={enhancements}
 
     galleryImages={galleryImages}
@@ -531,6 +533,8 @@ dynamicIntroTitle={dynamicIntroTitle ?? ""}
     finalPrice={finalPrice}
 
     proposalSummary={proposalSummary}
+
+    
 
 />
 
