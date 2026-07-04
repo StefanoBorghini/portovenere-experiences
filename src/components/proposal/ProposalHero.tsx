@@ -223,48 +223,57 @@ md:max-w-2xl
 
         </p>
 
-        {/* PRICE */}
-<div className="
-mt-12
-  inline-flex
-  flex-col
-  items-center
-  justify-center
-  border
-  border-white/12
-  rounded-[40px]
-  px-6
-py-4
-  backdrop-blur-[6px]
-  bg-white/5
-min-w-[190px]
-">
+        {/* SCROLL CUE */}
 
-  <span className="
-    uppercase
-    tracking-[0.35em]
-    text-[11px]
-    text-white/52
-    mb-2
-  ">
-{priceLabel || proposalConfig.hero.priceLabel}
-  </span>
+        <button
+          type="button"
+          onClick={() => {
+            window.scrollTo({
+              top: window.innerHeight,
+              behavior: "smooth",
+            });
+          }}
+          aria-label="Scroll to explore"
+          className="
+            mt-12
+            flex
+            items-center
+            justify-center
+            w-14
+            h-14
+            rounded-full
+            border
+            border-white/20
+            bg-white/5
+            backdrop-blur-[6px]
+            hover:bg-white/10
+            hover:border-white/40
+            transition-all
+            duration-300
+            cursor-pointer
+          "
+        >
 
-  <span className="
-   text-[38px]
-tracking-[-0.04em]
-font-[300]
-    md:text-[46px]
-    
-    tracking-[-0.03em]
-font-[300]
-  ">
+          <motion.svg
+            animate={{ y: [0, 6, 0] }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </motion.svg>
 
-    €{totalPrice.toLocaleString()}
-
-  </span>
-
-</div>
+        </button>
 
       </motion.div>
 
