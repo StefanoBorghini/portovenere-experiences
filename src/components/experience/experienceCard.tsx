@@ -261,7 +261,7 @@ ${
         isDisabled
             ? "bg-red-500/10 text-red-300"
             : isSelected
-                ? "bg-white text-black"
+                ? " text-black"
                 : " text-white/75"
     }
 `}
