@@ -15,7 +15,7 @@ import { supabase } from "@/lib/supabase";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { experiences } from "@/lib/experiences";
+
 import DatePicker from "react-datepicker";
 import { forwardRef } from "react";
 import "react-datepicker/dist/react-datepicker.css";
