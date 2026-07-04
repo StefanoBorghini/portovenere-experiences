@@ -25,9 +25,8 @@ export function buildRendererData({
 
   const galleryImages =
     buildProposalGallery({
-      experiencesSelected: lead?.experiences || [],
-      moodsSelected: lead?.moods || [],
-      heroExperienceId: generatedProposal?.featuredExperience?.id,
+      featuredExperience: generatedProposal?.featuredExperience,
+      scoredExperiences: generatedProposal?.scoredExperiences,
     });
 
   // ===================================================
@@ -88,19 +87,7 @@ export function buildRendererData({
   // PRICE
   // ===================================================
 
-  // TODO:
-  // sostituire con il Pricing Engine centralizzato
-
   const finalPrice = 2800;
-
-  // Esempio futuro:
-  //
-  // const finalPrice =
-  //   calculateProposalPrice({
-  //     proposal: generatedProposal,
-  //     enhancements,
-  //     guests: lead?.guests
-  //   });
 
   // ===================================================
   // RETURN
