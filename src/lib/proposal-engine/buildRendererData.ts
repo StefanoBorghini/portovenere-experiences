@@ -2,6 +2,7 @@ import { buildProposalGallery } from "@/lib/buildProposalGallery";
 import { calculateProposalTotal } from "@/lib/pricing/calculateProposalTotal";
 import { buildProposalExperienceCard } from "../buildProposalExperienceCard";
 import { buildProposalSummary } from "./buildProposalSummary";
+
 // =====================================================
 // COMPATIBILITY HELPERS
 // =====================================================
@@ -58,18 +59,10 @@ export function buildRendererData({
     generatedProposal?.featuredExperience;
 
   // ===================================================
-  // GALLERY
-  // ===================================================
-
-  const galleryImages =
-    buildProposalGallery({
-      featuredExperience: generatedProposal?.featuredExperience,
-      scoredExperiences: generatedProposal?.scoredExperiences,
-    });
-
-  // ===================================================
   // INCLUDED EXPERIENCES (compatibili con la featured
   // e compatibili tra loro)
+  // — CALCOLATE PRIMA della gallery, così la gallery
+  // può usare esattamente queste esperienze
   // ===================================================
 
   const featuredCategory =
@@ -109,6 +102,21 @@ export function buildRendererData({
 
   const includedExperiences =
     finalIncludedExperiencesRaw.map(buildProposalExperienceCard);
+
+  // ===================================================
+  // GALLERY
+  // — ORA usa la featured experience + le esperienze
+  // REALMENTE incluse in questa proposal (finalIncludedExperiencesRaw),
+  // non più "le prime 4 tra tutte le esperienze scorate".
+  // Se non ci sono esperienze incluse (solo suggerimenti
+  // non selezionati), la gallery mostra solo la featured.
+  // ===================================================
+
+  const galleryImages =
+    buildProposalGallery({
+      featuredExperience,
+      includedExperiences: finalIncludedExperiencesRaw,
+    });
 
   // ===================================================
   // ENHANCEMENTS (filtro quelli incompatibili con la
@@ -167,11 +175,13 @@ export function buildRendererData({
   // ===================================================
   // RETURN
   // ===================================================
-const proposalSummary =
-  buildProposalSummary(
-    lead,
-    generatedProposal
-  );
+
+  const proposalSummary =
+    buildProposalSummary(
+      lead,
+      generatedProposal
+    );
+
   return {
 
     galleryImages,
