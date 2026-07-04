@@ -245,7 +245,33 @@ ${
 `}
     >
 
+<div
+   className={`
+    min-w-[210px]
+    rounded-full
+    px-8
+    py-4
+    uppercase
+    tracking-[0.22em]
+    text-[12px]
+    transition-all
+    duration-300
 
+    ${
+        isDisabled
+            ? "bg-red-500/10 border border-red-500/30 text-red-300"
+            : isSelected
+                ? "bg-white text-black"
+                : "border border-white/15 text-white/75"
+    }
+`}
+>
+  {isDisabled
+    ? "Not compatible"
+    : isSelected
+      ? "Included"
+      : "Add to your escape"}
+</div>
     </div>
 
 </div>
