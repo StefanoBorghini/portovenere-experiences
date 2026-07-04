@@ -16,18 +16,7 @@ export default function ExperienceSections({
         
       "
     >
-      <p
-  className="
-    text-center
-    uppercase
-    tracking-[0.32em]
-    text-[11px]
-    text-white/35
-    mb-8
-  "
->
-        Included Highlights
-      </p>
+    
 
       <div className="mt-6
 space-y-8">
