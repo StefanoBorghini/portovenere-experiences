@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ProposalExperienceCard } from "@/types/proposal";
 import ExperienceFacts from "@/components/experience/experienceFacts";
@@ -34,6 +35,12 @@ export default function ExperienceCard({
   onToggle,
 
 }: Props) {
+
+  const [showIncluded, setShowIncluded] =
+    useState(false);
+
+  const hasSections =
+    (experience.experience.sections?.length ?? 0) > 0;
 
   return (
 
@@ -208,9 +215,65 @@ ${
         facts={experience.experience.facts}
     />
 
-    <ExperienceSections
-        sections={experience.experience.sections}
-    />
+    {hasSections && (
+
+      <>
+
+        <div
+
+          onClick={(e) => {
+
+            e.stopPropagation();
+
+            setShowIncluded(
+              (prev) => !prev
+            );
+
+          }}
+
+          className="
+            mt-8
+            text-center
+            uppercase
+            tracking-[0.25em]
+            text-[11px]
+            text-white/40
+            hover:text-white/70
+            transition
+            cursor-pointer
+          "
+        >
+
+          {showIncluded
+            ? "Hide what's included  −"
+            : "What's included  +"}
+
+        </div>
+
+        <div
+          className={`
+            overflow-hidden
+            transition-all
+            duration-500
+            ease-out
+
+            ${
+              showIncluded
+                ? "max-h-[1200px] opacity-100"
+                : "max-h-0 opacity-0"
+            }
+          `}
+        >
+
+          <ExperienceSections
+            sections={experience.experience.sections}
+          />
+
+        </div>
+
+      </>
+
+    )}
 
 </div>
 
