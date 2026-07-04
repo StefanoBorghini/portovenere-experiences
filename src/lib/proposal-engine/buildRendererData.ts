@@ -1,5 +1,5 @@
 import { buildProposalGallery } from "@/lib/buildProposalGallery";
-import { calculateProposalPrice } from "@/lib/pricing";
+import { calculateProposalTotal } from "@/lib/pricing/calculateProposalTotal";
 import { buildProposalExperienceCard } from "../buildProposalExperienceCard";
 import { buildProposalSummary } from "./buildProposalSummary";
 // =====================================================
@@ -66,7 +66,7 @@ export function buildRendererData({
       ?.featuredExperience
       ?.id;
 
-  const includedExperiences =
+  const includedExperiencesRaw =
     rankedExperiences
 
       .filter(
@@ -79,15 +79,23 @@ export function buildRendererData({
           experience.category !== featuredCategory
       )
 
-      .slice(0, 3)
+      .slice(0, 3);
 
-      .map(buildProposalExperienceCard);
+  const includedExperiences =
+    includedExperiencesRaw.map(buildProposalExperienceCard);
 
   // ===================================================
   // PRICE
   // ===================================================
 
-  const finalPrice = 2800;
+  const finalPrice =
+    calculateProposalTotal({
+      experiences: [
+        generatedProposal?.featuredExperience,
+        ...includedExperiencesRaw,
+      ],
+      guests: lead?.guests,
+    });
 
   // ===================================================
   // RETURN
