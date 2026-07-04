@@ -9,8 +9,6 @@ interface Props {
 
 export default function CompatibilityCard({
 
-    
-
   experience,
 
   setExperience,
@@ -18,8 +16,6 @@ export default function CompatibilityCard({
   experiences,
 
   enhancements,
-
-  
 
 }: Props) {
 
@@ -30,12 +26,7 @@ const [enhancementSearch, setEnhancementSearch] =
   useState("");
 
     const filteredExperiences = useMemo(() => {
-console.log(
-  experiences.map(e => ({
-    id: e.id,
-    title: e.title,
-  }))
-);  return experiences
+      return experiences
 
     .filter(e => e.id !== experience.id)
 
@@ -69,15 +60,29 @@ function toggleExperience(id: string) {
   });
 
 }
-function toggleEnhancement(id: string) {
+
+// =====================================================
+// ENHANCEMENTS — id numerici, confronto sempre come stringa
+// per evitare mismatch di tipo con quello che torna dal DB
+// =====================================================
+
+function isEnhancementIncompatible(id: number) {
+  return (experience.incompatible_enhancements ?? [])
+    .map(String)
+    .includes(String(id));
+}
+
+function toggleEnhancement(id: number) {
 
   const current =
-    experience.incompatible_enhancements ?? [];
+    (experience.incompatible_enhancements ?? []).map(String);
+
+  const idStr = String(id);
 
   const updated =
-    current.includes(id)
-      ? current.filter((x: string) => x !== id)
-      : [...current, id];
+    current.includes(idStr)
+      ? current.filter((x: string) => x !== idStr)
+      : [...current, idStr];
 
   setExperience({
     ...experience,
@@ -85,6 +90,7 @@ function toggleEnhancement(id: string) {
   });
 
 }
+
 const filteredEnhancements = useMemo(() => {
 
   return enhancements.filter(e =>
@@ -170,7 +176,6 @@ const filteredEnhancements = useMemo(() => {
   key={exp.id}
  onClick={() => toggleExperience(exp.id)}
 
- 
   className={`
   flex
   items-center
@@ -188,7 +193,6 @@ const filteredEnhancements = useMemo(() => {
       : "hover:bg-white/5"
   }
 `}
-
 
 >
 <div>
@@ -287,7 +291,7 @@ const filteredEnhancements = useMemo(() => {
         transition-all
 
         ${
-          experience.incompatible_enhancements?.includes(enh.id)
+          isEnhancementIncompatible(enh.id)
             ? "bg-white/10"
             : "hover:bg-white/5"
         }
@@ -308,9 +312,7 @@ const filteredEnhancements = useMemo(() => {
 
       <input
         type="checkbox"
-        checked={
-          experience.incompatible_enhancements?.includes(enh.id) ?? false
-        }
+        checked={isEnhancementIncompatible(enh.id)}
         onClick={(e) => e.stopPropagation()}
         onChange={() => toggleEnhancement(enh.id)}
         className="h-6 w-6 cursor-pointer"
@@ -339,4 +341,3 @@ const filteredEnhancements = useMemo(() => {
   );
 
 }
-
