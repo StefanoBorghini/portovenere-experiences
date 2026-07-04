@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useEffect } from "react";
 import Section
 from "@/components/layout/Section";
 import SectionContainer
@@ -21,30 +22,24 @@ import {
 
 import { ProposalExperienceCard } from "@/types/proposal";
 interface IncludedExperiencesProps {
-
   experiences: ProposalExperienceCard[];
+  onSelectionChange?: (selectedIds: string[]) => void;
 }
 
-// =====================================================
-// COMPONENT
-// =====================================================
-
 export default function IncludedExperiences({
-
   experiences,
-
+  onSelectionChange,
 }: IncludedExperiencesProps) {
 
-  const [
-  selectedExperiences,
-  setSelectedExperiences,
-] = useState<string[]>(
+  const [selectedExperiences, setSelectedExperiences] = useState<string[]>(
+    experiences.map(experience => experience.id)
+  );
 
-  experiences.map(
-    experience => experience.id
-  )
+  useEffect(() => {
+    onSelectionChange?.(selectedExperiences);
+  }, [selectedExperiences]);
 
-);
+  // ... tutto il resto del componente resta identico
 
 const disabledExperiences = new Set<string>();
 

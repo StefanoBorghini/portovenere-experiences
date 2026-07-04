@@ -106,17 +106,17 @@ console.log(
         // GUESTS
         // =====================================================
 
-   const matchesGuests =
+   const guestCount = Number(guests) || 0;
 
-  guests === "2"
+const matchesGuests =
+  guestCount === 2
     ? experience.guest_2
-
-  : guests === "3-4"
+  : guestCount >= 3 && guestCount <= 4
     ? experience.guest_3_4
-
-  : guests === "5-7"
+  : guestCount >= 5 && guestCount <= 7
     ? experience.guest_5_7
-
+  : guestCount >= 8
+    ? experience.guest_8_plus
   : true;
 
 const matchesBudget =
@@ -374,10 +374,10 @@ console.log(
 console.log(
   "BEST EXPERIENCE IMAGE",
   {
-    id: bestExperience.id,
-    featured: bestExperience.featured_image,
-    gallery: bestExperience.gallery?.[0]?.image_url,
-    heroImage: bestExperience.heroImage,
+    id: bestExperience?.id,
+    featured: bestExperience?.featured_image,
+    gallery: bestExperience?.gallery?.[0]?.image_url,
+    heroImage: bestExperience?.heroImage,
   }
 );
   // =========================================================
