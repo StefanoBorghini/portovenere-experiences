@@ -259,10 +259,10 @@ ${
 
     ${
         isDisabled
-            ? "bg-red-500/10 border border-red-500/30 text-red-300"
+            ? "bg-red-500/10 text-red-300"
             : isSelected
                 ? "bg-white text-black"
-                : "border border-white/15 text-white/75"
+                : "border text-white/75"
     }
 `}
 >
