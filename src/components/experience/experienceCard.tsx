@@ -192,7 +192,7 @@ ${
       tracking-[-0.01em]
       text-white/62
       max-w-[320px]
-      mx-auto
+      
       
     "
   >
