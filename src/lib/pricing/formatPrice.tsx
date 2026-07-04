@@ -8,13 +8,6 @@ export function formatPrice(
 
   switch (type) {
 
-    case "fixed":
-
-      return {
-        label: amount != null ? "Price" : "",
-        value: amount != null ? `€${amount}` : "",
-      };
-
     case "per_person":
 
       return {
@@ -36,11 +29,12 @@ export function formatPrice(
         value: "On Request",
       };
 
+    case "fixed":
     default:
 
       return {
-        label: "",
-        value: "",
+        label: amount != null ? "Price" : "",
+        value: amount != null ? `€${amount}` : "",
       };
 
   }

@@ -130,7 +130,7 @@ export default function GeneralCard({
   </label>
 
   <select
-    value={experience.pricing_type ?? "fixed"}
+    value={experience.pricing_type}
     onChange={(e)=>
       setExperience({
         ...experience,
