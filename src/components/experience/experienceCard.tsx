@@ -178,13 +178,26 @@ ${
       text-[24px]
       font-light
       tracking-[-0.03em]
-      mb-10
+     
     "
   >
     €{experience.experience.base_price?.toLocaleString() ?? "0"}
   </p>
 
-  
+  <p
+    className="
+      text-[15px]
+      md:text-[16px]
+      leading-[1.9]
+      tracking-[-0.01em]
+      text-white/62
+      max-w-[320px]
+      mx-auto
+      
+    "
+  >
+    {experience.description}
+  </p>
 <div
     className="
         w-full
