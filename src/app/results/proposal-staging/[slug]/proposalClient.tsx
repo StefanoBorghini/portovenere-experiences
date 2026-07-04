@@ -18,6 +18,7 @@ interface Props {
     lead:any;
     featuredExperience:any;
     includedExperiences:any[];
+    includedExperiencesPreSelected:boolean;
     enhancements:any[];
     galleryImages:any[];
     expiresAt:any;
@@ -37,6 +38,7 @@ export default function ProposalClient({
     lead,
     featuredExperience,
     includedExperiences,
+    includedExperiencesPreSelected,
     enhancements,
     galleryImages,
     expiresAt,
@@ -48,20 +50,6 @@ export default function ProposalClient({
     proposalSummary,
 
 }:Props){
-
-    const [
-        selectedEnhancements,
-        setSelectedEnhancements
-    ] = useState<number[]>([]);
-
-    // Di default tutte le experience incluse sono selezionate
-    // (coerente con il calcolo lato server in buildRendererData)
-    const [
-        selectedExperienceIds,
-        setSelectedExperienceIds
-    ] = useState<string[]>(
-        includedExperiences.map((card: any) => card.id)
-    );
 
     // =====================================================
     // SAFETY GUARD
@@ -78,20 +66,35 @@ export default function ProposalClient({
         );
     }
 
+    const [
+        selectedEnhancements,
+        setSelectedEnhancements
+    ] = useState<number[]>([]);
+
+    // Se sono suggerimenti (categoria singola), partono deselezionati.
+    // Se sono experience delle categorie che l'utente ha scelto,
+    // partono già incluse, come prima.
+    const [
+        selectedExperienceIds,
+        setSelectedExperienceIds
+    ] = useState<string[]>(
+        includedExperiencesPreSelected
+            ? includedExperiences.map((card: any) => card.id)
+            : []
+    );
+
     // =====================================================
     // PREZZO LIVE
     // =====================================================
 
     const guestCount = Number(lead.guests) || 1;
 
-    // La featured experience è sempre inclusa, non è togglabile
     const featuredPrice = calculatePrice(
         featuredExperience?.base_price ?? 0,
         featuredExperience?.pricing_type ?? "fixed",
         guestCount
     );
 
-    // Solo le experience incluse attualmente selezionate
     const includedExperiencesPrice = includedExperiences
         .filter((card: any) => selectedExperienceIds.includes(card.id))
         .reduce((sum: number, card: any) =>
@@ -102,7 +105,6 @@ export default function ProposalClient({
             ), 0
         );
 
-    // Solo gli enhancement attualmente selezionati
     const enhancementsPrice = enhancements
         .filter((enh: any) => selectedEnhancements.includes(enh.id))
         .reduce((sum: number, enh: any) =>
@@ -159,6 +161,7 @@ export default function ProposalClient({
     <IncludedExperiences
         experiences={includedExperiences}
         onSelectionChange={setSelectedExperienceIds}
+        preSelected={includedExperiencesPreSelected}
     />
 
     <ProposalEnhancements

@@ -81,8 +81,21 @@ export function buildRendererData({
 
       .slice(0, 3);
 
+  // Se la selezione era di una sola categoria, la sezione
+  // "included" sarebbe vuota — usiamo i suggerimenti
+  // calcolati in generateProposal (categorie diverse,
+  // non pre-selezionati, sono "da aggiungere")
+
+  const usingSuggestedAddOns =
+    includedExperiencesRaw.length === 0;
+
+  const finalIncludedExperiencesRaw =
+    usingSuggestedAddOns
+      ? (generatedProposal?.suggestedAddOns || [])
+      : includedExperiencesRaw;
+
   const includedExperiences =
-    includedExperiencesRaw.map(buildProposalExperienceCard);
+    finalIncludedExperiencesRaw.map(buildProposalExperienceCard);
 
   // ===================================================
   // PRICE
@@ -92,7 +105,9 @@ export function buildRendererData({
     calculateProposalTotal({
       experiences: [
         generatedProposal?.featuredExperience,
-        ...includedExperiencesRaw,
+        // I suggerimenti non sono pre-inclusi, quindi
+        // non pesano sul prezzo di partenza
+        ...(usingSuggestedAddOns ? [] : includedExperiencesRaw),
       ],
       guests: lead?.guests,
     });
@@ -113,6 +128,9 @@ const proposalSummary =
       enhancementCards,
 
     includedExperiences,
+
+    includedExperiencesPreSelected:
+      !usingSuggestedAddOns,
 
     finalPrice,
 

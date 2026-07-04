@@ -193,6 +193,8 @@ const generatedProposal =
 
     includedExperiences,
 
+    includedExperiencesPreSelected,
+
     finalPrice,
 
     proposalSummary,

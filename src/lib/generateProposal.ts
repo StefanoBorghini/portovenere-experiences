@@ -440,6 +440,69 @@ const experienceContent =
   getExperienceContent(
     bestExperience.id
   );
+
+
+  // =========================================================
+// SUGGESTED ADD-ONS
+// Solo quando è stata selezionata una sola categoria —
+// altrimenti "Included Experiences" resterebbe vuota
+// =========================================================
+
+let suggestedAddOns: any[] = [];
+
+if (safeExperiencesSelected.length === 1) {
+
+  const guestCount = Number(guests) || 0;
+
+  suggestedAddOns = safeAllExperiences
+
+    .filter((experience) => experience.id !== bestExperience.id)
+
+    .filter((experience) => experience.category !== bestExperience.category)
+
+    .filter((experience) => {
+
+      const matchesGuests =
+        guestCount === 2
+          ? experience.guest_2
+        : guestCount >= 3 && guestCount <= 4
+          ? experience.guest_3_4
+        : guestCount >= 5 && guestCount <= 7
+          ? experience.guest_5_7
+        : guestCount >= 8
+          ? experience.guest_8_plus
+        : true;
+
+      const matchesBudget =
+        budget === "€500 - €1000"
+          ? experience.budget_500_1000
+        : budget === "€1000 - €3000"
+          ? experience.budget_1000_3000
+        : budget === "€3000+"
+          ? experience.budget_3000_plus
+        : true;
+
+      return matchesGuests && matchesBudget;
+    })
+
+    .map((experience) => {
+
+      let score = (experience.luxuryPriority || 1) * 20;
+
+      safeMoodsSelected.forEach((mood) => {
+        if (mood === "Romantic") score += (experience.romantic_score ?? 0) * 10;
+        if (mood === "Authentic") score += (experience.authentic_score ?? 0) * 10;
+        if (mood === "Adventure") score += (experience.adventure_score ?? 0) * 10;
+        if (mood === "Cinematic") score += (experience.cinematic_score ?? 0) * 10;
+      });
+
+      return { ...experience, finalScore: score };
+    })
+
+    .sort((a, b) => b.finalScore - a.finalScore)
+
+    .slice(0, 3);
+}
  // =========================================================
 // HERO TITLE
 // =========================================================
@@ -738,6 +801,8 @@ const orderedCategories =
     includedSections,
 
     compatibilityData,
+
+    suggestedAddOns,
   };
 
   
