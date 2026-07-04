@@ -238,9 +238,86 @@ const generatedProposal =
 
   "We look forward to welcoming you into your private Riviera experience.";
 
-  const featuredExperience =
-    generatedProposal.featuredExperience;
+ const featuredExperience =
+  generatedProposal.featuredExperience;
 
+// =======================================================
+// NO MATCHING EXPERIENCE
+// =======================================================
+
+if (!featuredExperience) {
+
+  return (
+
+    <main
+      className="
+        min-h-screen
+        bg-black
+        text-white
+        flex
+        items-center
+        justify-center
+        px-6
+      "
+    >
+
+      <div
+        className="
+          text-center
+          max-w-2xl
+        "
+      >
+
+        <p
+          className="
+            uppercase
+            tracking-[0.4em]
+            text-zinc-600
+            text-xs
+            mb-8
+          "
+        >
+
+          Private Reservation
+
+        </p>
+
+        <h1
+          className="
+            text-4xl
+            md:text-7xl
+            font-light
+            leading-[0.92]
+            tracking-[-0.04em]
+            mb-10
+          "
+        >
+
+          No matching experience found
+
+        </h1>
+
+        <p
+          className="
+            text-zinc-400
+            text-lg
+            leading-[1.9]
+          "
+        >
+
+          We couldn't find an experience matching these preferences yet.
+          Contact us directly to request a new curated proposal.
+
+        </p>
+
+      </div>
+
+    </main>
+  );
+}
+
+
+    
     
   // =======================================================
   // EXPIRATION

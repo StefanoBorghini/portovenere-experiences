@@ -64,6 +64,21 @@ export default function ProposalClient({
     );
 
     // =====================================================
+    // SAFETY GUARD
+    // =====================================================
+
+    if (!featuredExperience) {
+        return (
+            <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+                <p className="text-zinc-400 text-lg text-center max-w-xl">
+                    We couldn't load this proposal correctly.
+                    Please contact us directly.
+                </p>
+            </main>
+        );
+    }
+
+    // =====================================================
     // PREZZO LIVE
     // =====================================================
 
