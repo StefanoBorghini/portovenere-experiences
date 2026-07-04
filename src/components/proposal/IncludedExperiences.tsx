@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Section
 from "@/components/layout/Section";
 import SectionContainer
@@ -22,26 +21,42 @@ import {
 
 import { ProposalExperienceCard } from "@/types/proposal";
 interface IncludedExperiencesProps {
+
   experiences: ProposalExperienceCard[];
+
   onSelectionChange?: (selectedIds: string[]) => void;
+
   preSelected?: boolean;
 }
 
+// =====================================================
+// COMPONENT
+// =====================================================
+
 export default function IncludedExperiences({
+
   experiences,
+
   onSelectionChange,
+
   preSelected = true,
+
 }: IncludedExperiencesProps) {
 
-  const [selectedExperiences, setSelectedExperiences] = useState<string[]>(
-    preSelected ? experiences.map(experience => experience.id) : []
-  );
+  const [
+  selectedExperiences,
+  setSelectedExperiences,
+] = useState<string[]>(
 
-  useEffect(() => {
-    onSelectionChange?.(selectedExperiences);
-  }, [selectedExperiences]);
+  preSelected
+    ? experiences.map(experience => experience.id)
+    : []
 
- 
+);
+
+useEffect(() => {
+  onSelectionChange?.(selectedExperiences);
+}, [selectedExperiences]);
 
 const disabledExperiences = new Set<string>();
 
@@ -148,8 +163,16 @@ return (
         >
 
           <SectionHeader
-            label="Included Experiences"
-            title="Curated Riviera Moments"
+            label={
+              preSelected
+                ? "Included Experiences"
+                : "You Might Also Like"
+            }
+            title={
+              preSelected
+                ? "Curated Riviera Moments"
+                : "Complete Your Escape"
+            }
           />
 
         </motion.div>
