@@ -1,522 +1,80 @@
-
-import { experiences }
-from "@/lib/experiences";
-
-import {
-  experienceCompatibility,
-} from "@/lib/experienceCompatibility";
-
-import {
-  calculateTotalCompatibility,
-} from "./experienceScoring";
-
-import {
-  experienceConflicts,
-} from "@/lib/experienceConflicts";
-
-import {
-  cleanConflicts,
-  removeDuplicates,
-  hasConflict,
-} from "./proposal-engine/gallery/galleryHelpers";
-
-import {
-  selectGalleryImage,
-} from "./proposal-engine//gallery/selectGalleryImage";
-
 // =====================================================
-// TYPES
+// buildProposalGallery.ts
+// Costruisce la gallery a partire dalle experience
+// dinamiche (Supabase) già scorate da generateProposal
 // =====================================================
 
 interface BuildGalleryProps {
-
-  experiencesSelected:
-    string[];
-
-  moodsSelected:
-    string[];
-
-  heroExperienceId:
-    string;
+  featuredExperience: any;
+  scoredExperiences: any[];
 }
 
-// =====================================================
-// BUILD PROPOSAL GALLERY
-// =====================================================
-
 export function buildProposalGallery({
-
-  experiencesSelected,
-
-  moodsSelected,
-
-  heroExperienceId,
-
+  featuredExperience,
+  scoredExperiences,
 }: BuildGalleryProps) {
 
-  // ===================================================
-  // HERO EXPERIENCE
-  // ===================================================
-
-  const heroExperience =
-
-    experiences.find(
-      (exp) =>
-        exp.id === heroExperienceId
-    );
-
-  if (!heroExperience) {
+  if (!featuredExperience) {
     return [];
   }
-console.log(
-  "GALLERY HERO",
-  heroExperience
-);
-  // ===================================================
-  // MAIN CATEGORY
-  // ===================================================
-
-  const mainCategory =
-    heroExperience.macroCategory;
-
-  const compatibility =
-
-    experienceCompatibility[
-      mainCategory as keyof typeof experienceCompatibility
-    ];
-
-  // ===================================================
-  // NARRATIVE SLOTS
-  // ===================================================
-
-  let selectedActivity:
-    string | null = null;
-
-  let selectedGourmet:
-    string | null = null;
-
-  let selectedAtmosphere:
-    string | null = null;
-
-  // ===================================================
-  // ADDON TYPES
-  // ===================================================
-
-  // TODO:
-  // move this inside experiences
-  // as narrativeRole / slot
-
-  const addonTypes: Record<
-    string,
-    "activity" |
-    "gourmet" |
-    "atmosphere"
-  > = {
-
-    snorkeling: "activity",
-
-    trekking: "activity",
-
-    mermaiding: "activity",
-
-    horses: "activity",
-
-    restaurant: "gourmet",
-
-    foodwine: "gourmet",
-
-    sunset: "atmosphere",
-
-    aperitivo: "atmosphere",
-  };
-
-  // ===================================================
-  // ASSIGN SLOT
-  // ===================================================
-
-  function assignNarrativeSlot(
-    addonId: string
-  ) {
-
-    const type =
-      addonTypes[addonId];
-
-    if (!type) {
-      return;
-    }
-
-    // -----------------------------------------------
-
-    if (
-      type === "activity" &&
-      !selectedActivity
-    ) {
-
-      selectedActivity =
-        addonId;
-    }
-
-    // -----------------------------------------------
-
-    if (
-      type === "gourmet" &&
-      !selectedGourmet
-    ) {
-
-      selectedGourmet =
-        addonId;
-    }
-
-    // -----------------------------------------------
-
-    if (
-      type === "atmosphere" &&
-      !selectedAtmosphere
-    ) {
-
-      selectedAtmosphere =
-        addonId;
-    }
-  }
-
-  // ===================================================
-  // SINGLE CATEGORY
-  // ===================================================
-
-  if (
-    experiencesSelected.length === 1
-  ) {
-
-    moodsSelected.forEach(
-      (mood) => {
-
-        const normalizedMood =
-
-          mood.charAt(0).toUpperCase() +
-          mood.slice(1);
-
-        const moodAddons =
-
-          compatibility?.moods?.[
-            normalizedMood as keyof typeof compatibility.moods
-          ]?.addons || [];
-
-        moodAddons.forEach(
-          (addonId: string) => {
-
-            assignNarrativeSlot(
-              addonId
-            );
-          }
-        );
-      }
-    );
-  }
-
-  // ===================================================
-  // CATEGORY COMBINATIONS
-  // ===================================================
-
-  if (
-    experiencesSelected.length >= 2
-  ) {
-
-    experiencesSelected.forEach(
-      (category) => {
-
-        if (
-          category === mainCategory
-        ) {
-          return;
-        }
-
-        moodsSelected.forEach(
-          (mood) => {
-
-            const normalizedMood =
-
-              mood.charAt(0).toUpperCase() +
-              mood.slice(1);
-
-            const combinations =
-
-              compatibility?.combinations as
-                Record<string, any>;
-
-            const categoryCombination =
-
-              combinations?.[
-                category
-              ];
-
-            const moodCombination =
-
-              categoryCombination?.[
-                normalizedMood
-              ];
-
-            const comboAddons =
-
-              moodCombination?.addons || [];
-
-            comboAddons.forEach(
-              (addonId: string) => {
-
-                assignNarrativeSlot(
-                  addonId
-                );
-              }
-            );
-          }
-        );
-      }
-    );
-  }
-
-  // ===================================================
-  // ADDON IDS
-  // ===================================================
-
-  const addonIdsRaw = [
-
-    selectedActivity,
-
-    selectedGourmet,
-
-    selectedAtmosphere,
-  ];
-
-  let addonIds = addonIdsRaw.filter(
-    (item) => item !== null
-  ) as string[];
-
-  // ===================================================
-  // FALLBACKS
-  // ===================================================
-
-  if (
-    addonIds.length < 2
-  ) {
-
-    const compatibleExperiences =
-
-      experiences
-
-        .filter(
-          (experience) => {
-
-            // no hero
-
-            if (
-              experience.id ===
-              heroExperienceId
-            ) {
-
-              return false;
-            }
-
-            // no duplicates
-
-            if (
-              addonIds.includes(
-                experience.id
-              )
-            ) {
-
-              return false;
-            }
-
-            // compatibility
-
-            return compatibility?.compatibleWith.includes(
-              experience.macroCategory
-            );
-          }
-        )
-
-        .map(
-          (experience) => ({
-
-            experience,
-
-            score:
-              calculateTotalCompatibility(
-
-                heroExperience,
-
-                experience
-              ),
-          })
-        )
-
-        .sort(
-          (a, b) =>
-            b.score - a.score
-        )
-
-        .map(
-          (item) =>
-            item.experience
-        );
-
-    compatibleExperiences.forEach(
-      (experience) => {
-
-        if (
-          addonIds.length >= 3
-        ) {
-
-          return;
-        }
-
-        addonIds.push(
-          experience.id
-        );
-      }
-    );
-  }
-
-  // ===================================================
-  // CLEAN CONFLICTS
-  // ===================================================
-
-  addonIds = cleanConflicts(
-
-    addonIds,
-
-    experienceConflicts
-  );
-
-  // ===================================================
-  // GALLERY EXPERIENCES
-  // ===================================================
-
-  const galleryExperiences:
-    any[] = [];
-
-  // always hero first
-
-  galleryExperiences.push(
-    heroExperience
-  );
-
-  // ===================================================
-  // CANDIDATES
-  // ===================================================
-
-  const candidateExperiences =
-
-    addonIds
-
-      .map(
-        (id) =>
-
-          experiences.find(
-            (exp) =>
-              exp.id === id
-          )
-      )
-
-      .filter(Boolean);
-
-  // ===================================================
-  // ADD COMPATIBLE
-  // ===================================================
-
-  candidateExperiences.forEach(
-    (candidate: any) => {
-
-      if (
-        galleryExperiences.length >= 3
-      ) {
-
-        return;
-      }
-
-      const hasAnyConflict =
-
-        galleryExperiences.some(
-          (selected) =>
-
-            hasConflict(
-
-              selected,
-
-              candidate,
-
-              experienceConflicts
-            )
-        );
-
-      if (!hasAnyConflict) {
-
-        galleryExperiences.push(
-          candidate
-        );
-      }
-    }
-  );
-
-  // ===================================================
-  // FILL EMPTY SLOTS
-  // ===================================================
-
-  while (
-    galleryExperiences.length < 3
-  ) {
-
-    galleryExperiences.push(
-      heroExperience
-    );
-  }
-
-  // ===================================================
-  // BUILD IMAGES
-  // ===================================================
 
   const images: string[] = [];
 
-  galleryExperiences.forEach(
-    (experience) => {
+  // ===================================================
+  // GALLERY DELLA FEATURED EXPERIENCE
+  // ===================================================
 
-      if (!experience) {
-        return;
-      }
+  const featuredGalleryImages = (featuredExperience.gallery || [])
+    .filter((img: any) => img.active !== false)
+    .sort((a: any, b: any) =>
+      (a.display_order ?? 0) - (b.display_order ?? 0)
+    )
+    .map((img: any) => img.image_url)
+    .filter(Boolean);
 
-      const bestImage =
+  images.push(...featuredGalleryImages);
 
-        selectGalleryImage({
+  // ===================================================
+  // FALLBACK SE LA FEATURED NON HA GALLERY
+  // ===================================================
 
-          experience,
+  if (images.length === 0) {
+    const fallback =
+      featuredExperience.detail_image ||
+      featuredExperience.hero_image ||
+      featuredExperience.featured_image;
 
-          selectedCategories:
-            experiencesSelected,
-
-          selectedMoods:
-            moodsSelected,
-        });
-
-      if (bestImage) {
-
-        images.push(
-          bestImage
-        );
-      }
+    if (fallback) {
+      images.push(fallback);
     }
-  );
+  }
 
   // ===================================================
-  // REMOVE DUPLICATES
+  // UNA FOTO DALLE ALTRE EXPERIENCE MEGLIO SCORATE
+  // (danno varietà alla gallery, non solo la featured)
   // ===================================================
 
-  const finalImages =
+  const otherExperiences = (scoredExperiences || [])
+    .filter((exp: any) => exp.id !== featuredExperience.id);
 
-    removeDuplicates(images);
+  otherExperiences.slice(0, 4).forEach((exp: any) => {
+
+    const img =
+      (exp.gallery || []).find((g: any) => g.featured)?.image_url ||
+      exp.detail_image ||
+      exp.hero_image ||
+      exp.featured_image;
+
+    if (img) {
+      images.push(img);
+    }
+  });
 
   // ===================================================
-  // RETURN
+  // DEDUPE
   // ===================================================
 
-  return finalImages.slice(0, 3);
+  const uniqueImages = [...new Set(images)];
+
+  return uniqueImages.slice(0, 8);
 }
-
