@@ -1,4 +1,3 @@
-import { experiences } from "@/lib/experiences";
 import {
   ProposalConfig,
 } from "@/types/cms";
@@ -49,7 +48,9 @@ export const proposalConfig: ProposalConfig = {
     subtitle:
       "Tailored private experiences across the Italian Riviera.",
 
-     priceLabel: `${experiences.length + 1} SELECTED EXPERIENCES`,
+    priceLabel:
+      "Proposal Total",
+       // BEST EXPERIENCE priceLabel: `${includedExperiences.length + 1} EXPERIENCES IN 1`,
   },
 
   narrative: {

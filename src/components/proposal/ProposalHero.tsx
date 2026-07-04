@@ -13,6 +13,8 @@ interface ProposalHeroProps {
   guests: string;
 
   totalPrice: number;
+
+  priceLabel?: string;
 }
 import { motion } from "framer-motion";
 
@@ -30,11 +32,10 @@ export default function ProposalHero({
 
   totalPrice,
 
-  
+  priceLabel,
 
 }: ProposalHeroProps) {
-console.log("heroImage", heroImage);
-console.log("heroTitle", heroTitle);
+
   return (
 
     <section
@@ -246,7 +247,8 @@ min-w-[190px]
     text-white/52
     mb-2
   ">
-{proposalConfig.hero.priceLabel}  </span>
+{priceLabel || proposalConfig.hero.priceLabel}
+  </span>
 
   <span className="
    text-[38px]

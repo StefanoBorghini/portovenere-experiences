@@ -1,5 +1,5 @@
 "use client";
-
+import FloatingPriceBar from "@/components/proposal/FloatingPriceBar";
 import ProposalHero from "@/components/proposal/ProposalHero";
 import ProposalNarrative from "@/components/proposal/ProposalNarrative";
 import FeaturedExperience from "@/components/proposal/FeaturedExperience";
@@ -120,7 +120,15 @@ export default function ProposalClient({
         includedExperiencesPrice +
         enhancementsPrice
     );
+// =====================================================
+    // CONTEGGIO EXPERIENCE LIVE (featured + incluse selezionate)
+    // =====================================================
 
+    const experienceCount =
+        1 + selectedExperienceIds.length;
+
+    const priceLabel =
+        `${experienceCount} Experience${experienceCount !== 1 ? "s" : ""} Included`;
     return (
 
 <main
@@ -131,6 +139,10 @@ export default function ProposalClient({
         min-h-screen
     "
 >
+ <FloatingPriceBar
+        experienceCount={experienceCount}
+        totalPrice={liveTotal}
+    />
 
     <ProposalHero
         heroImage={heroImage}
