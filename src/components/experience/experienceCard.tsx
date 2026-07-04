@@ -193,7 +193,7 @@ ${
       text-white/62
       max-w-[320px]
       mx-auto
-      mb-12
+      
     "
   >
     {experience.description}
