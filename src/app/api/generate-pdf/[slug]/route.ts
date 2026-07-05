@@ -34,6 +34,12 @@ export async function GET(
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
+  // ===== CRONOMETRAGGIO — per capire dove va il tempo =====
+  const t0 = Date.now();
+  function log(step: string) {
+    console.log(`[pdf-timing] ${step}: ${Date.now() - t0}ms dall'inizio`);
+  }
+
   let browser;
 
   try {
@@ -43,6 +49,7 @@ export async function GET(
       executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
       headless: true,
     });
+    log("browser launched (Chromium scaricato + avviato)");
 
     const page = await browser.newPage();
 
@@ -57,10 +64,7 @@ export async function GET(
     await page.emulateMediaType("screen");
 
     // DEBUG TEMPORANEO — logga ogni richiesta immagine fallita con il
-    // motivo esatto (timeout, blocco CORS, 403, DNS, ecc.). Questi log
-    // finiscono nei Runtime Logs di Vercel (Deployments → il deploy →
-    // Functions → questa route). Una volta capita la causa, possiamo
-    // rimuovere questo blocco.
+    // motivo esatto (timeout, blocco CORS, 403, DNS, ecc.).
     page.on("requestfailed", (request) => {
       if (request.resourceType() === "image") {
         console.error(
@@ -89,41 +93,32 @@ export async function GET(
     await page.goto(`${siteUrl}/results/proposal-staging/${slug}?pdf=1`, {
       // "load" aspetta che la pagina e le sue risorse iniziali (incluse
       // le immagini) siano caricate — a differenza di "networkidle0",
-      // non aspetta che si fermi QUALSIASI traffico di rete di sottofondo
-      // (analytics, font esterni, countdown, ecc.), che e' la causa
-      // principale della lentezza.
+      // non aspetta che si fermi QUALSIASI traffico di rete di sottofondo.
       waitUntil: "load",
       timeout: 45000,
     });
+    log("page.goto completato (pagina caricata)");
 
     // Misuriamo l'altezza reale della pagina...
     const bodyHeight = await page.evaluate(() => document.body.scrollHeight);
 
     // ...poi ridimensioniamo il viewport a tutta l'altezza: cosi'
     // gli elementi con animazione "whileInView" (framer-motion)
-    // risultano tutti dentro il viewport e le loro animazioni
-    // scattano, invece di restare bloccate nello stato iniziale
-    // perche' "non ancora scrollate in vista".
+    // risultano tutti dentro il viewport e le loro animazioni scattano.
     await page.setViewport({ width: 1280, height: bodyHeight });
+    log(`viewport ridimensionato a ${bodyHeight}px di altezza`);
 
-    // Alcuni componenti (probabilmente quelli con next/image, es. la
-    // Featured Experience e le card di Included Experiences) usano il
-    // lazy loading nativo del browser (loading="lazy"). In modalita'
-    // headless quel trigger a volte non scatta in tempo. Qui forziamo
-    // tutte le immagini lazy a diventare "eager": partono a caricare
-    // immediatamente, invece di aspettare un evento che potrebbe non
-    // arrivare mai in questo contesto.
+    // Forziamo le immagini lazy a diventare eager.
     await page.evaluate(() => {
       document.querySelectorAll('img[loading="lazy"]').forEach((img) => {
         (img as HTMLImageElement).loading = "eager";
       });
     });
 
-    // Attesa MIRATA sul vero caricamento delle immagini (risolve i
-    // blocchi neri): invece di indovinare un tempo fisso, controlliamo
-    // ogni <img> nella pagina e aspettiamo solo quelle non ancora
-    // completate, con un tetto massimo di 8s per non bloccare all'infinito
-    // se una singola immagine e' lenta o irraggiungibile.
+    // Attesa MIRATA sul vero caricamento delle immagini: aspettiamo solo
+    // quelle non ancora completate, con un tetto di 4s a testa (ridotto
+    // da 8s: se un'immagine e' davvero irraggiungibile non ha senso
+    // aspettarla piu' a lungo, consuma solo budget di tempo).
     await page.evaluate(() => {
       const images = Array.from(document.querySelectorAll("img"));
 
@@ -132,7 +127,7 @@ export async function GET(
           if (img.complete) return Promise.resolve();
 
           return new Promise((resolve) => {
-            const timer = setTimeout(resolve, 8000);
+            const timer = setTimeout(resolve, 4000);
             img.addEventListener("load", () => {
               clearTimeout(timer);
               resolve(undefined);
@@ -145,28 +140,24 @@ export async function GET(
         })
       );
     });
+    log("attesa immagini completata");
 
     // Piccola pausa residua per lasciare che le transizioni CSS/framer-motion
     // finiscano visivamente dopo che le immagini sono pronte.
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // TRUCCO — page.pdf() usa una pipeline di rendering interna diversa
-    // da quella normale di compositing (quella che dipinge lo schermo o
-    // gli screenshot). E' un bug/comportamento noto di Chromium: alcune
-    // immagini decodificate correttamente a schermo non vengono incluse
-    // nel motore di stampa se il loro decode non e' ancora "stabilizzato"
-    // nella cache di rendering. Forzare uno screenshot completo prima del
-    // PDF "scalda" quella cache e spesso risolve immagini mancanti/nere
-    // che appaiono solo nel PDF e non a schermo.
-    //
-    // Su pagine molto alte questo screenshot puo' superare i limiti di
-    // memoria/dimensione della function serverless e fallire — in quel
-    // caso lo ignoriamo e proviamo comunque a generare il PDF, invece di
-    // far fallire tutta la generazione per un tentativo "extra".
+    // da quella normale di compositing. Forzare uno screenshot completo
+    // prima del PDF "scalda" quella cache e spesso risolve immagini
+    // mancanti/nere che appaiono solo nel PDF e non a schermo.
+    // Se fallisce (pagina troppo alta per i limiti di memoria), lo
+    // ignoriamo e proviamo comunque a generare il PDF.
     try {
       await page.screenshot({ fullPage: true });
+      log("screenshot di riscaldamento completato");
     } catch (screenshotErr) {
       console.error("warm-up screenshot failed, continuing anyway:", screenshotErr);
+      log("screenshot di riscaldamento FALLITO (ignorato)");
     }
 
     const pdfBuffer = await page.pdf({
@@ -174,13 +165,13 @@ export async function GET(
       height: `${bodyHeight}px`,
       printBackground: true,
     });
+    log("page.pdf completato");
 
     await browser.close();
+    log("browser chiuso — FINE");
 
     // Conversione a ArrayBuffer puro: NextResponse non accetta
     // direttamente il tipo Buffer di Node in modo tipizzato.
-    // .slice() estrae solo i byte reali del PDF (Node a volte alloca
-    // un ArrayBuffer sottostante piu' grande del necessario).
     const pdfArrayBuffer = pdfBuffer.buffer.slice(
       pdfBuffer.byteOffset,
       pdfBuffer.byteOffset + pdfBuffer.byteLength
@@ -196,6 +187,7 @@ export async function GET(
 
   } catch (err) {
 
+    log("ERRORE — vedi dettagli sotto");
     console.error("generate-pdf error:", err);
 
     if (browser) {
