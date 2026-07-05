@@ -825,24 +825,7 @@ export default function CraftYourExperience() {
 
       </div>
 
-      {/* FOOTER: next / submit */}
-      <div className="px-6 py-8 max-w-xl w-full mx-auto">
-
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={!currentStepValid}
-          className={`w-full rounded-full py-5 uppercase tracking-[0.25em] text-xs transition-all duration-500 ${
-            currentStepValid
-              ? "bg-white text-black hover:scale-[1.02]"
-              : "bg-white/10 text-white/30 cursor-not-allowed"
-          }`}
-        >
-          {stepId === "terms" ? "Generate Private Proposal" : "Next"}
-        </button>
-
-      </div>
-
+      
       {/* FOOTER: back + next / submit */}
 <div className="px-6 py-8 max-w-xl w-full mx-auto flex gap-4">
 
