@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-      `${siteUrl}/results/proposal-staging/${slug}?verified=1`
+      `${siteUrl}/results/booking-confirmed?slug=${slug}`
     );
 
   } catch (err) {
