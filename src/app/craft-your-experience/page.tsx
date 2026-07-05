@@ -84,6 +84,176 @@ const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
 // non fa parte del conteggio degli step del wizard.
 const INTRO_STEP = -1;
 
+// =========================================================
+// IMMAGINI E TESTI — hardcoded per ora, come richiesto.
+// Quando arriverà il CMS, questi tre oggetti diventeranno
+// la fonte dinamica (stessa struttura, dati da Supabase invece
+// che da qui) — il resto del codice non cambia.
+//
+// IMPORTANTE: questi sono path placeholder. Vanno sostituiti
+// con le immagini reali, salvate in:
+//   /public/images/experiences/sea-escape.jpg
+//   /public/images/experiences/aerial-escape.jpg
+//   /public/images/experiences/gourmet-escape.jpg
+//   /public/images/experiences/wild-escape.jpg
+//   /public/images/moods/romantic.jpg
+//   /public/images/moods/cinematic.jpg
+//   /public/images/moods/authentic.jpg
+//   /public/images/moods/adventure.jpg
+//   /public/images/budget/sailing.jpg
+//   /public/images/budget/yacht.jpg
+//   /public/images/budget/villa.jpg
+// =========================================================
+
+const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
+  "Sea Escape": {
+    image: "/images/experiences/sea-escape.jpg",
+    description: "Private sailing and sunset cruises along the Riviera coast.",
+  },
+  "Aerial Escape": {
+    image: "/images/experiences/aerial-escape.jpg",
+    description: "See the coast from above with unforgettable views.",
+  },
+  "Gourmet Escape": {
+    image: "/images/experiences/gourmet-escape.jpg",
+    description: "Savor exceptional flavors in unique locations.",
+  },
+  "Wild Escape": {
+    image: "/images/experiences/wild-escape.jpg",
+    description: "Reconnect with nature and hidden places.",
+  },
+};
+
+const MOOD_IMAGES: Record<string, string> = {
+  Romantic: "/images/moods/romantic.jpg",
+  Cinematic: "/images/moods/cinematic.jpg",
+  Authentic: "/images/moods/authentic.jpg",
+  Adventure: "/images/moods/adventure.jpg",
+};
+
+const BUDGET_IMAGES: Record<string, string> = {
+  "€500 - €1000": "/images/budget/sailing.jpg",
+  "€1000 - €3000": "/images/budget/yacht.jpg",
+  "€3000+": "/images/budget/villa.jpg",
+};
+
+// =========================================================
+// ICONE — SVG minimali scritte a mano, per non introdurre
+// una nuova dipendenza (es. lucide-react) senza saperla già
+// installata nel progetto.
+// =========================================================
+
+function ExperienceIcon({ id }: { id: string }) {
+
+  const common = "w-5 h-5 stroke-white fill-none";
+
+  switch (id) {
+
+    case "Sea Escape":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M3 18h18M5 18l1.5-7h11L19 18M12 4v9M9 7h6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Aerial Escape":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M2 12l19-9-4 9 4 9-19-9z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Gourmet Escape":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M8 3h8l-1 8a3 3 0 01-6 0L8 3zM12 11v7M9 21h6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Wild Escape":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M12 2C8 6 5 10 5 14a7 7 0 0014 0c0-4-3-8-7-12z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    default:
+      return null;
+  }
+}
+
+function MoodIcon({ id }: { id: string }) {
+
+  const common = "w-5 h-5 stroke-white fill-none";
+
+  switch (id) {
+
+    case "Romantic":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M12 20s-7-4.5-9.3-9A5 5 0 0112 6a5 5 0 019.3 5c-2.3 4.5-9.3 9-9.3 9z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Cinematic":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <rect x="3" y="7" width="18" height="13" rx="1.5" />
+          <path
+            d="M3 7l3-4h4l-3 4M11 7l3-4h4l-3 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Authentic":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M4 10l8-6 8 6M5 10v9M9 10v9M15 10v9M19 10v9M3 21h18"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    case "Adventure":
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M3 19l6-10 4 6 2-3 6 7H3z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
+    default:
+      return null;
+  }
+}
+
 export default function CraftYourExperience() {
 
   const router = useRouter();
@@ -564,27 +734,54 @@ export default function CraftYourExperience() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3">
               {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
                 (item) => {
 
-                  const words = item.split(" ");
-                  const lastWord = words[words.length - 1];
-                  const firstPart = words.slice(0, -1).join(" ");
+                  const details = EXPERIENCE_DETAILS[item];
+                  const isSelected = formData.experiences.includes(item);
 
                   return (
                     <button
                       type="button"
                       key={item}
                       onClick={() => handleMultiSelect("experiences", item, 3)}
-                      className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
-                        formData.experiences.includes(item)
-                          ? "border-white bg-white text-black"
-                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      className={`relative rounded-2xl overflow-hidden h-28 text-left border transition-all duration-500 ${
+                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                       }`}
                     >
-                      <span className="block">{firstPart}</span>
-                      <span className="block">{lastWord}</span>
+                      <div
+                        className="absolute inset-0 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${details.image})` }}
+                      />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+
+                      {/* ICON BADGE */}
+                      <div className="absolute top-2.5 left-2.5 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+                        <ExperienceIcon id={item} />
+                      </div>
+
+                      {/* SELECTION RING */}
+                      <div
+                        className={`absolute top-2.5 right-2.5 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </div>
+
+                      {/* TEXT */}
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <p className="text-white text-sm font-medium mb-0.5">
+                          {item}
+                        </p>
+                        <p className="text-white/70 text-[11px] leading-snug max-w-[90%]">
+                          {details.description}
+                        </p>
+                      </div>
                     </button>
                   );
                 }
@@ -607,20 +804,43 @@ export default function CraftYourExperience() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => handleMultiSelect("moods", item, 3)}
-                  className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
-                    formData.moods.includes(item)
-                      ? "border-white bg-white text-black"
-                      : "border-white/10 bg-white/5 hover:border-white/40"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+              {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
+
+                const isSelected = formData.moods.includes(item);
+
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => handleMultiSelect("moods", item, 3)}
+                    className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                      isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${MOOD_IMAGES[item]})` }}
+                    />
+
+                    <div className="absolute inset-0 bg-black/40" />
+
+                    <div
+                      className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-black" />
+                      )}
+                    </div>
+
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                      <MoodIcon id={item} />
+                      <p className="text-white text-sm font-medium">{item}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             {selectionWarning && (
@@ -903,20 +1123,38 @@ export default function CraftYourExperience() {
       case "budget":
         return (
           <div className="grid gap-4">
-            {["€500 - €1000", "€1000 - €3000", "€3000+"].map((item) => (
-              <button
-                type="button"
-                key={item}
-                onClick={() => handleSelect("budget", item)}
-                className={`border rounded-2xl px-6 py-6 text-center text-lg transition-all duration-500 ease-out ${
-                  formData.budget === item
-                    ? "border-white bg-white text-black"
-                    : "border-white/10 bg-white/5 hover:border-white/40"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
+            {["€500 - €1000", "€1000 - €3000", "€3000+"].map((item) => {
+
+              const isSelected = formData.budget === item;
+
+              return (
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() => handleSelect("budget", item)}
+                  className={`relative rounded-2xl overflow-hidden h-24 border transition-all duration-500 ease-out ${
+                    isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                  }`}
+                >
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${BUDGET_IMAGES[item]})` }}
+                  />
+
+                  <div
+                    className={`absolute inset-0 ${
+                      isSelected ? "bg-black/40" : "bg-black/60"
+                    }`}
+                  />
+
+                  <div className="relative h-full flex items-center justify-center">
+                    <p className="text-white text-lg font-light tracking-wide">
+                      {item}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         );
 
@@ -1046,7 +1284,7 @@ export default function CraftYourExperience() {
             <img
               src="/logo-white.png"
               alt="Portovenere Experiences"
-              className="h-16 md:h-22 mb-8 md:mb-10 opacity-90"
+              className="h-14 md:h-20 mb-8 md:mb-10 opacity-90"
             />
 
             <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
