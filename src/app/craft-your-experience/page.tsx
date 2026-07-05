@@ -438,20 +438,28 @@ export default function CraftYourExperience() {
 
             <div className="grid grid-cols-2 gap-4">
               {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
-                (item) => (
-                  <button
-                    type="button"
-                    key={item}
-                    onClick={() => handleMultiSelect("experiences", item, 3)}
-                    className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
-                      formData.experiences.includes(item)
-                        ? "border-white bg-white text-black"
-                        : "border-white/10 bg-white/5 hover:border-white/40"
-                    }`}
-                  >
-                    {item}
-                  </button>
-                )
+                (item) => {
+
+                  const words = item.split(" ");
+                  const lastWord = words[words.length - 1];
+                  const firstPart = words.slice(0, -1).join(" ");
+
+                  return (
+                    <button
+                      type="button"
+                      key={item}
+                      onClick={() => handleMultiSelect("experiences", item, 3)}
+                      className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
+                        formData.experiences.includes(item)
+                          ? "border-white bg-white text-black"
+                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      }`}
+                    >
+                      <span className="block">{firstPart}</span>
+                      <span className="block">{lastWord}</span>
+                    </button>
+                  );
+                }
               )}
             </div>
 
