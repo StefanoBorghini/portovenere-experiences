@@ -932,10 +932,11 @@ export default function CraftYourExperience() {
           min-h-0
           flex
           flex-col
-          justify-start
+          justify-between
           gap-6
           overflow-y-auto
           pt-4
+          pb-6
           px-6
           max-w-xl
           w-full
