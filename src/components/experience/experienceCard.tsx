@@ -279,7 +279,7 @@ ${
 
 <div
     className="
-        mt-12
+        mt-8
         w-full
         flex
         justify-center
@@ -288,13 +288,14 @@ ${
 
     <div
        className={`
-    min-w-[210px]
+    min-w-[140px]
     rounded-full
-    px-8
-    py-4
+    px-6
+    py-2.5
     uppercase
-    tracking-[0.22em]
-    text-[12px]
+    tracking-[0.2em]
+    text-[11px]
+    text-center
     transition-all
     duration-300
 
@@ -307,35 +308,12 @@ ${
     }
 `}
     >
-
-<div
-   className={`
-    min-w-[210px]
-    rounded-full
-    px-8
-    py-4
-    uppercase
-    tracking-[0.22em]
-    text-[12px]
-    transition-all
-    duration-300
-
-    ${
-        isDisabled
-            ? "bg-red-500/10 text-red-300"
-            : isSelected
-                ? " text-black"
-                : " text-white/75"
-    }
-`}
->
   {isDisabled
     ? "Not compatible"
     : isSelected
       ? "Included"
       : "Add"}
 </div>
-    </div>
 
 </div>
 

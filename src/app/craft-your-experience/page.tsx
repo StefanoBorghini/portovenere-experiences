@@ -15,7 +15,6 @@ const STEP_IDS = [
   "experiences",
   "moods",
   "guests",
-  "children",
   "dates",
   "budget",
   "contact",
@@ -34,12 +33,8 @@ const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
     title: "Choose the vibe that inspires you.",
   },
   guests: {
-    label: "Number of Guests",
-    title: "How many people will join you?",
-  },
-  children: {
-    label: "Children (0–12) years",
-    title: "Will children be part of the experience?",
+    label: "Guests & Children",
+    title: "Who's joining the adventure?",
   },
   dates: {
     label: "Travel Dates",
@@ -392,9 +387,6 @@ export default function CraftYourExperience() {
       case "guests":
         return formData.guests !== "";
 
-      case "children":
-        return true;
-
       case "dates":
         return formData.startDate !== "" && formData.endDate !== "";
 
@@ -704,7 +696,12 @@ export default function CraftYourExperience() {
       case "guests":
         return (
           <div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
+              Guests
+            </p>
+
+            <div className="grid grid-cols-2 gap-2.5">
               {[2, 3, 4, 5, 6, 7, 8].map((item) => (
                 <button
                   type="button"
@@ -714,15 +711,15 @@ export default function CraftYourExperience() {
                     setShowMoreGuests(false);
                     setFormData({ ...formData, guests: String(item) });
                   }}
-                  className={`border rounded-2xl px-4 py-5 text-center transition-all duration-500 ease-out ${
+                  className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
                     guestCount === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
-                  <span className="block text-lg leading-tight">{item}</span>
+                  <span className="block text-base leading-tight">{item}</span>
                   <span
-                    className={`block text-[10px] uppercase tracking-wide mt-0.5 ${
+                    className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
                       guestCount === item ? "text-black/50" : "text-zinc-500"
                     }`}
                   >
@@ -738,15 +735,15 @@ export default function CraftYourExperience() {
                   setShowMoreGuests(true);
                   setFormData({ ...formData, guests: "" });
                 }}
-                className={`rounded-2xl border px-4 py-5 text-center transition-all duration-500 ease-out ${
+                className={`rounded-2xl border px-4 py-3 text-center transition-all duration-500 ease-out ${
                   showMoreGuests
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                <span className="block text-lg leading-tight">9+</span>
+                <span className="block text-base leading-tight">9+</span>
                 <span
-                  className={`block text-[10px] uppercase tracking-wide mt-0.5 ${
+                  className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
                     showMoreGuests ? "text-black/50" : "text-zinc-500"
                   }`}
                 >
@@ -757,10 +754,10 @@ export default function CraftYourExperience() {
 
             <div
               className={`overflow-hidden transition-all duration-500 ease-out ${
-                showMoreGuests ? "max-h-40 opacity-100 mt-4" : "max-h-0 opacity-0"
+                showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
               }`}
             >
-              <p className="text-zinc-500 mb-2 text-sm">Exact number of guests</p>
+              <p className="text-zinc-500 mb-2 text-xs">Exact number of guests</p>
               <input
                 type="number"
                 min={9}
@@ -773,59 +770,62 @@ export default function CraftYourExperience() {
                   setGuestCount(Number(e.target.value));
                   setFormData({ ...formData, guests: e.target.value });
                 }}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 outline-none transition-all duration-500 focus:border-white/40"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-3 outline-none transition-all duration-500 focus:border-white/40"
               />
             </div>
-          </div>
-        );
 
-      case "children":
-        return (
-          <div className="flex flex-col items-center justify-center py-8">
-
-            <p className="text-zinc-400 text-base mb-8">
-              {formData.children === 0
-                ? "No children"
-                : formData.children === 1
-                ? "1 child"
-                : `${formData.children} children`}
+            {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
+              Children
             </p>
 
-            <div className="flex items-center gap-10">
+            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
 
-              <button
-                type="button"
-                onClick={() => {
-                  const value = Math.max(0, formData.children - 1);
-                  setFormData({
-                    ...formData,
-                    children: value,
-                    travelingWithChildren: value > 0,
-                  });
-                }}
-                className="w-12 h-12 rounded-full border border-white/20 text-2xl flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
-              >
-                −
-              </button>
-
-              <span className="text-5xl font-light w-14 text-center tabular-nums">
-                {formData.children}
+              <span className="text-zinc-400 text-sm">
+                {formData.children === 0
+                  ? "No children"
+                  : formData.children === 1
+                  ? "1 child"
+                  : `${formData.children} children`}
               </span>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const value = Math.min(10, formData.children + 1);
-                  setFormData({
-                    ...formData,
-                    children: value,
-                    travelingWithChildren: value > 0,
-                  });
-                }}
-                className="w-12 h-12 rounded-full border border-white/20 text-2xl flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
-              >
-                +
-              </button>
+              <div className="flex items-center gap-4">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.max(0, formData.children - 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  −
+                </button>
+
+                <span className="text-lg font-light w-6 text-center tabular-nums">
+                  {formData.children}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.min(10, formData.children + 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  +
+                </button>
+
+              </div>
 
             </div>
 
