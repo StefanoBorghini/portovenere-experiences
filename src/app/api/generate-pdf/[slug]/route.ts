@@ -150,6 +150,16 @@ export async function GET(
     // finiscano visivamente dopo che le immagini sono pronte.
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    // TRUCCO — page.pdf() usa una pipeline di rendering interna diversa
+    // da quella normale di compositing (quella che dipinge lo schermo o
+    // gli screenshot). E' un bug/comportamento noto di Chromium: alcune
+    // immagini decodificate correttamente a schermo non vengono incluse
+    // nel motore di stampa se il loro decode non e' ancora "stabilizzato"
+    // nella cache di rendering. Forzare uno screenshot completo prima del
+    // PDF "scalda" quella cache e spesso risolve immagini mancanti/nere
+    // che appaiono solo nel PDF e non a schermo.
+    await page.screenshot({ fullPage: true });
+
     const pdfBuffer = await page.pdf({
       width: "1280px",
       height: `${bodyHeight}px`,
