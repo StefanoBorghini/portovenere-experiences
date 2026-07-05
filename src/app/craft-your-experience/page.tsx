@@ -131,36 +131,6 @@ const MOOD_IMAGES: Record<string, string> = {
   Adventure: "/images/moods/adventure.jpg",
 };
 
-const BUDGET_IMAGES: Record<string, string> = {
-  "€500 - €1000": "/images/budget/sailing.jpg",
-  "€1000 - €3000": "/images/budget/yacht.jpg",
-  "€3000+": "/images/budget/villa.jpg",
-};
-
-// Guests: un piccolo set di foto che ruota sulle card numeriche
-// (2,3,4,5,6,7,8) + una dedicata al "9+". Sostituire con le foto reali in:
-//   /public/images/guests/guests-1.jpg ... guests-4.jpg
-//   /public/images/guests/guests-large-group.jpg
-const GUEST_IMAGES = [
-  "/images/guests/guests-1.jpg",
-  "/images/guests/guests-2.jpg",
-  "/images/guests/guests-3.jpg",
-  "/images/guests/guests-4.jpg",
-];
-const GUEST_LARGE_GROUP_IMAGE = "/images/guests/guests-large-group.jpg";
-
-// Children: una foto per opzione. Sostituire con le foto reali in:
-//   /public/images/children/no-children.jpg
-//   /public/images/children/one-child.jpg
-//   /public/images/children/two-children.jpg
-//   /public/images/children/more-children.jpg
-const CHILDREN_IMAGES: Record<string, string> = {
-  "0": "/images/children/no-children.jpg",
-  "1": "/images/children/one-child.jpg",
-  "2": "/images/children/two-children.jpg",
-  "3+": "/images/children/more-children.jpg",
-};
-
 // =========================================================
 // ICONE — SVG minimali scritte a mano, per non introdurre
 // una nuova dipendenza (es. lucide-react) senza saperla già
@@ -814,44 +784,24 @@ export default function CraftYourExperience() {
         return (
           <div>
             <div className="grid grid-cols-2 gap-4">
-              {[2, 3, 4, 5, 6, 7, 8].map((item, index) => {
-
-                const isSelected = guestCount === item;
-                const image = GUEST_IMAGES[index % GUEST_IMAGES.length];
-
-                return (
-                  <button
-                    type="button"
-                    key={item}
-                    onClick={() => {
-                      setGuestCount(item);
-                      setShowMoreGuests(false);
-                      setFormData({ ...formData, guests: String(item) });
-                    }}
-                    className={`relative rounded-2xl overflow-hidden h-20 border transition-all duration-500 ease-out ${
-                      isSelected ? "border-white" : "border-white/10 hover:border-white/30"
-                    }`}
-                  >
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${image})` }}
-                    />
-                    <div className="absolute inset-0 bg-black/45" />
-
-                    <div
-                      className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
-                      }`}
-                    >
-                      {isSelected && <div className="w-2 h-2 rounded-full bg-black" />}
-                    </div>
-
-                    <div className="relative h-full flex items-center justify-center">
-                      <p className="text-white text-lg font-light">{item}</p>
-                    </div>
-                  </button>
-                );
-              })}
+              {[2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() => {
+                    setGuestCount(item);
+                    setShowMoreGuests(false);
+                    setFormData({ ...formData, guests: String(item) });
+                  }}
+                  className={`border rounded-2xl px-4 py-5 text-center transition-all duration-500 ease-out ${
+                    guestCount === item
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
 
               <button
                 type="button"
@@ -860,27 +810,13 @@ export default function CraftYourExperience() {
                   setShowMoreGuests(true);
                   setFormData({ ...formData, guests: "" });
                 }}
-                className={`relative rounded-2xl overflow-hidden h-20 border transition-all duration-500 ease-out ${
-                  showMoreGuests ? "border-white" : "border-white/10 hover:border-white/30"
+                className={`rounded-2xl border px-4 py-5 text-center transition-all duration-500 ease-out ${
+                  showMoreGuests
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${GUEST_LARGE_GROUP_IMAGE})` }}
-                />
-                <div className="absolute inset-0 bg-black/45" />
-
-                <div
-                  className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    showMoreGuests ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
-                  }`}
-                >
-                  {showMoreGuests && <div className="w-2 h-2 rounded-full bg-black" />}
-                </div>
-
-                <div className="relative h-full flex items-center justify-center">
-                  <p className="text-white text-lg font-light">9+</p>
-                </div>
+                9+
               </button>
             </div>
 
@@ -912,47 +848,28 @@ export default function CraftYourExperience() {
         return (
           <div>
             <div className="flex flex-col gap-3">
-              {[0, 1, 2].map((item) => {
-
-                const isSelected = childrenCount === item;
-
-                return (
-                  <button
-                    type="button"
-                    key={item}
-                    onClick={() => {
-                      setChildrenCount(item);
-                      setShowMoreChildren(false);
-                      setFormData({
-                        ...formData,
-                        children: item,
-                        travelingWithChildren: item > 0,
-                      });
-                    }}
-                    className={`relative w-full rounded-2xl overflow-hidden h-20 border transition-all duration-500 ease-out ${
-                      isSelected ? "border-white" : "border-white/10 hover:border-white/30"
-                    }`}
-                  >
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${CHILDREN_IMAGES[String(item)]})` }}
-                    />
-                    <div className="absolute inset-0 bg-black/45" />
-
-                    <div
-                      className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
-                      }`}
-                    >
-                      {isSelected && <div className="w-2 h-2 rounded-full bg-black" />}
-                    </div>
-
-                    <div className="relative h-full flex items-center justify-center">
-                      <p className="text-white text-lg font-light">{item}</p>
-                    </div>
-                  </button>
-                );
-              })}
+              {[0, 1, 2].map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() => {
+                    setChildrenCount(item);
+                    setShowMoreChildren(false);
+                    setFormData({
+                      ...formData,
+                      children: item,
+                      travelingWithChildren: item > 0,
+                    });
+                  }}
+                  className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
+                    childrenCount === item
+                      ? "bg-white text-black border-white"
+                      : "bg-white/5 border-white/10 hover:border-white/40"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
 
               <button
                 type="button"
@@ -960,27 +877,13 @@ export default function CraftYourExperience() {
                   setChildrenCount(null);
                   setShowMoreChildren(true);
                 }}
-                className={`relative w-full rounded-2xl overflow-hidden h-20 border transition-all duration-500 ease-out ${
-                  showMoreChildren ? "border-white" : "border-white/10 hover:border-white/30"
+                className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
+                  showMoreChildren
+                    ? "bg-white text-black border-white"
+                    : "bg-white/5 border-white/10 hover:border-white/40"
                 }`}
               >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${CHILDREN_IMAGES["3+"]})` }}
-                />
-                <div className="absolute inset-0 bg-black/45" />
-
-                <div
-                  className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    showMoreChildren ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
-                  }`}
-                >
-                  {showMoreChildren && <div className="w-2 h-2 rounded-full bg-black" />}
-                </div>
-
-                <div className="relative h-full flex items-center justify-center">
-                  <p className="text-white text-lg font-light">3+</p>
-                </div>
+                3+
               </button>
             </div>
 
@@ -1151,38 +1054,20 @@ export default function CraftYourExperience() {
       case "budget":
         return (
           <div className="grid gap-4">
-            {["€500 - €1000", "€1000 - €3000", "€3000+"].map((item) => {
-
-              const isSelected = formData.budget === item;
-
-              return (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => handleSelect("budget", item)}
-                  className={`relative rounded-2xl overflow-hidden h-24 border transition-all duration-500 ease-out ${
-                    isSelected ? "border-white" : "border-white/10 hover:border-white/30"
-                  }`}
-                >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${BUDGET_IMAGES[item]})` }}
-                  />
-
-                  <div
-                    className={`absolute inset-0 ${
-                      isSelected ? "bg-black/40" : "bg-black/60"
-                    }`}
-                  />
-
-                  <div className="relative h-full flex items-center justify-center">
-                    <p className="text-white text-lg font-light tracking-wide">
-                      {item}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
+            {["€500 - €1000", "€1000 - €3000", "€3000+"].map((item) => (
+              <button
+                type="button"
+                key={item}
+                onClick={() => handleSelect("budget", item)}
+                className={`border rounded-2xl px-6 py-6 text-center text-lg transition-all duration-500 ease-out ${
+                  formData.budget === item
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
         );
 
