@@ -531,41 +531,23 @@ export default function CinematicGallery({
               key={index}
 
               className={`
-                relative
-                shrink-0
-                will-change-transform
-                w-[88vw]
-                md:w-[30vw]
+  relative
+  shrink-0
+  will-change-transform
+  w-[62vw]
+  md:w-[30vw]
 
-                overflow-hidden
-                rounded-[40px]
+  overflow-hidden
+  rounded-[28px]
+  md:rounded-[40px]
 
-                group
+  group
 
-                ${
-                  index % 4 === 0
-                    ? "h-[68vh] md:h-[78vh]"
-                    : ""
-                }
-
-                ${
-                  index % 4 === 1
-                    ? "h-[82vh] md:h-[92vh] md:translate-y-10"
-                    : ""
-                }
-
-                ${
-                  index % 4 === 2
-                    ? "h-[74vh] md:h-[84vh]"
-                    : ""
-                }
-
-                ${
-                  index % 4 === 3
-                    ? "h-[88vh] md:h-[98vh] md:-translate-y-6"
-                    : ""
-                }
-              `}
+  ${index % 4 === 0 ? "h-[38vh] md:h-[78vh]" : ""}
+  ${index % 4 === 1 ? "h-[46vh] md:h-[92vh] md:translate-y-10" : ""}
+  ${index % 4 === 2 ? "h-[42vh] md:h-[84vh]" : ""}
+  ${index % 4 === 3 ? "h-[50vh] md:h-[98vh] md:-translate-y-6" : ""}
+`}
             >
 
               {/* IMAGE */}
