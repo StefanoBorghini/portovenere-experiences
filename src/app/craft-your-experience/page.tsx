@@ -813,13 +813,11 @@ export default function CraftYourExperience() {
 
         {/* TOP BAR */}
         <div className="relative z-10 flex items-center justify-between px-6 pt-8">
-          <button type="button" className="text-2xl">
-            &#9776;
-          </button>
+        
           <img
             src="/logo-white.png"
             alt="Portovenere Experiences"
-            className="h-6 opacity-90"
+            className="h-15 opacity-90"
           />
           <div className="w-6" />
         </div>
@@ -842,14 +840,7 @@ export default function CraftYourExperience() {
             your ideal Riviera experience.
           </p>
 
-          <div className="flex items-center justify-between mb-4">
-            <p className="uppercase tracking-[0.3em] text-zinc-400 text-xs">
-              Select up to 3 Experiences
-            </p>
-            <p className="text-zinc-400 text-xs">
-              {formData.experiences.length}/3 selected
-            </p>
-          </div>
+          
 
           <button
             type="button"
