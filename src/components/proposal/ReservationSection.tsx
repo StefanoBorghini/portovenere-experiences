@@ -156,7 +156,7 @@ export default function ReservationSection({
 
           <div
             className="
-              mb-24
+              mb-12
               md:mb-32
             "
           >
@@ -198,7 +198,8 @@ export default function ReservationSection({
 
               text-center
 
-              mb-16
+              mb-8
+              md:mb-16
             "
           >
 
@@ -223,7 +224,8 @@ export default function ReservationSection({
 
               mx-auto
 
-              mb-24
+              mb-12
+              md:mb-24
             "
           >
 
@@ -245,7 +247,8 @@ export default function ReservationSection({
 
               gap-5
 
-              mb-24
+              mb-12
+              md:mb-24
             "
           >
 
@@ -324,11 +327,7 @@ export default function ReservationSection({
 
                   rounded-full
 
-                  border
-                  border-white/12
-
-                  bg-white/[0.06]
-                  backdrop-blur-[6px]
+                  bg-white
 
                   px-10
                   py-5
@@ -337,32 +336,15 @@ export default function ReservationSection({
                   md:py-6
 
                   transition-all
-                  duration-[1200ms]
+                  duration-500
                   ease-out
 
-                  hover:bg-white
+                  hover:scale-[1.02]
 
                   disabled:opacity-50
                   disabled:cursor-not-allowed
                 "
               >
-
-                {/* BUTTON GLOW */}
-
-                <div
-                  className="
-                    absolute
-                    inset-0
-
-                    opacity-0
-                    group-hover:opacity-100
-
-                    transition-opacity
-                    duration-[1200ms]
-
-                    bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.25),transparent_70%)]
-                  "
-                />
 
                 <span
                   className="
@@ -374,11 +356,7 @@ export default function ReservationSection({
                     tracking-[0.28em]
                     text-[11px]
 
-                    text-white
-                    group-hover:text-black
-
-                    transition-colors
-                    duration-700
+                    text-black
                   "
                 >
                   {bookingState === "sending"

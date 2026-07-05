@@ -47,7 +47,7 @@ export default function DownloadPdfButton({ slug }: DownloadPdfButtonProps) {
     <button
       onClick={handleDownload}
       disabled={isGenerating}
-      className="border border-white/20 text-white px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-white hover:text-black transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-[1.02] transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {isGenerating ? "Generating..." : "Download PDF"}
     </button>
