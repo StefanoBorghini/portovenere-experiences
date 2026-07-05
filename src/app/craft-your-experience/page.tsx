@@ -107,7 +107,7 @@ const INTRO_STEP = -1;
 
 const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
   "Sea Escape": {
-    image: "url('/img-5.jpg')",
+    image: "/images/sailing/dino/cinematic.webp",
     description: "Private sailing and sunset cruises along the Riviera coast.",
   },
   "Aerial Escape": {
@@ -115,11 +115,11 @@ const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }>
     description: "See the coast from above with unforgettable views.",
   },
   "Gourmet Escape": {
-    image: "/images/experiences/gourmet-escape.jpg",
+    image: "/images/dining/romantic.jpg",
     description: "Savor exceptional flavors in unique locations.",
   },
   "Wild Escape": {
-    image: "/images/experiences/wild-escape.jpg",
+    image: "/images/wild/underwater/mermaiding/cinematic.jpg",
     description: "Reconnect with nature and hidden places.",
   },
 };
