@@ -1,3 +1,4 @@
+
 "use client";
 
 import Turnstile from "react-turnstile";
@@ -430,20 +431,20 @@ export default function CraftYourExperience() {
       case "experiences":
         return (
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
                 {formData.experiences.length}/3 selected
               </p>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
                 (item) => (
                   <button
                     type="button"
                     key={item}
                     onClick={() => handleMultiSelect("experiences", item, 3)}
-                    className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
+                    className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
                       formData.experiences.includes(item)
                         ? "border-white bg-white text-black"
                         : "border-white/10 bg-white/5 hover:border-white/40"
@@ -464,7 +465,7 @@ export default function CraftYourExperience() {
       case "moods":
         return (
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4">
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
                 {formData.moods.length}/3 selected
               </p>
@@ -476,7 +477,7 @@ export default function CraftYourExperience() {
                   type="button"
                   key={item}
                   onClick={() => handleMultiSelect("moods", item, 3)}
-                  className={`border rounded-2xl px-6 py-10 text-center transition-all duration-500 ease-out ${
+                  className={`border rounded-2xl px-4 py-8 text-center transition-all duration-500 ease-out ${
                     formData.moods.includes(item)
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
@@ -506,7 +507,7 @@ export default function CraftYourExperience() {
                     setShowMoreGuests(false);
                     setFormData({ ...formData, guests: String(item) });
                   }}
-                  className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
+                  className={`border rounded-2xl px-4 py-5 text-center transition-all duration-500 ease-out ${
                     guestCount === item
                       ? "border-white bg-white text-black"
                       : "border-white/10 bg-white/5 hover:border-white/40"
@@ -523,7 +524,7 @@ export default function CraftYourExperience() {
                   setShowMoreGuests(true);
                   setFormData({ ...formData, guests: "" });
                 }}
-                className={`rounded-2xl border px-6 py-6 text-center transition-all duration-500 ease-out ${
+                className={`rounded-2xl border px-4 py-5 text-center transition-all duration-500 ease-out ${
                   showMoreGuests
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-white/5 hover:border-white/40"
@@ -535,10 +536,10 @@ export default function CraftYourExperience() {
 
             <div
               className={`overflow-hidden transition-all duration-500 ease-out ${
-                showMoreGuests ? "max-h-48 opacity-100 mt-6" : "max-h-0 opacity-0"
+                showMoreGuests ? "max-h-40 opacity-100 mt-4" : "max-h-0 opacity-0"
               }`}
             >
-              <p className="text-zinc-500 mb-3">Exact number of guests</p>
+              <p className="text-zinc-500 mb-2 text-sm">Exact number of guests</p>
               <input
                 type="number"
                 min={9}
@@ -551,7 +552,7 @@ export default function CraftYourExperience() {
                   setGuestCount(Number(e.target.value));
                   setFormData({ ...formData, guests: e.target.value });
                 }}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-5 outline-none transition-all duration-500 focus:border-white/40"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 outline-none transition-all duration-500 focus:border-white/40"
               />
             </div>
           </div>
@@ -574,7 +575,7 @@ export default function CraftYourExperience() {
                       travelingWithChildren: item > 0,
                     });
                   }}
-                  className={`border rounded-2xl px-6 py-6 transition-all duration-500 ease-out ${
+                  className={`border rounded-2xl px-4 py-8 transition-all duration-500 ease-out ${
                     childrenCount === item
                       ? "bg-white text-black border-white"
                       : "bg-white/5 border-white/10 hover:border-white/40"
@@ -590,7 +591,7 @@ export default function CraftYourExperience() {
                   setChildrenCount(null);
                   setShowMoreChildren(true);
                 }}
-                className={`border rounded-2xl px-6 py-6 transition-all duration-500 ease-out ${
+                className={`border rounded-2xl px-4 py-8 transition-all duration-500 ease-out ${
                   showMoreChildren
                     ? "bg-white text-black border-white"
                     : "bg-white/5 border-white/10 hover:border-white/40"
@@ -602,10 +603,10 @@ export default function CraftYourExperience() {
 
             <div
               className={`overflow-hidden transition-all duration-500 ease-out ${
-                showMoreChildren ? "max-h-48 opacity-100 mt-6" : "max-h-0 opacity-0"
+                showMoreChildren ? "max-h-40 opacity-100 mt-4" : "max-h-0 opacity-0"
               }`}
             >
-              <p className="text-zinc-500 mb-3">How many children?</p>
+              <p className="text-zinc-500 mb-2 text-sm">How many children?</p>
               <input
                 type="number"
                 min={2}
@@ -623,7 +624,7 @@ export default function CraftYourExperience() {
                     travelingWithChildren: value > 0,
                   });
                 }}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-5 outline-none transition-all duration-500 focus:border-white/40"
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 outline-none transition-all duration-500 focus:border-white/40"
               />
             </div>
           </div>
@@ -631,12 +632,12 @@ export default function CraftYourExperience() {
 
       case "dates":
         return (
-          <div className="space-y-8">
-            <div className="flex flex-col gap-3">
+          <div className="space-y-6">
+            <div className="flex flex-col gap-2">
               <p className="text-sm text-zinc-500">Start Date</p>
               <DatePicker
                 customInput={
-                  <CustomDateInput className="w-full rounded-2xl px-6 py-6 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
+                  <CustomDateInput className="w-full rounded-2xl px-6 py-5 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
                 }
                 shouldCloseOnSelect={true}
                 selected={formData.startDate ? new Date(formData.startDate) : null}
@@ -654,11 +655,11 @@ export default function CraftYourExperience() {
               />
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <p className="text-sm text-zinc-500">End Date</p>
               <DatePicker
                 customInput={
-                  <CustomDateInput className="w-full rounded-2xl px-6 py-6 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
+                  <CustomDateInput className="w-full rounded-2xl px-6 py-5 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
                 }
                 shouldCloseOnSelect={true}
                 selected={formData.endDate ? new Date(formData.endDate) : null}
@@ -688,7 +689,7 @@ export default function CraftYourExperience() {
                 type="button"
                 key={item}
                 onClick={() => handleSelect("budget", item)}
-                className={`border rounded-2xl px-6 py-8 text-center text-lg transition-all duration-500 ease-out ${
+                className={`border rounded-2xl px-6 py-6 text-center text-lg transition-all duration-500 ease-out ${
                   formData.budget === item
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-white/5 hover:border-white/40"
@@ -702,9 +703,9 @@ export default function CraftYourExperience() {
 
       case "contact":
         return (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div>
-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-3">
                 Your Name
               </p>
               <input
@@ -712,12 +713,12 @@ export default function CraftYourExperience() {
                 placeholder="Enter your full name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+                className="w-full rounded-2xl px-6 py-4 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
               />
             </div>
 
             <div>
-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-3">
                 Email Address
               </p>
               <input
@@ -725,7 +726,7 @@ export default function CraftYourExperience() {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full rounded-2xl px-6 py-5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+                className="w-full rounded-2xl px-6 py-4 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
               />
             </div>
           </div>
@@ -741,7 +742,7 @@ export default function CraftYourExperience() {
         };
 
         return (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="flex items-start gap-4">
               <input
                 type="checkbox"
@@ -783,12 +784,10 @@ export default function CraftYourExperience() {
     return (
       <main
         className="
-          min-h-screen
+          h-dvh
+          w-full
           bg-[#0C0C0C]
           text-white
-          flex
-          flex-col
-          justify-end
           relative
           overflow-hidden
         "
@@ -799,54 +798,50 @@ export default function CraftYourExperience() {
         }}
       >
 
-        {/* GRADIENT OVERLAY per leggibilita' del testo sopra la foto */}
+        {/* OVERLAY — se l'immagine non è ancora impostata resta semplicemente nero */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        {/* BLOCCO CENTRALE — logo, testo e bottone centrati come un unico blocco */}
         <div
           className="
-            absolute
-            inset-0
-            bg-gradient-to-t
-            from-black
-            via-black/70
-            to-black/10
+            relative
+            z-10
+            h-full
+            w-full
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+            px-8
           "
-        />
+        >
 
-        {/* TOP BAR */}
-        <div className="relative z-10 flex items-center justify-between px-6 pt-8">
-        
           <img
             src="/logo-white.png"
             alt="Portovenere Experiences"
-            className="h-15 opacity-90"
+            className="h-8 mb-8 opacity-90"
           />
-          <div className="w-6" />
-        </div>
-
-        {/* CONTENT */}
-        <div className="relative z-10 px-6 pb-10">
 
           <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs mb-6">
             Private Experience Curation
           </p>
 
-          <h1 className="text-5xl font-light leading-[1.05] mb-6">
-            Craft Your
-            <br />
-            Mediterranean Escape
+          <h1 className="text-4xl font-light leading-[1.1] mb-6 max-w-sm">
+            Craft Your Mediterranean Escape
           </h1>
 
-          <p className="text-zinc-300 text-base leading-relaxed mb-10 max-w-md">
+          <p className="text-zinc-300 text-sm leading-relaxed mb-10 max-w-sm">
             Answer a few questions to receive a curated proposal tailored to
             your ideal Riviera experience.
           </p>
-
-          
 
           <button
             type="button"
             onClick={startWizard}
             className="
               w-full
+              max-w-sm
               rounded-full
               py-5
               uppercase
@@ -875,12 +870,12 @@ export default function CraftYourExperience() {
   const progressPercent = ((currentStep + 1) / totalSteps) * 100;
 
   return (
-    <main className="min-h-screen bg-[#0C0C0C] text-white flex flex-col">
+    <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col">
 
-      {/* HEADER: back + progress + counter */}
-      <div className="px-6 pt-8 pb-4 max-w-xl w-full mx-auto">
+      {/* HEADER: back + progress + counter — compatto, altezza fissa */}
+      <div className="px-6 pt-6 pb-3 max-w-xl w-full mx-auto shrink-0">
 
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-4">
 
           <button
             type="button"
@@ -907,14 +902,36 @@ export default function CraftYourExperience() {
           {STEP_LABELS[stepId as StepId].label}
         </p>
 
-        <h1 className="text-3xl md:text-4xl font-light leading-tight">
+        <h1 className="text-2xl md:text-4xl font-light leading-tight">
           {STEP_LABELS[stepId as StepId].title}
         </h1>
 
       </div>
 
-      {/* STEP CONTENT */}
-      <div className="flex-1 px-6 max-w-xl w-full mx-auto overflow-hidden">
+      {/*
+        CONTENUTO + PULSANTI insieme, centrati come blocco unico
+        nello spazio restante. Questo è il punto chiave: su step corti
+        (experiences, moods, guests, budget) i pulsanti Next/Back
+        restano incollati subito sotto la griglia invece di finire
+        in fondo allo schermo. Su step più alti (dates, terms con
+        captcha) min-h-0 + overflow-y-auto permette uno scroll interno
+        di fallback senza rompere il layout.
+      */}
+      <div
+        className="
+          flex-1
+          min-h-0
+          flex
+          flex-col
+          justify-center
+          gap-6
+          overflow-y-auto
+          px-6
+          max-w-xl
+          w-full
+          mx-auto
+        "
+      >
 
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
@@ -929,61 +946,59 @@ export default function CraftYourExperience() {
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.6}
             onDragEnd={handleDragEnd}
-            className="py-4"
           >
             {renderStep()}
           </motion.div>
         </AnimatePresence>
 
-      </div>
+        <div className="flex gap-4 shrink-0">
 
-      {/* FOOTER: back + next / submit */}
-      <div className="px-6 py-8 max-w-xl w-full mx-auto flex gap-4">
+          <button
+            type="button"
+            onClick={goBack}
+            className="
+              w-1/3
+              rounded-full
+              py-5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              border
+              border-white/20
+              text-white/70
+              hover:border-white/40
+              hover:text-white
+              transition-all
+              duration-500
+            "
+          >
+            Back
+          </button>
 
-        <button
-          type="button"
-          onClick={goBack}
-          className="
-            w-1/3
-            rounded-full
-            py-5
-            uppercase
-            tracking-[0.25em]
-            text-xs
-            border
-            border-white/20
-            text-white/70
-            hover:border-white/40
-            hover:text-white
-            transition-all
-            duration-500
-          "
-        >
-          Back
-        </button>
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!currentStepValid}
+            className={`
+              w-2/3
+              rounded-full
+              py-5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              transition-all
+              duration-500
+              ${
+                currentStepValid
+                  ? "bg-white text-black hover:scale-[1.02]"
+                  : "bg-white/10 text-white/30 cursor-not-allowed"
+              }
+            `}
+          >
+            {stepId === "terms" ? "Generate Private Proposal" : "Next"}
+          </button>
 
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={!currentStepValid}
-          className={`
-            w-2/3
-            rounded-full
-            py-5
-            uppercase
-            tracking-[0.25em]
-            text-xs
-            transition-all
-            duration-500
-            ${
-              currentStepValid
-                ? "bg-white text-black hover:scale-[1.02]"
-                : "bg-white/10 text-white/30 cursor-not-allowed"
-            }
-          `}
-        >
-          {stepId === "terms" ? "Generate Private Proposal" : "Next"}
-        </button>
+        </div>
 
       </div>
 
