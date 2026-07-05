@@ -1173,7 +1173,7 @@ export default function CraftYourExperience() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            drag="x"
+            drag={stepId !== "dates" ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.6}
             onDragEnd={handleDragEnd}
