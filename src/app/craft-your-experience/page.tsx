@@ -1,4 +1,3 @@
-
 "use client";
 
 import Turnstile from "react-turnstile";
@@ -801,7 +800,12 @@ export default function CraftYourExperience() {
         {/* OVERLAY — se l'immagine non è ancora impostata resta semplicemente nero */}
         <div className="absolute inset-0 bg-black/60" />
 
-        {/* BLOCCO CENTRALE — logo, testo e bottone centrati come un unico blocco */}
+        {/*
+          BLOCCO CENTRALE — logo, testo e bottone centrati come un unico blocco.
+          max-w-xl + mx-auto impediscono che il contenuto si stiri edge-to-edge
+          su schermi larghi; le classi md: scalano tipografia e spaziature
+          per una resa desktop proporzionata, non solo un "mobile ingrandito".
+        */}
         <div
           className="
             relative
@@ -817,45 +821,50 @@ export default function CraftYourExperience() {
           "
         >
 
-          <img
-            src="/logo-white.png"
-            alt="Portovenere Experiences"
-            className="h-8 mb-8 opacity-90"
-          />
+          <div className="w-full max-w-xl mx-auto flex flex-col items-center">
 
-          <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs mb-6">
-            Private Experience Curation
-          </p>
+            <img
+              src="/logo-white.png"
+              alt="Portovenere Experiences"
+              className="h-8 md:h-10 mb-8 md:mb-10 opacity-90"
+            />
 
-          <h1 className="text-4xl font-light leading-[1.1] mb-6 max-w-sm">
-            Craft Your Mediterranean Escape
-          </h1>
+            <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
+              Private Experience Curation
+            </p>
 
-          <p className="text-zinc-300 text-sm leading-relaxed mb-10 max-w-sm">
-            Answer a few questions to receive a curated proposal tailored to
-            your ideal Riviera experience.
-          </p>
+            <h1 className="text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8 max-w-sm md:max-w-lg">
+              Craft Your Mediterranean Escape
+            </h1>
 
-          <button
-            type="button"
-            onClick={startWizard}
-            className="
-              w-full
-              max-w-sm
-              rounded-full
-              py-5
-              uppercase
-              tracking-[0.25em]
-              text-xs
-              bg-[#d6c6a5]
-              text-black
-              hover:scale-[1.02]
-              transition-all
-              duration-500
-            "
-          >
-            Get Started
-          </button>
+            <p className="text-zinc-300 text-sm md:text-base leading-relaxed mb-10 md:mb-12 max-w-sm md:max-w-md">
+              Answer a few questions to receive a curated proposal tailored to
+              your ideal Riviera experience.
+            </p>
+
+            <button
+              type="button"
+              onClick={startWizard}
+              className="
+                w-full
+                max-w-sm
+                md:max-w-xs
+                rounded-full
+                py-5
+                uppercase
+                tracking-[0.25em]
+                text-xs
+                bg-[#d6c6a5]
+                text-black
+                hover:scale-[1.02]
+                transition-all
+                duration-500
+              "
+            >
+              Get Started
+            </button>
+
+          </div>
 
         </div>
 
