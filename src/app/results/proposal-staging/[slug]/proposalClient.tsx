@@ -7,7 +7,7 @@ import IncludedExperiences from "@/components/proposal/IncludedExperiences";
 import ProposalEnhancements from "@/components/proposal/ProposalEnhancements";
 import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
-import DownloadPdfButton from "@/components/DownloadPdfButton";
+import ShareButton from "@/components/ShareButton";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -199,7 +199,7 @@ const isPdfMode = searchParams.get("pdf") === "1";
    {!isPdfMode && (
     <section className="py-20 px-6 print:hidden">
         <div className="max-w-4xl mx-auto flex justify-center">
-            <DownloadPdfButton slug={slug} />
+           <ShareButton slug={slug} />
         </div>
     </section>
 )}
