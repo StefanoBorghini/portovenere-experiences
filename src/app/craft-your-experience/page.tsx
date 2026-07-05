@@ -120,68 +120,6 @@ const MOOD_IMAGES: Record<string, string> = {
   Adventure: "/images/adventure.jpg",
 };
 
-// =========================================================
-// ICONE — SVG minimali scritte a mano, per non introdurre
-// una nuova dipendenza (es. lucide-react) senza saperla già
-// installata nel progetto.
-// =========================================================
-
-function MoodIcon({ id }: { id: string }) {
-
-  const common = "w-5 h-5 stroke-white fill-none";
-
-  switch (id) {
-
-    case "Romantic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M12 20s-7-4.5-9.3-9A5 5 0 0112 6a5 5 0 019.3 5c-2.3 4.5-9.3 9-9.3 9z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Cinematic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <rect x="3" y="7" width="18" height="13" rx="1.5" />
-          <path
-            d="M3 7l3-4h4l-3 4M11 7l3-4h4l-3 4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Authentic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M4 10l8-6 8 6M5 10v9M9 10v9M15 10v9M19 10v9M3 21h18"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Adventure":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M3 19l6-10 4 6 2-3 6 7H3z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    default:
-      return null;
-  }
-}
-
 export default function CraftYourExperience() {
 
   const router = useRouter();
@@ -248,7 +186,6 @@ export default function CraftYourExperience() {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
-  const [showCalendar, setShowCalendar] = useState(false);
 
   // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
   // scivola leggermente oltre il bordo): un listener globale garantisce
@@ -750,8 +687,7 @@ export default function CraftYourExperience() {
                       )}
                     </div>
 
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                      <MoodIcon id={item} />
+                    <div className="absolute inset-0 flex items-center justify-center">
                       <p className="text-white text-sm font-medium">{item}</p>
                     </div>
                   </button>
@@ -910,100 +846,8 @@ export default function CraftYourExperience() {
           viewYear === minimumBookingDate.getFullYear() &&
           viewMonth === minimumBookingDate.getMonth();
 
-        // ===== OPZIONI RAPIDE: this weekend / next weekend / choose dates =====
-
-        const today = new Date();
-        const satOffset = (6 - today.getDay() + 7) % 7;
-
-        const thisWeekendStart = new Date(today);
-        thisWeekendStart.setDate(today.getDate() + satOffset);
-        const thisWeekendEnd = new Date(thisWeekendStart);
-        thisWeekendEnd.setDate(thisWeekendStart.getDate() + 1);
-
-        const nextWeekendStart = new Date(thisWeekendStart);
-        nextWeekendStart.setDate(thisWeekendStart.getDate() + 7);
-        const nextWeekendEnd = new Date(nextWeekendStart);
-        nextWeekendEnd.setDate(nextWeekendStart.getDate() + 1);
-
-        const thisWeekendStartIso = toISODate(thisWeekendStart);
-        const thisWeekendEndIso = toISODate(thisWeekendEnd);
-        const nextWeekendStartIso = toISODate(nextWeekendStart);
-        const nextWeekendEndIso = toISODate(nextWeekendEnd);
-
-        const isThisWeekendDisabled = thisWeekendStartIso < minBookingIso;
-        const isNextWeekendDisabled = nextWeekendStartIso < minBookingIso;
-
-        const isThisWeekendSelected =
-          formData.startDate === thisWeekendStartIso &&
-          formData.endDate === thisWeekendEndIso;
-
-        const isNextWeekendSelected =
-          formData.startDate === nextWeekendStartIso &&
-          formData.endDate === nextWeekendEndIso;
-
-        function selectQuickRange(startIso: string, endIso: string) {
-          setFormData((prev) => ({ ...prev, startDate: startIso, endDate: endIso }));
-        }
-
-        if (!showCalendar) {
-          return (
-            <div className="flex flex-col gap-3">
-
-              <button
-                type="button"
-                disabled={isThisWeekendDisabled}
-                onClick={() => selectQuickRange(thisWeekendStartIso, thisWeekendEndIso)}
-                className={`w-full border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out disabled:opacity-30 disabled:cursor-not-allowed ${
-                  isThisWeekendSelected
-                    ? "bg-white text-black border-white"
-                    : "bg-white/5 border-white/10 hover:border-white/40"
-                }`}
-              >
-                <span className="mr-2">📅</span>This weekend
-              </button>
-
-              <button
-                type="button"
-                disabled={isNextWeekendDisabled}
-                onClick={() => selectQuickRange(nextWeekendStartIso, nextWeekendEndIso)}
-                className={`w-full border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out disabled:opacity-30 disabled:cursor-not-allowed ${
-                  isNextWeekendSelected
-                    ? "bg-white text-black border-white"
-                    : "bg-white/5 border-white/10 hover:border-white/40"
-                }`}
-              >
-                <span className="mr-2">📅</span>Next weekend
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowCalendar(true)}
-                className="w-full border rounded-2xl px-6 py-5 text-left bg-white/5 border-white/10 hover:border-white/40 transition-all duration-500 ease-out"
-              >
-                <span className="mr-2">📅</span>Choose dates
-              </button>
-
-              {formData.startDate !== "" && formData.endDate !== "" && (
-                <p className="text-zinc-500 text-sm mt-1 text-center">
-                  Selected: {formatDisplayDate(formData.startDate)} –{" "}
-                  {formatDisplayDate(formData.endDate)}
-                </p>
-              )}
-
-            </div>
-          );
-        }
-
         return (
           <div>
-
-            <button
-              type="button"
-              onClick={() => setShowCalendar(false)}
-              className="text-zinc-500 text-xs mb-3 hover:text-white transition-colors"
-            >
-              &#8249; Back to quick options
-            </button>
 
             {/* CHECK-IN / CHECK-OUT SUMMARY */}
             <div className="flex justify-between mb-3">
