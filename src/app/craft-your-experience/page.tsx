@@ -843,6 +843,58 @@ export default function CraftYourExperience() {
 
       </div>
 
+      {/* FOOTER: back + next / submit */}
+<div className="px-6 py-8 max-w-xl w-full mx-auto flex gap-4">
+
+  {currentStep > 0 && (
+    <button
+      type="button"
+      onClick={goBack}
+      className="
+        w-1/3
+        rounded-full
+        py-5
+        uppercase
+        tracking-[0.25em]
+        text-xs
+        border
+        border-white/20
+        text-white/70
+        hover:border-white/40
+        hover:text-white
+        transition-all
+        duration-500
+      "
+    >
+      Back
+    </button>
+  )}
+
+  <button
+    type="button"
+    onClick={goNext}
+    disabled={!currentStepValid}
+    className={`
+      ${currentStep > 0 ? "w-2/3" : "w-full"}
+      rounded-full
+      py-5
+      uppercase
+      tracking-[0.25em]
+      text-xs
+      transition-all
+      duration-500
+      ${
+        currentStepValid
+          ? "bg-white text-black hover:scale-[1.02]"
+          : "bg-white/10 text-white/30 cursor-not-allowed"
+      }
+    `}
+  >
+    {stepId === "terms" ? "Generate Private Proposal" : "Next"}
+  </button>
+
+</div>
+
     </main>
   );
 }
