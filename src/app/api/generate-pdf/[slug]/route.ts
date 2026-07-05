@@ -56,6 +56,36 @@ export async function GET(
     // "screen": catturiamo la pagina esattamente come la vedi nel browser.
     await page.emulateMediaType("screen");
 
+    // DEBUG TEMPORANEO — logga ogni richiesta immagine fallita con il
+    // motivo esatto (timeout, blocco CORS, 403, DNS, ecc.). Questi log
+    // finiscono nei Runtime Logs di Vercel (Deployments → il deploy →
+    // Functions → questa route). Una volta capita la causa, possiamo
+    // rimuovere questo blocco.
+    page.on("requestfailed", (request) => {
+      if (request.resourceType() === "image") {
+        console.error(
+          "IMAGE REQUEST FAILED:",
+          request.url(),
+          "-",
+          request.failure()?.errorText
+        );
+      }
+    });
+
+    page.on("response", (response) => {
+      if (
+        response.request().resourceType() === "image" &&
+        !response.ok()
+      ) {
+        console.error(
+          "IMAGE RESPONSE NOT OK:",
+          response.url(),
+          "- status:",
+          response.status()
+        );
+      }
+    });
+
     await page.goto(`${siteUrl}/results/proposal-staging/${slug}?pdf=1`, {
       // "load" aspetta che la pagina e le sue risorse iniziali (incluse
       // le immagini) siano caricate — a differenza di "networkidle0",
