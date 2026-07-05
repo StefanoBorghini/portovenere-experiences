@@ -10,6 +10,7 @@ import ReservationSection from "@/components/proposal/ReservationSection";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface Props {
 
@@ -78,7 +79,8 @@ export default function ProposalClient({
         selectedEnhancements,
         setSelectedEnhancements
     ] = useState<number[]>([]);
-
+const searchParams = useSearchParams();
+const isPdfMode = searchParams.get("pdf") === "1";
     // Se sono suggerimenti (categoria singola), partono deselezionati.
     // Se sono experience delle categorie che l'utente ha scelto,
     // partono già incluse, come prima.
@@ -194,15 +196,13 @@ export default function ProposalClient({
         images={galleryImages}
     />
 
+   {!isPdfMode && (
     <section className="py-20 px-6 print:hidden">
-
         <div className="max-w-4xl mx-auto flex justify-center">
-
-           <DownloadPdfButton slug={slug} />
-
+            <DownloadPdfButton slug={slug} />
         </div>
-
     </section>
+)}
 
     <ReservationSection
     expiresAt={expiresAt}
