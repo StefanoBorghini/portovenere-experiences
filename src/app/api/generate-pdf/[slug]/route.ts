@@ -158,7 +158,16 @@ export async function GET(
     // nella cache di rendering. Forzare uno screenshot completo prima del
     // PDF "scalda" quella cache e spesso risolve immagini mancanti/nere
     // che appaiono solo nel PDF e non a schermo.
-    await page.screenshot({ fullPage: true });
+    //
+    // Su pagine molto alte questo screenshot puo' superare i limiti di
+    // memoria/dimensione della function serverless e fallire — in quel
+    // caso lo ignoriamo e proviamo comunque a generare il PDF, invece di
+    // far fallire tutta la generazione per un tentativo "extra".
+    try {
+      await page.screenshot({ fullPage: true });
+    } catch (screenshotErr) {
+      console.error("warm-up screenshot failed, continuing anyway:", screenshotErr);
+    }
 
     const pdfBuffer = await page.pdf({
       width: "1280px",
