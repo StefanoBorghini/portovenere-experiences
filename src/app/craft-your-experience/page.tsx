@@ -143,61 +143,6 @@ const BUDGET_IMAGES: Record<string, string> = {
 // installata nel progetto.
 // =========================================================
 
-function ExperienceIcon({ id }: { id: string }) {
-
-  const common = "w-5 h-5 stroke-white fill-none";
-
-  switch (id) {
-
-    case "Sea Escape":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M3 18h18M5 18l1.5-7h11L19 18M12 4v9M9 7h6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Aerial Escape":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M2 12l19-9-4 9 4 9-19-9z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Gourmet Escape":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M8 3h8l-1 8a3 3 0 01-6 0L8 3zM12 11v7M9 21h6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    case "Wild Escape":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M12 2C8 6 5 10 5 14a7 7 0 0014 0c0-4-3-8-7-12z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
-    default:
-      return null;
-  }
-}
-
 function MoodIcon({ id }: { id: string }) {
 
   const common = "w-5 h-5 stroke-white fill-none";
@@ -734,7 +679,7 @@ export default function CraftYourExperience() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
                 (item) => {
 
@@ -746,7 +691,7 @@ export default function CraftYourExperience() {
                       type="button"
                       key={item}
                       onClick={() => handleMultiSelect("experiences", item, 3)}
-                      className={`relative rounded-2xl overflow-hidden h-28 text-left border transition-all duration-500 ${
+                      className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
                         isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                       }`}
                     >
@@ -755,16 +700,11 @@ export default function CraftYourExperience() {
                         style={{ backgroundImage: `url(${details.image})` }}
                       />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
-
-                      {/* ICON BADGE */}
-                      <div className="absolute top-2.5 left-2.5 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-                        <ExperienceIcon id={item} />
-                      </div>
+                      <div className="absolute inset-0 bg-black/40" />
 
                       {/* SELECTION RING */}
                       <div
-                        className={`absolute top-2.5 right-2.5 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                           isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
                         }`}
                       >
@@ -773,13 +713,10 @@ export default function CraftYourExperience() {
                         )}
                       </div>
 
-                      {/* TEXT */}
-                      <div className="absolute bottom-0 left-0 p-3">
-                        <p className="text-white text-sm font-medium mb-0.5">
+                      {/* LABEL — centrata, nessuna icona, come le Atmospheres */}
+                      <div className="absolute inset-0 flex items-center justify-center px-3">
+                        <p className="text-white text-sm font-medium text-center">
                           {item}
-                        </p>
-                        <p className="text-white/70 text-[11px] leading-snug max-w-[90%]">
-                          {details.description}
                         </p>
                       </div>
                     </button>
