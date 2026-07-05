@@ -8,7 +8,9 @@ import { randomUUID } from "crypto";
 // POST /api/request-booking
 // Chiamata quando il cliente clicca "Request Private Booking"
 // sulla pagina della proposal. Genera un token, lo salva sulla
-// riga Proposal, e invia al cliente il link di verifica.
+// riga Proposal, e invia al cliente (all'email salvata nel DB,
+// non a quella passata dal client) il link di verifica con il
+// resoconto completo della proposta.
 // =========================================================
 
 export async function POST(req: NextRequest) {
@@ -22,11 +24,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { slug, name, email } = await req.json();
+    const { slug } = await req.json();
 
-    if (!slug || !email) {
+    if (!slug) {
       return NextResponse.json(
-        { success: false, error: "Missing slug or email" },
+        { success: false, error: "Missing slug" },
+        { status: 400 }
+      );
+    }
+
+    // Recuperiamo la proposal dal DB — cosi' usiamo i dati REALI
+    // (email compresa) invece di fidarci ciecamente di quello che
+    // manda il client. Senza questo controllo, chiunque conoscesse
+    // uno slug potrebbe far inviare email di verifica a un indirizzo
+    // arbitrario passandolo semplicemente nel body della richiesta.
+    const { data: proposal, error: fetchError } = await supabase
+      .from("Proposal")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+
+    if (fetchError || !proposal) {
+      return NextResponse.json(
+        { success: false, error: "Proposal not found" },
+        { status: 404 }
+      );
+    }
+
+    const leadData = proposal.proposal_data || {};
+
+    if (!leadData.email) {
+      return NextResponse.json(
+        { success: false, error: "No email on file for this proposal" },
         { status: 400 }
       );
     }
@@ -50,15 +79,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
 
     const verifyUrl =
       `${siteUrl}/api/verify-email?token=${token}&slug=${encodeURIComponent(slug)}`;
 
     const result = await sendEmail({
-      to: email,
+      to: leadData.email,
       subject: "Confirm your booking request — Portovenere Experiences",
-      html: verificationEmailTemplate(name || "", verifyUrl),
+      html: verificationEmailTemplate(
+        {
+          name: leadData.name || "",
+          email: leadData.email || "",
+          experiences: leadData.experiences || [],
+          moods: leadData.moods || [],
+          guests: leadData.guests || "",
+          budget: leadData.budget || "",
+          startDate: leadData.start_date || "",
+          endDate: leadData.end_date || "",
+          slug,
+        },
+        verifyUrl
+      ),
     });
 
     return NextResponse.json(result);

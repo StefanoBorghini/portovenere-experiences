@@ -23,16 +23,27 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.co
 // 1. Email al CLIENTE — link di verifica dopo "Request Private Booking"
 // ---------------------------------------------------------
 
-export function verificationEmailTemplate(name: string, verifyUrl: string) {
+export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
       <h2 style="font-weight: 300;">Confirm your booking request</h2>
-      <p>Hi ${name || "there"},</p>
+      <p>Hi ${data.name || "there"},</p>
       <p>
         Thanks for requesting your private Riviera experience with
-        Portovenere Experiences. Please confirm your email address to
-        proceed with your booking request.
+        Portovenere Experiences. Here's a summary of the proposal you're
+        confirming:
       </p>
+
+      <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
+        <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${data.experiences.join(", ") || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${data.moods.join(", ") || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${data.guests || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${data.budget || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${data.startDate || "—"} → ${data.endDate || "—"}</td></tr>
+      </table>
+
+      <p>Please confirm your email address to proceed with your booking request.</p>
+
       <p style="margin: 32px 0;">
         <a
           href="${verifyUrl}"

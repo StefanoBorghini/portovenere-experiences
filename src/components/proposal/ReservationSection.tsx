@@ -59,11 +59,7 @@ export default function ReservationSection({
       const response = await fetch("/api/request-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          name: leadName,
-          email: leadEmail,
-        }),
+        body: JSON.stringify({ slug }),
       });
 
       const data = await response.json();
@@ -304,7 +300,7 @@ export default function ReservationSection({
                 "
               >
                 {alreadyVerified
-                  ? "Your email has been confirmed. We'll be in touch shortly to finalize your private booking."
+                  ? `Thank you, ${leadName || "there"} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.`
                   : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`}
               </p>
 
