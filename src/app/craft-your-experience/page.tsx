@@ -1046,7 +1046,7 @@ export default function CraftYourExperience() {
             <img
               src="/logo-white.png"
               alt="Portovenere Experiences"
-              className="h-14 md:h-20 mb-8 md:mb-10 opacity-90"
+              className="h-16 md:h-22 mb-8 md:mb-10 opacity-90"
             />
 
             <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
