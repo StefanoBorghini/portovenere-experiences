@@ -115,7 +115,7 @@ const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }>
     description: "See the coast from above with unforgettable views.",
   },
   "Gourmet Escape": {
-    image: "/images/dining/romantic.jpg",
+    image: "/images/dining/ristorante/romantic.jpg",
     description: "Savor exceptional flavors in unique locations.",
   },
   "Wild Escape": {
