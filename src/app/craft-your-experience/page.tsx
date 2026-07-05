@@ -82,6 +82,10 @@ const slideVariants = {
 
 const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
 
+// currentStep === INTRO_STEP significa "schermata di benvenuto",
+// non fa parte del conteggio degli step del wizard.
+const INTRO_STEP = -1;
+
 export default function CraftYourExperience() {
 
   const router = useRouter();
@@ -90,12 +94,13 @@ export default function CraftYourExperience() {
   // WIZARD NAVIGATION STATE
   // =======================================================
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState<number>(INTRO_STEP);
   const [direction, setDirection] = useState(0);
   const [selectionWarning, setSelectionWarning] = useState("");
 
   const totalSteps = STEP_IDS.length;
-  const stepId = STEP_IDS[currentStep];
+  const isIntro = currentStep === INTRO_STEP;
+  const stepId = !isIntro ? STEP_IDS[currentStep] : null;
 
   // =======================================================
   // FORM STATE
@@ -252,13 +257,23 @@ export default function CraftYourExperience() {
     }
   }
 
-  const currentStepValid = isStepValid(stepId);
+  const currentStepValid = isIntro ? true : isStepValid(stepId as StepId);
 
   // =======================================================
   // NAVIGATION
   // =======================================================
 
+  function startWizard() {
+    setDirection(1);
+    setCurrentStep(0);
+  }
+
   function goNext() {
+
+    if (isIntro) {
+      startWizard();
+      return;
+    }
 
     if (stepId === "terms") {
       handleSubmit();
@@ -272,12 +287,18 @@ export default function CraftYourExperience() {
   }
 
   function goBack() {
-    if (currentStep === 0) return;
+
+    if (isIntro) return;
+
     setDirection(-1);
-    setCurrentStep((s) => Math.max(s - 1, 0));
+
+    // Da step 0 si torna alla schermata di benvenuto
+    setCurrentStep((s) => Math.max(s - 1, INTRO_STEP));
   }
 
   function handleDragEnd(_event: any, info: PanInfo) {
+
+    if (isIntro) return;
 
     const swipeThreshold = 80;
 
@@ -754,7 +775,110 @@ export default function CraftYourExperience() {
   }
 
   // =======================================================
-  // RENDER
+  // INTRO SCREEN
+  // =======================================================
+
+  if (isIntro) {
+
+    return (
+      <main
+        className="
+          min-h-screen
+          bg-[#0C0C0C]
+          text-white
+          flex
+          flex-col
+          justify-end
+          relative
+          overflow-hidden
+        "
+        style={{
+          backgroundImage: "url('/images/hero-portovenere.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+
+        {/* GRADIENT OVERLAY per leggibilita' del testo sopra la foto */}
+        <div
+          className="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-black
+            via-black/70
+            to-black/10
+          "
+        />
+
+        {/* TOP BAR */}
+        <div className="relative z-10 flex items-center justify-between px-6 pt-8">
+          <button type="button" className="text-2xl">
+            &#9776;
+          </button>
+          <img
+            src="/logo-white.png"
+            alt="Portovenere Experiences"
+            className="h-6 opacity-90"
+          />
+          <div className="w-6" />
+        </div>
+
+        {/* CONTENT */}
+        <div className="relative z-10 px-6 pb-10">
+
+          <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs mb-6">
+            Private Experience Curation
+          </p>
+
+          <h1 className="text-5xl font-light leading-[1.05] mb-6">
+            Craft Your
+            <br />
+            Mediterranean Escape
+          </h1>
+
+          <p className="text-zinc-300 text-base leading-relaxed mb-10 max-w-md">
+            Answer a few questions to receive a curated proposal tailored to
+            your ideal Riviera experience.
+          </p>
+
+          <div className="flex items-center justify-between mb-4">
+            <p className="uppercase tracking-[0.3em] text-zinc-400 text-xs">
+              Select up to 3 Experiences
+            </p>
+            <p className="text-zinc-400 text-xs">
+              {formData.experiences.length}/3 selected
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={startWizard}
+            className="
+              w-full
+              rounded-full
+              py-5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              bg-[#d6c6a5]
+              text-black
+              hover:scale-[1.02]
+              transition-all
+              duration-500
+            "
+          >
+            Get Started
+          </button>
+
+        </div>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // WIZARD RENDER
   // =======================================================
 
   const progressPercent = ((currentStep + 1) / totalSteps) * 100;
@@ -770,12 +894,9 @@ export default function CraftYourExperience() {
           <button
             type="button"
             onClick={goBack}
-            disabled={currentStep === 0}
-            className={`text-2xl transition-opacity ${
-              currentStep === 0 ? "opacity-0 pointer-events-none" : "opacity-70 hover:opacity-100"
-            }`}
+            className="text-2xl opacity-70 hover:opacity-100 transition-opacity"
           >
-            ←
+            &#8592;
           </button>
 
           <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
@@ -792,11 +913,11 @@ export default function CraftYourExperience() {
         </div>
 
         <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
-          {STEP_LABELS[stepId].label}
+          {STEP_LABELS[stepId as StepId].label}
         </p>
 
         <h1 className="text-3xl md:text-4xl font-light leading-tight">
-          {STEP_LABELS[stepId].title}
+          {STEP_LABELS[stepId as StepId].title}
         </h1>
 
       </div>
@@ -825,58 +946,55 @@ export default function CraftYourExperience() {
 
       </div>
 
-      
       {/* FOOTER: back + next / submit */}
-<div className="px-6 py-8 max-w-xl w-full mx-auto flex gap-4">
+      <div className="px-6 py-8 max-w-xl w-full mx-auto flex gap-4">
 
-  {currentStep > 0 && (
-    <button
-      type="button"
-      onClick={goBack}
-      className="
-        w-1/3
-        rounded-full
-        py-5
-        uppercase
-        tracking-[0.25em]
-        text-xs
-        border
-        border-white/20
-        text-white/70
-        hover:border-white/40
-        hover:text-white
-        transition-all
-        duration-500
-      "
-    >
-      Back
-    </button>
-  )}
+        <button
+          type="button"
+          onClick={goBack}
+          className="
+            w-1/3
+            rounded-full
+            py-5
+            uppercase
+            tracking-[0.25em]
+            text-xs
+            border
+            border-white/20
+            text-white/70
+            hover:border-white/40
+            hover:text-white
+            transition-all
+            duration-500
+          "
+        >
+          Back
+        </button>
 
-  <button
-    type="button"
-    onClick={goNext}
-    disabled={!currentStepValid}
-    className={`
-      ${currentStep > 0 ? "w-2/3" : "w-full"}
-      rounded-full
-      py-5
-      uppercase
-      tracking-[0.25em]
-      text-xs
-      transition-all
-      duration-500
-      ${
-        currentStepValid
-          ? "bg-white text-black hover:scale-[1.02]"
-          : "bg-white/10 text-white/30 cursor-not-allowed"
-      }
-    `}
-  >
-    {stepId === "terms" ? "Generate Private Proposal" : "Next"}
-  </button>
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={!currentStepValid}
+          className={`
+            w-2/3
+            rounded-full
+            py-5
+            uppercase
+            tracking-[0.25em]
+            text-xs
+            transition-all
+            duration-500
+            ${
+              currentStepValid
+                ? "bg-white text-black hover:scale-[1.02]"
+                : "bg-white/10 text-white/30 cursor-not-allowed"
+            }
+          `}
+        >
+          {stepId === "terms" ? "Generate Private Proposal" : "Next"}
+        </button>
 
-</div>
+      </div>
 
     </main>
   );
