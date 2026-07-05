@@ -783,9 +783,9 @@ export default function CraftYourExperience() {
           <div>
 
             {/* CHECK-IN / CHECK-OUT SUMMARY */}
-            <div className="flex justify-between mb-5">
+            <div className="flex justify-between mb-3">
               <div>
-                <p className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
                   Check-in
                 </p>
                 <p className="text-white text-sm">
@@ -795,7 +795,7 @@ export default function CraftYourExperience() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
                   Check-out
                 </p>
                 <p className="text-white text-sm">
@@ -807,13 +807,13 @@ export default function CraftYourExperience() {
             </div>
 
             {/* MONTH NAVIGATION */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-2">
 
               <button
                 type="button"
                 onClick={goPrevMonth}
                 disabled={isPrevDisabled}
-                className="px-3 py-1 text-lg disabled:opacity-20 opacity-70 hover:opacity-100 transition-opacity"
+                className="px-3 py-0.5 text-base disabled:opacity-20 opacity-70 hover:opacity-100 transition-opacity"
               >
                 &#8249;
               </button>
@@ -825,7 +825,7 @@ export default function CraftYourExperience() {
               <button
                 type="button"
                 onClick={goNextMonth}
-                className="px-3 py-1 text-lg opacity-70 hover:opacity-100 transition-opacity"
+                className="px-3 py-0.5 text-base opacity-70 hover:opacity-100 transition-opacity"
               >
                 &#8250;
               </button>
@@ -833,11 +833,11 @@ export default function CraftYourExperience() {
             </div>
 
             {/* WEEKDAY HEADER */}
-            <div className="grid grid-cols-7 mb-1">
+            <div className="grid grid-cols-7 mb-0.5">
               {weekdayLabels.map((label, index) => (
                 <div
                   key={index}
-                  className="h-6 flex items-center justify-center text-[11px] text-zinc-500"
+                  className="h-5 flex items-center justify-center text-[10px] text-zinc-500"
                 >
                   {label}
                 </div>
@@ -871,7 +871,7 @@ export default function CraftYourExperience() {
                       if (!disabled) startDateDrag(iso);
                     }}
                     className={`
-                      h-11 flex items-center justify-center relative
+                      h-9 flex items-center justify-center relative
                       ${inRange ? "bg-[#d6c6a5]/20" : ""}
                       ${isStart && !isEnd ? "rounded-l-full" : ""}
                       ${isEnd && !isStart ? "rounded-r-full" : ""}
@@ -879,7 +879,7 @@ export default function CraftYourExperience() {
                   >
                     <span
                       className={`
-                        w-8 h-8 flex items-center justify-center rounded-full text-sm transition-colors
+                        w-7 h-7 flex items-center justify-center rounded-full text-xs transition-colors
                         ${disabled ? "text-white/15" : cell.outside ? "text-white/25" : "text-white"}
                         ${isStart || isEnd ? "bg-[#d6c6a5] text-black font-medium" : ""}
                         ${isToday && !isStart && !isEnd ? "ring-1 ring-white/30" : ""}
@@ -892,7 +892,7 @@ export default function CraftYourExperience() {
               })}
             </div>
 
-            <p className="text-zinc-500 text-xs mt-4 text-center">
+            <p className="text-zinc-500 text-[11px] mt-2 text-center">
               Tap a date, or drag across dates to select a range.
             </p>
 
