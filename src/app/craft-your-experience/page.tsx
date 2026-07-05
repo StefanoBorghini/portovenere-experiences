@@ -826,7 +826,7 @@ export default function CraftYourExperience() {
             <img
               src="/logo-white.png"
               alt="Portovenere Experiences"
-              className="h-8 md:h-10 mb-8 md:mb-10 opacity-90"
+              className="h-14 md:h-20 mb-8 md:mb-10 opacity-90"
             />
 
             <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
@@ -932,9 +932,10 @@ export default function CraftYourExperience() {
           min-h-0
           flex
           flex-col
-          justify-center
+          justify-start
           gap-6
           overflow-y-auto
+          pt-4
           px-6
           max-w-xl
           w-full
