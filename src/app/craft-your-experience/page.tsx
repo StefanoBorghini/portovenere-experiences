@@ -1,11 +1,9 @@
 "use client";
 
 import Turnstile from "react-turnstile";
-import { useState, forwardRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 import { supabase } from "@/lib/supabase";
 
@@ -136,19 +134,149 @@ export default function CraftYourExperience() {
   const minimumBookingDate = new Date();
   minimumBookingDate.setDate(minimumBookingDate.getDate() + 14);
 
-  const CustomDateInput = forwardRef<HTMLButtonElement, any>(
-    ({ value, onClick, placeholder, className }, ref) => (
-      <button
-        type="button"
-        onClick={onClick}
-        ref={ref}
-        className={className}
-      >
-        {value || placeholder}
-      </button>
-    )
-  );
-  CustomDateInput.displayName = "CustomDateInput";
+  // =======================================================
+  // INLINE CALENDAR — drag-to-select date range
+  // =======================================================
+
+  function toISODate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  const minBookingIso = toISODate(minimumBookingDate);
+  const todayIso = toISODate(new Date());
+
+  const [viewYear, setViewYear] = useState(minimumBookingDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(minimumBookingDate.getMonth());
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
+
+  // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
+  // scivola leggermente oltre il bordo): un listener globale garantisce
+  // che il drag si chiuda comunque.
+  useEffect(() => {
+    function handlePointerUp() {
+      setIsDragging(false);
+    }
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
+    };
+  }, []);
+
+  function buildCalendarCells(year: number, month: number) {
+
+    const firstOfMonth = new Date(year, month, 1);
+    const startWeekday = firstOfMonth.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells: { date: Date; outside: boolean }[] = [];
+
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      cells.push({
+        date: new Date(year, month - 1, daysInPrevMonth - i),
+        outside: true,
+      });
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ date: new Date(year, month, d), outside: false });
+    }
+
+    while (cells.length < 42) {
+      const last = cells[cells.length - 1].date;
+      const next = new Date(last);
+      next.setDate(next.getDate() + 1);
+      cells.push({ date: next, outside: true });
+    }
+
+    return cells;
+  }
+
+  function startDateDrag(iso: string) {
+
+    if (iso < minBookingIso) return;
+
+    setIsDragging(true);
+    setDragAnchorIso(iso);
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: iso,
+      endDate: iso,
+    }));
+  }
+
+  function extendDateDrag(iso: string) {
+
+    if (!isDragging || !dragAnchorIso) return;
+    if (iso < minBookingIso) return;
+
+    const [start, end] =
+      iso < dragAnchorIso ? [iso, dragAnchorIso] : [dragAnchorIso, iso];
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: start,
+      endDate: end,
+    }));
+  }
+
+  function handleCalendarPointerMove(e: React.PointerEvent) {
+
+    if (!isDragging) return;
+
+    const target = document.elementFromPoint(
+      e.clientX,
+      e.clientY
+    ) as HTMLElement | null;
+
+    const iso = target?.closest("[data-iso]")?.getAttribute("data-iso");
+
+    if (iso) extendDateDrag(iso);
+  }
+
+  function goPrevMonth() {
+
+    const isAtMinMonth =
+      viewYear === minimumBookingDate.getFullYear() &&
+      viewMonth === minimumBookingDate.getMonth();
+
+    if (isAtMinMonth) return;
+
+    setViewMonth((m) => {
+      if (m === 0) {
+        setViewYear((y) => y - 1);
+        return 11;
+      }
+      return m - 1;
+    });
+  }
+
+  function goNextMonth() {
+    setViewMonth((m) => {
+      if (m === 11) {
+        setViewYear((y) => y + 1);
+        return 0;
+      }
+      return m + 1;
+    });
+  }
+
+  function formatDisplayDate(iso: string) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
 
   const incompatibleExperiences: Record<string, string[]> = {
     "Sea Escape": ["Aerial Escape"],
@@ -637,56 +765,140 @@ export default function CraftYourExperience() {
           </div>
         );
 
-      case "dates":
+      case "dates": {
+
+        const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(
+          "en-US",
+          { month: "long", year: "numeric" }
+        );
+
+        const cells = buildCalendarCells(viewYear, viewMonth);
+        const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+        const isPrevDisabled =
+          viewYear === minimumBookingDate.getFullYear() &&
+          viewMonth === minimumBookingDate.getMonth();
+
         return (
-          <div className="space-y-6">
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-zinc-500">Start Date</p>
-              <DatePicker
-                customInput={
-                  <CustomDateInput className="w-full rounded-2xl px-6 py-5 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
-                }
-                shouldCloseOnSelect={true}
-                selected={formData.startDate ? new Date(formData.startDate) : null}
-                onChange={(date: Date | null) => {
-                  setFormData({
-                    ...formData,
-                    startDate: date ? date.toISOString().split("T")[0] : "",
-                  });
-                }}
-                minDate={minimumBookingDate}
-                placeholderText="Select start date"
-                dateFormat="MMMM d, yyyy"
-                calendarClassName="custom-calendar"
-                wrapperClassName="w-full"
-              />
+          <div>
+
+            {/* CHECK-IN / CHECK-OUT SUMMARY */}
+            <div className="flex justify-between mb-5">
+              <div>
+                <p className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
+                  Check-in
+                </p>
+                <p className="text-white text-sm">
+                  {formData.startDate
+                    ? formatDisplayDate(formData.startDate)
+                    : "—"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
+                  Check-out
+                </p>
+                <p className="text-white text-sm">
+                  {formData.endDate
+                    ? formatDisplayDate(formData.endDate)
+                    : "—"}
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-zinc-500">End Date</p>
-              <DatePicker
-                customInput={
-                  <CustomDateInput className="w-full rounded-2xl px-6 py-5 text-left text-lg bg-white/5 border border-white/10 text-white outline-none transition backdrop-blur-md hover:border-white/30" />
-                }
-                shouldCloseOnSelect={true}
-                selected={formData.endDate ? new Date(formData.endDate) : null}
-                onChange={(date: Date | null) => {
-                  setFormData({
-                    ...formData,
-                    endDate: date ? date.toISOString().split("T")[0] : "",
-                  });
-                }}
-                minDate={
-                  formData.startDate ? new Date(formData.startDate) : minimumBookingDate
-                }
-                placeholderText="Select end date"
-                dateFormat="MMMM d, yyyy"
-                calendarClassName="custom-calendar"
-                wrapperClassName="w-full"
-              />
+            {/* MONTH NAVIGATION */}
+            <div className="flex items-center justify-between mb-3">
+
+              <button
+                type="button"
+                onClick={goPrevMonth}
+                disabled={isPrevDisabled}
+                className="px-3 py-1 text-lg disabled:opacity-20 opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8249;
+              </button>
+
+              <p className="uppercase tracking-[0.2em] text-xs text-zinc-400">
+                {monthLabel}
+              </p>
+
+              <button
+                type="button"
+                onClick={goNextMonth}
+                className="px-3 py-1 text-lg opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8250;
+              </button>
+
             </div>
+
+            {/* WEEKDAY HEADER */}
+            <div className="grid grid-cols-7 mb-1">
+              {weekdayLabels.map((label, index) => (
+                <div
+                  key={index}
+                  className="h-6 flex items-center justify-center text-[11px] text-zinc-500"
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* CALENDAR GRID — tap-and-drag per selezionare l'intervallo */}
+            <div
+              className="grid grid-cols-7 select-none"
+              style={{ touchAction: "none" }}
+              onPointerMove={handleCalendarPointerMove}
+            >
+              {cells.map((cell) => {
+
+                const iso = toISODate(cell.date);
+                const disabled = iso < minBookingIso;
+                const isStart = iso === formData.startDate;
+                const isEnd = iso === formData.endDate;
+                const inRange =
+                  formData.startDate !== "" &&
+                  formData.endDate !== "" &&
+                  iso > formData.startDate &&
+                  iso < formData.endDate;
+                const isToday = iso === todayIso;
+
+                return (
+                  <div
+                    key={iso}
+                    data-iso={iso}
+                    onPointerDown={() => {
+                      if (!disabled) startDateDrag(iso);
+                    }}
+                    className={`
+                      h-11 flex items-center justify-center relative
+                      ${inRange ? "bg-[#d6c6a5]/20" : ""}
+                      ${isStart && !isEnd ? "rounded-l-full" : ""}
+                      ${isEnd && !isStart ? "rounded-r-full" : ""}
+                    `}
+                  >
+                    <span
+                      className={`
+                        w-8 h-8 flex items-center justify-center rounded-full text-sm transition-colors
+                        ${disabled ? "text-white/15" : cell.outside ? "text-white/25" : "text-white"}
+                        ${isStart || isEnd ? "bg-[#d6c6a5] text-black font-medium" : ""}
+                        ${isToday && !isStart && !isEnd ? "ring-1 ring-white/30" : ""}
+                      `}
+                    >
+                      {cell.date.getDate()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-zinc-500 text-xs mt-4 text-center">
+              Tap a date, or drag across dates to select a range.
+            </p>
+
           </div>
         );
+      }
 
       case "budget":
         return (
