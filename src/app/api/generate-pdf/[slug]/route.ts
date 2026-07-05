@@ -58,7 +58,7 @@ export async function GET(
     // scattano, invece di restare bloccate nello stato iniziale
     // perche' "non ancora scrollate in vista".
     await page.setViewport({ width: 1280, height: bodyHeight });
-
+await page.emulateMediaType("screen");
     // Piccola pausa per lasciare che le transizioni finiscano
     // prima di catturare il PDF.
     await new Promise((resolve) => setTimeout(resolve, 1500));
