@@ -47,6 +47,10 @@ interface ProposalPageProps {
   params: Promise<{
     slug: string;
   }>;
+
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
 }
 
 // =========================================================
@@ -56,6 +60,7 @@ interface ProposalPageProps {
 export default async function ProposalPage({
 
   params,
+   searchParams,
 
 }: ProposalPageProps) {
 
@@ -95,7 +100,8 @@ export default async function ProposalPage({
       </main>
     );
   }
-
+const resolvedSearchParams =
+    await searchParams;
   // =======================================================
   // FETCH PROPOSAL
   // =======================================================
@@ -534,6 +540,10 @@ dynamicIntroTitle={dynamicIntroTitle ?? ""}
 
     proposalSummary={proposalSummary}
 
+    slug={slug}
+      leadName={lead.name}
+      leadEmail={lead.email}
+alreadyVerified={resolvedSearchParams?.verified === "1"}
     
 
 />

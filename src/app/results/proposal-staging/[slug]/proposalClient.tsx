@@ -28,6 +28,10 @@ interface Props {
     dynamicClosingParagraph:string;
     finalPrice:number;
     proposalSummary: string;
+    slug: string;
+    leadName: string;
+    leadEmail: string;
+    alreadyVerified: boolean;
 
 }
 
@@ -48,6 +52,10 @@ export default function ProposalClient({
     dynamicClosingParagraph,
     finalPrice,
     proposalSummary,
+    slug,
+    leadName,
+    leadEmail,
+    alreadyVerified,
 
 }:Props){
 
@@ -190,17 +198,21 @@ export default function ProposalClient({
 
         <div className="max-w-4xl mx-auto flex justify-center">
 
-            <DownloadPdfButton />
+           <DownloadPdfButton slug={slug} />
 
         </div>
 
     </section>
 
     <ReservationSection
-        expiresAt={expiresAt}
-        closingParagraph={dynamicClosingParagraph}
-        whatsappUrl={whatsappUrl}
-    />
+    expiresAt={expiresAt}
+    closingParagraph={dynamicClosingParagraph}
+    whatsappUrl={whatsappUrl}
+    slug={slug}
+    leadName={leadName}
+    leadEmail={leadEmail}
+    alreadyVerified={alreadyVerified}
+/>
 
 </main>
 

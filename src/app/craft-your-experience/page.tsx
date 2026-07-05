@@ -557,6 +557,25 @@ export default function CraftYourExperience() {
         return;
       }
 
+      // NOTIFICA AL PROPRIETARIO — non appena la proposal è generata,
+      // indipendentemente dal fatto che il cliente richieda o no il booking.
+      // Fire-and-forget: se questa email fallisce non deve bloccare l'utente.
+      fetch("/api/notify-new-proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          experiences: formData.experiences,
+          moods: formData.moods,
+          guests: formData.guests,
+          budget: formData.budget,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          slug: proposalData.slug,
+        }),
+      }).catch((err) => console.error("notify-new-proposal failed:", err));
+
       router.push(`/results/proposal-staging/${proposalData.slug}`);
 
     } catch (err) {
