@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
     const verifyUrl =
       `${siteUrl}/api/verify-email?token=${token}&slug=${encodeURIComponent(slug)}`;

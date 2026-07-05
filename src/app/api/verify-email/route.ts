@@ -12,7 +12,7 @@ import { ownerEmailConfirmedTemplate } from "@/lib/email/templates";
 
 export async function GET(req: NextRequest) {
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
   try {
 

@@ -28,7 +28,7 @@ export async function GET(
 
   const { slug } = await params;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
   let browser;
 
