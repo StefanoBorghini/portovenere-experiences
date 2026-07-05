@@ -23,10 +23,10 @@ const CHROMIUM_PACK_URL =
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
 
-  const { slug } = params;
+  const { slug } = await params;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
 
