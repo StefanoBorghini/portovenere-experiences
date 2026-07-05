@@ -1162,7 +1162,7 @@ export default function CraftYourExperience() {
           overflow-hidden
         "
         style={{
-          backgroundImage: "url('/hero-config.jpg')",
+          backgroundImage: "url('/img-5.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
