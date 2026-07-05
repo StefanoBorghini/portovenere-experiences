@@ -125,10 +125,10 @@ const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }>
 };
 
 const MOOD_IMAGES: Record<string, string> = {
-  Romantic: "/images/moods/romantic.jpg",
-  Cinematic: "/images/moods/cinematic.jpg",
-  Authentic: "/images/moods/authentic.jpg",
-  Adventure: "/images/moods/adventure.jpg",
+  Romantic: "/images/romantic.jpg",
+  Cinematic: "/images/cinematic.jpg",
+  Authentic: "/images/authentic.jpg",
+  Adventure: "/images/adventure.jpg",
 };
 
 // =========================================================
