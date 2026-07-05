@@ -144,49 +144,15 @@ function MoodIcon({ id }: { id: string }) {
   switch (id) {
 
     case "Romantic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M12 20s-7-4.5-9.3-9A5 5 0 0112 6a5 5 0 019.3 5c-2.3 4.5-9.3 9-9.3 9z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
-
+      
     case "Cinematic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <rect x="3" y="7" width="18" height="13" rx="1.5" />
-          <path
-            d="M3 7l3-4h4l-3 4M11 7l3-4h4l-3 4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
+      
 
     case "Authentic":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M4 10l8-6 8 6M5 10v9M9 10v9M15 10v9M19 10v9M3 21h18"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
+      
 
     case "Adventure":
-      return (
-        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
-          <path
-            d="M3 19l6-10 4 6 2-3 6 7H3z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      );
+      
 
     default:
       return null;
