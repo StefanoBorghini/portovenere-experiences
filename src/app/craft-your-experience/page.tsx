@@ -3,6 +3,7 @@
 import Turnstile from "react-turnstile";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
 import { supabase } from "@/lib/supabase";
@@ -596,9 +597,13 @@ export default function CraftYourExperience() {
                         isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                       }`}
                     >
-                      <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url(${details.image})` }}
+                      <Image
+                        src={details.image}
+                        alt={item}
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
+                        priority
                       />
 
                       {/* Gradiente più marcato in basso, cosi' la foto "respira" sopra */}
@@ -656,9 +661,12 @@ export default function CraftYourExperience() {
                       isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                     }`}
                   >
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${MOOD_IMAGES[item]})` }}
+                    <Image
+                      src={MOOD_IMAGES[item]}
+                      alt={item}
+                      fill
+                      sizes="50vw"
+                      className="object-cover"
                     />
 
                     <div className="absolute inset-0 bg-black/40" />
@@ -1002,7 +1010,7 @@ export default function CraftYourExperience() {
         };
 
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
 
             <div>
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
@@ -1030,7 +1038,7 @@ export default function CraftYourExperience() {
               />
             </div>
 
-            <div className="flex items-start gap-3 pt-1">
+            <div className="flex items-start gap-3 pt-2">
               <input
                 type="checkbox"
                 checked={formData.termsAccepted}
@@ -1047,7 +1055,7 @@ export default function CraftYourExperience() {
               </p>
             </div>
 
-            <div>
+            <div className="flex justify-center pt-1">
               <Turnstile
                 sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                 onVerify={(token) => setCaptchaToken(token)}
