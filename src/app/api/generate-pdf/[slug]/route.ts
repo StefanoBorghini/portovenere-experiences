@@ -76,6 +76,19 @@ export async function GET(
     // perche' "non ancora scrollate in vista".
     await page.setViewport({ width: 1280, height: bodyHeight });
 
+    // Alcuni componenti (probabilmente quelli con next/image, es. la
+    // Featured Experience e le card di Included Experiences) usano il
+    // lazy loading nativo del browser (loading="lazy"). In modalita'
+    // headless quel trigger a volte non scatta in tempo. Qui forziamo
+    // tutte le immagini lazy a diventare "eager": partono a caricare
+    // immediatamente, invece di aspettare un evento che potrebbe non
+    // arrivare mai in questo contesto.
+    await page.evaluate(() => {
+      document.querySelectorAll('img[loading="lazy"]').forEach((img) => {
+        (img as HTMLImageElement).loading = "eager";
+      });
+    });
+
     // Attesa MIRATA sul vero caricamento delle immagini (risolve i
     // blocchi neri): invece di indovinare un tempo fisso, controlliamo
     // ogni <img> nella pagina e aspettiamo solo quelle non ancora
