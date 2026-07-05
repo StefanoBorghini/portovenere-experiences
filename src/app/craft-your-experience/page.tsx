@@ -18,7 +18,6 @@ const STEP_IDS = [
   "dates",
   "budget",
   "contact",
-  "terms",
 ] as const;
 
 type StepId = typeof STEP_IDS[number];
@@ -46,10 +45,6 @@ const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
   },
   contact: {
     label: "Your Details",
-    title: "How can we reach you?",
-  },
-  terms: {
-    label: "Confirmation",
     title: "One last step before we craft your proposal.",
   },
 };
@@ -396,11 +391,10 @@ export default function CraftYourExperience() {
       case "contact":
         return (
           formData.name.trim() !== "" &&
-          /\S+@\S+\.\S+/.test(formData.email)
+          /\S+@\S+\.\S+/.test(formData.email) &&
+          formData.termsAccepted &&
+          captchaToken !== ""
         );
-
-      case "terms":
-        return formData.termsAccepted && captchaToken !== "";
 
       default:
         return true;
@@ -425,12 +419,12 @@ export default function CraftYourExperience() {
       return;
     }
 
-    if (stepId === "terms") {
+    if (!currentStepValid) return;
+
+    if (stepId === "contact") {
       handleSubmit();
       return;
     }
-
-    if (!currentStepValid) return;
 
     setDirection(1);
     setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
@@ -465,7 +459,7 @@ export default function CraftYourExperience() {
 
   const handleSubmit = async () => {
 
-    if (!isStepValid("terms")) return;
+    if (!isStepValid("contact")) return;
 
     try {
 
@@ -998,38 +992,7 @@ export default function CraftYourExperience() {
           </div>
         );
 
-      case "contact":
-        return (
-          <div className="space-y-6">
-            <div>
-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-3">
-                Your Name
-              </p>
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full rounded-2xl px-6 py-4 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
-              />
-            </div>
-
-            <div>
-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-3">
-                Email Address
-              </p>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full rounded-2xl px-6 py-4 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
-              />
-            </div>
-          </div>
-        );
-
-      case "terms": {
+      case "contact": {
 
         const termsAnchorProps = {
           href: TERMS_URL,
@@ -1039,8 +1002,35 @@ export default function CraftYourExperience() {
         };
 
         return (
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
+          <div className="space-y-4">
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                Your Name
+              </p>
+              <input
+                type="text"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                Email Address
+              </p>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div className="flex items-start gap-3 pt-1">
               <input
                 type="checkbox"
                 checked={formData.termsAccepted}
@@ -1063,6 +1053,7 @@ export default function CraftYourExperience() {
                 onVerify={(token) => setCaptchaToken(token)}
               />
             </div>
+
           </div>
         );
       }
@@ -1309,7 +1300,7 @@ export default function CraftYourExperience() {
               }
             `}
           >
-            {stepId === "terms" ? "Generate Private Proposal" : "Next"}
+            {stepId === "contact" ? "Generate Private Proposal" : "Next"}
           </button>
 
         </div>
