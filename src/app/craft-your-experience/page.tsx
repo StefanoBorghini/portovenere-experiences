@@ -531,7 +531,7 @@ export default function CraftYourExperience() {
 
       case "children":
         if (showMoreChildren) {
-          return (childrenCount ?? 0) >= 2;
+          return (childrenCount ?? 0) >= 3;
         }
         return true;
 
@@ -916,8 +916,8 @@ export default function CraftYourExperience() {
       case "children":
         return (
           <div>
-            <div className="grid grid-cols-3 gap-4">
-              {[0, 1].map((item) => (
+            <div className="flex flex-col gap-3">
+              {[0, 1, 2].map((item) => (
                 <button
                   type="button"
                   key={item}
@@ -930,7 +930,7 @@ export default function CraftYourExperience() {
                       travelingWithChildren: item > 0,
                     });
                   }}
-                  className={`border rounded-2xl px-4 py-8 transition-all duration-500 ease-out ${
+                  className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
                     childrenCount === item
                       ? "bg-white text-black border-white"
                       : "bg-white/5 border-white/10 hover:border-white/40"
@@ -946,13 +946,13 @@ export default function CraftYourExperience() {
                   setChildrenCount(null);
                   setShowMoreChildren(true);
                 }}
-                className={`border rounded-2xl px-4 py-8 transition-all duration-500 ease-out ${
+                className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
                   showMoreChildren
                     ? "bg-white text-black border-white"
                     : "bg-white/5 border-white/10 hover:border-white/40"
                 }`}
               >
-                2+
+                3+
               </button>
             </div>
 
@@ -964,7 +964,7 @@ export default function CraftYourExperience() {
               <p className="text-zinc-500 mb-2 text-sm">How many children?</p>
               <input
                 type="number"
-                min={2}
+                min={3}
                 max={20}
                 inputMode="numeric"
                 pattern="[0-9]*"
