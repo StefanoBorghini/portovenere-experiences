@@ -107,11 +107,11 @@ const INTRO_STEP = -1;
 
 const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
   "Sea Escape": {
-    image: "/images/experiences/sea-escape.jpg",
+    image: "url('/img-5.jpg')",
     description: "Private sailing and sunset cruises along the Riviera coast.",
   },
   "Aerial Escape": {
-    image: "/images/experiences/aerial-escape.jpg",
+    image: "/images/flying/aereo/img-1.jpg",
     description: "See the coast from above with unforgettable views.",
   },
   "Gourmet Escape": {
