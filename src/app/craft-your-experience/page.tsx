@@ -90,19 +90,8 @@ const INTRO_STEP = -1;
 // la fonte dinamica (stessa struttura, dati da Supabase invece
 // che da qui) — il resto del codice non cambia.
 //
-// IMPORTANTE: questi sono path placeholder. Vanno sostituiti
-// con le immagini reali, salvate in:
-//   /public/images/experiences/sea-escape.jpg
-//   /public/images/experiences/aerial-escape.jpg
-//   /public/images/experiences/gourmet-escape.jpg
-//   /public/images/experiences/wild-escape.jpg
-//   /public/images/moods/romantic.jpg
-//   /public/images/moods/cinematic.jpg
-//   /public/images/moods/authentic.jpg
-//   /public/images/moods/adventure.jpg
-//   /public/images/budget/sailing.jpg
-//   /public/images/budget/yacht.jpg
-//   /public/images/budget/villa.jpg
+// Path reali già impostati (public/images/... e public/hero-config.jpg).
+// Se sposti o rinomini i file, aggiorna solo qui sotto.
 // =========================================================
 
 const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
@@ -144,15 +133,49 @@ function MoodIcon({ id }: { id: string }) {
   switch (id) {
 
     case "Romantic":
-      
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M12 20s-7-4.5-9.3-9A5 5 0 0112 6a5 5 0 019.3 5c-2.3 4.5-9.3 9-9.3 9z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
+
     case "Cinematic":
-      
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <rect x="3" y="7" width="18" height="13" rx="1.5" />
+          <path
+            d="M3 7l3-4h4l-3 4M11 7l3-4h4l-3 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
 
     case "Authentic":
-      
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M4 10l8-6 8 6M5 10v9M9 10v9M15 10v9M19 10v9M3 21h18"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
 
     case "Adventure":
-      
+      return (
+        <svg viewBox="0 0 24 24" className={common} strokeWidth={1.5}>
+          <path
+            d="M3 19l6-10 4 6 2-3 6 7H3z"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
 
     default:
       return null;
@@ -183,9 +206,6 @@ export default function CraftYourExperience() {
 
   const [guestCount, setGuestCount] = useState<number | null>(null);
   const [showMoreGuests, setShowMoreGuests] = useState(false);
-
-  const [childrenCount, setChildrenCount] = useState<number | null>(0);
-  const [showMoreChildren, setShowMoreChildren] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -228,6 +248,7 @@ export default function CraftYourExperience() {
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
   // scivola leggermente oltre il bordo): un listener globale garantisce
@@ -435,9 +456,6 @@ export default function CraftYourExperience() {
         return formData.guests !== "";
 
       case "children":
-        if (showMoreChildren) {
-          return (childrenCount ?? 0) >= 3;
-        }
         return true;
 
       case "dates":
@@ -639,7 +657,7 @@ export default function CraftYourExperience() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
               {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
                 (item) => {
 
@@ -660,7 +678,8 @@ export default function CraftYourExperience() {
                         style={{ backgroundImage: `url(${details.image})` }}
                       />
 
-                      <div className="absolute inset-0 bg-black/40" />
+                      {/* Gradiente più marcato in basso, cosi' la foto "respira" sopra */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
 
                       {/* SELECTION RING */}
                       <div
@@ -673,9 +692,9 @@ export default function CraftYourExperience() {
                         )}
                       </div>
 
-                      {/* LABEL — centrata, nessuna icona, come le Atmospheres */}
-                      <div className="absolute inset-0 flex items-center justify-center px-3">
-                        <p className="text-white text-sm font-medium text-center">
+                      {/* LABEL — ancorata in basso a sinistra */}
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <p className="text-white text-sm font-medium text-left">
                           {item}
                         </p>
                       </div>
@@ -700,7 +719,7 @@ export default function CraftYourExperience() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
               {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
 
                 const isSelected = formData.moods.includes(item);
@@ -765,7 +784,14 @@ export default function CraftYourExperience() {
                       : "border-white/10 bg-white/5 hover:border-white/40"
                   }`}
                 >
-                  {item}
+                  <span className="block text-lg leading-tight">{item}</span>
+                  <span
+                    className={`block text-[10px] uppercase tracking-wide mt-0.5 ${
+                      guestCount === item ? "text-black/50" : "text-zinc-500"
+                    }`}
+                  >
+                    Guests
+                  </span>
                 </button>
               ))}
 
@@ -782,7 +808,14 @@ export default function CraftYourExperience() {
                     : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                9+
+                <span className="block text-lg leading-tight">9+</span>
+                <span
+                  className={`block text-[10px] uppercase tracking-wide mt-0.5 ${
+                    showMoreGuests ? "text-black/50" : "text-zinc-500"
+                  }`}
+                >
+                  Guests
+                </span>
               </button>
             </div>
 
@@ -812,73 +845,54 @@ export default function CraftYourExperience() {
 
       case "children":
         return (
-          <div>
-            <div className="flex flex-col gap-3">
-              {[0, 1, 2].map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  onClick={() => {
-                    setChildrenCount(item);
-                    setShowMoreChildren(false);
-                    setFormData({
-                      ...formData,
-                      children: item,
-                      travelingWithChildren: item > 0,
-                    });
-                  }}
-                  className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
-                    childrenCount === item
-                      ? "bg-white text-black border-white"
-                      : "bg-white/5 border-white/10 hover:border-white/40"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
+          <div className="flex flex-col items-center justify-center py-8">
+
+            <p className="text-zinc-400 text-base mb-8">
+              {formData.children === 0
+                ? "No children"
+                : formData.children === 1
+                ? "1 child"
+                : `${formData.children} children`}
+            </p>
+
+            <div className="flex items-center gap-10">
 
               <button
                 type="button"
                 onClick={() => {
-                  setChildrenCount(null);
-                  setShowMoreChildren(true);
-                }}
-                className={`w-full border rounded-2xl px-6 py-5 text-center transition-all duration-500 ease-out ${
-                  showMoreChildren
-                    ? "bg-white text-black border-white"
-                    : "bg-white/5 border-white/10 hover:border-white/40"
-                }`}
-              >
-                3+
-              </button>
-            </div>
-
-            <div
-              className={`overflow-hidden transition-all duration-500 ease-out ${
-                showMoreChildren ? "max-h-40 opacity-100 mt-4" : "max-h-0 opacity-0"
-              }`}
-            >
-              <p className="text-zinc-500 mb-2 text-sm">How many children?</p>
-              <input
-                type="number"
-                min={3}
-                max={20}
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder="How many children?"
-                value={childrenCount || ""}
-                onChange={(e) => {
-                  const value = Number(e.target.value);
-                  setChildrenCount(value);
+                  const value = Math.max(0, formData.children - 1);
                   setFormData({
                     ...formData,
                     children: value,
                     travelingWithChildren: value > 0,
                   });
                 }}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-4 outline-none transition-all duration-500 focus:border-white/40"
-              />
+                className="w-12 h-12 rounded-full border border-white/20 text-2xl flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+              >
+                −
+              </button>
+
+              <span className="text-5xl font-light w-14 text-center tabular-nums">
+                {formData.children}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const value = Math.min(10, formData.children + 1);
+                  setFormData({
+                    ...formData,
+                    children: value,
+                    travelingWithChildren: value > 0,
+                  });
+                }}
+                className="w-12 h-12 rounded-full border border-white/20 text-2xl flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+              >
+                +
+              </button>
+
             </div>
+
           </div>
         );
 
@@ -896,8 +910,100 @@ export default function CraftYourExperience() {
           viewYear === minimumBookingDate.getFullYear() &&
           viewMonth === minimumBookingDate.getMonth();
 
+        // ===== OPZIONI RAPIDE: this weekend / next weekend / choose dates =====
+
+        const today = new Date();
+        const satOffset = (6 - today.getDay() + 7) % 7;
+
+        const thisWeekendStart = new Date(today);
+        thisWeekendStart.setDate(today.getDate() + satOffset);
+        const thisWeekendEnd = new Date(thisWeekendStart);
+        thisWeekendEnd.setDate(thisWeekendStart.getDate() + 1);
+
+        const nextWeekendStart = new Date(thisWeekendStart);
+        nextWeekendStart.setDate(thisWeekendStart.getDate() + 7);
+        const nextWeekendEnd = new Date(nextWeekendStart);
+        nextWeekendEnd.setDate(nextWeekendStart.getDate() + 1);
+
+        const thisWeekendStartIso = toISODate(thisWeekendStart);
+        const thisWeekendEndIso = toISODate(thisWeekendEnd);
+        const nextWeekendStartIso = toISODate(nextWeekendStart);
+        const nextWeekendEndIso = toISODate(nextWeekendEnd);
+
+        const isThisWeekendDisabled = thisWeekendStartIso < minBookingIso;
+        const isNextWeekendDisabled = nextWeekendStartIso < minBookingIso;
+
+        const isThisWeekendSelected =
+          formData.startDate === thisWeekendStartIso &&
+          formData.endDate === thisWeekendEndIso;
+
+        const isNextWeekendSelected =
+          formData.startDate === nextWeekendStartIso &&
+          formData.endDate === nextWeekendEndIso;
+
+        function selectQuickRange(startIso: string, endIso: string) {
+          setFormData((prev) => ({ ...prev, startDate: startIso, endDate: endIso }));
+        }
+
+        if (!showCalendar) {
+          return (
+            <div className="flex flex-col gap-3">
+
+              <button
+                type="button"
+                disabled={isThisWeekendDisabled}
+                onClick={() => selectQuickRange(thisWeekendStartIso, thisWeekendEndIso)}
+                className={`w-full border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out disabled:opacity-30 disabled:cursor-not-allowed ${
+                  isThisWeekendSelected
+                    ? "bg-white text-black border-white"
+                    : "bg-white/5 border-white/10 hover:border-white/40"
+                }`}
+              >
+                <span className="mr-2">📅</span>This weekend
+              </button>
+
+              <button
+                type="button"
+                disabled={isNextWeekendDisabled}
+                onClick={() => selectQuickRange(nextWeekendStartIso, nextWeekendEndIso)}
+                className={`w-full border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out disabled:opacity-30 disabled:cursor-not-allowed ${
+                  isNextWeekendSelected
+                    ? "bg-white text-black border-white"
+                    : "bg-white/5 border-white/10 hover:border-white/40"
+                }`}
+              >
+                <span className="mr-2">📅</span>Next weekend
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowCalendar(true)}
+                className="w-full border rounded-2xl px-6 py-5 text-left bg-white/5 border-white/10 hover:border-white/40 transition-all duration-500 ease-out"
+              >
+                <span className="mr-2">📅</span>Choose dates
+              </button>
+
+              {formData.startDate !== "" && formData.endDate !== "" && (
+                <p className="text-zinc-500 text-sm mt-1 text-center">
+                  Selected: {formatDisplayDate(formData.startDate)} –{" "}
+                  {formatDisplayDate(formData.endDate)}
+                </p>
+              )}
+
+            </div>
+          );
+        }
+
         return (
           <div>
+
+            <button
+              type="button"
+              onClick={() => setShowCalendar(false)}
+              className="text-zinc-500 text-xs mb-3 hover:text-white transition-colors"
+            >
+              &#8249; Back to quick options
+            </button>
 
             {/* CHECK-IN / CHECK-OUT SUMMARY */}
             <div className="flex justify-between mb-3">
@@ -1020,18 +1126,29 @@ export default function CraftYourExperience() {
       case "budget":
         return (
           <div className="grid gap-4">
-            {["€500 - €1000", "€1000 - €3000", "€3000+"].map((item) => (
+            {[
+              { label: "Essential", range: "€500 - €1000" },
+              { label: "Signature", range: "€1000 - €3000" },
+              { label: "Luxury", range: "€3000+" },
+            ].map(({ label, range }) => (
               <button
                 type="button"
-                key={item}
-                onClick={() => handleSelect("budget", item)}
-                className={`border rounded-2xl px-6 py-6 text-center text-lg transition-all duration-500 ease-out ${
-                  formData.budget === item
+                key={range}
+                onClick={() => handleSelect("budget", range)}
+                className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
+                  formData.budget === range
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                {item}
+                <span className="block text-lg font-light">{label}</span>
+                <span
+                  className={`block text-sm mt-1 ${
+                    formData.budget === range ? "text-black/60" : "text-zinc-500"
+                  }`}
+                >
+                  {range}
+                </span>
               </button>
             ))}
           </div>
@@ -1201,6 +1318,11 @@ export default function CraftYourExperience() {
               Get Started
             </button>
 
+            <p className="text-zinc-500 text-xs mt-4 flex items-center gap-1.5">
+              <span>⏱</span>
+              Takes less than 2 minutes
+            </p>
+
           </div>
 
         </div>
@@ -1307,7 +1429,7 @@ export default function CraftYourExperience() {
             className="
               w-1/3
               rounded-full
-              py-5
+              py-3.5
               uppercase
               tracking-[0.25em]
               text-xs
@@ -1330,7 +1452,7 @@ export default function CraftYourExperience() {
             className={`
               w-2/3
               rounded-full
-              py-5
+              py-3.5
               uppercase
               tracking-[0.25em]
               text-xs
