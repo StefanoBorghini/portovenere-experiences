@@ -74,10 +74,7 @@ useEffect(() => {
 
     setExperiences(data);
 
-    console.log(
-      "ADMIN EXPERIENCES",
-      data
-    );
+  
   }
 
   loadData();

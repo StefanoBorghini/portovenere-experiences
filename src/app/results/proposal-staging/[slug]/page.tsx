@@ -159,11 +159,7 @@ const resolvedSearchParams =
   const dynamicEnhancements =
   await getEnhancements();
 
-  console.log(
-  "ENHANCEMENTS FROM DB",
-  dynamicEnhancements
-);
-  
+ 
 const generatedProposal =
 
   generateProposal({

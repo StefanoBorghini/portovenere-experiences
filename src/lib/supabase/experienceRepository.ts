@@ -114,8 +114,7 @@ const filtersInsert = await supabase
     budget_3000_plus: false,
   });
 
-console.log("FILTER ERROR", filtersInsert.error);
-console.log("FILTER DATA", filtersInsert.data);
+
 
 const scoringInsert =await supabase
   .from("experience_scoring")
@@ -127,9 +126,7 @@ const scoringInsert =await supabase
     cinematic_score: 0,
   });
 
-console.log("SCORING ERROR", scoringInsert.error);
-console.log("SCORING DATA", scoringInsert.data);
-  // crea filters
+
 
   return data;
 
@@ -199,7 +196,7 @@ const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
 const facts =
   await getExperienceFacts();
-  console.log("ALL FACTS", facts);
+  
 const sections =
   await getExperienceSections();
 
@@ -212,14 +209,7 @@ const sections =
       fact.experience_id ===
       experience.id
   );
-console.log(
-  "FACTS DEBUG",
-  {
-    id: experience.id,
-    title: experience.title,
-    facts: experienceFacts,
-  }
-);
+
 
 
   
@@ -613,7 +603,7 @@ export async function createExperienceFact(fact: any) {
   if (!supabase)
     return { success: false };
 
-  console.log("INSERTING FACT:", fact);
+  
 
   const { data, error } =
     await supabase
@@ -628,8 +618,7 @@ export async function createExperienceFact(fact: any) {
       })
       .select();
 
-  console.log("DATA", data);
-  console.log("ERROR", error);
+ 
 
   if (error) {
 
@@ -742,7 +731,6 @@ export async function createExperienceSection(section: any) {
   if (!supabase)
     return { success: false };
 
-  console.log("INSERTING SECTION:", section);
 
   const { data, error } =
     await supabase
@@ -757,8 +745,7 @@ export async function createExperienceSection(section: any) {
       })
       .select();
 
-  console.log("DATA", data);
-  console.log("ERROR", error);
+  
 
   if (error) {
 

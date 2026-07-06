@@ -6,10 +6,7 @@ export async function POST(
     const { token } =
       await request.json();
 
-    console.log(
-      "TURNSTILE TOKEN:",
-      token
-    );
+    
 
     const response =
       await fetch(
@@ -34,14 +31,7 @@ export async function POST(
     const data =
       await response.json();
 
-    console.log(
-      "TURNSTILE RESPONSE:",
-      JSON.stringify(
-        data,
-        null,
-        2
-      )
-    );
+  
 
     return Response.json(data);
 

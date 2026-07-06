@@ -92,16 +92,7 @@ const matchesCategory =
     experience.category
   );
 
-console.log(
-  "CATEGORY CHECK",
-  experience.id,
-  experience.category
-);
 
-console.log(
-  "NORMALIZED",
-  normalizedSelected
-);
         // =====================================================
         // GUESTS
         // =====================================================
@@ -132,20 +123,7 @@ const matchesBudget =
 
   : true;
 
-  console.log(
-  "SELECTED",
-  safeExperiencesSelected
-);
-console.log(
-  experience.id,
-  {
-    matchesCategory,
-    matchesGuests,
-    matchesBudget,
-    guests,
-    budget,
-  }
-);
+
 
         return (
 
@@ -223,16 +201,9 @@ console.log(
   if (mood === "Cinematic") {
     score += (experience.cinematic_score ?? 0) * 10;
   }
-console.log(
-  "SCORE",
-  experience.id,
-  score
-);
+
 });
-console.log(
-  "AIRPLANE FULL",
-  filteredExperiences[0]
-);
+
         // =====================================================
         // FAMILY
         // =====================================================
@@ -287,39 +258,8 @@ console.log(
     
 
 
-    console.log(
-  "EXPERIENCES SELECTED",
-  experiencesSelected
-);
 
-console.log(
-  "MOODS SELECTED",
-  moodsSelected
-);
 
-console.log(
-  "ALL EXPERIENCES",
-  allExperiences.map(e => ({
-    id: e.id,
-    title: e.title
-  }))
-);
-
-console.log(
-  "FILTERED",
-  filteredExperiences.map(e => ({
-    id: e.id,
-    title: e.title
-  }))
-);
-
-console.log(
-  "RANKING",
-  sortedExperiences.map(e => ({
-    id: e.id,
-    score: e.finalScore
-  }))
-);
     // =====================================================
 // MAIN CATEGORY PRIORITY
 // =====================================================
@@ -361,25 +301,7 @@ const bestExperience =
   ) ||
 
   sortedExperiences[0];
-console.log(
-  "BEST EXPERIENCE",
-  {
-    id: bestExperience?.id,
-    title: bestExperience?.title,
-    operator: bestExperience?.operator,
-    category: bestExperience?.category
-  }
-);
 
-console.log(
-  "BEST EXPERIENCE IMAGE",
-  {
-    id: bestExperience?.id,
-    featured: bestExperience?.featured_image,
-    gallery: bestExperience?.gallery?.[0]?.image_url,
-    heroImage: bestExperience?.heroImage,
-  }
-);
   // =========================================================
 // FALLBACK + DIAGNOSTIC
 // =========================================================
@@ -510,13 +432,7 @@ if (safeExperiencesSelected.length === 1) {
 const primaryMood =
 
  safeMoodsSelected[0];
-console.log(
-  "HERO DEBUG",
-  {
-    category: bestExperience.category,
-    mood: primaryMood
-  }
-);
+
 const categoryMap = {
   sea_escape: "Sea Escape",
   aerial_escape: "Aerial Escape",

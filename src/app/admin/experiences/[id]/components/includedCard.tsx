@@ -117,13 +117,13 @@ onClick={async () => {
   const ok = confirm("Delete this section?");
   if (!ok) return;
 
-  console.log("Deleting:", section);
+  
 
   if (!section.isNew) {
 
     const result = await deleteExperienceSection(section.id);
 
-    console.log("Delete result:", result);
+    
 
   }
 
