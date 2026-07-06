@@ -132,6 +132,7 @@ export default function CraftYourExperience() {
   // =======================================================
 
   const [captchaToken, setCaptchaToken] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [guestCount, setGuestCount] = useState<number | null>(null);
   const [showMoreGuests, setShowMoreGuests] = useState(false);
@@ -462,10 +463,13 @@ export default function CraftYourExperience() {
 
     if (!isStepValid("contact")) return;
 
+    setIsSubmitting(true);
+
     try {
 
       if (!supabase) {
         console.error("Supabase not configured");
+        setIsSubmitting(false);
         return;
       }
 
@@ -480,35 +484,39 @@ export default function CraftYourExperience() {
       if (!verifyData.success) {
         setCaptchaToken("");
         alert("Captcha verification failed");
+        setIsSubmitting(false);
         return;
       }
 
-      // SAVE LEAD
+      // SAVE LEAD — generiamo noi l'id, cosi' non serve rileggere la riga
+      // subito dopo (niente .select(): la tabella leads non e' leggibile
+      // pubblicamente via RLS, di proposito).
 
-     const leadId = crypto.randomUUID();
+      const leadId = crypto.randomUUID();
 
-const { error: leadError } = await supabase
-  .from("leads")
-  .insert([
-    {
-      id: leadId,
-      name: formData.name,
-      email: formData.email,
-      experiences: formData.experiences,
-      moods: formData.moods,
-      guests: formData.guests,
-      budget: formData.budget,
-      start_date: formData.startDate,
-      end_date: formData.endDate,
-      traveling_with_children: formData.travelingWithChildren,
-      children: formData.children,
-    },
-  ]);
+      const { error: leadError } = await supabase
+        .from("leads")
+        .insert([
+          {
+            id: leadId,
+            name: formData.name,
+            email: formData.email,
+            experiences: formData.experiences,
+            moods: formData.moods,
+            guests: formData.guests,
+            budget: formData.budget,
+            start_date: formData.startDate,
+            end_date: formData.endDate,
+            traveling_with_children: formData.travelingWithChildren,
+            children: formData.children,
+          },
+        ]);
 
-if (leadError) {
-  console.error("Lead error:", JSON.stringify(leadError, null, 2));
-  return;
-}
+      if (leadError) {
+        console.error("Lead error:", JSON.stringify(leadError, null, 2));
+        setIsSubmitting(false);
+        return;
+      }
 
       // SLUG
 
@@ -555,6 +563,7 @@ if (leadError) {
 
       if (proposalError || !proposalData) {
         console.error("Proposal error:", JSON.stringify(proposalError, null, 2));
+        setIsSubmitting(false);
         return;
       }
 
@@ -567,10 +576,14 @@ if (leadError) {
         body: JSON.stringify({ slug: proposalData.slug }),
       }).catch((err) => console.error("notify-new-proposal failed:", err));
 
+      // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+      // la pagina, l'overlay di caricamento resta visibile fino alla
+      // navigazione, poi il componente si smonta comunque.
       router.push(`/results/proposal-staging/${proposalData.slug}`);
 
     } catch (err) {
       console.error("Unexpected error:", err);
+      setIsSubmitting(false);
     }
   };
 
@@ -1179,6 +1192,50 @@ if (leadError) {
           </div>
 
         </div>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // LOADING SCREEN — durante la generazione della proposal
+  // =======================================================
+
+  if (isSubmitting) {
+
+    return (
+      <main
+        className="
+          h-dvh
+          w-full
+          bg-[#0C0C0C]
+          text-white
+          flex
+          flex-col
+          items-center
+          justify-center
+          gap-8
+        "
+      >
+
+        <motion.img
+          src="/logo-white.png"
+          alt="Portovenere Experiences"
+          className="h-14 w-auto"
+          animate={{
+            opacity: [0.35, 1, 0.35],
+            scale: [0.94, 1, 0.94],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <p className="uppercase tracking-[0.35em] text-xs text-zinc-500">
+          Crafting your proposal...
+        </p>
 
       </main>
     );
