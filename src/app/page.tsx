@@ -371,20 +371,19 @@ duration-500
         className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-[#EDEBE7]/10"
       >
         <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
-          Private Access
+          Ready When You Are
         </p>
 
         <h2 className="text-5xl md:text-8xl font-light leading-[0.95] mb-10">
-          Plan Your
+          Your Private
           <br />
-          Mediterranean
-          <br />
-          Escape
+          Riviera Awaits
         </h2>
 
         <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed mb-12">
-          Access curated Mediterranean experiences designed for selected guests,
-          private collaborations and cinematic storytelling productions.
+          Answer a few questions about your dates, your group and the mood
+          you're after — receive a tailored proposal in minutes, complete
+          with pricing and hand-picked experiences.
         </p>
 
         <a
@@ -395,7 +394,43 @@ duration-500
         </a>
       </section>
 
-     
+      {/* FOOTER */}
+      <footer className="border-t border-[#EDEBE7]/10 py-16 px-6 bg-[#0C0C0C]">
+        <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
+
+          <img
+            src="/logo-white.png"
+            alt="Portovenere Experiences"
+            className="h-9 w-auto opacity-60"
+          />
+
+          <div className="flex flex-wrap justify-center gap-8 text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+            <a href="/craft-your-experience" className="hover:text-white transition-colors duration-300">
+              Craft Your Experience
+            </a>
+            <a
+              href="https://www.portovenere.com/terms-conditions/"
+              target="_blank"
+              className="hover:text-white transition-colors duration-300"
+            >
+              Terms &amp; Conditions
+            </a>
+            <a href="mailto:info@portovenere.com" className="hover:text-white transition-colors duration-300">
+              Contact
+            </a>
+          </div>
+
+          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
+            © {new Date().getFullYear()} Portovenere Experiences
+          </p>
+
+          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
+            Powered by Ductavia
+          </p>
+
+        </div>
+      </footer>
+
     </main>
   );
 }
