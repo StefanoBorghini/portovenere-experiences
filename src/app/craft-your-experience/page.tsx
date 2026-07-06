@@ -485,29 +485,30 @@ export default function CraftYourExperience() {
 
       // SAVE LEAD
 
-      const { data: leadData, error: leadError } = await supabase
-        .from("leads")
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            experiences: formData.experiences,
-            moods: formData.moods,
-            guests: formData.guests,
-            budget: formData.budget,
-            start_date: formData.startDate,
-            end_date: formData.endDate,
-            traveling_with_children: formData.travelingWithChildren,
-            children: formData.children,
-          },
-        ])
-        .select()
-        .single();
+     const leadId = crypto.randomUUID();
 
-      if (leadError || !leadData) {
-        console.error("Lead error:", JSON.stringify(leadError, null, 2));
-        return;
-      }
+const { error: leadError } = await supabase
+  .from("leads")
+  .insert([
+    {
+      id: leadId,
+      name: formData.name,
+      email: formData.email,
+      experiences: formData.experiences,
+      moods: formData.moods,
+      guests: formData.guests,
+      budget: formData.budget,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      traveling_with_children: formData.travelingWithChildren,
+      children: formData.children,
+    },
+  ]);
+
+if (leadError) {
+  console.error("Lead error:", JSON.stringify(leadError, null, 2));
+  return;
+}
 
       // SLUG
 
@@ -529,7 +530,7 @@ export default function CraftYourExperience() {
         .from("Proposal")
         .insert([
           {
-            lead_id: leadData.id,
+            lead_id: leadId,
             slug,
             expires_at: new Date(
               Date.now() + 48 * 60 * 60 * 1000
