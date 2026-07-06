@@ -346,9 +346,9 @@ duration-500
       </section>
 
       {/* SCARCITY */}
-      <section className="py-28 px-6 bg-[#EDEBE7] text-black">
+      <section className="py-28 px-6 bg-[#E3D5B8] text-black">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
+          <p className="uppercase tracking-[0.4em] text-black/50 text-sm mb-6">
             Limited Availability
           </p>
 
@@ -358,7 +358,7 @@ duration-500
             Selected experiences only.
           </h2>
 
-          <p className="text-zinc-600 text-lg leading-relaxed">
+          <p className="text-black/65 text-lg leading-relaxed">
             Every production is intentionally limited to preserve exclusivity,
             atmosphere and emotional impact.
           </p>
