@@ -563,17 +563,7 @@ export default function CraftYourExperience() {
       fetch("/api/notify-new-proposal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          experiences: formData.experiences,
-          moods: formData.moods,
-          guests: formData.guests,
-          budget: formData.budget,
-          startDate: formData.startDate,
-          endDate: formData.endDate,
-          slug: proposalData.slug,
-        }),
+        body: JSON.stringify({ slug: proposalData.slug }),
       }).catch((err) => console.error("notify-new-proposal failed:", err));
 
       router.push(`/results/proposal-staging/${proposalData.slug}`);

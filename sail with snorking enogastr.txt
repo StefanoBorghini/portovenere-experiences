@@ -562,7 +562,7 @@ A simple and authentic way to experience the Mediterranean atmosphere surroundin
 
           <div className="space-y-4 text-lg ">
 
-            <p>WhatsApp: +39 348 714 0722</p>
+           
 
             <p>info@portovenere.com</p>
 
