@@ -24,8 +24,7 @@ from "@/components/proposal/ProposalEnhancements";
 import ReservationSection
 from "@/components/proposal/ReservationSection";
 
-import DownloadPdfButton
-from "@/components/DownloadPdfButton";
+
 
 import ProposalHero
 from "@/components/proposal/ProposalHero";
