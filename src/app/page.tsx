@@ -1,435 +1,1392 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Turnstile from "react-turnstile";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
-export default function HomePage() {
+import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics/gtag";
 
-  const [scrolled, setScrolled] = useState(false);
+// =========================================================
+// STEP DEFINITIONS
+// =========================================================
 
+const STEP_IDS = [
+  "experiences",
+  "moods",
+  "guests",
+  "dates",
+  "budget",
+  "contact",
+] as const;
+
+type StepId = typeof STEP_IDS[number];
+
+const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
+  experiences: {
+    label: "Select up to 3 Experiences",
+    title: "What kind of experience are you dreaming of?",
+  },
+  moods: {
+    label: "Select up to 3 Atmospheres",
+    title: "Choose the vibe that inspires you.",
+  },
+  guests: {
+    label: "Guests & Children",
+    title: "Who's joining the adventure?",
+  },
+  dates: {
+    label: "Travel Dates",
+    title: "When are you planning to travel?",
+  },
+  budget: {
+    label: "Estimated Investment",
+    title: "What is your preferred budget range?",
+  },
+  contact: {
+    label: "Your Details",
+    title: "One last step before we craft your proposal.",
+  },
+};
+
+// =========================================================
+// SLIDE ANIMATION VARIANTS
+// =========================================================
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 80 : -80,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -80 : 80,
+    opacity: 0,
+  }),
+};
+
+const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
+
+// currentStep === INTRO_STEP significa "schermata di benvenuto",
+// non fa parte del conteggio degli step del wizard.
+const INTRO_STEP = -1;
+
+// =========================================================
+// IMMAGINI E TESTI — hardcoded per ora, come richiesto.
+// Quando arriverà il CMS, questi tre oggetti diventeranno
+// la fonte dinamica (stessa struttura, dati da Supabase invece
+// che da qui) — il resto del codice non cambia.
+//
+// Path reali già impostati (public/images/... e public/hero-config.jpg).
+// Se sposti o rinomini i file, aggiorna solo qui sotto.
+// =========================================================
+
+const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
+  "Sea Escape": {
+    image: "/images/sailing/dino/cinematic.webp",
+    description: "Private sailing and sunset cruises along the Riviera coast.",
+  },
+  "Aerial Escape": {
+    image: "/images/flying/aereo/img-1.jpg",
+    description: "See the coast from above with unforgettable views.",
+  },
+  "Gourmet Escape": {
+    image: "/images/dining/ristorante/romantic.jpg",
+    description: "Savor exceptional flavors in unique locations.",
+  },
+  "Wild Escape": {
+    image: "/images/wild/underwater/mermaiding/cinematic.jpg",
+    description: "Reconnect with nature and hidden places.",
+  },
+};
+
+const MOOD_IMAGES: Record<string, string> = {
+  Romantic: "/images/romantic.jpg",
+  Cinematic: "/images/cinematic.jpg",
+  Authentic: "/images/authentic.jpg",
+  Adventure: "/images/adventure.jpg",
+};
+
+export default function CraftYourExperience() {
+
+  const router = useRouter();
+
+  // =======================================================
+  // WIZARD NAVIGATION STATE
+  // =======================================================
+
+  const [currentStep, setCurrentStep] = useState<number>(INTRO_STEP);
+  const [direction, setDirection] = useState(0);
+  const [selectionWarning, setSelectionWarning] = useState("");
+
+  const totalSteps = STEP_IDS.length;
+  const isIntro = currentStep === INTRO_STEP;
+  const stepId = !isIntro ? STEP_IDS[currentStep] : null;
+
+  // =======================================================
+  // FORM STATE
+  // =======================================================
+
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [guestCount, setGuestCount] = useState<number | null>(null);
+  const [showMoreGuests, setShowMoreGuests] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+
+    experiences: [] as string[],
+    moods: [] as string[],
+
+    guests: "",
+    budget: "",
+    children: 0,
+
+    startDate: "",
+    endDate: "",
+
+    travelingWithChildren: false,
+
+    termsAccepted: false,
+  });
+
+  const minimumBookingDate = new Date();
+  minimumBookingDate.setDate(minimumBookingDate.getDate() + 14);
+
+  // =======================================================
+  // INLINE CALENDAR — drag-to-select date range
+  // =======================================================
+
+  function toISODate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  const minBookingIso = toISODate(minimumBookingDate);
+  const todayIso = toISODate(new Date());
+
+  const [viewYear, setViewYear] = useState(minimumBookingDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(minimumBookingDate.getMonth());
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
+
+  // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
+  // scivola leggermente oltre il bordo): un listener globale garantisce
+  // che il drag si chiuda comunque.
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
+    function handlePointerUp() {
+      setIsDragging(false);
+    }
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return (
-    <main className="bg-[#0C0C0C] text-[#EDEBE7] overflow-hidden">
-      {/* HERO */}
-      <section className="relative min-h-screen overflow-hidden pb-24 md:pb-0">
-        {/* DESKTOP VIDEO */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/videos/Hero/poster-desktop.png"
-          className="hidden lg:block absolute inset-0 w-full h-full object-cover scale-105"
-        >
-          <source
-            src="/videos/Hero/hero-desktop.mp4"
-            type="video/mp4"
-          />
-        </video>
+  function buildCalendarCells(year: number, month: number) {
 
-        {/* TABLET VIDEO */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/videos/Hero/poster-mobile.png"
-          className="hidden md:block lg:hidden absolute inset-0 w-full h-full object-cover"
-        >
-          <source
-            src="/videos/Hero/hero-mobile-def.mp4"
-            type="video/mp4"
-          />
-        </video>
+    const firstOfMonth = new Date(year, month, 1);
+    const startWeekday = firstOfMonth.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-        {/* MOBILE VIDEO */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/videos/Hero/poster-mobile.png"
-          className="block md:hidden absolute inset-0 w-full h-full object-cover"
-        >
-          <source
-            src="/videos/Hero/hero-mobile.mp4"
-            type="video/mp4"
-          />
-        </video>
+    const cells: { date: Date; outside: boolean }[] = [];
 
-        {/* OVERLAY */}
-<div className="absolute inset-0 bg-black/40" />
-        {/* GRAIN */}
-        <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      cells.push({
+        date: new Date(year, month - 1, daysInPrevMonth - i),
+        outside: true,
+      });
+    }
 
-  {/* NAVBAR */}
-<nav
-  className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-    scrolled
-      ? "bg-[#0C0C0C]/75 backdrop-blur-xl"
-      : "bg-transparent"
-  }`}
->
-  <div className="max-w-7xl mx-auto flex justify-center py-6 md:py-8">
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ date: new Date(year, month, d), outside: false });
+    }
 
-    <a
-      href="/"
-      className="block"
-    >
-      <img
-        src="/logo-white.png"
-        alt="Portovenere Experiences"
-        className={`
-          w-auto
-          transition-all
-          duration-500
-          ${
-            scrolled
-              ? "h-16 md:h-[72px]"
-              : "h-20 md:h-[96px]"
-          }
-        `}
-      />
-    </a>
+    while (cells.length < 42) {
+      const last = cells[cells.length - 1].date;
+      const next = new Date(last);
+      next.setDate(next.getDate() + 1);
+      cells.push({ date: next, outside: true });
+    }
 
-  </div>
-</nav>
-       
+    return cells;
+  }
 
-        {/* HERO CONTENT */}
-        <div className="relative z-20 min-h-screen flex items-center justify-center px-6 text-center">
-          <div className="max-w-6xl pt-32">
-            <p className="uppercase tracking-[0.45em] text-zinc-300 text-[11px] md:text-sm mb-8">
-              Curated Luxury Experiences — Italian Riviera
+  function startDateDrag(iso: string) {
+
+    if (iso < minBookingIso) return;
+
+    setIsDragging(true);
+    setDragAnchorIso(iso);
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: iso,
+      endDate: iso,
+    }));
+  }
+
+  function extendDateDrag(iso: string) {
+
+    if (!isDragging || !dragAnchorIso) return;
+    if (iso < minBookingIso) return;
+
+    const [start, end] =
+      iso < dragAnchorIso ? [iso, dragAnchorIso] : [dragAnchorIso, iso];
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: start,
+      endDate: end,
+    }));
+  }
+
+  function handleCalendarPointerMove(e: React.PointerEvent) {
+
+    if (!isDragging) return;
+
+    const target = document.elementFromPoint(
+      e.clientX,
+      e.clientY
+    ) as HTMLElement | null;
+
+    const iso = target?.closest("[data-iso]")?.getAttribute("data-iso");
+
+    if (iso) extendDateDrag(iso);
+  }
+
+  function goPrevMonth() {
+
+    const isAtMinMonth =
+      viewYear === minimumBookingDate.getFullYear() &&
+      viewMonth === minimumBookingDate.getMonth();
+
+    if (isAtMinMonth) return;
+
+    setViewMonth((m) => {
+      if (m === 0) {
+        setViewYear((y) => y - 1);
+        return 11;
+      }
+      return m - 1;
+    });
+  }
+
+  function goNextMonth() {
+    setViewMonth((m) => {
+      if (m === 11) {
+        setViewYear((y) => y + 1);
+        return 0;
+      }
+      return m + 1;
+    });
+  }
+
+  function formatDisplayDate(iso: string) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  const incompatibleExperiences: Record<string, string[]> = {
+    "Sea Escape": ["Aerial Escape"],
+    "Aerial Escape": ["Sea Escape"],
+  };
+
+  // =======================================================
+  // SELECT HANDLERS
+  // =======================================================
+
+  const handleSelect = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleMultiSelect = (
+    field: "experiences" | "moods",
+    value: string,
+    max: number
+  ) => {
+
+    setSelectionWarning("");
+
+    setFormData((prev) => {
+
+      const currentValues = prev[field];
+      const alreadySelected = currentValues.includes(value);
+
+      if (field === "experiences" && !alreadySelected) {
+
+        const hasConflict = currentValues.some(
+          (selected) => incompatibleExperiences[selected]?.includes(value)
+        );
+
+        if (hasConflict) {
+          setSelectionWarning("These experiences cannot be combined");
+          return prev;
+        }
+      }
+
+      if (alreadySelected) {
+        return {
+          ...prev,
+          [field]: currentValues.filter((item) => item !== value),
+        };
+      }
+
+      if (currentValues.length >= max) {
+        setSelectionWarning(
+          field === "experiences"
+            ? "Maximum 3 experiences allowed"
+            : "Maximum 3 atmospheres selections allowed"
+        );
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [field]: [...currentValues, value],
+      };
+    });
+  };
+
+  // =======================================================
+  // PER-STEP VALIDATION
+  // =======================================================
+
+  function isStepValid(step: StepId): boolean {
+
+    switch (step) {
+
+      case "experiences":
+        return formData.experiences.length > 0;
+
+      case "moods":
+        return formData.moods.length > 0;
+
+      case "guests":
+        return formData.guests !== "";
+
+      case "dates":
+        return formData.startDate !== "" && formData.endDate !== "";
+
+      case "budget":
+        return formData.budget !== "";
+
+      case "contact":
+        return (
+          formData.name.trim() !== "" &&
+          /\S+@\S+\.\S+/.test(formData.email) &&
+          formData.termsAccepted &&
+          captchaToken !== ""
+        );
+
+      default:
+        return true;
+    }
+  }
+
+  const currentStepValid = isIntro ? true : isStepValid(stepId as StepId);
+
+  // =======================================================
+  // NAVIGATION
+  // =======================================================
+
+  function startWizard() {
+    trackEvent({ action: "wizard_start", category: "configurator" });
+    setDirection(1);
+    setCurrentStep(0);
+  }
+
+  function goNext() {
+
+    if (isIntro) {
+      startWizard();
+      return;
+    }
+
+    if (!currentStepValid) return;
+
+    if (stepId === "contact") {
+      handleSubmit();
+      return;
+    }
+
+    setDirection(1);
+    setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
+  }
+
+  function goBack() {
+
+    if (isIntro) return;
+
+    setDirection(-1);
+
+    // Da step 0 si torna alla schermata di benvenuto
+    setCurrentStep((s) => Math.max(s - 1, INTRO_STEP));
+  }
+
+  function handleDragEnd(_event: any, info: PanInfo) {
+
+    if (isIntro) return;
+
+    const swipeThreshold = 80;
+
+    if (info.offset.x < -swipeThreshold) {
+      goNext();
+    } else if (info.offset.x > swipeThreshold) {
+      goBack();
+    }
+  }
+
+  // =======================================================
+  // SUBMIT
+  // =======================================================
+
+  const handleSubmit = async () => {
+
+    if (!isStepValid("contact")) return;
+
+    setIsSubmitting(true);
+
+    try {
+
+      if (!supabase) {
+        console.error("Supabase not configured");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const verifyResponse = await fetch("/api/verify-turnstile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaToken }),
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        setCaptchaToken("");
+        alert("Captcha verification failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // SAVE LEAD — generiamo noi l'id, cosi' non serve rileggere la riga
+      // subito dopo (niente .select(): la tabella leads non e' leggibile
+      // pubblicamente via RLS, di proposito).
+
+      const leadId = crypto.randomUUID();
+
+      const { error: leadError } = await supabase
+        .from("leads")
+        .insert([
+          {
+            id: leadId,
+            name: formData.name,
+            email: formData.email,
+            experiences: formData.experiences,
+            moods: formData.moods,
+            guests: formData.guests,
+            budget: formData.budget,
+            start_date: formData.startDate,
+            end_date: formData.endDate,
+            traveling_with_children: formData.travelingWithChildren,
+            children: formData.children,
+          },
+        ]);
+
+      if (leadError) {
+        console.error("Lead error:", JSON.stringify(leadError, null, 2));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // SLUG
+
+      const primaryExperience = formData.experiences[0]
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      const safeName = formData.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      const slug = `${safeName}-${primaryExperience}`;
+
+      // SAVE PROPOSAL
+
+      const { data: proposalData, error: proposalError } = await supabase
+        .from("Proposal")
+        .insert([
+          {
+            lead_id: leadId,
+            slug,
+            expires_at: new Date(
+              Date.now() + 48 * 60 * 60 * 1000
+            ).toISOString(),
+            proposal_data: {
+              name: formData.name,
+              email: formData.email,
+              experiences: formData.experiences,
+              moods: formData.moods,
+              guests: formData.guests,
+              children: formData.children,
+              budget: formData.budget,
+              start_date: formData.startDate,
+              end_date: formData.endDate,
+              traveling_with_children: formData.travelingWithChildren,
+            },
+            total_price: 0,
+          },
+        ])
+        .select()
+        .single();
+
+      if (proposalError || !proposalData) {
+        console.error("Proposal error:", JSON.stringify(proposalError, null, 2));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // NOTIFICA AL PROPRIETARIO — non appena la proposal è generata,
+      // indipendentemente dal fatto che il cliente richieda o no il booking.
+      // Fire-and-forget: se questa email fallisce non deve bloccare l'utente.
+      fetch("/api/notify-new-proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: proposalData.slug }),
+      }).catch((err) => console.error("notify-new-proposal failed:", err));
+
+      // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+      // la pagina, l'overlay di caricamento resta visibile fino alla
+      // navigazione, poi il componente si smonta comunque.
+      router.push(`/results/proposal-staging/${proposalData.slug}`);
+
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setIsSubmitting(false);
+    }
+  };
+
+  // =======================================================
+  // STEP CONTENT
+  // =======================================================
+
+  function renderStep() {
+
+    switch (stepId) {
+
+      case "experiences":
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                {formData.experiences.length}/3 selected
+              </p>
+            </div>
+
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
+              {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
+                (item) => {
+
+                  const details = EXPERIENCE_DETAILS[item];
+                  const isSelected = formData.experiences.includes(item);
+
+                  return (
+                    <button
+                      type="button"
+                      key={item}
+                      onClick={() => handleMultiSelect("experiences", item, 3)}
+                      className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <Image
+                        src={details.image}
+                        alt={item}
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
+                        priority
+                      />
+
+                      {/* Gradiente più marcato in basso, cosi' la foto "respira" sopra */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+
+                      {/* SELECTION RING */}
+                      <div
+                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </div>
+
+                      {/* LABEL — ancorata in basso a sinistra */}
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <p className="text-white text-sm font-medium text-left">
+                          {item}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                }
+              )}
+            </div>
+
+            {selectionWarning && (
+              <p className="text-amber-400 text-sm mt-4">{selectionWarning}</p>
+            )}
+          </div>
+        );
+
+      case "moods":
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                {formData.moods.length}/3 selected
+              </p>
+            </div>
+
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
+              {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
+
+                const isSelected = formData.moods.includes(item);
+
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => handleMultiSelect("moods", item, 3)}
+                    className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                      isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    <Image
+                      src={MOOD_IMAGES[item]}
+                      alt={item}
+                      fill
+                      sizes="50vw"
+                      className="object-cover"
+                    />
+
+                    <div className="absolute inset-0 bg-black/40" />
+
+                    <div
+                      className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-black" />
+                      )}
+                    </div>
+
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <p className="text-white text-sm font-medium">{item}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectionWarning && (
+              <p className="text-amber-400 text-sm mt-4">{selectionWarning}</p>
+            )}
+          </div>
+        );
+
+      case "guests":
+        return (
+          <div>
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
+              Guests
             </p>
 
-            <h1 className="text-[58px] leading-[0.9] md:text-[140px] font-light tracking-tight mb-10">
-              Beyond the
-              <br />
-              Cinque Terre
+            <div className="grid grid-cols-2 gap-2.5">
+              {[2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() => {
+                    setGuestCount(item);
+                    setShowMoreGuests(false);
+                    setFormData({ ...formData, guests: String(item) });
+                  }}
+                  className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
+                    guestCount === item
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  <span className="block text-base leading-tight">{item}</span>
+                  <span
+                    className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
+                      guestCount === item ? "text-black/50" : "text-zinc-500"
+                    }`}
+                  >
+                    Guests
+                  </span>
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestCount(null);
+                  setShowMoreGuests(true);
+                  setFormData({ ...formData, guests: "" });
+                }}
+                className={`rounded-2xl border px-4 py-3 text-center transition-all duration-500 ease-out ${
+                  showMoreGuests
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                <span className="block text-base leading-tight">9+</span>
+                <span
+                  className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
+                    showMoreGuests ? "text-black/50" : "text-zinc-500"
+                  }`}
+                >
+                  Guests
+                </span>
+              </button>
+            </div>
+
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-out ${
+                showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
+              }`}
+            >
+              <p className="text-zinc-500 mb-2 text-xs">Exact number of guests</p>
+              <input
+                type="number"
+                min={9}
+                max={40}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder="Enter exact number"
+                value={guestCount || ""}
+                onChange={(e) => {
+                  setGuestCount(Number(e.target.value));
+                  setFormData({ ...formData, guests: e.target.value });
+                }}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-3 outline-none transition-all duration-500 focus:border-white/40"
+              />
+            </div>
+
+            {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
+              Children
+            </p>
+
+            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
+
+              <span className="text-zinc-400 text-sm">
+                {formData.children === 0
+                  ? "No children"
+                  : formData.children === 1
+                  ? "1 child"
+                  : `${formData.children} children`}
+              </span>
+
+              <div className="flex items-center gap-4">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.max(0, formData.children - 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  −
+                </button>
+
+                <span className="text-lg font-light w-6 text-center tabular-nums">
+                  {formData.children}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.min(10, formData.children + 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        );
+
+      case "dates": {
+
+        const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(
+          "en-US",
+          { month: "long", year: "numeric" }
+        );
+
+        const cells = buildCalendarCells(viewYear, viewMonth);
+        const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+        const isPrevDisabled =
+          viewYear === minimumBookingDate.getFullYear() &&
+          viewMonth === minimumBookingDate.getMonth();
+
+        return (
+          <div>
+
+            {/* CHECK-IN / CHECK-OUT SUMMARY */}
+            <div className="flex justify-between mb-3">
+              <div>
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+                  Check-in
+                </p>
+                <p className="text-white text-sm">
+                  {formData.startDate
+                    ? formatDisplayDate(formData.startDate)
+                    : "—"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+                  Check-out
+                </p>
+                <p className="text-white text-sm">
+                  {formData.endDate
+                    ? formatDisplayDate(formData.endDate)
+                    : "—"}
+                </p>
+              </div>
+            </div>
+
+            {/* MONTH NAVIGATION */}
+            <div className="flex items-center justify-between mb-2">
+
+              <button
+                type="button"
+                onClick={goPrevMonth}
+                disabled={isPrevDisabled}
+                className="px-3 py-0.5 text-base disabled:opacity-20 opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8249;
+              </button>
+
+              <p className="uppercase tracking-[0.2em] text-xs text-zinc-400">
+                {monthLabel}
+              </p>
+
+              <button
+                type="button"
+                onClick={goNextMonth}
+                className="px-3 py-0.5 text-base opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8250;
+              </button>
+
+            </div>
+
+            {/* WEEKDAY HEADER */}
+            <div className="grid grid-cols-7 mb-0.5">
+              {weekdayLabels.map((label, index) => (
+                <div
+                  key={index}
+                  className="h-5 flex items-center justify-center text-[10px] text-zinc-500"
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* CALENDAR GRID — tap-and-drag per selezionare l'intervallo */}
+            <div
+              className="grid grid-cols-7 select-none"
+              style={{ touchAction: "none" }}
+              onPointerMove={handleCalendarPointerMove}
+            >
+              {cells.map((cell) => {
+
+                const iso = toISODate(cell.date);
+                const disabled = iso < minBookingIso;
+                const isStart = iso === formData.startDate;
+                const isEnd = iso === formData.endDate;
+                const inRange =
+                  formData.startDate !== "" &&
+                  formData.endDate !== "" &&
+                  iso > formData.startDate &&
+                  iso < formData.endDate;
+                const isToday = iso === todayIso;
+
+                return (
+                  <div
+                    key={iso}
+                    data-iso={iso}
+                    onPointerDown={() => {
+                      if (!disabled) startDateDrag(iso);
+                    }}
+                    className={`
+                      h-9 flex items-center justify-center relative
+                      ${inRange ? "bg-[#d6c6a5]/20" : ""}
+                      ${isStart && !isEnd ? "rounded-l-full" : ""}
+                      ${isEnd && !isStart ? "rounded-r-full" : ""}
+                    `}
+                  >
+                    <span
+                      className={`
+                        w-7 h-7 flex items-center justify-center rounded-full text-xs transition-colors
+                        ${disabled ? "text-white/15" : cell.outside ? "text-white/25" : "text-white"}
+                        ${isStart || isEnd ? "bg-[#d6c6a5] text-black font-medium" : ""}
+                        ${isToday && !isStart && !isEnd ? "ring-1 ring-white/30" : ""}
+                      `}
+                    >
+                      {cell.date.getDate()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-zinc-500 text-[11px] mt-2 text-center">
+              Tap a date, or drag across dates to select a range.
+            </p>
+
+          </div>
+        );
+      }
+
+      case "budget":
+        return (
+          <div className="grid gap-4">
+            {[
+              { label: "Essential", range: "€500 - €1000" },
+              { label: "Signature", range: "€1000 - €3000" },
+              { label: "Luxury", range: "€3000+" },
+            ].map(({ label, range }) => (
+              <button
+                type="button"
+                key={range}
+                onClick={() => handleSelect("budget", range)}
+                className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
+                  formData.budget === range
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                <span className="block text-lg font-light">{label}</span>
+                <span
+                  className={`block text-sm mt-1 ${
+                    formData.budget === range ? "text-black/60" : "text-zinc-500"
+                  }`}
+                >
+                  {range}
+                </span>
+              </button>
+            ))}
+          </div>
+        );
+
+      case "contact": {
+
+        const termsAnchorProps = {
+          href: TERMS_URL,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          className: "underline",
+        };
+
+        return (
+          <div className="space-y-6">
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                Your Name
+              </p>
+              <input
+                type="text"
+                placeholder="Enter your full name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                Email Address
+              </p>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div className="flex items-start gap-3 pt-2">
+              <input
+                type="checkbox"
+                checked={formData.termsAccepted}
+                onChange={(e) =>
+                  setFormData({ ...formData, termsAccepted: e.target.checked })
+                }
+                className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
+              />
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                I accept the{" "}
+                <a {...termsAnchorProps}>Terms &amp; Conditions</a>{" "}
+                and understand that reservation deposits may be required to
+                secure curated experiences.
+              </p>
+            </div>
+
+            <div className="flex justify-center pt-1">
+              <Turnstile
+                sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onVerify={(token) => setCaptchaToken(token)}
+              />
+            </div>
+
+          </div>
+        );
+      }
+
+      default:
+        return null;
+    }
+  }
+
+  // =======================================================
+  // INTRO SCREEN
+  // =======================================================
+
+  if (isIntro) {
+
+    return (
+      <main
+        className="
+          h-dvh
+          w-full
+          bg-[#0C0C0C]
+          text-white
+          relative
+          overflow-hidden
+        "
+        style={{
+          backgroundImage: "url('/hero-config.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+
+        {/* OVERLAY — se l'immagine non è ancora impostata resta semplicemente nero */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        {/*
+          BLOCCO CENTRALE — logo, testo e bottone centrati come un unico blocco.
+          max-w-xl + mx-auto impediscono che il contenuto si stiri edge-to-edge
+          su schermi larghi; le classi md: scalano tipografia e spaziature
+          per una resa desktop proporzionata, non solo un "mobile ingrandito".
+        */}
+        <div
+          className="
+            relative
+            z-10
+            h-full
+            w-full
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+            px-8
+          "
+        >
+
+          <div className="w-full max-w-xl mx-auto flex flex-col items-center">
+
+            <img
+              src="/logo-white.png"
+              alt="Portovenere Experiences"
+              className="h-14 md:h-20 mb-8 md:mb-10 opacity-90"
+            />
+
+            <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
+              Private Experience Curation
+            </p>
+
+            <h1 className="text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8 max-w-sm md:max-w-lg">
+              Craft Your Mediterranean Escape
             </h1>
 
-            <p className="max-w-2xl mx-auto text-zinc-200 text-lg md:text-2xl leading-relaxed">
-              Private yacht escapes, cinematic sunsets and curated experiences
-              on the hidden side of the Italian Riviera.
+            <p className="text-zinc-300 text-sm md:text-base leading-relaxed mb-10 md:mb-12 max-w-sm md:max-w-md">
+              Answer a few questions to receive a curated proposal tailored to
+              your ideal Riviera experience.
             </p>
 
-            {/* CTA */}
-            <div className="flex flex-col md:flex-row justify-center gap-5 mt-12">
-              <a
-                href="/craft-your-experience"
-                className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-              >
-                Craft Your Experience
-              </a>
-
-              <a
-                href="#how-it-works"
-                className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
-              >
-                How it Works
-              </a>
-            </div>
-
-            {/* TRUST STRIP */}
-            <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-14 text-[10px] md:text-xs uppercase tracking-[0.3em] text-zinc-300">
-              <span>Limited Summer Availability</span>
-              <span>Private Access</span>
-              <span>Selected Collaborations</span>
-              <span>Luxury Storytelling</span>
-            </div>
-          </div>
-        </div>
-
-        
-      </section>
-
-      {/* AUTHORITY */}
-      <section className="border-y border-[#EDEBE7]/10 py-6 bg-black">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-10 uppercase tracking-[0.35em] text-[10px] md:text-xs text-zinc-500 px-6 text-center">
-          <span>Private Productions</span>
-          <span>Mediterranean Lifestyle</span>
-          <span>Luxury Experiences</span>
-          <span>Italian Riviera</span>
-          <span>Selected Guests Only</span>
-        </div>
-      </section>
-
-      {/* EXPERIENCES */}
-      <section
-        id="how-it-works"
-        className="max-w-7xl mx-auto px-6 md:px-10 py-24 md:py-32"
-      >
-        <div className="text-center mb-16 md:mb-24 px-6 md:px-0">
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-5">
-            HOW IT WORKS
-          </p>
-
-          <h2 className="text-5xl md:text-8xl font-light leading-[0.95]">
-            Build your perfect<br></br>
-Mediterranean escape
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {/* CARD 1 */}
-          <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
-            <img
-                         src="/step-one.jpg"
-
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
-              alt="Private Sailing Experience"
-            />
-
-            <div className="absolute inset-0 bg-black/45" />
-
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              STEP 01
-            </div>
-
-            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-                YOUR VISION
-              </p>
-
-              <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-               Tell us your vision
-                
-              </h3>
-
-              <p className="text-zinc-200 leading-relaxed mb-8">
-Share your travel dates, group size and the kind of atmosphere you're looking for. Every journey starts with your idea.          </p>
-
-              <a
-                href="/craft-your-experience"
-                className="
-bg-[#EDEBE7]
-text-black
-px-10
-py-5
-rounded-full
-uppercase
-tracking-[0.25em]
-text-xs
-hover:scale-105
-transition-all
-duration-500
-"
-              >
-Start Your Request           </a>
-            </div>
-          </div>
-
-          {/* CARD 2 */}
-          <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
-            <img
-src="/step-two.jpg"              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
-              alt="Underwater Storytelling"
-            />
-
-            <div className="absolute inset-0 bg-black/45" />
-
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-              STEP 02
-            </div>
-
-            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-OUR CURATION              </p>
-
-              <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-                We curate everything
-              </h3>
-
-              <p className="text-zinc-200 leading-relaxed mb-8">
-We personally select the finest experiences, trusted local partners and hidden places to create a proposal tailored exclusively to you.             </p>
-
-              <a
-                href="/craft-your-experience"
-className="
-bg-[#EDEBE7]
-text-black
-px-10
-py-5
-rounded-full
-uppercase
-tracking-[0.25em]
-text-xs
-hover:scale-105
-transition-all
-duration-500
-">               Discover Our Process
-              </a>
-            </div>
-          </div>
-
-          {/* CARD 3 */}
-          <div className="group relative overflow-hidden rounded-[40px] h-[520px] md:h-[700px]">
-            <img
-              src="/step-three.jpg"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-all duration-1000"
-              alt="Mediterranean Sunset Dinner"
-            />
-
-            <div className="absolute inset-0 bg-black/45" />
-
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 z-20 bg-[#EDEBE7]/10 backdrop-blur-xl border border-[#EDEBE7]/20 px-4 py-2 rounded-full text-[10px] uppercase tracking-[0.25em]">
-             STEP 03
-            </div>
-
-            <div className="relative z-10 h-full flex flex-col justify-end items-center text-center md:items-start md:text-left p-8 md:p-10">
-              <p className="uppercase tracking-[0.3em] text-sm text-zinc-300 mb-4">
-               YOUR PROPOSAL
-              </p>
-
-              <h3 className="text-4xl md:text-5xl font-light leading-tight mb-6">
-Receive Your
-Private Proposal
-                
-              </h3>
-
-              <p className="text-zinc-200 leading-relaxed mb-8">
-In less than a minute, discover a curated proposal tailored to your vision, complete with experiences, pricing and optional enhancements.              </p>
-
-              <a
-              href="/craft-your-experience"
-className="
-bg-[#EDEBE7]
-text-black
-px-10
-py-5
-rounded-full
-uppercase
-tracking-[0.25em]
-text-xs
-hover:scale-105
-transition-all
-duration-500
-">               Start Planning
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* MANIFESTO */}
-      <section
-        id="manifesto"
-        className="py-40 px-6 border-t border-[#EDEBE7]/10"
-      >
-        <div className="max-w-5xl mx-auto text-center">
-          <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-8">
-            The Experience
-          </p>
-
-          <h2 className="text-5xl md:text-7xl font-light leading-[1.05] mb-12">
-            The Italian Riviera
-            <br />
-            you imagined
-            <br />
-            still exists.
-          </h2>
-
-          <p className="max-w-3xl mx-auto text-zinc-400 text-xl leading-relaxed">
-            We curate private Mediterranean experiences designed around
-            atmosphere, storytelling, intimacy and authentic human connection.
-          </p>
-        </div>
-      </section>
-
-      {/* SCARCITY */}
-      <section className="py-28 px-6 bg-[#E3D5B8] text-black">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="uppercase tracking-[0.4em] text-black/50 text-sm mb-6">
-            Limited Availability
-          </p>
-
-          <h2 className="text-5xl md:text-7xl font-light leading-tight mb-10">
-            Small private groups.
-            <br />
-            Selected experiences only.
-          </h2>
-
-          <p className="text-black/65 text-lg leading-relaxed">
-            Every production is intentionally limited to preserve exclusivity,
-            atmosphere and emotional impact.
-          </p>
-        </div>
-      </section>
-
-      {/* FINAL CTA */}
-      <section
-        id="contact"
-        className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-[#EDEBE7]/10"
-      >
-        <p className="uppercase tracking-[0.4em] text-zinc-500 text-sm mb-6">
-          Ready When You Are
-        </p>
-
-        <h2 className="text-5xl md:text-8xl font-light leading-[0.95] mb-10">
-          Your Private
-          <br />
-          Riviera Awaits
-        </h2>
-
-        <p className="max-w-2xl mx-auto text-zinc-400 text-lg leading-relaxed mb-12">
-          Answer a few questions about your dates, your group and the mood
-          you're after — receive a tailored proposal in minutes, complete
-          with pricing and hand-picked experiences.
-        </p>
-
-        <a
-          href="/craft-your-experience"
-          className="inline-block bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
-        >
-          Craft Your Experience
-        </a>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-[#EDEBE7]/10 py-16 px-6 bg-[#0C0C0C]">
-        <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
-
-          <img
-            src="/logo-white.png"
-            alt="Portovenere Experiences"
-            className="h-9 w-auto opacity-60"
-          />
-
-          <div className="flex flex-wrap justify-center gap-8 text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-            <a href="/craft-your-experience" className="hover:text-white transition-colors duration-300">
-              Craft Your Experience
-            </a>
-            <a
-              href="https://www.portovenere.com/terms-conditions/"
-              target="_blank"
-              className="hover:text-white transition-colors duration-300"
+            <button
+              type="button"
+              onClick={startWizard}
+              className="
+                w-full
+                max-w-sm
+                md:max-w-xs
+                rounded-full
+                py-5
+                uppercase
+                tracking-[0.25em]
+                text-xs
+                bg-[#d6c6a5]
+                text-black
+                hover:scale-[1.02]
+                transition-all
+                duration-500
+              "
             >
-              Terms &amp; Conditions
-            </a>
-            <a href="mailto:info@portovenere.com" className="hover:text-white transition-colors duration-300">
-              Contact
-            </a>
+              Get Started
+            </button>
+
+            <p className="text-zinc-500 text-xs mt-4 flex items-center gap-1.5">
+              <span>⏱</span>
+              Takes less than 2 minutes
+            </p>
+
+            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em] mt-10">
+              Powered by Ductavia
+            </p>
+
           </div>
 
-          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
-            © {new Date().getFullYear()} Portovenere Experiences
-          </p>
+        </div>
 
-          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
-            Powered by Ductavia
+      </main>
+    );
+  }
+
+  // =======================================================
+  // LOADING SCREEN — durante la generazione della proposal
+  // =======================================================
+
+  if (isSubmitting) {
+
+    return (
+      <main
+        className="
+          h-dvh
+          w-full
+          bg-[#0C0C0C]
+          text-white
+          flex
+          flex-col
+          items-center
+          justify-center
+          gap-8
+        "
+      >
+
+        <motion.img
+          src="/logo-white.png"
+          alt="Portovenere Experiences"
+          className="h-14 w-auto"
+          animate={{
+            opacity: [0.35, 1, 0.35],
+            scale: [0.94, 1, 0.94],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <p className="uppercase tracking-[0.35em] text-xs text-zinc-500">
+          Crafting your proposal...
+        </p>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // WIZARD RENDER
+  // =======================================================
+
+  const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+
+  return (
+    <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col">
+
+      {/* HEADER: back + progress + counter — compatto, altezza fissa */}
+      <div className="px-6 pt-6 pb-3 max-w-xl w-full mx-auto shrink-0">
+
+        <div className="flex items-center gap-4 mb-4">
+
+          <button
+            type="button"
+            onClick={goBack}
+            className="text-2xl opacity-70 hover:opacity-100 transition-opacity"
+          >
+            &#8592;
+          </button>
+
+          <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#d6c6a5] transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          <p className="text-xs text-zinc-500 tabular-nums">
+            {currentStep + 1} / {totalSteps}
           </p>
 
         </div>
-      </footer>
+
+        <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+          {STEP_LABELS[stepId as StepId].label}
+        </p>
+
+        <h1 className="text-2xl md:text-4xl font-light leading-tight">
+          {STEP_LABELS[stepId as StepId].title}
+        </h1>
+
+      </div>
+
+      {/*
+        CONTENUTO + PULSANTI insieme, centrati come blocco unico
+        nello spazio restante. Questo è il punto chiave: su step corti
+        (experiences, moods, guests, budget) i pulsanti Next/Back
+        restano incollati subito sotto la griglia invece di finire
+        in fondo allo schermo. Su step più alti (dates, terms con
+        captcha) min-h-0 + overflow-y-auto permette uno scroll interno
+        di fallback senza rompere il layout.
+      */}
+      <div
+        className="
+          flex-1
+          min-h-0
+          flex
+          flex-col
+          justify-between
+          gap-6
+          overflow-y-auto
+          pt-4
+          pb-6
+          px-6
+          max-w-xl
+          w-full
+          mx-auto
+        "
+      >
+
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentStep}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            drag={stepId !== "dates" ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.6}
+            onDragEnd={handleDragEnd}
+          >
+            {renderStep()}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex gap-4 shrink-0">
+
+          <button
+            type="button"
+            onClick={goBack}
+            className="
+              w-1/3
+              rounded-full
+              py-3.5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              border
+              border-white/20
+              text-white/70
+              hover:border-white/40
+              hover:text-white
+              transition-all
+              duration-500
+            "
+          >
+            Back
+          </button>
+
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!currentStepValid}
+            className={`
+              w-2/3
+              rounded-full
+              py-3.5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              transition-all
+              duration-500
+              ${
+                currentStepValid
+                  ? "bg-white text-black hover:scale-[1.02]"
+                  : "bg-white/10 text-white/30 cursor-not-allowed"
+              }
+            `}
+          >
+            {stepId === "contact" ? "Generate Private Proposal" : "Next"}
+          </button>
+
+        </div>
+
+      </div>
 
     </main>
   );
