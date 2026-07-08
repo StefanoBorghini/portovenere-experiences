@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 export default function AdminGatePage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminGateForm />
+    </Suspense>
+  );
+}
+
+function AdminGateForm() {
 
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/admin";
