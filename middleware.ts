@@ -6,21 +6,9 @@ import { NextRequest, NextResponse } from "next/server";
 // =========================================================
 
 const protectedRoutes = {
-  "/private-sailing-experience-with-snorkeling": {
-    username: process.env.PRIVATE_LOGIN_CAROLINA_USER!,
-    password: process.env.PRIVATE_LOGIN_CAROLINA_PASS!,
-    expiresAt: "2026-06-01T23:59:59",
-  },
-
   "/craft-your-experience": {
     username: process.env.PRIVATE_LOGIN_STEFANO_USER!,
     password: process.env.PRIVATE_LOGIN_STEFANO_PASS!,
-    expiresAt: "2027-05-23T23:59:59",
-  },
-
-  "/dmitri-july-2026": {
-    username: process.env.PRIVATE_LOGIN_DMITRI_USER!,
-    password: process.env.PRIVATE_LOGIN_DMITRI_PASS!,
     expiresAt: "2027-05-23T23:59:59",
   },
 };
