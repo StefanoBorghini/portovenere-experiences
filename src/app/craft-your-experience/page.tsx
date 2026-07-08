@@ -723,7 +723,7 @@ export default function CraftYourExperience() {
           <div>
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-              Guests
+              Adults
             </p>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -748,7 +748,7 @@ export default function CraftYourExperience() {
                       guestCount === item ? "text-black/50" : "text-zinc-500"
                     }`}
                   >
-                    Guests
+                    Adults
                   </span>
                 </button>
               ))}
@@ -772,7 +772,7 @@ export default function CraftYourExperience() {
                     showMoreGuests ? "text-black/50" : "text-zinc-500"
                   }`}
                 >
-                  Guests
+                  Adults
                 </span>
               </button>
             </div>
