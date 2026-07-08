@@ -33,7 +33,7 @@ const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
     title: "Choose the vibe that inspires you.",
   },
   guests: {
-    label: "Guests & Children",
+    label: "Adults & Children",
     title: "Who's joining the adventure?",
   },
   dates: {
