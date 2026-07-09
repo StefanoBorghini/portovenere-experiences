@@ -53,13 +53,7 @@ export default function FloatingPriceBar({
 
       {visible && (
 
-        <motion.button
-
-          type="button"
-
-          onClick={onRequestBooking}
-
-          disabled={isBusy || isDone}
+        <motion.div
 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -74,53 +68,108 @@ export default function FloatingPriceBar({
             z-50
             flex
             items-center
-            gap-6
             border
             border-white/12
             rounded-full
-            px-8
-            py-4
             backdrop-blur-[10px]
             bg-black/70
             shadow-[0_8px_40px_rgba(0,0,0,0.4)]
-
-            transition-all
-            duration-300
-
-            hover:border-white/25
-            hover:scale-[1.02]
-
-            disabled:opacity-70
-            disabled:cursor-not-allowed
-            disabled:hover:scale-100
+            overflow-hidden
           "
         >
 
-          <span className="
-            uppercase
-            tracking-[0.3em]
-            text-[10px]
-            text-white/50
-            whitespace-nowrap
+          {/* PARTE INFORMATIVA — prezzo e conteggio, non cliccabile */}
+
+          <div className="
+            flex
+            items-center
+            gap-4
+            md:gap-6
+            pl-6
+            md:pl-8
+            pr-5
+            py-4
           ">
+
+            <span className="
+              uppercase
+              tracking-[0.25em]
+              text-[9px]
+              md:text-[10px]
+              text-white/45
+              whitespace-nowrap
+              hidden
+              sm:inline
+            ">
+              {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
+            </span>
+
+            <span className="
+              text-[19px]
+              md:text-[22px]
+              font-[300]
+              tracking-[-0.03em]
+              text-white
+              whitespace-nowrap
+            ">
+              €{totalPrice.toLocaleString()}
+            </span>
+
+          </div>
+
+          {/* PARTE AZIONE — bottone bianco, chiaramente cliccabile,
+              stesso linguaggio visivo dei CTA primari nel resto del sito */}
+
+          <button
+            type="button"
+            onClick={onRequestBooking}
+            disabled={isBusy || isDone}
+            className="
+              h-full
+              flex
+              items-center
+              gap-2
+
+              bg-white
+              text-black
+
+              pl-5
+              pr-6
+              md:pl-6
+              md:pr-8
+              py-4
+
+              uppercase
+              tracking-[0.2em]
+              text-[11px]
+              font-medium
+
+              whitespace-nowrap
+
+              transition-all
+              duration-300
+
+              hover:bg-white/90
+
+              disabled:opacity-60
+              disabled:cursor-not-allowed
+            "
+          >
+
             {isDone
-              ? "Request Sent"
+              ? "Request Sent ✓"
               : isBusy
               ? "Sending..."
-              : `${experienceCount} Experience${experienceCount !== 1 ? "s" : ""} Included`}
-          </span>
+              : (
+                <>
+                  Reserve Now
+                  <span aria-hidden="true">→</span>
+                </>
+              )}
 
-          <span className="
-            text-[22px]
-            font-[300]
-            tracking-[-0.03em]
-            text-white
-            whitespace-nowrap
-          ">
-            €{totalPrice.toLocaleString()}
-          </span>
+          </button>
 
-        </motion.button>
+        </motion.div>
 
       )}
 
