@@ -96,12 +96,15 @@ export default function ProposalClient({
     // PREZZO LIVE
     // =====================================================
 
-    const guestCount = Number(lead.guests) || 1;
+  const guestCount = Number(lead.guests) || 1;
+    const childCount = Number(lead.children) || 0;
 
     const featuredPrice = calculatePrice(
         featuredExperience?.base_price ?? 0,
         featuredExperience?.pricing_type ?? "fixed",
-        guestCount
+        guestCount,
+        childCount,
+        featuredExperience?.child_discount_percentage ?? 0
     );
 
     const includedExperiencesPrice = includedExperiences
@@ -110,7 +113,9 @@ export default function ProposalClient({
             sum + calculatePrice(
                 card.experience?.base_price ?? 0,
                 card.experience?.pricing_type ?? "fixed",
-                guestCount
+                guestCount,
+                childCount,
+                card.experience?.child_discount_percentage ?? 0
             ), 0
         );
 

@@ -264,6 +264,96 @@ Experience Filters
 
 
 </div>
+
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+    Children (0–6 years)
+  </label>
+
+  <div className="grid md:grid-cols-2 gap-3">
+
+    <label
+      className="
+        flex
+        items-center
+        justify-between
+        rounded-xl
+        border
+        border-white/10
+        bg-white/5
+        px-4
+        py-4
+        cursor-pointer
+      "
+    >
+
+      <span>Children Allowed</span>
+
+      <input
+        type="checkbox"
+        checked={experience.children_allowed ?? true}
+        onChange={(e) =>
+          setExperience({
+            ...experience,
+            children_allowed: e.target.checked,
+          })
+        }
+      />
+
+    </label>
+
+    <label
+      className="
+        flex
+        items-center
+        justify-between
+        rounded-xl
+        border
+        border-white/10
+        bg-white/5
+        px-4
+        py-4
+      "
+    >
+
+      <span>Child Discount %</span>
+
+      <input
+        type="number"
+        min={0}
+        max={100}
+        value={experience.child_discount_percentage ?? 0}
+        onChange={(e) =>
+          setExperience({
+            ...experience,
+            child_discount_percentage: Number(e.target.value),
+          })
+        }
+        className="
+          w-20
+          text-right
+          rounded-lg
+          bg-white/5
+          border
+          border-white/10
+          px-2
+          py-1
+        "
+      />
+
+    </label>
+
+  </div>
+
+</div>
 <div>
 
   <label

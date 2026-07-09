@@ -373,6 +373,12 @@ for (const fact of experience.facts) {
     detail_image:
       experience.detail_image,
 
+       children_allowed:
+      experience.children_allowed,
+
+    child_discount_percentage:
+      experience.child_discount_percentage,
+
        incompatible_experiences:
       experience.incompatible_experiences,
 
