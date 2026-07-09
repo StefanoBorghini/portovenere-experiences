@@ -1193,12 +1193,12 @@ export default function CraftYourExperience() {
               Get Started
             </button>
 
-            <p className="text-zinc-500 text-xs mt-4 flex items-center gap-1.5">
+            <p className="text-white-500 text-xs mt-4 flex items-center gap-1.5">
               <span>⏱</span>
               Takes less than 2 minutes
             </p>
 
-            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em] mt-10">
+            <p className="text-white-700 text-[10px] uppercase tracking-[0.3em] mt-10">
               Powered by Ductavia
             </p>
 
