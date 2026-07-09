@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
 import { supabase } from "@/lib/supabase";
+import { trackEvent } from "@/lib/analytics/gtag";
 
 // =========================================================
 // STEP DEFINITIONS
@@ -33,7 +34,7 @@ const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
     title: "Choose the vibe that inspires you.",
   },
   guests: {
-    label: "Adults & Children",
+    label: "Guests & Children",
     title: "Who's joining the adventure?",
   },
   dates: {
@@ -410,6 +411,7 @@ export default function CraftYourExperience() {
   // =======================================================
 
   function startWizard() {
+    trackEvent({ action: "wizard_start", category: "configurator" });
     setDirection(1);
     setCurrentStep(0);
   }
@@ -518,7 +520,12 @@ export default function CraftYourExperience() {
         return;
       }
 
-      // SLUG
+      // SLUG — il suffisso finale e' casuale (non progressivo): risolve
+      // le collisioni se la stessa persona invia piu' richieste, ma senza
+      // renderlo indovinabile incrementando un numero. Uno slug prevedibile
+      // vanificherebbe le policy RLS di "Proposal" (che permettono lettura
+      // a chiunque conosca lo slug) — chiunque potrebbe leggere le proposal
+      // di altre persone semplicemente provando numeri in sequenza.
 
       const primaryExperience = formData.experiences[0]
         .toLowerCase()
@@ -530,7 +537,9 @@ export default function CraftYourExperience() {
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9-]/g, "");
 
-      const slug = `${safeName}-${primaryExperience}`;
+      const uniqueSuffix = crypto.randomUUID().split("-")[0];
+
+      const slug = `${safeName}-${primaryExperience}-${uniqueSuffix}`;
 
       // SAVE PROPOSAL
 
@@ -723,7 +732,7 @@ export default function CraftYourExperience() {
           <div>
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-              Adults
+              Guests
             </p>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -748,7 +757,7 @@ export default function CraftYourExperience() {
                       guestCount === item ? "text-black/50" : "text-zinc-500"
                     }`}
                   >
-                    Adults
+                    Guests
                   </span>
                 </button>
               ))}
@@ -772,7 +781,7 @@ export default function CraftYourExperience() {
                     showMoreGuests ? "text-black/50" : "text-zinc-500"
                   }`}
                 >
-                  Adults
+                  Guests
                 </span>
               </button>
             </div>
@@ -1184,9 +1193,13 @@ export default function CraftYourExperience() {
               Get Started
             </button>
 
-            <p className="text-white-500 text-xs mt-4 flex items-center gap-1.5">
+            <p className="text-zinc-500 text-xs mt-4 flex items-center gap-1.5">
               <span>⏱</span>
-              Takes less than 60 seconds
+              Takes less than 2 minutes
+            </p>
+
+            <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em] mt-10">
+              Powered by Ductavia
             </p>
 
           </div>
