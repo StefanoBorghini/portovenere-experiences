@@ -20,8 +20,16 @@ const guestOptions = [
     key: "guest_5_7",
   },
   {
-    label: "8+ Guests",
-    key: "guest_8_plus",
+    label: "8–12 Guests",
+    key: "guest_8_12",
+  },
+  {
+    label: "13–20 Guests",
+    key: "guest_13_20",
+  },
+  {
+    label: "20+ Guests",
+    key: "guest_20_plus",
   },
 ];
 
