@@ -106,8 +106,12 @@ const matchesGuests =
     ? experience.guest_3_4
   : guestCount >= 5 && guestCount <= 7
     ? experience.guest_5_7
-  : guestCount >= 8
-    ? experience.guest_8_plus
+  : guestCount >= 8 && guestCount <= 12
+    ? experience.guest_8_12
+  : guestCount >= 13 && guestCount <= 20
+    ? experience.guest_13_20
+  : guestCount > 20
+    ? experience.guest_20_plus
   : true;
 
 const matchesBudget =
@@ -384,17 +388,20 @@ if (safeExperiencesSelected.length === 1) {
 
     .filter((experience) => {
 
-      const matchesGuests =
+    const matchesGuests =
         guestCount === 2
           ? experience.guest_2
         : guestCount >= 3 && guestCount <= 4
           ? experience.guest_3_4
         : guestCount >= 5 && guestCount <= 7
           ? experience.guest_5_7
-        : guestCount >= 8
-          ? experience.guest_8_plus
+        : guestCount >= 8 && guestCount <= 12
+          ? experience.guest_8_12
+        : guestCount >= 13 && guestCount <= 20
+          ? experience.guest_13_20
+        : guestCount > 20
+          ? experience.guest_20_plus
         : true;
-
       const matchesBudget =
         budget === "€500 - €1000"
           ? experience.budget_500_1000

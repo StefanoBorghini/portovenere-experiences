@@ -411,9 +411,8 @@ for (const fact of experience.facts) {
 
     }
 
-    const filtersResult =
+   const filtersResult =
 
- 
       await updateExperienceFilters(
 
         experience.id,
@@ -429,8 +428,14 @@ for (const fact of experience.facts) {
           guest_5_7:
             experience.guest_5_7,
 
-          guest_8_plus:
-            experience.guest_8_plus,
+          guest_8_12:
+            experience.guest_8_12,
+
+          guest_13_20:
+            experience.guest_13_20,
+
+          guest_20_plus:
+            experience.guest_20_plus,
 
           budget_500_1000:
             experience.budget_500_1000,
@@ -444,7 +449,6 @@ for (const fact of experience.facts) {
         }
 
       );
-
     const scoringResult =
 
  

@@ -101,6 +101,7 @@ export async function createExperience() {
     return null;
 
   }
+
 const filtersInsert = await supabase
   .from("experience_filters")
   .insert({
@@ -108,7 +109,9 @@ const filtersInsert = await supabase
     guest_2: false,
     guest_3_4: false,
     guest_5_7: false,
-    guest_8_plus: false,
+    guest_8_12: false,
+    guest_13_20: false,
+    guest_20_plus: false,
     budget_500_1000: false,
     budget_1000_3000: false,
     budget_3000_plus: false,
