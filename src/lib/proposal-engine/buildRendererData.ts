@@ -20,7 +20,19 @@ function isIncompatible(a: any, b: any) {
   );
 }
 
-function pickCompatible(pool: any[], anchor: any, max: number) {
+function pickCompatible(
+  pool: any[],
+  anchor: any,
+  max: number,
+  ignoreIncompatibility: boolean = false
+) {
+
+  // Viaggio multi-giorno: si puo' fare un'esperienza "incompatibile"
+  // in un giorno diverso, quindi prendiamo semplicemente le migliori
+  // per punteggio, senza escludere nessuna per incompatibilita'.
+  if (ignoreIncompatibility) {
+    return pool.slice(0, max);
+  }
 
   const chosen: any[] = [];
 
@@ -49,6 +61,20 @@ export function buildRendererData({
 }: any) {
 
   // ===================================================
+  // MULTI-DAY TRIP CHECK
+  // Se start_date e end_date sono giorni diversi, il cliente
+  // ha piu' di un giorno a disposizione: le esperienze segnate
+  // come incompatibili tra loro (pensate per "non lo stesso
+  // giorno") possono comunque comparire insieme nella proposal,
+  // pianificate su giorni diversi.
+  // ===================================================
+
+  const isMultiDayTrip =
+    Boolean(lead?.start_date) &&
+    Boolean(lead?.end_date) &&
+    lead.start_date !== lead.end_date;
+
+  // ===================================================
   // EXPERIENCES
   // ===================================================
 
@@ -60,7 +86,8 @@ export function buildRendererData({
 
   // ===================================================
   // INCLUDED EXPERIENCES (compatibili con la featured
-  // e compatibili tra loro)
+  // e compatibili tra loro — a meno che il viaggio non
+  // duri piu' di un giorno, vedi sopra)
   // — CALCOLATE PRIMA della gallery, così la gallery
   // può usare esattamente queste esperienze
   // ===================================================
@@ -85,7 +112,7 @@ export function buildRendererData({
       );
 
   const includedExperiencesRaw =
-    pickCompatible(candidatePool, featuredExperience, 3);
+    pickCompatible(candidatePool, featuredExperience, 3, isMultiDayTrip);
 
   // Se la selezione era di una sola categoria, la sezione
   // "included" sarebbe vuota — usiamo i suggerimenti
@@ -97,7 +124,7 @@ export function buildRendererData({
 
   const finalIncludedExperiencesRaw =
     usingSuggestedAddOns
-      ? pickCompatible(generatedProposal?.suggestedAddOns || [], featuredExperience, 3)
+      ? pickCompatible(generatedProposal?.suggestedAddOns || [], featuredExperience, 3, isMultiDayTrip)
       : includedExperiencesRaw;
 
   const includedExperiences =
@@ -170,6 +197,7 @@ export function buildRendererData({
         ...(usingSuggestedAddOns ? [] : finalIncludedExperiencesRaw),
       ],
       guests: lead?.guests,
+      children: lead?.children,
     });
 
   // ===================================================

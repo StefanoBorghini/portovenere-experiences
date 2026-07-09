@@ -3,14 +3,17 @@ import { calculatePrice } from "./calculatePrice";
 interface CalculateProposalTotalInput {
   experiences: any[]; // featured + included (oggetti Experience grezzi)
   guests: string;
+  children?: string | number;
 }
 
 export function calculateProposalTotal({
   experiences,
   guests,
+  children = 0,
 }: CalculateProposalTotalInput) {
 
   const guestCount = Number(guests) || 1;
+  const childCount = Number(children) || 0;
 
   const total = experiences.reduce((sum, experience) => {
 
@@ -21,7 +24,9 @@ export function calculateProposalTotal({
     const price = calculatePrice(
       experience.base_price,
       experience.pricing_type,
-      guestCount
+      guestCount,
+      childCount,
+      experience.child_discount_percentage ?? 0
     );
 
     return sum + price;
