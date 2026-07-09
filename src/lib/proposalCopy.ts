@@ -163,15 +163,15 @@ export const proposalTitles = {
 
 export const introTitles = [
 
-  "Every Detail Curated Around {name} Desired Atmosphere",
+  "Every Detail Curated Around Your Desired Atmosphere",
 
-  "A Proposal Designed Around {name} Vision of the Riviera",
+  "A Proposal Designed Around Your Vision of the Riviera",
 
-  "Crafted Around {name} Personal Travel Style",
+  "Crafted Around Your Personal Travel Style",
 
   "A Tailored Mediterranean Experience",
 
-  "Curated Around {name} Riviera Atmosphere",
+  "Curated Around Your Riviera Atmosphere",
 ];
 
 // =========================================================
