@@ -7,13 +7,18 @@ export function buildProposalSummary(
   proposal: any
 ) {
 
-  const firstName =
-    lead.first_name ||
-    lead.name ||
-    "you";
-
-  const guests =
+  const adults =
     Number(lead.guests) || 2;
+
+  const children =
+    Number(lead.children) || 0;
+
+  // "12 adults" oppure "12 adults and 2 children" — niente
+  // bambini menzionati affatto se non ce ne sono.
+  const guestSentence =
+    children > 0
+      ? `${adults} adult${adults > 1 ? "s" : ""} and ${children} child${children > 1 ? "ren" : ""}`
+      : `${adults} adult${adults > 1 ? "s" : ""}`;
 
   const moods =
 
@@ -39,6 +44,6 @@ export function buildProposalSummary(
   const experienceSentence =
     sentenceBuilder(experiences);
 
-  return `Created exclusively for ${firstName} and ${guests} guest${guests > 1 ? "s" : ""}, this proposal has been crafted around ${experienceSentence}. Every experience has been carefully selected to reflect ${moodSentence}, creating a Riviera journey that feels entirely personal.`;
+  return `Created exclusively for ${guestSentence}, this proposal has been crafted around ${experienceSentence}. Every experience has been carefully selected to reflect ${moodSentence}, creating a Riviera journey that feels entirely personal.`;
 
 }
