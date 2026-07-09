@@ -16,10 +16,6 @@ import Script from "next/script";
 
 export default function IubendaCookieSolution() {
   return (
-    <Script
-      id="iubenda-cs-unified"
-      src="https://embeds.iubenda.com/widgets/2f0edb249ed-97d1-185474c12421.js"
-      strategy="afterInteractive"
-    />
+    <script type="text/javascript" src="https://embeds.iubenda.com/widgets/2f0edb25-dae1-49ed-97d1-185474c12421.js"></script>
   );
 }
