@@ -86,11 +86,50 @@ export default function ProposalClient({
     const [
         selectedExperienceIds,
         setSelectedExperienceIds
+        
     ] = useState<string[]>(
         includedExperiencesPreSelected
             ? includedExperiences.map((card: any) => card.id)
             : []
     );
+
+    // =====================================================
+    // STATO CONDIVISO DELLA RICHIESTA DI BOOKING
+    // Sia FloatingPriceBar che ReservationSection leggono e
+    // innescano questo stesso stato — cliccare l'uno o l'altro
+    // fa la stessa cosa, e nessuno dei due permette un doppio invio.
+    // =====================================================
+
+    const [bookingState, setBookingState] = useState<
+        "idle" | "sending" | "sent" | "error"
+    >(alreadyVerified ? "sent" : "idle");
+
+    async function handleRequestBooking() {
+
+        setBookingState("sending");
+
+        try {
+
+            const response = await fetch("/api/request-booking", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ slug }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                setBookingState("error");
+                return;
+            }
+
+            setBookingState("sent");
+
+        } catch (err) {
+            console.error("request-booking failed:", err);
+            setBookingState("error");
+        }
+    }
 
     // =====================================================
     // PREZZO LIVE
@@ -156,6 +195,8 @@ export default function ProposalClient({
  <FloatingPriceBar
         experienceCount={experienceCount}
         totalPrice={liveTotal}
+        bookingState={bookingState}
+        onRequestBooking={handleRequestBooking}
     />
 
     <ProposalHero
@@ -212,10 +253,11 @@ export default function ProposalClient({
     expiresAt={expiresAt}
     closingParagraph={dynamicClosingParagraph}
     whatsappUrl={whatsappUrl}
-    slug={slug}
     leadName={leadName}
     leadEmail={leadEmail}
     alreadyVerified={alreadyVerified}
+    bookingState={bookingState}
+    onRequestBooking={handleRequestBooking}
 />
 
 </main>

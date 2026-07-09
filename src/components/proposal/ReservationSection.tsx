@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 import { proposalConfig }
@@ -23,59 +22,23 @@ interface ReservationSectionProps {
   expiresAt: string;
   closingParagraph?: string;
   whatsappUrl: string;
-  slug: string;
   leadName: string;
   leadEmail: string;
   alreadyVerified?: boolean;
+  bookingState: "idle" | "sending" | "sent" | "error";
+  onRequestBooking: () => void;
 }
 
 export default function ReservationSection({
   expiresAt,
   closingParagraph,
   whatsappUrl,
-  slug,
   leadName,
   leadEmail,
   alreadyVerified = false,
+  bookingState,
+  onRequestBooking,
 }: ReservationSectionProps) {
-
-  // =========================================================
-  // STATO DELLA RICHIESTA DI BOOKING
-  // idle -> sending -> sent (o error)
-  // Se alreadyVerified e' true (query ?verified=1 sulla pagina),
-  // mostriamo direttamente lo stato di conferma.
-  // =========================================================
-
-  const [bookingState, setBookingState] = useState<
-    "idle" | "sending" | "sent" | "error"
-  >(alreadyVerified ? "sent" : "idle");
-
-  async function handleRequestBooking() {
-
-    setBookingState("sending");
-
-    try {
-
-      const response = await fetch("/api/request-booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug }),
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        setBookingState("error");
-        return;
-      }
-
-      setBookingState("sent");
-
-    } catch (err) {
-      console.error("request-booking failed:", err);
-      setBookingState("error");
-    }
-  }
 
   return (
 
@@ -308,7 +271,7 @@ export default function ReservationSection({
 
               <button
                 type="button"
-                onClick={handleRequestBooking}
+                onClick={onRequestBooking}
                 disabled={bookingState === "sending"}
                 className="
                   group

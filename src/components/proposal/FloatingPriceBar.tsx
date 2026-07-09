@@ -3,11 +3,18 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
+type BookingState = "idle" | "sending" | "sent" | "error";
+
 interface FloatingPriceBarProps {
 
   experienceCount: number;
 
   totalPrice: number;
+
+  bookingState: BookingState;
+
+  onRequestBooking: () => void;
+
 }
 
 export default function FloatingPriceBar({
@@ -15,6 +22,10 @@ export default function FloatingPriceBar({
   experienceCount,
 
   totalPrice,
+
+  bookingState,
+
+  onRequestBooking,
 
 }: FloatingPriceBarProps) {
 
@@ -33,13 +44,22 @@ export default function FloatingPriceBar({
 
   }, []);
 
+  const isBusy = bookingState === "sending";
+  const isDone = bookingState === "sent";
+
   return (
 
     <AnimatePresence>
 
       {visible && (
 
-        <motion.div
+        <motion.button
+
+          type="button"
+
+          onClick={onRequestBooking}
+
+          disabled={isBusy || isDone}
 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,6 +83,16 @@ export default function FloatingPriceBar({
             backdrop-blur-[10px]
             bg-black/70
             shadow-[0_8px_40px_rgba(0,0,0,0.4)]
+
+            transition-all
+            duration-300
+
+            hover:border-white/25
+            hover:scale-[1.02]
+
+            disabled:opacity-70
+            disabled:cursor-not-allowed
+            disabled:hover:scale-100
           "
         >
 
@@ -73,7 +103,11 @@ export default function FloatingPriceBar({
             text-white/50
             whitespace-nowrap
           ">
-            {experienceCount} Experience{experienceCount !== 1 ? "s" : ""} Included
+            {isDone
+              ? "Request Sent"
+              : isBusy
+              ? "Sending..."
+              : `${experienceCount} Experience${experienceCount !== 1 ? "s" : ""} Included`}
           </span>
 
           <span className="
@@ -86,7 +120,7 @@ export default function FloatingPriceBar({
             €{totalPrice.toLocaleString()}
           </span>
 
-        </motion.div>
+        </motion.button>
 
       )}
 
