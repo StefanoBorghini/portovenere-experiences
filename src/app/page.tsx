@@ -393,37 +393,16 @@ export default function HomePage() {
               >
                 Terms &amp; Conditions
               </a>
-              <a
-                href="https://www.iubenda.com/privacy-policy/15645850"
-                className="iubenda-black no-brand iubenda-noiframe iubenda-embed hover:text-white transition-colors duration-300"
-                title="Privacy Policy"
-              >
-                Privacy Policy
+
+               <a href="https://www.iubenda.com/privacy-policy/15645850" className="hover:text-white transition-colors duration-300" target="_blank">
+                 Privacy Policy
               </a>
-              <a href="mailto:info@portovenere.com" className="hover:text-white transition-colors duration-300">
-                Contact
-              </a>
+              
+             
             </div>
 
-            {/*
-              Loader necessario per far funzionare il link "Privacy Policy"
-              qui sopra (le classi iubenda-* lo fanno aprire in una finestra
-              modale invece di navigare via dal sito).
-            */}
-            <Script id="iubenda-privacy-policy-loader" strategy="afterInteractive">
-              {`
-                (function (w,d) {
-                  var loader = function () {
-                    var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0];
-                    s.src="https://cdn.iubenda.com/iubenda.js";
-                    tag.parentNode.insertBefore(s,tag);
-                  };
-                  if(w.addEventListener){w.addEventListener("load", loader, false);}
-                  else if(w.attachEvent){w.attachEvent("onload", loader);}
-                  else{w.onload = loader;}
-                })(window, document);
-              `}
-            </Script>
+        
+       
 
             <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
               © {new Date().getFullYear()} Portovenere Experiences
