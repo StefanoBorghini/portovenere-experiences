@@ -1,23 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Script from "next/script";
 import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 export default function HomePage() {
-
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
     <>
@@ -77,14 +64,8 @@ export default function HomePage() {
           {/* GRAIN */}
           <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
 
-          {/* NAVBAR */}
-          <nav
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
-              scrolled
-                ? "bg-[#0C0C0C]/75 backdrop-blur-xl"
-                : "bg-transparent"
-            }`}
-          >
+          {/* NAVBAR — statica, in cima all'hero, non segue lo scroll */}
+          <nav className="relative z-50">
             <div className="max-w-7xl mx-auto flex justify-center py-6 md:py-8">
 
               <a
@@ -94,16 +75,7 @@ export default function HomePage() {
                 <img
                   src="/logo-white.png"
                   alt="Portovenere Experiences"
-                  className={`
-                    w-auto
-                    transition-all
-                    duration-500
-                    ${
-                      scrolled
-                        ? "h-16 md:h-[72px]"
-                        : "h-20 md:h-[96px]"
-                    }
-                  `}
+                  className="w-auto h-20 md:h-24"
                 />
               </a>
 
@@ -394,15 +366,11 @@ export default function HomePage() {
                 Terms &amp; Conditions
               </a>
 
-               <a href="https://www.iubenda.com/privacy-policy/15645850" className="hover:text-white transition-colors duration-300" target="_blank">
-                 Privacy Policy
+              <a href="https://www.iubenda.com/privacy-policy/15645850" className="hover:text-white transition-colors duration-300" target="_blank">
+                Privacy Policy
               </a>
-              
-             
-            </div>
 
-        
-       
+            </div>
 
             <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
               © {new Date().getFullYear()} Portovenere Experiences
