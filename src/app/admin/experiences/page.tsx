@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import {
   createExperience,
   getFullExperiences,
+  updateExperience,
 } from "@/lib/supabase/experienceRepository";
 
 export default function AdminExperiencesPage() {
@@ -20,6 +21,12 @@ export default function AdminExperiencesPage() {
 
   const [search, setSearch] =
     useState("");
+
+  // Evita doppi click mentre la richiesta e' in corso, per
+  // esperienza (cosi' puoi comunque togglarne un'altra nel
+  // frattempo senza aspettare).
+  const [togglingIds, setTogglingIds] =
+    useState<Set<string>>(new Set());
 
 
 const filteredExperiences =
@@ -51,6 +58,7 @@ const filteredExperiences =
       );
     }
   );
+
 useEffect(() => {
 
   async function loadData() {
@@ -80,6 +88,51 @@ useEffect(() => {
   loadData();
 
 }, []);
+
+  // =======================================================
+  // TOGGLE ATTIVA/DISATTIVA — aggiornamento ottimistico:
+  // cambia subito nell'interfaccia, e se la chiamata a Supabase
+  // fallisce, riporta lo stato precedente e avvisa.
+  // =======================================================
+
+  async function toggleActive(experience: any) {
+
+    const newValue = !experience.active;
+
+    setTogglingIds((prev) => new Set(prev).add(experience.id));
+
+    setExperiences((prev) =>
+      prev.map((exp) =>
+        exp.id === experience.id
+          ? { ...exp, active: newValue }
+          : exp
+      )
+    );
+
+    const result = await updateExperience(experience.id, {
+      active: newValue,
+    });
+
+    if (!result.success) {
+
+      // Rollback: la chiamata e' fallita, torniamo al valore di prima
+      setExperiences((prev) =>
+        prev.map((exp) =>
+          exp.id === experience.id
+            ? { ...exp, active: experience.active }
+            : exp
+        )
+      );
+
+      alert("Could not update status — please try again.");
+    }
+
+    setTogglingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(experience.id);
+      return next;
+    });
+  }
 
   return (
 
@@ -368,14 +421,41 @@ onChange={(e) =>
           "
         />
 
-        <h3
-          className="
-            text-lg
-            font-medium
-          "
-        >
-          {experience.title}
-        </h3>
+        <div className="flex items-center justify-between">
+
+          <h3
+            className="
+              text-lg
+              font-medium
+            "
+          >
+            {experience.title}
+          </h3>
+
+          <button
+            onClick={() => toggleActive(experience)}
+            disabled={togglingIds.has(experience.id)}
+            className={`
+              shrink-0
+              px-3
+              py-1.5
+              rounded-full
+              text-xs
+              font-medium
+              border
+              transition-colors
+              disabled:opacity-50
+              ${
+                experience.active
+                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400"
+                  : "border-red-400/30 bg-red-400/10 text-red-400"
+              }
+            `}
+          >
+            {experience.active ? "Active" : "Inactive"}
+          </button>
+
+        </div>
 
         <p className="text-white/50">
 
@@ -475,6 +555,10 @@ onChange={(e) =>
           Gallery
         </th>
 
+        <th className="p-4 text-left">
+          Status
+        </th>
+
         <th className="p-4 text-right">
           Actions
         </th>
@@ -563,6 +647,32 @@ onChange={(e) =>
             <td className="p-4 text-white/60">
 
               {experience.gallery?.length || 0}
+
+            </td>
+
+            <td className="p-4">
+
+              <button
+                onClick={() => toggleActive(experience)}
+                disabled={togglingIds.has(experience.id)}
+                className={`
+                  px-3
+                  py-1.5
+                  rounded-full
+                  text-xs
+                  font-medium
+                  border
+                  transition-colors
+                  disabled:opacity-50
+                  ${
+                    experience.active
+                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20"
+                      : "border-red-400/30 bg-red-400/10 text-red-400 hover:bg-red-400/20"
+                  }
+                `}
+              >
+                {experience.active ? "Active" : "Inactive"}
+              </button>
 
             </td>
 
