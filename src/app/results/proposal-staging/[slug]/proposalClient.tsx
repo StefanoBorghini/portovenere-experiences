@@ -388,12 +388,12 @@ export default function ProposalClient({
 <main
     id="proposal-content"
     className="
-        bg-[#0C0C0C]
+        bg-black
         text-white
         min-h-screen
 
-        pb-64
-        md:pb-48
+        pb-28
+        md:pb-20
     "
 >
  <FloatingPriceBar
