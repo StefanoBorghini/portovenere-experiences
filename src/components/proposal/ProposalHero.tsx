@@ -237,8 +237,7 @@ mx-auto
 md:max-w-2xl
 ">
 
-          Tailored for {guestSentence}
-          across curated Riviera experiences,
+          Tailored for {guestSentence} across curated Riviera experiences,
           cinematic atmosphere and
           Mediterranean moments.
 
