@@ -111,17 +111,18 @@ export default function FloatingPriceBar({
             md:hidden
             text-center
             uppercase
-            tracking-[0.25em]
+            tracking-[0.3em]
             text-[9px]
-            text-white/45
-            pt-3
-            pb-1
+            text-white/40
+            pt-4
+            pb-2.5
           ">
             {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
           </span>
 
           {/* RIGA PRINCIPALE — prezzo (+ conteggio su desktop) a
-              sinistra, bottone azione a destra */}
+              sinistra, bottone azione a destra. Il bordo sottile
+              sopra (solo mobile) separa visivamente dal conteggio. */}
 
           <div className="
             flex
@@ -130,6 +131,10 @@ export default function FloatingPriceBar({
             md:justify-start
             w-full
             md:w-auto
+
+            border-t
+            border-white/[0.07]
+            md:border-t-0
           ">
 
             <div className="
@@ -140,8 +145,7 @@ export default function FloatingPriceBar({
               pl-6
               md:pl-8
               pr-5
-              py-3
-              md:py-4
+              py-4
             ">
 
               <span className="
@@ -177,6 +181,7 @@ export default function FloatingPriceBar({
               onClick={onRequestBooking}
               disabled={isBusy || isDone}
               className="
+                self-stretch
                 flex
                 items-center
                 justify-center
@@ -189,8 +194,7 @@ export default function FloatingPriceBar({
                 pr-6
                 md:pl-6
                 md:pr-8
-                py-3
-                md:py-4
+                py-4
 
                 uppercase
                 tracking-[0.2em]
