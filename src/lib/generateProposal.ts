@@ -127,7 +127,19 @@ const matchesBudget =
 
   : true;
 
+        // =====================================================
+        // CHILDREN
+        // Se si viaggia con bambini, esclude del tutto le
+        // esperienze non adatte (non solo penalizza) — campo
+        // reale su experience_content: children_allowed.
+        // Se non si viaggia con bambini, nessun filtro.
+        // =====================================================
 
+        const matchesChildren =
+
+          !travelingWithChildren ||
+
+          experience.children_allowed === true;
 
         return (
 
@@ -135,7 +147,9 @@ const matchesBudget =
 
           matchesGuests &&
 
-          matchesBudget
+          matchesBudget &&
+
+          matchesChildren
         );
       }
     );
@@ -207,32 +221,6 @@ const matchesBudget =
   }
 
 });
-
-        // =====================================================
-        // FAMILY
-        // =====================================================
-
-        if (
-
-          travelingWithChildren &&
-
-          experience.familyFriendly
-
-        ) {
-
-          score += 20;
-        }
-
-        if (
-
-          travelingWithChildren &&
-
-          !experience.familyFriendly
-
-        ) {
-
-          score -= 100;
-        }
 
         // =====================================================
         // RETURN
@@ -388,7 +376,7 @@ if (safeExperiencesSelected.length === 1) {
 
     .filter((experience) => {
 
-    const matchesGuests =
+      const matchesGuests =
         guestCount === 2
           ? experience.guest_2
         : guestCount >= 3 && guestCount <= 4
@@ -402,6 +390,7 @@ if (safeExperiencesSelected.length === 1) {
         : guestCount > 20
           ? experience.guest_20_plus
         : true;
+
       const matchesBudget =
         budget === "€500 - €1000"
           ? experience.budget_500_1000
@@ -411,7 +400,13 @@ if (safeExperiencesSelected.length === 1) {
           ? experience.budget_3000_plus
         : true;
 
-      return matchesGuests && matchesBudget;
+      // Stesso filtro children applicato anche ai suggerimenti,
+      // per coerenza con la lista principale.
+      const matchesChildren =
+        !travelingWithChildren ||
+        experience.children_allowed === true;
+
+      return matchesGuests && matchesBudget && matchesChildren;
     })
 
     .map((experience) => {

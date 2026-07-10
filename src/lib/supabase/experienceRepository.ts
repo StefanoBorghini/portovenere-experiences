@@ -481,13 +481,61 @@ export async function createGalleryImage(
 }
 
 
+// ======================================================
+// IMAGE UPLOAD VALIDATION
+// ======================================================
+
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+
+const MAX_IMAGE_SIZE_BYTES =
+  5 * 1024 * 1024; // 5 MB
+
 export async function uploadImage(
   file: File
 ) {
   if (!supabase) return null;
 
+  if (
+    !ALLOWED_IMAGE_TYPES.includes(
+      file.type
+    )
+  ) {
+    console.error(
+      "uploadImage: tipo file non consentito:",
+      file.type
+    );
+    return null;
+  }
+
+  if (
+    file.size >
+    MAX_IMAGE_SIZE_BYTES
+  ) {
+    console.error(
+      "uploadImage: file troppo grande:",
+      file.size
+    );
+    return null;
+  }
+
+  // Estensione dedotta dal MIME type reale
+  // (non dal nome file, per non fidarci di
+  // un'estensione ingannevole)
+  const mimeSubtype =
+    file.type.split("/")[1];
+
+  const extension =
+    mimeSubtype === "jpeg"
+      ? "jpg"
+      : mimeSubtype;
+
   const fileName =
-    `${Date.now()}-${file.name}`;
+    `${Date.now()}-${crypto.randomUUID()}.${extension}`;
 
   const { error } =
     await supabase.storage
@@ -945,4 +993,3 @@ export async function deleteProposalConfig(
   };
 
 }
-
