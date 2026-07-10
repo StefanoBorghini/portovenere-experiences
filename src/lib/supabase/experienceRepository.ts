@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { resizeImageBeforeUpload } from "../../lib/upload/resizeImageBeforeUpload";
 
 export async function deleteExperience(id: string) {
 
@@ -485,6 +486,9 @@ export async function createGalleryImage(
 // IMAGE UPLOAD VALIDATION
 // ======================================================
 
+// Tipi accettati IN INGRESSO (quello che l'utente seleziona
+// dal proprio dispositivo) — l'output verso lo storage e'
+// sempre WebP, vedi resizeImageBeforeUpload().
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -493,7 +497,8 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const MAX_IMAGE_SIZE_BYTES =
-  5 * 1024 * 1024; // 5 MB
+  5 * 1024 * 1024; // 5 MB — controllo sul file originale,
+                   // prima del resize
 
 export async function uploadImage(
   file: File
@@ -523,19 +528,13 @@ export async function uploadImage(
     return null;
   }
 
-  // Estensione dedotta dal MIME type reale
-  // (non dal nome file, per non fidarci di
-  // un'estensione ingannevole)
-  const mimeSubtype =
-    file.type.split("/")[1];
-
-  const extension =
-    mimeSubtype === "jpeg"
-      ? "jpg"
-      : mimeSubtype;
+  const resizedFile =
+    await resizeImageBeforeUpload(
+      file
+    );
 
   const fileName =
-    `${Date.now()}-${crypto.randomUUID()}.${extension}`;
+    `${Date.now()}-${crypto.randomUUID()}.webp`;
 
   const { error } =
     await supabase.storage
@@ -544,7 +543,7 @@ export async function uploadImage(
       )
       .upload(
         fileName,
-        file
+        resizedFile
       );
 
   if (error) {
