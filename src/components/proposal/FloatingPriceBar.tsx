@@ -82,7 +82,7 @@ export default function FloatingPriceBar({
             z-50
 
             w-[92vw]
-            max-w-sm
+max-w-md
             md:w-auto
 
             flex
@@ -186,7 +186,7 @@ export default function FloatingPriceBar({
                 items-center
                 justify-center
                 gap-2
-
+shrink-0
                 bg-white
                 text-black
 
