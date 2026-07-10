@@ -95,22 +95,46 @@ export async function POST(req: NextRequest) {
       slug,
     };
 
-    // Email al proprietario — fire-and-forget, non deve bloccare
-    // la risposta al cliente se dovesse fallire.
-    sendEmail({
-      to: process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com",
-      subject: `Proposal modified — ${summaryData.name || "Client"}`,
-      html: ownerProposalModifiedTemplate(summaryData),
-    }).catch((err) => console.error("owner modified email failed:", err));
+    // =====================================================
+    // EMAIL — attendiamo ENTRAMBE prima di rispondere.
+    //
+    // Prima erano fire-and-forget (sendEmail(...).catch(...)
+    // senza await): in ambiente serverless, appena la funzione
+    // fa "return" il runtime puo' congelare/terminare l'esecuzione,
+    // troncando a meta' le Promise ancora pendenti — la connessione
+    // SMTP di nodemailer non e' istantanea, quindi la mail restava
+    // "in partenza" per sempre e non arrivava ne' al proprietario
+    // ne' al cliente.
+    //
+    // Promise.allSettled invece di due await separati: se una delle
+    // due fallisce (es. email cliente malformata), non blocca né
+    // rallenta l'altra, e la risposta al cliente arriva comunque.
+    // =====================================================
 
-    // Email al cliente — nessuna nuova verifica richiesta
-    if (leadData.email) {
+    const [ownerResult, clientResult] = await Promise.allSettled([
 
       sendEmail({
-        to: leadData.email,
-        subject: "Your changes have been confirmed — Portovenere Experiences",
-        html: clientChangesConfirmedTemplate(summaryData),
-      }).catch((err) => console.error("client confirmed email failed:", err));
+        to: process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com",
+        subject: `Proposal modified — ${summaryData.name || "Client"}`,
+        html: ownerProposalModifiedTemplate(summaryData),
+      }),
+
+      leadData.email
+        ? sendEmail({
+            to: leadData.email,
+            subject: "Your changes have been confirmed — Portovenere Experiences",
+            html: clientChangesConfirmedTemplate(summaryData),
+          })
+        : Promise.resolve({ success: false, error: "No email on file" }),
+
+    ]);
+
+    if (ownerResult.status === "rejected") {
+      console.error("owner modified email failed:", ownerResult.reason);
+    }
+
+    if (clientResult.status === "rejected") {
+      console.error("client confirmed email failed:", clientResult.reason);
     }
 
     return NextResponse.json({
