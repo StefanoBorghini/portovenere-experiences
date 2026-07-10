@@ -142,7 +142,8 @@ export default function FeaturedExperience({
 
               </p>
 
-              {/* OPERATOR */}
+              {/* TITLE — nome dell'esperienza (es. "Mongolfiera
+                  Experience"), non piu' il nome dell'operatore */}
 
               <h2
                 className="
@@ -155,11 +156,12 @@ export default function FeaturedExperience({
                 "
               >
 
-                {operator}
+                {subtitle}
 
               </h2>
 
-              {/* SUBTITLE */}
+              {/* OPERATOR — nome dell'operatore/brand (es. "Orizzonte
+                  5 Terre"), ora nella riga piu' piccola sotto */}
 
               <p
                 className="
@@ -172,7 +174,7 @@ export default function FeaturedExperience({
                 "
               >
 
-                {subtitle}
+                {operator}
 
               </p>
 

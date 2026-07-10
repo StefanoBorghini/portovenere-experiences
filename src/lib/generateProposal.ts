@@ -20,10 +20,6 @@ import {
   experienceCompatibility,
 } from "./experienceCompatibility";
 
-import {
-  getExperienceContent,
-} from "@/lib/getExperienceContent";
-
 interface GenerateProposalProps {
 
   experiencesSelected: string[];
@@ -349,11 +345,10 @@ if (!bestExperience) {
     },
   };
 }
-const experienceContent =
-
-  getExperienceContent(
-    bestExperience.id
-  );
+// bestExperience arriva gia' completo da Supabase (getFullExperiences) —
+// nessuna sovrascrittura da fonti statiche esterne, per evitare
+// esattamente il tipo di bug per cui una vecchia entry hardcoded
+// (rimossa) vinceva sul dato reale del CMS per una sola esperienza.
 
 
 // =========================================================
@@ -514,7 +509,6 @@ const dynamicClosingParagraph =
   bestExperience.hero_image ||
   bestExperience.featured_image ||
   bestExperience.gallery?.[0]?.image_url ||
-  experienceContent?.heroImage ||
   "/images/default.webp";
   // =========================================================
   // SINGLE CATEGORY + SINGLE MOOD
@@ -693,13 +687,9 @@ const orderedCategories =
   ...bestExperience,
 
   title:
-    experienceContent?.title ||
-
     bestExperience.title,
 
   operator:
-    experienceContent?.operator ||
-
     bestExperience.operator,
 
   heroImage:
@@ -707,8 +697,6 @@ const orderedCategories =
   bestExperience.featured_image ||
 
   bestExperience.gallery?.[0]?.image_url ||
-
-  experienceContent?.heroImage ||
 
   "/images/default.webp",
 },
