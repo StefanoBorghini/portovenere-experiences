@@ -17,6 +17,12 @@ interface FloatingPriceBarProps {
 
   hasUnconfirmedChanges?: boolean;
 
+  leadName?: string;
+
+  leadEmail?: string;
+
+  alreadyVerified?: boolean;
+
 }
 
 export default function FloatingPriceBar({
@@ -30,6 +36,12 @@ export default function FloatingPriceBar({
   onRequestBooking,
 
   hasUnconfirmedChanges = false,
+
+  leadName,
+
+  leadEmail,
+
+  alreadyVerified = false,
 
 }: FloatingPriceBarProps) {
 
@@ -61,6 +73,23 @@ export default function FloatingPriceBar({
 
   const showArrow = !isDone && !isBusy;
 
+  // =====================================================
+  // MESSAGGIO DI STATO — mostrato appena sopra il bottone,
+  // stesso testo che prima viveva solo in fondo pagina
+  // (ReservationSection). Compare solo quando c'e' qualcosa
+  // da comunicare (richiesta confermata o errore).
+  // =====================================================
+
+  const statusMessage =
+
+    isDone
+      ? (alreadyVerified
+          ? `Thank you, ${leadName || "there"} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.`
+          : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`)
+      : bookingState === "error"
+      ? "Something went wrong — please try again, or contact us directly."
+      : null;
+
   return (
 
     <AnimatePresence>
@@ -82,26 +111,64 @@ export default function FloatingPriceBar({
             z-50
 
             w-[92vw]
-max-w-md
+            max-w-sm
             md:w-auto
 
             flex
             flex-col
-            items-stretch
-
-            md:flex-row
-            md:items-center
-
-            border
-            border-white/12
-            rounded-[28px]
-            md:rounded-full
-            backdrop-blur-[10px]
-            bg-black/70
-            shadow-[0_8px_40px_rgba(0,0,0,0.4)]
-            overflow-hidden
+            items-center
+            gap-3
           "
         >
+
+          {/* MESSAGGIO DI STATO — sopra la pill, stessa larghezza,
+              testo centrato, non interattivo (solo informativo) */}
+
+          {statusMessage && (
+
+            <p
+              className={`
+                text-center
+                text-[12px]
+                md:text-[13px]
+                leading-relaxed
+                px-4
+
+                ${
+                  bookingState === "error"
+                    ? "text-red-400"
+                    : "text-white/70"
+                }
+              `}
+            >
+              {statusMessage}
+            </p>
+
+          )}
+
+          {/* PILL — bordo, prezzo, bottone azione */}
+
+          <div
+            className="
+              w-full
+
+              flex
+              flex-col
+              items-stretch
+
+              md:flex-row
+              md:items-center
+
+              border
+              border-white/12
+              rounded-[28px]
+              md:rounded-full
+              backdrop-blur-[10px]
+              bg-black/70
+              shadow-[0_8px_40px_rgba(0,0,0,0.4)]
+              overflow-hidden
+            "
+          >
 
           {/* CONTEGGIO ESPERIENZE — riga propria, solo su mobile.
               Su desktop e' invece incorporato nella riga principale
@@ -146,6 +213,7 @@ max-w-md
               md:pl-8
               pr-5
               py-4
+              shrink-0
             ">
 
               <span className="
@@ -182,11 +250,12 @@ max-w-md
               disabled={isBusy || isDone}
               className="
                 self-stretch
+                shrink-0
                 flex
                 items-center
                 justify-center
                 gap-2
-shrink-0
+
                 bg-white
                 text-black
 
@@ -217,6 +286,8 @@ shrink-0
               {showArrow && <span aria-hidden="true">→</span>}
 
             </button>
+
+          </div>
 
           </div>
 

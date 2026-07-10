@@ -282,11 +282,14 @@ export default function ProposalClient({
     "
 >
  <FloatingPriceBar
-        experienceCount={experienceCount}
-        totalPrice={liveTotal}
-        bookingState={bookingState}
-        onRequestBooking={handleAction}
-        hasUnconfirmedChanges={hasUnconfirmedChanges}
+           experienceCount={experienceCount}
+    totalPrice={liveTotal}
+    bookingState={bookingState}
+    onRequestBooking={handleAction}
+    hasUnconfirmedChanges={hasUnconfirmedChanges}
+    leadName={leadName}
+    leadEmail={leadEmail}
+    alreadyVerified={alreadyVerified}
     />
 
     <ProposalHero

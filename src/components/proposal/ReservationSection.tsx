@@ -268,43 +268,11 @@ export default function ReservationSection({
 
           </div>
 
-          {/* STATO — l'azione (bottone) vive ora solo su
-              FloatingPriceBar, sempre visibile mentre scorri.
-              Qui restano solo un messaggio informativo e il
-              contatto diretto via WhatsApp. */}
-
-          <div
-            className="
-              flex
-              flex-col
-              items-center
-              gap-6
-            "
-          >
-
-            {bookingState === "sent" && !hasUnconfirmedChanges && (
-
-              <p
-                className="
-                  text-white/70
-                  text-sm
-                  max-w-md
-                "
-              >
-                {alreadyVerified
-                  ? `Thank you, ${leadName || "there"} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.`
-                  : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`}
-              </p>
-
-            )}
-
-            {bookingState === "error" && (
-              <p className="text-red-400 text-sm">
-                Something went wrong — please try again, or contact us directly.
-              </p>
-            )}
-
-          </div>
+          {/* Il messaggio di stato (conferma email / errore) e' stato
+              spostato su FloatingPriceBar, subito sopra il bottone
+              di azione — e' li' che l'utente guarda dopo aver
+              cliccato "Reserve Now" / "Confirm Changes". Qui restano
+              solo countdown, testo introduttivo e contatto WhatsApp. */}
 
         </motion.div>
       </SectionContainer>
