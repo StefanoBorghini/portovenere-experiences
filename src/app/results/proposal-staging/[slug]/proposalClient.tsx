@@ -274,6 +274,16 @@ export default function ProposalClient({
 
             trackProposalSent(slug);
 
+            // expires_at e' stato appena allungato di 48h fresche
+            // lato server (vedi request-booking/route.ts) — lo
+            // riflettiamo anche qui, cosi' se il countdown dovesse
+            // ricomparire (es. il cliente modifica la selezione
+            // prima di verificare l'email) parte dal valore corretto,
+            // non da quello ormai vecchio calcolato al primo caricamento.
+            if (data.expiresAt) {
+                setCurrentExpiresAt(data.expiresAt);
+            }
+
             setBookingState("sent");
 
         } catch (err) {

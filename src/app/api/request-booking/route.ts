@@ -62,6 +62,17 @@ export async function POST(req: NextRequest) {
 
     const token = randomUUID();
 
+    // Il countdown sulla pagina SPARISCE non appena questa richiesta
+    // va a buon fine (bookingState diventa "sent") — se non allunghiamo
+    // qui anche la scadenza reale, il cliente vede "Check your inbox"
+    // senza alcuna pressione di tempo, ma la prenotazione potrebbe
+    // comunque scadere in background mentre lui controlla la posta.
+    // Allunghiamo quindi expires_at di 48h fresche da ORA, esattamente
+    // come gia' fa /api/confirm-changes per le modifiche successive —
+    // cosi' countdown nascosto e scadenza reale sono sempre coerenti.
+    const newExpiresAt =
+      new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+
     // Salviamo gia' ora la selezione scelta al momento della richiesta —
     // diventera' il "confirmed_selection" di riferimento una volta che
     // l'email viene verificata. Se il cliente non verifica mai, questo
@@ -72,6 +83,7 @@ export async function POST(req: NextRequest) {
         verification_token: token,
         verification_sent_at: new Date().toISOString(),
         booking_requested_at: new Date().toISOString(),
+        expires_at: newExpiresAt,
         confirmed_selection: {
           experienceIds: experienceIds || [],
           enhancementIds: enhancementIds || [],
@@ -111,7 +123,13 @@ export async function POST(req: NextRequest) {
       ),
     });
 
-    return NextResponse.json(result);
+    // Il client (proposalClient.tsx) non legge expires_at dalla
+    // risposta di questa route oggi — vedi nota sotto per il
+    // secondo intervento necessario lato frontend.
+    return NextResponse.json({
+      ...result,
+      expiresAt: newExpiresAt,
+    });
 
   } catch (err) {
 
