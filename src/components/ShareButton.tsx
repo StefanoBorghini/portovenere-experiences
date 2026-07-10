@@ -12,7 +12,7 @@ export default function ShareButton({ slug }: ShareButtonProps) {
 
   async function handleShare() {
 
-    const url = `${window.location.origin}/results/proposal-staging/${slug}`;
+    const url = `${window.location.origin}/results/proposal/${slug}`;
 
     // Su mobile: apre il menu di condivisione nativo (WhatsApp, Messaggi,
     // Email, ecc.) — l'utente sceglie lui dove mandarlo.

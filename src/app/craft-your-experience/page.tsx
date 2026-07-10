@@ -713,7 +713,7 @@ export default function CraftYourExperience() {
       // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
       // la pagina, l'overlay di caricamento resta visibile fino alla
       // navigazione, poi il componente si smonta comunque.
-      router.push(`/results/proposal-staging/${proposalData.slug}`);
+      router.push(`/results/proposal/${proposalData.slug}`);
 
     } catch (err) {
       console.error("Unexpected error:", err);

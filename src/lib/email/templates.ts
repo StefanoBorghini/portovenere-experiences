@@ -114,7 +114,7 @@ export function ownerNewProposalTemplate(data: ProposalSummary) {
         <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate)} → ${escapeHtml(data.endDate)}</td></tr>
       </table>
       <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal-staging/${encodeURIComponent(data.slug)}" style="color: #111;">
+        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
           View this proposal →
         </a>
       </p>
@@ -135,7 +135,7 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
         email address after requesting a private booking.
       </p>
       <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal-staging/${encodeURIComponent(data.slug)}" style="color: #111;">
+        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
           View this proposal →
         </a>
       </p>
@@ -158,7 +158,7 @@ export function ownerProposalModifiedTemplate(data: ProposalSummary) {
         selection after already confirming their email address.
       </p>
       <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal-staging/${encodeURIComponent(data.slug)}" style="color: #111;">
+        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
           View the updated proposal →
         </a>
       </p>
@@ -182,7 +182,7 @@ export function clientChangesConfirmedTemplate(data: ProposalSummary) {
       </p>
       <p style="margin: 32px 0;">
         <a
-          href="${SITE_URL}/results/proposal-staging/${encodeURIComponent(data.slug)}"
+          href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}"
           style="
             background: #111;
             color: #fff;

@@ -27,7 +27,7 @@ export default async function BookingConfirmedPage({
 
         {slug && (
           <a
-            href={`/results/proposal-staging/${slug}`}
+            href={`/results/proposal/${slug}`}
             className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500 mb-12"
           >
             View Your Proposal
