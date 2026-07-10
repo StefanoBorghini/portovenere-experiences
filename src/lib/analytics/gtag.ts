@@ -81,6 +81,34 @@ export function trackStepChanged(
   });
 }
 
+// Alias esplicito — stesso payload di trackStepChanged, usato
+// quando si vuole essere chiari che si tratta dell'ENTRATA in
+// uno step (non del cambio generico), utile per costruire il
+// funnel "step_entered" per step.
+export function trackStepEntered(
+  step: string,
+  stepIndex: number
+) {
+  trackEvent({
+    action: "step_entered",
+    category: "configurator",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
+export function trackStepBack(
+  step: string,
+  stepIndex: number
+) {
+  trackEvent({
+    action: "step_back",
+    category: "configurator",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
 export function trackExperienceSelected(
   category: string
 ) {
@@ -100,6 +128,24 @@ export function trackExperienceRemoved(
     category: "configurator",
     label: category,
     extra: { experience_category: category },
+  });
+}
+
+export function trackMoodSelected(mood: string) {
+  trackEvent({
+    action: "mood_selected",
+    category: "configurator",
+    label: mood,
+    extra: { mood },
+  });
+}
+
+export function trackMoodRemoved(mood: string) {
+  trackEvent({
+    action: "mood_removed",
+    category: "configurator",
+    label: mood,
+    extra: { mood },
   });
 }
 
@@ -225,6 +271,42 @@ export function trackScrollDepth(
   });
 }
 
+// =========================================================
+// LANDING — hero e CTA
+// =========================================================
+
+export function trackHeroViewed() {
+  trackEvent({
+    action: "hero_viewed",
+    category: "landing",
+  });
+}
+
+export function trackHeroVisible5s() {
+  trackEvent({
+    action: "hero_visible_5s",
+    category: "landing",
+  });
+}
+
+export function trackCtaViewed(ctaLabel: string) {
+  trackEvent({
+    action: "cta_viewed",
+    category: "landing",
+    label: ctaLabel,
+    extra: { cta: ctaLabel },
+  });
+}
+
+export function trackCtaClicked(ctaLabel: string) {
+  trackEvent({
+    action: "cta_clicked",
+    category: "landing",
+    label: ctaLabel,
+    extra: { cta: ctaLabel },
+  });
+}
+
 export function trackStepTimeSpent(
   step: string,
   seconds: number
@@ -279,6 +361,36 @@ export function trackProposalHeartbeat(
       seconds,
       section_visible: sectionVisible,
     },
+  });
+}
+
+// =========================================================
+// PROPOSAL PAGE — selezione/deselezione delle experience card
+// gia' incluse nella proposal generata (diverso dalla scelta
+// di categoria nel wizard, vedi trackExperienceSelected sopra:
+// quella e' "preferenza dichiarata", questa e' "azione su una
+// proposal gia' pronta").
+// =========================================================
+
+export function trackProposalExperienceAdded(
+  experienceIdOrCategory: string
+) {
+  trackEvent({
+    action: "proposal_experience_added",
+    category: "proposal",
+    label: experienceIdOrCategory,
+    extra: { experience: experienceIdOrCategory },
+  });
+}
+
+export function trackProposalExperienceRemoved(
+  experienceIdOrCategory: string
+) {
+  trackEvent({
+    action: "proposal_experience_removed",
+    category: "proposal",
+    label: experienceIdOrCategory,
+    extra: { experience: experienceIdOrCategory },
   });
 }
 

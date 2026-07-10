@@ -1,13 +1,29 @@
 "use client";
 
 import Turnstile from "react-turnstile";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 
 import { supabase } from "@/lib/supabase";
-import { trackEvent } from "@/lib/analytics/gtag";
+import {
+  trackEvent,
+  trackConfiguratorStart,
+  trackConfiguratorLoaded,
+  trackStepEntered,
+  trackStepBack,
+  trackStepTimeSpent,
+  trackStepAbandoned,
+  trackExperienceSelected,
+  trackExperienceRemoved,
+  trackMoodSelected,
+  trackMoodRemoved,
+  trackBudgetChanged,
+  trackGuestChanged,
+  trackDateSelected,
+  trackProposalGenerated,
+} from "@/lib/analytics/gtag";
 
 // =========================================================
 // STEP DEFINITIONS
@@ -127,6 +143,69 @@ export default function CraftYourExperience() {
   const totalSteps = STEP_IDS.length;
   const isIntro = currentStep === INTRO_STEP;
   const stepId = !isIntro ? STEP_IDS[currentStep] : null;
+
+  // =======================================================
+  // TRACKING — pagina caricata (una volta sola al mount)
+  // =======================================================
+
+  useEffect(() => {
+    trackConfiguratorLoaded();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // =======================================================
+  // TRACKING — tempo speso per step + abbandono
+  //
+  // stepEnteredAtRef tiene il timestamp di ingresso nello step
+  // corrente. Ogni volta che si cambia step (avanti o indietro)
+  // calcoliamo quanto tempo e' stato speso in quello precedente.
+  // Il listener beforeunload copre il caso "chiude la scheda a
+  // meta' wizard" — un vero abbandono, non solo un passo indietro.
+  // =======================================================
+
+  const stepEnteredAtRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+
+    // Ogni volta che stepId cambia, quello che vediamo qui e' gia'
+    // il NUOVO step — quindi resettiamo il timestamp di ingresso e,
+    // se non siamo sulla intro, mandiamo lo step_entered.
+    stepEnteredAtRef.current = Date.now();
+
+    if (!isIntro && stepId) {
+      trackStepEntered(stepId, currentStep);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
+  useEffect(() => {
+
+    function handleBeforeUnload() {
+
+      // Abbandono reale solo se siamo dentro al wizard (non intro,
+      // non gia' inviato) — su "contact" con submit in corso non
+      // vogliamo contare come abbandono un invio riuscito, ma dato
+      // che il browser sta comunque per lasciare la pagina in quel
+      // caso specifico (redirect), il rischio di un doppio conteggio
+      // e' trascurabile rispetto al valore del dato.
+
+      if (isIntro || !stepId) return;
+
+      const secondsSpent =
+        (Date.now() - stepEnteredAtRef.current) / 1000;
+
+      trackStepAbandoned(stepId, secondsSpent);
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIntro, stepId]);
 
   // =======================================================
   // FORM STATE
@@ -314,6 +393,11 @@ export default function CraftYourExperience() {
   // =======================================================
 
   const handleSelect = (field: string, value: string) => {
+
+    if (field === "budget") {
+      trackBudgetChanged(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -346,6 +430,13 @@ export default function CraftYourExperience() {
       }
 
       if (alreadySelected) {
+
+        if (field === "experiences") {
+          trackExperienceRemoved(value);
+        } else {
+          trackMoodRemoved(value);
+        }
+
         return {
           ...prev,
           [field]: currentValues.filter((item) => item !== value),
@@ -359,6 +450,12 @@ export default function CraftYourExperience() {
             : "Maximum 3 atmospheres selections allowed"
         );
         return prev;
+      }
+
+      if (field === "experiences") {
+        trackExperienceSelected(value);
+      } else {
+        trackMoodSelected(value);
       }
 
       return {
@@ -411,7 +508,7 @@ export default function CraftYourExperience() {
   // =======================================================
 
   function startWizard() {
-    trackEvent({ action: "wizard_start", category: "configurator" });
+    trackConfiguratorStart();
     setDirection(1);
     setCurrentStep(0);
   }
@@ -425,6 +522,24 @@ export default function CraftYourExperience() {
 
     if (!currentStepValid) return;
 
+    // Tempo speso nello step che stiamo per lasciare, e — per lo
+    // step "dates" — il commit della data scelta (qui, non ad ogni
+    // trascinamento del calendario, altrimenti sarebbe rumorosissimo).
+    const secondsSpent =
+      (Date.now() - stepEnteredAtRef.current) / 1000;
+
+    if (stepId) {
+      trackStepTimeSpent(stepId, secondsSpent);
+    }
+
+    if (stepId === "dates") {
+      trackDateSelected(formData.startDate, formData.endDate);
+    }
+
+    if (stepId === "guests") {
+      trackGuestChanged(formData.guests);
+    }
+
     if (stepId === "contact") {
       handleSubmit();
       return;
@@ -437,6 +552,14 @@ export default function CraftYourExperience() {
   function goBack() {
 
     if (isIntro) return;
+
+    const secondsSpent =
+      (Date.now() - stepEnteredAtRef.current) / 1000;
+
+    if (stepId) {
+      trackStepTimeSpent(stepId, secondsSpent);
+      trackStepBack(stepId, currentStep);
+    }
 
     setDirection(-1);
 
@@ -575,6 +698,8 @@ export default function CraftYourExperience() {
         setIsSubmitting(false);
         return;
       }
+
+      trackProposalGenerated(proposalData.slug);
 
       // NOTIFICA AL PROPRIETARIO — non appena la proposal è generata,
       // indipendentemente dal fatto che il cliente richieda o no il booking.

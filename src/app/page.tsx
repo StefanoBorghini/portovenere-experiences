@@ -1,19 +1,156 @@
 "use client";
 
-import Script from "next/script";
-import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
-import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import { useEffect, useRef } from "react";
+import {
+  trackScrollDepth,
+  trackHeroViewed,
+  trackHeroVisible5s,
+  trackCtaViewed,
+  trackCtaClicked,
+} from "@/lib/analytics/gtag";
 
 export default function HomePage() {
 
+  // =======================================================
+  // SCROLL DEPTH — soglie 25/50/75/100%, ognuna sparata una
+  // sola volta per sessione di navigazione sulla pagina.
+  // =======================================================
+
+  const firedThresholdsRef = useRef<Set<25 | 50 | 75 | 100>>(new Set());
+
+  useEffect(() => {
+
+    function handleScroll() {
+
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      if (scrollableHeight <= 0) return;
+
+      const percentScrolled =
+        (window.scrollY / scrollableHeight) * 100;
+
+      ([25, 50, 75, 100] as const).forEach((threshold) => {
+
+        if (
+          percentScrolled >= threshold &&
+          !firedThresholdsRef.current.has(threshold)
+        ) {
+          firedThresholdsRef.current.add(threshold);
+          trackScrollDepth("landing", threshold);
+        }
+
+      });
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+
+  }, []);
+
+  // =======================================================
+  // HERO — vista (IntersectionObserver) + vista per 5s+
+  // continuativi (timer che si azzera se l'hero esce dal
+  // viewport prima dei 5 secondi).
+  // =======================================================
+
+  const heroRef = useRef<HTMLElement | null>(null);
+  const heroViewedFiredRef = useRef(false);
+  const hero5sFiredRef = useRef(false);
+  const hero5sTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+
+    const node = heroRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+
+        if (entry.isIntersecting) {
+
+          if (!heroViewedFiredRef.current) {
+            heroViewedFiredRef.current = true;
+            trackHeroViewed();
+          }
+
+          if (!hero5sFiredRef.current && !hero5sTimeoutRef.current) {
+            hero5sTimeoutRef.current = setTimeout(() => {
+              hero5sFiredRef.current = true;
+              trackHeroVisible5s();
+            }, 5000);
+          }
+
+        } else {
+
+          // Esce dal viewport prima dei 5s continuativi — annulliamo
+          // il timer, non vogliamo contare visite spezzettate.
+          if (hero5sTimeoutRef.current) {
+            clearTimeout(hero5sTimeoutRef.current);
+            hero5sTimeoutRef.current = null;
+          }
+
+        }
+
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+      if (hero5sTimeoutRef.current) {
+        clearTimeout(hero5sTimeoutRef.current);
+      }
+    };
+
+  }, []);
+
+  // =======================================================
+  // CTA FINALE — vista (la piu' significativa: chi arriva
+  // fin qui ha letto tutta la pagina). Le altre CTA vengono
+  // tracciate solo al click, per non generare rumore su
+  // pulsanti quasi sempre visibili al caricamento.
+  // =======================================================
+
+  const finalCtaRef = useRef<HTMLElement | null>(null);
+  const finalCtaViewedFiredRef = useRef(false);
+
+  useEffect(() => {
+
+    const node = finalCtaRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+
+        if (entry.isIntersecting && !finalCtaViewedFiredRef.current) {
+          finalCtaViewedFiredRef.current = true;
+          trackCtaViewed("final_cta");
+        }
+
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+
+  }, []);
+
   return (
     <>
-      <IubendaCookieSolution />
-      <GoogleAnalytics />
-
       <main className="bg-[#0C0C0C] text-[#EDEBE7] overflow-hidden">
         {/* HERO */}
-        <section className="relative min-h-screen overflow-hidden pb-24 md:pb-0">
+        <section
+          ref={heroRef}
+          className="relative min-h-screen overflow-hidden pb-24 md:pb-0"
+        >
           {/* DESKTOP VIDEO */}
           <video
             autoPlay
@@ -105,6 +242,7 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row justify-center gap-5 mt-12">
                 <a
                   href="/craft-your-experience"
+                  onClick={() => trackCtaClicked("hero")}
                   className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
                 >
                   Craft Your Experience
@@ -188,6 +326,7 @@ export default function HomePage() {
 
                 <a
                   href="/craft-your-experience"
+                  onClick={() => trackCtaClicked("how_it_works_step_1")}
                   className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
                 >
                   Start Your Request
@@ -224,6 +363,7 @@ export default function HomePage() {
 
                 <a
                   href="/craft-your-experience"
+                  onClick={() => trackCtaClicked("how_it_works_step_2")}
                   className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
                 >
                   Discover Our Process
@@ -261,6 +401,7 @@ export default function HomePage() {
 
                 <a
                   href="/craft-your-experience"
+                  onClick={() => trackCtaClicked("how_it_works_step_3")}
                   className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
                 >
                   Start Planning
@@ -317,6 +458,7 @@ export default function HomePage() {
 
         {/* FINAL CTA */}
         <section
+          ref={finalCtaRef}
           id="contact"
           className="py-40 px-6 text-center bg-[#0C0C0C] border-t border-[#EDEBE7]/10"
         >
@@ -338,6 +480,7 @@ export default function HomePage() {
 
           <a
             href="/craft-your-experience"
+            onClick={() => trackCtaClicked("final_cta")}
             className="inline-block bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
           >
             Craft Your Experience

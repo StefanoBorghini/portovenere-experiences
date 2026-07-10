@@ -20,6 +20,10 @@ import {
 // =====================================================
 
 import { ProposalExperienceCard } from "@/types/proposal";
+import {
+  trackProposalExperienceAdded,
+  trackProposalExperienceRemoved,
+} from "@/lib/analytics/gtag";
 interface IncludedExperiencesProps {
 
   experiences: ProposalExperienceCard[];
@@ -92,12 +96,23 @@ function toggleExperience(id: string) {
 
   setSelectedExperiences(current => {
 
+    const target = experiences.find(
+      experience => experience.id === id
+    );
+
+    const trackingLabel =
+      target?.experience?.category ?? id;
+
     // Deselezione normale
     if (current.includes(id)) {
+
+      trackProposalExperienceRemoved(trackingLabel);
 
       return current.filter(item => item !== id);
 
     }
+
+    trackProposalExperienceAdded(trackingLabel);
 
     // Su viaggi multi-giorno: aggiunta semplice, nessuna rimozione
     // automatica di altre esperienze "incompatibili" — si possono

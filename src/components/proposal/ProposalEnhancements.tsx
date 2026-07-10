@@ -26,6 +26,11 @@ import {
   proposalConfig,
 } from "@/config/proposalConfig";
 
+import {
+  trackEnhancementAdded,
+  trackEnhancementRemoved,
+} from "@/lib/analytics/gtag";
+
 interface Enhancement {
 
     id: number;
@@ -78,6 +83,8 @@ export default function ProposalEnhancements({
             )
         ) {
 
+            trackEnhancementRemoved(id);
+
             setSelectedEnhancements(
 
                 selectedEnhancements.filter(
@@ -87,6 +94,8 @@ export default function ProposalEnhancements({
             );
 
         } else {
+
+            trackEnhancementAdded(id);
 
             setSelectedEnhancements([
                 ...selectedEnhancements,

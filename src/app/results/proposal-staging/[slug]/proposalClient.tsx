@@ -9,7 +9,12 @@ import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
 import ShareButton from "@/components/ShareButton";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+    trackProposalSent,
+    trackBookingConfirmed,
+    trackBookingChangesConfirmed,
+} from "@/lib/analytics/gtag";
 
 
 interface ConfirmedSelection {
@@ -120,6 +125,17 @@ export default function ProposalClient({
         "idle" | "sending" | "sent" | "error"
     >(alreadyVerified ? "sent" : "idle");
 
+    // Se la pagina carica con alreadyVerified=true, significa che
+    // il cliente e' appena arrivato dal link di conferma email —
+    // e' il momento in cui la "conferma booking" avviene davvero
+    // dal punto di vista del funnel.
+    useEffect(() => {
+        if (alreadyVerified) {
+            trackBookingConfirmed(slug);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Ultima selezione confermata (dal server) — usata per capire
     // se il cliente ha cambiato qualcosa DOPO aver gia' confermato.
     const [confirmedSelection, setConfirmedSelection] =
@@ -164,6 +180,8 @@ export default function ProposalClient({
                 return;
             }
 
+            trackProposalSent(slug);
+
             setBookingState("sent");
 
         } catch (err) {
@@ -202,6 +220,8 @@ export default function ProposalClient({
                 experienceIds: selectedExperienceIds,
                 enhancementIds: selectedEnhancements,
             });
+
+            trackBookingChangesConfirmed(slug);
 
             setCurrentExpiresAt(data.expiresAt);
             setBookingState("sent");
@@ -282,14 +302,14 @@ export default function ProposalClient({
     "
 >
  <FloatingPriceBar
-           experienceCount={experienceCount}
-    totalPrice={liveTotal}
-    bookingState={bookingState}
-    onRequestBooking={handleAction}
-    hasUnconfirmedChanges={hasUnconfirmedChanges}
-    leadName={leadName}
-    leadEmail={leadEmail}
-    alreadyVerified={alreadyVerified}
+        experienceCount={experienceCount}
+        totalPrice={liveTotal}
+        bookingState={bookingState}
+        onRequestBooking={handleAction}
+        hasUnconfirmedChanges={hasUnconfirmedChanges}
+        leadName={leadName}
+        leadEmail={leadEmail}
+        alreadyVerified={alreadyVerified}
     />
 
     <ProposalHero

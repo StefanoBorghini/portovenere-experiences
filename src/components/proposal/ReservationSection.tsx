@@ -18,6 +18,8 @@ import {
 import Countdown
 from "@/components/countdown";
 
+import { trackWhatsappClick } from "@/lib/analytics/gtag";
+
 interface ReservationSectionProps {
   expiresAt: string;
   closingParagraph?: string;
@@ -244,6 +246,9 @@ export default function ReservationSection({
             <a
               href={whatsappUrl}
               target="_blank"
+              onClick={() =>
+                trackWhatsappClick("reservation_section")
+              }
               className="
                 inline-block
                 border
