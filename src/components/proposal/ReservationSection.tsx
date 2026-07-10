@@ -257,27 +257,12 @@ export default function ReservationSection({
               {proposalConfig.brand.name}
             </p>
 
-            <p
-              className="
-                text-white/52
-                tracking-[-0.01em]
-              "
-            >
-              {proposalConfig.brand.email}
-            </p>
-
-            <p
-              className="
-                text-white/52
-                tracking-[-0.01em]
-              "
-            >
-              {proposalConfig.brand.phone}
-            </p>
-
           </div>
 
-          {/* CTA PRIMARIO — richiesta booking con verifica email */}
+          {/* STATO — l'azione (bottone) vive ora solo su
+              FloatingPriceBar, sempre visibile mentre scorri.
+              Qui restano solo un messaggio informativo e il
+              contatto diretto via WhatsApp. */}
 
           <div
             className="
@@ -288,7 +273,7 @@ export default function ReservationSection({
             "
           >
 
-            {bookingState === "sent" && !hasUnconfirmedChanges ? (
+            {bookingState === "sent" && !hasUnconfirmedChanges && (
 
               <p
                 className="
@@ -302,65 +287,6 @@ export default function ReservationSection({
                   : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`}
               </p>
 
-            ) : (
-
-              <button
-                type="button"
-                onClick={onRequestBooking}
-                disabled={bookingState === "sending"}
-                className="
-                  group
-
-                  relative
-
-                  inline-flex
-                  items-center
-                  justify-center
-
-                  overflow-hidden
-
-                  rounded-full
-
-                  bg-white
-
-                  px-10
-                  py-5
-
-                  md:px-14
-                  md:py-6
-
-                  transition-all
-                  duration-500
-                  ease-out
-
-                  hover:scale-[1.02]
-
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                "
-              >
-
-                <span
-                  className="
-                    relative
-                    z-10
-
-                    uppercase
-
-                    tracking-[0.28em]
-                    text-[11px]
-
-                    text-black
-                  "
-                >
-                  {bookingState === "sending"
-                    ? "Sending..."
-                    : hasUnconfirmedChanges
-                    ? "Confirm Changes"
-                    : "Request Private Booking"}
-                </span>
-
-              </button>
             )}
 
             {bookingState === "error" && (
@@ -369,7 +295,7 @@ export default function ReservationSection({
               </p>
             )}
 
-            {/* CTA SECONDARIO — WhatsApp diretto, sempre disponibile */}
+            {/* CONTATTO DIRETTO — sempre disponibile */}
 
             <a
               href={whatsappUrl}

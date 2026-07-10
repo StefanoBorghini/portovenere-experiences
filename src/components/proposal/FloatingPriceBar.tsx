@@ -102,8 +102,6 @@ export default function FloatingPriceBar({
               md:text-[10px]
               text-white/45
               whitespace-nowrap
-              hidden
-              sm:inline
             ">
               {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
             </span>
