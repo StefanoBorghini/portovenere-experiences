@@ -411,6 +411,7 @@ export default function ProposalClient({
         heroImage={heroImage}
         heroTitle={heroTitle}
         guests={lead.guests}
+        children={lead.children}
         totalPrice={liveTotal}
     />
 
