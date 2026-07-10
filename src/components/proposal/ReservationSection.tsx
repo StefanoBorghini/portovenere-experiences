@@ -115,11 +115,19 @@ export default function ReservationSection({
           "
         >
 
-          {/* COUNTDOWN — attivo solo se non c'e' gia' una richiesta
-              confermata senza modifiche in sospeso. Se il cliente
-              modifica la selezione dopo aver confermato, il countdown
-              torna a scorrere (con il nuovo expiresAt che arriva dal
-              genitore dopo la conferma delle modifiche). */}
+          {/* COUNTDOWN — una volta che bookingState diventa "sent"
+              (mail confermata), il countdown si ferma DEFINITIVAMENTE:
+              il componente <Countdown> viene smontato (quindi il suo
+              interval interno viene distrutto) e non viene MAI PIU'
+              rimontato, nemmeno se in seguito il cliente modifica la
+              selezione (hasUnconfirmedChanges non ha piu' effetto qui
+              apposta — prima invece faceva ricomparire il countdown,
+              ripartendolo da capo, che e' esattamente cio' che non
+              deve piu' succedere).
+              hasUnconfirmedChanges resta comunque disponibile come
+              prop per altri usi (es. testo del bottone in
+              FloatingPriceBar), semplicemente non condiziona piu'
+              questa sezione. */}
 
           <div
             className="
@@ -128,7 +136,7 @@ export default function ReservationSection({
             "
           >
 
-            {bookingState === "sent" && !hasUnconfirmedChanges ? (
+            {bookingState === "sent" ? (
 
               <div className="text-center">
 
