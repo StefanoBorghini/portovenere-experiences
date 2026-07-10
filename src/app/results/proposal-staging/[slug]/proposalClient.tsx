@@ -392,8 +392,8 @@ export default function ProposalClient({
         text-white
         min-h-screen
 
-        pb-64
-        md:pb-48
+        pb-48
+        md:pb-36
     "
 >
  <FloatingPriceBar
