@@ -25,6 +25,15 @@ export default async function BookingConfirmedPage({
           of your private Riviera experience.
         </p>
 
+        {slug && (
+          <a
+            href={`/results/proposal-staging/${slug}`}
+            className="inline-block bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500 mb-12"
+          >
+            View Your Proposal
+          </a>
+        )}
+
         <p className="text-zinc-600 text-sm">
           If you have any questions in the meantime, feel free to contact us
           directly at{" "}

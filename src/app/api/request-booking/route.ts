@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { slug } = await req.json();
+    const { slug, experienceIds, enhancementIds } = await req.json();
 
     if (!slug) {
       return NextResponse.json(
@@ -62,12 +62,20 @@ export async function POST(req: NextRequest) {
 
     const token = randomUUID();
 
+    // Salviamo gia' ora la selezione scelta al momento della richiesta —
+    // diventera' il "confirmed_selection" di riferimento una volta che
+    // l'email viene verificata. Se il cliente non verifica mai, questo
+    // dato semplicemente non conta per nulla.
     const { error: updateError } = await supabase
       .from("Proposal")
       .update({
         verification_token: token,
         verification_sent_at: new Date().toISOString(),
         booking_requested_at: new Date().toISOString(),
+        confirmed_selection: {
+          experienceIds: experienceIds || [],
+          enhancementIds: enhancementIds || [],
+        },
       })
       .eq("slug", slug);
 

@@ -27,6 +27,7 @@ interface ReservationSectionProps {
   alreadyVerified?: boolean;
   bookingState: "idle" | "sending" | "sent" | "error";
   onRequestBooking: () => void;
+  hasUnconfirmedChanges?: boolean;
 }
 
 export default function ReservationSection({
@@ -38,6 +39,7 @@ export default function ReservationSection({
   alreadyVerified = false,
   bookingState,
   onRequestBooking,
+  hasUnconfirmedChanges = false,
 }: ReservationSectionProps) {
 
   return (
@@ -111,7 +113,11 @@ export default function ReservationSection({
           "
         >
 
-          {/* COUNTDOWN */}
+          {/* COUNTDOWN — attivo solo se non c'e' gia' una richiesta
+              confermata senza modifiche in sospeso. Se il cliente
+              modifica la selezione dopo aver confermato, il countdown
+              torna a scorrere (con il nuovo expiresAt che arriva dal
+              genitore dopo la conferma delle modifiche). */}
 
           <div
             className="
@@ -120,9 +126,38 @@ export default function ReservationSection({
             "
           >
 
-            <Countdown
-              expiresAt={expiresAt}
-            />
+            {bookingState === "sent" && !hasUnconfirmedChanges ? (
+
+              <div className="text-center">
+
+                <p className="
+                  uppercase
+                  tracking-[0.45em]
+                  text-[11px]
+                  text-zinc-600
+                  mb-8
+                ">
+                  Private Reservation
+                </p>
+
+                <p className="
+                  text-2xl
+                  md:text-4xl
+                  font-light
+                  text-emerald-300/80
+                ">
+                  Booking Confirmed
+                </p>
+
+              </div>
+
+            ) : (
+
+              <Countdown
+                expiresAt={expiresAt}
+              />
+
+            )}
 
           </div>
 
@@ -253,7 +288,7 @@ export default function ReservationSection({
             "
           >
 
-            {bookingState === "sent" ? (
+            {bookingState === "sent" && !hasUnconfirmedChanges ? (
 
               <p
                 className="
@@ -320,6 +355,8 @@ export default function ReservationSection({
                 >
                   {bookingState === "sending"
                     ? "Sending..."
+                    : hasUnconfirmedChanges
+                    ? "Confirm Changes"
                     : "Request Private Booking"}
                 </span>
 

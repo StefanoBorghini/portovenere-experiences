@@ -116,3 +116,61 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
     </div>
   `;
 }
+
+// ---------------------------------------------------------
+// 4. Email al PROPRIETARIO — il cliente ha modificato la
+//    proposta DOPO aver gia' confermato l'email la prima volta.
+//    Non serve una nuova verifica: e' gia' un contatto verificato.
+// ---------------------------------------------------------
+
+export function ownerProposalModifiedTemplate(data: ProposalSummary) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
+      <h2 style="font-weight: 300;">Client modified their proposal</h2>
+      <p>
+        <strong>${data.name}</strong> (${data.email}) has changed their
+        selection after already confirming their email address.
+      </p>
+      <p style="margin: 24px 0;">
+        <a href="${SITE_URL}/results/proposal-staging/${data.slug}" style="color: #111;">
+          View the updated proposal →
+        </a>
+      </p>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 5. Email al CLIENTE — conferma delle modifiche, nessuna
+//    nuova verifica richiesta (l'ha gia' fatta)
+// ---------------------------------------------------------
+
+export function clientChangesConfirmedTemplate(data: ProposalSummary) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
+      <h2 style="font-weight: 300;">Your changes have been confirmed</h2>
+      <p>Hi ${data.name || "there"},</p>
+      <p>
+        We've updated your private Riviera proposal with your latest
+        selection, and refreshed your private reservation window.
+      </p>
+      <p style="margin: 32px 0;">
+        <a
+          href="${SITE_URL}/results/proposal-staging/${data.slug}"
+          style="
+            background: #111;
+            color: #fff;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 999px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          "
+        >
+          View your proposal
+        </a>
+      </p>
+    </div>
+  `;
+}

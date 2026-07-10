@@ -538,8 +538,8 @@ dynamicIntroTitle={dynamicIntroTitle ?? ""}
     slug={slug}
       leadName={lead.name}
       leadEmail={lead.email}
-alreadyVerified={resolvedSearchParams?.verified === "1"}
-    
+alreadyVerified={proposal.email_verified === true}
+confirmedSelection={proposal.confirmed_selection ?? null}    
 
 />
 

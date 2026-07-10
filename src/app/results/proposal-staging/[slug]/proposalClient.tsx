@@ -12,6 +12,11 @@ import { calculatePrice } from "@/lib/pricing/calculatePrice";
 import { useState } from "react";
 
 
+interface ConfirmedSelection {
+    experienceIds: string[];
+    enhancementIds: (number | string)[];
+}
+
 interface Props {
 
     heroImage:any;
@@ -33,7 +38,15 @@ interface Props {
     leadName: string;
     leadEmail: string;
     alreadyVerified: boolean;
+    confirmedSelection?: ConfirmedSelection | null;
 
+}
+
+// Confronta due liste come insiemi (stesso contenuto, ordine ininfluente)
+function sameSelection(a: (string | number)[], b: (string | number)[]) {
+    if (a.length !== b.length) return false;
+    const setA = new Set(a.map(String));
+    return b.every((item) => setA.has(String(item)));
 }
 
 export default function ProposalClient({
@@ -57,6 +70,7 @@ export default function ProposalClient({
     leadName,
     leadEmail,
     alreadyVerified,
+    confirmedSelection: initialConfirmedSelection = null,
 
 }:Props){
 
@@ -104,6 +118,27 @@ export default function ProposalClient({
         "idle" | "sending" | "sent" | "error"
     >(alreadyVerified ? "sent" : "idle");
 
+    // Ultima selezione confermata (dal server) — usata per capire
+    // se il cliente ha cambiato qualcosa DOPO aver gia' confermato.
+    const [confirmedSelection, setConfirmedSelection] =
+        useState<ConfirmedSelection | null>(initialConfirmedSelection);
+
+    // Il timer che vedi in pagina — parte come quello del server,
+    // ma si aggiorna con un nuovo valore ogni volta che le modifiche
+    // vengono confermate (48h fresche dal momento della conferma).
+    const [currentExpiresAt, setCurrentExpiresAt] = useState(expiresAt);
+
+    // Ci sono modifiche non ancora confermate SOLO se: la richiesta
+    // e' gia' stata confermata almeno una volta, E la selezione attuale
+    // e' diversa da quella salvata l'ultima volta.
+    const hasUnconfirmedChanges =
+        bookingState === "sent" &&
+        confirmedSelection !== null &&
+        (
+            !sameSelection(selectedExperienceIds, confirmedSelection.experienceIds || []) ||
+            !sameSelection(selectedEnhancements, confirmedSelection.enhancementIds || [])
+        );
+
     async function handleRequestBooking() {
 
         setBookingState("sending");
@@ -113,7 +148,11 @@ export default function ProposalClient({
             const response = await fetch("/api/request-booking", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ slug }),
+                body: JSON.stringify({
+                    slug,
+                    experienceIds: selectedExperienceIds,
+                    enhancementIds: selectedEnhancements,
+                }),
             });
 
             const data = await response.json();
@@ -130,6 +169,54 @@ export default function ProposalClient({
             setBookingState("error");
         }
     }
+
+    // Chiamata quando il cliente modifica la selezione DOPO aver gia'
+    // confermato l'email una volta — niente nuova verifica, solo
+    // salvataggio + notifica + timer allungato.
+    async function handleConfirmChanges() {
+
+        setBookingState("sending");
+
+        try {
+
+            const response = await fetch("/api/confirm-changes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    slug,
+                    experienceIds: selectedExperienceIds,
+                    enhancementIds: selectedEnhancements,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                setBookingState("error");
+                return;
+            }
+
+            setConfirmedSelection({
+                experienceIds: selectedExperienceIds,
+                enhancementIds: selectedEnhancements,
+            });
+
+            setCurrentExpiresAt(data.expiresAt);
+            setBookingState("sent");
+
+        } catch (err) {
+            console.error("confirm-changes failed:", err);
+            setBookingState("error");
+        }
+    }
+
+    // I due bottoni (FloatingPriceBar e ReservationSection) chiamano
+    // sempre la stessa funzione — decidiamo qui, in un solo posto,
+    // se deve trattarsi della primissima richiesta o di una conferma
+    // di modifiche successive.
+    const handleAction = hasUnconfirmedChanges
+        ? handleConfirmChanges
+        : handleRequestBooking;
 
     // =====================================================
     // PREZZO LIVE
@@ -196,7 +283,8 @@ export default function ProposalClient({
         experienceCount={experienceCount}
         totalPrice={liveTotal}
         bookingState={bookingState}
-        onRequestBooking={handleRequestBooking}
+        onRequestBooking={handleAction}
+        hasUnconfirmedChanges={hasUnconfirmedChanges}
     />
 
     <ProposalHero
@@ -250,14 +338,15 @@ export default function ProposalClient({
 
 
     <ReservationSection
-    expiresAt={expiresAt}
+    expiresAt={currentExpiresAt}
     closingParagraph={dynamicClosingParagraph}
     whatsappUrl={whatsappUrl}
     leadName={leadName}
     leadEmail={leadEmail}
     alreadyVerified={alreadyVerified}
     bookingState={bookingState}
-    onRequestBooking={handleRequestBooking}
+    onRequestBooking={handleAction}
+    hasUnconfirmedChanges={hasUnconfirmedChanges}
 />
 
 </main>

@@ -15,6 +15,8 @@ interface FloatingPriceBarProps {
 
   onRequestBooking: () => void;
 
+  hasUnconfirmedChanges?: boolean;
+
 }
 
 export default function FloatingPriceBar({
@@ -26,6 +28,8 @@ export default function FloatingPriceBar({
   bookingState,
 
   onRequestBooking,
+
+  hasUnconfirmedChanges = false,
 
 }: FloatingPriceBarProps) {
 
@@ -45,7 +49,7 @@ export default function FloatingPriceBar({
   }, []);
 
   const isBusy = bookingState === "sending";
-  const isDone = bookingState === "sent";
+  const isDone = bookingState === "sent" && !hasUnconfirmedChanges;
 
   return (
 
@@ -160,6 +164,13 @@ export default function FloatingPriceBar({
               ? "Request Sent ✓"
               : isBusy
               ? "Sending..."
+              : hasUnconfirmedChanges
+              ? (
+                <>
+                  Confirm Changes
+                  <span aria-hidden="true">→</span>
+                </>
+              )
               : (
                 <>
                   Reserve Now
