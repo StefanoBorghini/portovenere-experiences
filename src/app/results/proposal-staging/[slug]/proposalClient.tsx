@@ -9,12 +9,15 @@ import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
 import ShareButton from "@/components/ShareButton";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     trackProposalSent,
     trackBookingConfirmed,
     trackBookingChangesConfirmed,
+    trackProposalScrollDepth,
+    trackProposalHeartbeat,
 } from "@/lib/analytics/gtag";
+import SectionViewTracker from "@/components/analytics/SectionViewTracker";
 
 
 interface ConfirmedSelection {
@@ -133,6 +136,95 @@ export default function ProposalClient({
         if (alreadyVerified) {
             trackBookingConfirmed(slug);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // =====================================================
+    // SCROLL DEPTH — soglie 25/50/75/100%, ognuna una sola
+    // volta per visita sulla proposal.
+    // =====================================================
+
+    const firedScrollThresholdsRef =
+        useRef<Set<25 | 50 | 75 | 100>>(new Set());
+
+    useEffect(() => {
+
+        function handleScroll() {
+
+            const scrollableHeight =
+                document.documentElement.scrollHeight - window.innerHeight;
+
+            if (scrollableHeight <= 0) return;
+
+            const percentScrolled =
+                (window.scrollY / scrollableHeight) * 100;
+
+            ([25, 50, 75, 100] as const).forEach((threshold) => {
+
+                if (
+                    percentScrolled >= threshold &&
+                    !firedScrollThresholdsRef.current.has(threshold)
+                ) {
+                    firedScrollThresholdsRef.current.add(threshold);
+                    trackProposalScrollDepth(slug, threshold);
+                }
+
+            });
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // =====================================================
+    // HEARTBEAT — tempo ATTIVO speso sulla pagina, non tempo
+    // dall'apertura alla chiusura del tab. "Attivo" = tab
+    // visibile E finestra a fuoco: se il cliente passa ad
+    // un'altra scheda o app, il conteggio si ferma, e riparte
+    // solo quando torna davvero a guardare la proposal.
+    //
+    // Ogni 15 secondi ATTIVI accumulati (non di orologio)
+    // mandiamo un evento con il totale cumulativo fino a quel
+    // momento — cosi' in GA4 si vede facilmente "quanti minuti
+    // di lettura reale" per fascia, senza il rumore di tab
+    // dimenticate aperte in background per ore.
+    // =====================================================
+
+    useEffect(() => {
+
+        let activeSecondsTotal = 0;
+        let secondsSinceLastHeartbeat = 0;
+
+        function isActive() {
+            return (
+                document.visibilityState === "visible" &&
+                document.hasFocus()
+            );
+        }
+
+        const intervalId = setInterval(() => {
+
+            if (!isActive()) return;
+
+            activeSecondsTotal += 1;
+            secondsSinceLastHeartbeat += 1;
+
+            if (secondsSinceLastHeartbeat >= 15) {
+                trackProposalHeartbeat(slug, activeSecondsTotal);
+                secondsSinceLastHeartbeat = 0;
+            }
+
+        }, 1000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -319,41 +411,51 @@ export default function ProposalClient({
         totalPrice={liveTotal}
     />
 
-    <ProposalNarrative
-        title={dynamicIntroTitle}
-        paragraph={proposalSummary}
-    />
+    <SectionViewTracker name="narrative" slug={slug}>
+        <ProposalNarrative
+            title={dynamicIntroTitle}
+            paragraph={proposalSummary}
+        />
+    </SectionViewTracker>
 
-    <FeaturedExperience
-        image={
-            featuredExperience.detail_image ??
-            featuredExperience.hero_image
-        }
-        operator={featuredExperience.operator}
-        subtitle={featuredExperience.title}
-        description={featuredExperience.description}
-        essentials={featuredExperience.sections}
-        facts={featuredExperience.facts ?? []}
-        basePrice={featuredExperience.base_price}
-        priceType={featuredExperience.pricing_type}
-    />
+    <SectionViewTracker name="featured_experience" slug={slug}>
+        <FeaturedExperience
+            image={
+                featuredExperience.detail_image ??
+                featuredExperience.hero_image
+            }
+            operator={featuredExperience.operator}
+            subtitle={featuredExperience.title}
+            description={featuredExperience.description}
+            essentials={featuredExperience.sections}
+            facts={featuredExperience.facts ?? []}
+            basePrice={featuredExperience.base_price}
+            priceType={featuredExperience.pricing_type}
+        />
+    </SectionViewTracker>
 
-    <IncludedExperiences
-        experiences={includedExperiences}
-        onSelectionChange={setSelectedExperienceIds}
-        preSelected={includedExperiencesPreSelected}
-        isMultiDayTrip={isMultiDayTrip}
-    />
+    <SectionViewTracker name="included_experiences" slug={slug}>
+        <IncludedExperiences
+            experiences={includedExperiences}
+            onSelectionChange={setSelectedExperienceIds}
+            preSelected={includedExperiencesPreSelected}
+            isMultiDayTrip={isMultiDayTrip}
+        />
+    </SectionViewTracker>
 
-    <ProposalEnhancements
-        enhancements={enhancements}
-        selectedEnhancements={selectedEnhancements}
-        setSelectedEnhancements={setSelectedEnhancements}
-    />
+    <SectionViewTracker name="enhancements" slug={slug}>
+        <ProposalEnhancements
+            enhancements={enhancements}
+            selectedEnhancements={selectedEnhancements}
+            setSelectedEnhancements={setSelectedEnhancements}
+        />
+    </SectionViewTracker>
 
-    <CinematicGallery
-        images={galleryImages}
-    />
+    <SectionViewTracker name="gallery" slug={slug}>
+        <CinematicGallery
+            images={galleryImages}
+        />
+    </SectionViewTracker>
 
 
     <section className="py-20 px-6 print:hidden">
@@ -363,17 +465,19 @@ export default function ProposalClient({
     </section>
 
 
-    <ReservationSection
-    expiresAt={currentExpiresAt}
-    closingParagraph={dynamicClosingParagraph}
-    whatsappUrl={whatsappUrl}
-    leadName={leadName}
-    leadEmail={leadEmail}
-    alreadyVerified={alreadyVerified}
-    bookingState={bookingState}
-    onRequestBooking={handleAction}
-    hasUnconfirmedChanges={hasUnconfirmedChanges}
-/>
+    <SectionViewTracker name="reservation" slug={slug}>
+        <ReservationSection
+        expiresAt={currentExpiresAt}
+        closingParagraph={dynamicClosingParagraph}
+        whatsappUrl={whatsappUrl}
+        leadName={leadName}
+        leadEmail={leadEmail}
+        alreadyVerified={alreadyVerified}
+        bookingState={bookingState}
+        onRequestBooking={handleAction}
+        hasUnconfirmedChanges={hasUnconfirmedChanges}
+    />
+    </SectionViewTracker>
 
 </main>
 
