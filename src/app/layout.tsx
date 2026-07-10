@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +54,17 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+
+        {/* Iubenda + Google Analytics — qui nel root layout,
+            cosi' coprono TUTTE le pagine del sito (landing,
+            configuratore, proposal page) con un solo punto
+            di montaggio. Prima erano solo dentro page.tsx
+            (solo landing) — vedi nota nello stato del progetto,
+            da aggiornare dopo questa modifica. */}
+
+        <IubendaCookieSolution />
+        <GoogleAnalytics />
+
         {children}
       </body>
     </html>
