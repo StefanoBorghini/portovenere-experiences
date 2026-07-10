@@ -52,12 +52,14 @@ export interface Experience {
 
     base_price: number;
 
+    pricing_type?: string;
+
     facts: ExperienceFact[];
 
     sections: ExperienceSection[];
 
     incompatible_experiences: string[];
 
-incompatible_enhancements: string[];
+    incompatible_enhancements: string[];
 
 }

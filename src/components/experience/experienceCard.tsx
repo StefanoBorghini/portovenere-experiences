@@ -7,6 +7,7 @@ import ExperienceFacts from "@/components/experience/experienceFacts";
 import ExperienceSections from "@/components/experience/experienceSections";
 import { Experience } from "@/types/experience";
 import { fadeReveal } from "@/lib/motion/fadeReveal";
+import { formatPrice } from "@/lib/pricing/formatPrice";
 
 interface Props {
 
@@ -179,17 +180,39 @@ ${
     {experience.title}
   </h3>
 
-  <p
-    className="
-      text-white/80
-      text-[24px]
-      font-light
-      tracking-[-0.03em]
-     
-    "
-  >
-    €{experience.experience.base_price?.toLocaleString() ?? "0"}
-  </p>
+{(() => {
+    const price = formatPrice(
+      experience.experience.base_price,
+      experience.experience.pricing_type
+    );
+    return (
+      <p
+        className="
+          text-white/80
+          text-[24px]
+          font-light
+          tracking-[-0.03em]
+        "
+      >
+        {price.value}
+        {experience.experience.pricing_type === "per_person" && (
+          <span
+            className="
+              block
+              text-[11px]
+              uppercase
+              tracking-[0.25em]
+              text-white/40
+              mt-1
+              font-normal
+            "
+          >
+            Per Person
+          </span>
+        )}
+      </p>
+    );
+  })()}
 
   <p
     className="
