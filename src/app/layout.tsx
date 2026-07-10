@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import MicrosoftClarity from "../components/analytics/MicrosoftClarity";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,6 +65,7 @@ export default function RootLayout({
 
         <IubendaCookieSolution />
         <GoogleAnalytics />
+        <MicrosoftClarity />
 
         {children}
       </body>
