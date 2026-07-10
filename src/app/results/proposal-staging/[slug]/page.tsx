@@ -6,28 +6,7 @@ import {
 import { generateProposal }
 from "@/lib/generateProposal";
 
-import ProposalNarrative
-from "@/components/proposal/ProposalNarrative";
 
-import FeaturedExperience
-from "@/components/proposal/FeaturedExperience";
-
-import IncludedExperiences
-from "@/components/proposal/IncludedExperiences";
-
-import CinematicGallery
-from "@/components/proposal/CinematicGallery";
-
-import ProposalEnhancements
-from "@/components/proposal/ProposalEnhancements";
-
-import ReservationSection
-from "@/components/proposal/ReservationSection";
-
-
-
-import ProposalHero
-from "@/components/proposal/ProposalHero";
 
 import {
   buildRendererData,

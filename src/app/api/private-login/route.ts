@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const protectedRoutes = {
-  "/private-sailing-experience-with-snorkeling": {
-    username: "Carolina",
-    password: "sailing2026@",
-  },
-
   "/craft-your-experience": {
-    username: "Stefano",
-    password: "riviera2026@",
-  },
-
-  "/dmitri-july-2026": {
-    username: "Dmitri",
-    password: "29-july-2026@",
+    username: process.env.PRIVATE_LOGIN_STEFANO_USER!,
+    password: process.env.PRIVATE_LOGIN_STEFANO_PASS!,
   },
 };
 
