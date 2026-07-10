@@ -25,9 +25,9 @@ interface ResizeOptions {
 }
 
 const DEFAULT_OPTIONS: Required<ResizeOptions> = {
-  maxWidth: 1920,
-  maxHeight: 1920,
-  quality: 0.82,
+  maxWidth: 900,
+  maxHeight: 900,
+  quality: 0.75,
 };
 
 export async function resizeImageBeforeUpload(
