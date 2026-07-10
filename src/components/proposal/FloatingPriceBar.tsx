@@ -105,7 +105,8 @@ export default function FloatingPriceBar({
 
           className="
             fixed
-            bottom-6
+            bottom-24
+            md:bottom-8
             left-1/2
             -translate-x-1/2
             z-50
@@ -151,6 +152,7 @@ export default function FloatingPriceBar({
           <div
             className="
               w-full
+              md:w-auto
 
               flex
               flex-col
