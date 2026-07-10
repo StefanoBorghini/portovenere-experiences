@@ -27,6 +27,13 @@ export default function Countdown({
 
   useEffect(() => {
 
+    // Riferimento al timeout di redirect: deve essere ripulito
+    // anche lui quando il componente si smonta (es. il cliente
+    // conferma la prenotazione proprio mentre il countdown sta
+    // scadendo) — altrimenti il redirect a /proposal-expired
+    // scatta comunque 3s dopo, anche a countdown gia' nascosto.
+    let redirectTimeout: ReturnType<typeof setTimeout> | null = null;
+
     const interval =
       setInterval(() => {
 
@@ -57,12 +64,13 @@ export default function Countdown({
             interval
           );
 
-          setTimeout(() => {
+          redirectTimeout =
+            setTimeout(() => {
 
-            window.location.href =
-              "/proposal-expired";
+              window.location.href =
+                "/proposal-expired";
 
-          }, 3000);
+            }, 3000);
 
           return;
         }
@@ -119,10 +127,25 @@ export default function Countdown({
 
       }, 950);
 
-    return () =>
+    return () => {
+
       clearInterval(
         interval
       );
+
+      // Pulizia anche del redirect pendente, non solo dell'interval:
+      // se il componente si smonta prima dei 3s (es. bookingState
+      // passa a "sent" e ReservationSection nasconde il Countdown),
+      // il redirect programmato non deve piu' scattare.
+      if (redirectTimeout) {
+
+        clearTimeout(
+          redirectTimeout
+        );
+
+      }
+
+    };
 
   }, [expiresAt]);
 
