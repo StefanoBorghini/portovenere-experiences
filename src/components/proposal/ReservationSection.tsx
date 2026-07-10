@@ -231,31 +231,40 @@ export default function ReservationSection({
 
           </p>
 
-          {/* CONTACT DETAILS */}
+          {/* CONTACT — solo il link diretto, senza il nome del brand
+              ripetuto (gia' presente altrove nella pagina) */}
 
           <div
             className="
-              flex
-              flex-col
-              items-center
-
-              gap-5
-
               mb-12
               md:mb-24
             "
           >
 
-            <p
+            <a
+              href={whatsappUrl}
+              target="_blank"
               className="
+                inline-block
+                border
+                border-white/20
+                rounded-full
+                px-6
+                py-3
+
+                text-white/60
+                text-[11px]
                 uppercase
                 tracking-[0.22em]
-                text-[11px]
-                text-white/32
+
+                hover:border-white/40
+                hover:text-white
+                transition-all
+                duration-500
               "
             >
-              {proposalConfig.brand.name}
-            </p>
+              {proposalConfig.cta.secondaryLabel}
+            </a>
 
           </div>
 
@@ -294,24 +303,6 @@ export default function ReservationSection({
                 Something went wrong — please try again, or contact us directly.
               </p>
             )}
-
-            {/* CONTATTO DIRETTO — sempre disponibile */}
-
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              className="
-                text-white/40
-                text-[11px]
-                uppercase
-                tracking-[0.22em]
-                hover:text-white/70
-                transition-colors
-                duration-500
-              "
-            >
-              {proposalConfig.cta.secondaryLabel}
-            </a>
 
           </div>
 

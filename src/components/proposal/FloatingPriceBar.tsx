@@ -51,6 +51,16 @@ export default function FloatingPriceBar({
   const isBusy = bookingState === "sending";
   const isDone = bookingState === "sent" && !hasUnconfirmedChanges;
 
+  const actionLabel = isDone
+    ? "Request Sent ✓"
+    : isBusy
+    ? "Sending..."
+    : hasUnconfirmedChanges
+    ? "Confirm Changes"
+    : "Reserve Now";
+
+  const showArrow = !isDone && !isBusy;
+
   return (
 
     <AnimatePresence>
@@ -70,11 +80,22 @@ export default function FloatingPriceBar({
             left-1/2
             -translate-x-1/2
             z-50
+
+            w-[92vw]
+            max-w-sm
+            md:w-auto
+
             flex
-            items-center
+            flex-col
+            items-stretch
+
+            md:flex-row
+            md:items-center
+
             border
             border-white/12
-            rounded-full
+            rounded-[28px]
+            md:rounded-full
             backdrop-blur-[10px]
             bg-black/70
             shadow-[0_8px_40px_rgba(0,0,0,0.4)]
@@ -82,101 +103,118 @@ export default function FloatingPriceBar({
           "
         >
 
-          {/* PARTE INFORMATIVA — prezzo e conteggio, non cliccabile */}
+          {/* CONTEGGIO ESPERIENZE — riga propria, solo su mobile.
+              Su desktop e' invece incorporato nella riga principale
+              qui sotto (span "hidden md:inline"). */}
+
+          <span className="
+            md:hidden
+            text-center
+            uppercase
+            tracking-[0.25em]
+            text-[9px]
+            text-white/45
+            pt-3
+            pb-1
+          ">
+            {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
+          </span>
+
+          {/* RIGA PRINCIPALE — prezzo (+ conteggio su desktop) a
+              sinistra, bottone azione a destra */}
 
           <div className="
             flex
             items-center
-            gap-4
-            md:gap-6
-            pl-6
-            md:pl-8
-            pr-5
-            py-4
+            justify-between
+            md:justify-start
+            w-full
+            md:w-auto
           ">
 
-            <span className="
-              uppercase
-              tracking-[0.25em]
-              text-[9px]
-              md:text-[10px]
-              text-white/45
-              whitespace-nowrap
-            ">
-              {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
-            </span>
-
-            <span className="
-              text-[19px]
-              md:text-[22px]
-              font-[300]
-              tracking-[-0.03em]
-              text-white
-              whitespace-nowrap
-            ">
-              €{totalPrice.toLocaleString()}
-            </span>
-
-          </div>
-
-          {/* PARTE AZIONE — bottone bianco, chiaramente cliccabile,
-              stesso linguaggio visivo dei CTA primari nel resto del sito */}
-
-          <button
-            type="button"
-            onClick={onRequestBooking}
-            disabled={isBusy || isDone}
-            className="
-              h-full
+            <div className="
               flex
               items-center
-              gap-2
+              gap-4
+              md:gap-6
+              pl-6
+              md:pl-8
+              pr-5
+              py-3
+              md:py-4
+            ">
 
-              bg-white
-              text-black
+              <span className="
+                hidden
+                md:inline
+                uppercase
+                tracking-[0.25em]
+                text-[10px]
+                text-white/45
+                whitespace-nowrap
+              ">
+                {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
+              </span>
 
-              pl-5
-              pr-6
-              md:pl-6
-              md:pr-8
-              py-4
+              <span className="
+                text-[19px]
+                md:text-[22px]
+                font-[300]
+                tracking-[-0.03em]
+                text-white
+                whitespace-nowrap
+              ">
+                €{totalPrice.toLocaleString()}
+              </span>
 
-              uppercase
-              tracking-[0.2em]
-              text-[11px]
-              font-medium
+            </div>
 
-              whitespace-nowrap
+            {/* PARTE AZIONE — bottone bianco, chiaramente cliccabile,
+                stesso linguaggio visivo dei CTA primari nel resto del sito */}
 
-              transition-all
-              duration-300
+            <button
+              type="button"
+              onClick={onRequestBooking}
+              disabled={isBusy || isDone}
+              className="
+                flex
+                items-center
+                justify-center
+                gap-2
 
-              hover:bg-white/90
+                bg-white
+                text-black
 
-              disabled:opacity-60
-              disabled:cursor-not-allowed
-            "
-          >
+                pl-5
+                pr-6
+                md:pl-6
+                md:pr-8
+                py-3
+                md:py-4
 
-            {isDone
-              ? "Request Sent ✓"
-              : isBusy
-              ? "Sending..."
-              : hasUnconfirmedChanges
-              ? (
-                <>
-                  Confirm Changes
-                  <span aria-hidden="true">→</span>
-                </>
-              )
-              : (
-                <>
-                  Reserve Now
-                  <span aria-hidden="true">→</span>
-                </>
-              )}
+                uppercase
+                tracking-[0.2em]
+                text-[11px]
+                font-medium
 
-          </button>
+                whitespace-nowrap
+
+                transition-all
+                duration-300
+
+                hover:bg-white/90
+
+                disabled:opacity-60
+                disabled:cursor-not-allowed
+              "
+            >
+
+              {actionLabel}
+              {showArrow && <span aria-hidden="true">→</span>}
+
+            </button>
+
+          </div>
 
         </motion.div>
 
