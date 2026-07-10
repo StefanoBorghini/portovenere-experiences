@@ -12,6 +12,8 @@ interface ProposalHeroProps {
 
   guests: string;
 
+  children?: number | string;
+
   totalPrice: number;
 
   priceLabel?: string;
@@ -30,11 +32,30 @@ export default function ProposalHero({
 
   guests,
 
+  children,
+
   totalPrice,
 
   priceLabel,
 
 }: ProposalHeroProps) {
+
+  // Stessa formula di buildProposalSummary.ts, cosi' hero e
+  // paragrafo narrativo dicono sempre la stessa cosa — "12
+  // adults" oppure "12 adults and 2 children", mai bambini
+  // menzionati se non ce ne sono.
+
+  const adults =
+    Number(guests) || 2;
+
+  const childrenCount =
+    Number(children) || 0;
+
+  const guestSentence =
+
+    childrenCount > 0
+      ? `${adults} adult${adults > 1 ? "s" : ""} and ${childrenCount} child${childrenCount > 1 ? "ren" : ""}`
+      : `${adults} adult${adults > 1 ? "s" : ""}`;
 
   return (
 
@@ -216,7 +237,7 @@ mx-auto
 md:max-w-2xl
 ">
 
-          Tailored for {guests} guests
+          Tailored for {guestSentence}
           across curated Riviera experiences,
           cinematic atmosphere and
           Mediterranean moments.
