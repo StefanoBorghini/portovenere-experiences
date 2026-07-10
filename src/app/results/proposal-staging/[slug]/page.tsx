@@ -165,20 +165,14 @@ const generatedProposal =
   // RENDERER DATA
   // =======================================================
 
-  const {
-
+   const {
     galleryImages,
-
     enhancements,
-
     includedExperiences,
-
     includedExperiencesPreSelected,
-
+    isMultiDayTrip,
     finalPrice,
-
     proposalSummary,
-
   } = buildRendererData({
 
     generatedProposal,
@@ -504,6 +498,8 @@ const featuredEssentials =
     expiresAt={expiresAt}
 
     whatsappUrl={whatsappUrl}
+
+    isMultiDayTrip={isMultiDayTrip}
     
 
   dynamicIntroParagraph={dynamicIntroParagraph ?? ""}

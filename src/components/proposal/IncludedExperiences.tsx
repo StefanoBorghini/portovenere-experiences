@@ -27,6 +27,13 @@ interface IncludedExperiencesProps {
   onSelectionChange?: (selectedIds: string[]) => void;
 
   preSelected?: boolean;
+
+  // Se il viaggio dura piu' di un giorno, le regole di
+  // incompatibilita' non si applicano piu' (si possono fare
+  // esperienze diverse in giorni diversi): nessuna card viene
+  // mai disabilitata, e nessuna parte pre-selezionata — restano
+  // tutte "da aggiungere" liberamente, senza esclusioni a catena.
+  isMultiDayTrip?: boolean;
 }
 
 // =====================================================
@@ -41,6 +48,8 @@ export default function IncludedExperiences({
 
   preSelected = true,
 
+  isMultiDayTrip = false,
+
 }: IncludedExperiencesProps) {
 
   const [
@@ -48,7 +57,7 @@ export default function IncludedExperiences({
   setSelectedExperiences,
 ] = useState<string[]>(
 
-  preSelected
+  preSelected && !isMultiDayTrip
     ? experiences.map(experience => experience.id)
     : []
 
@@ -60,19 +69,24 @@ useEffect(() => {
 
 const disabledExperiences = new Set<string>();
 
-selectedExperiences.forEach((selectedId) => {
+// Su viaggi multi-giorno, niente viene mai disabilitato: si
+// possono selezionare tutte le combinazioni liberamente.
+if (!isMultiDayTrip) {
 
-  const selected = experiences.find(
-    experience => experience.id === selectedId
-  );
+  selectedExperiences.forEach((selectedId) => {
 
-  if (!selected) return;
+    const selected = experiences.find(
+      experience => experience.id === selectedId
+    );
 
-  selected.experience.incompatible_experiences?.forEach(
-    (id: string) => disabledExperiences.add(id)
-  );
+    if (!selected) return;
 
-});
+    selected.experience.incompatible_experiences?.forEach(
+      (id: string) => disabledExperiences.add(id)
+    );
+
+  });
+}
 
 function toggleExperience(id: string) {
 
@@ -83,6 +97,13 @@ function toggleExperience(id: string) {
 
       return current.filter(item => item !== id);
 
+    }
+
+    // Su viaggi multi-giorno: aggiunta semplice, nessuna rimozione
+    // automatica di altre esperienze "incompatibili" — si possono
+    // accumulare liberamente, sono su giorni diversi.
+    if (isMultiDayTrip) {
+      return [...current, id];
     }
 
     // Experience che sto aggiungendo
@@ -164,12 +185,12 @@ return (
 
           <SectionHeader
             label={
-              preSelected
+              preSelected && !isMultiDayTrip
                 ? "Included Experiences"
                 : "You Might Also Like"
             }
             title={
-              preSelected
+              preSelected && !isMultiDayTrip
                 ? "Curated Riviera Moments"
                 : "Complete Your Escape"
             }

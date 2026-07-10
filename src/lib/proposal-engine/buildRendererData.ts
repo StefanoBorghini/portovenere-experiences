@@ -222,6 +222,8 @@ export function buildRendererData({
     includedExperiencesPreSelected:
       !usingSuggestedAddOns,
 
+    isMultiDayTrip,
+
     finalPrice,
 
     proposalSummary,

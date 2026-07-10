@@ -39,6 +39,7 @@ interface Props {
     leadEmail: string;
     alreadyVerified: boolean;
     confirmedSelection?: ConfirmedSelection | null;
+    isMultiDayTrip?: boolean;
 
 }
 
@@ -71,6 +72,7 @@ export default function ProposalClient({
     leadEmail,
     alreadyVerified,
     confirmedSelection: initialConfirmedSelection = null,
+    isMultiDayTrip = false,
 
 }:Props){
 
@@ -317,6 +319,7 @@ export default function ProposalClient({
         experiences={includedExperiences}
         onSelectionChange={setSelectedExperienceIds}
         preSelected={includedExperiencesPreSelected}
+        isMultiDayTrip={isMultiDayTrip}
     />
 
     <ProposalEnhancements
