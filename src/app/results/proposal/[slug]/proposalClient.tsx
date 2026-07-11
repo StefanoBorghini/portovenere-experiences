@@ -99,22 +99,38 @@ export default function ProposalClient({
         );
     }
 
+    // =====================================================
+    // FIX: se il cliente ha GIA' confermato una selezione in
+    // precedenza (initialConfirmedSelection non nullo), lo stato
+    // iniziale deve rispecchiarla — altrimenti al reload la pagina
+    // mostra tutto deselezionato, il sistema rileva una differenza
+    // rispetto a quanto salvato, e propone "Confirm Changes" anche
+    // se il cliente non ha toccato nulla.
+    // =====================================================
+
     const [
         selectedEnhancements,
         setSelectedEnhancements
-    ] = useState<number[]>([]);
+    ] = useState<number[]>(
+        initialConfirmedSelection?.enhancementIds
+            ? initialConfirmedSelection.enhancementIds.map((id) => Number(id))
+            : []
+    );
 
     // Se sono suggerimenti (categoria singola), partono deselezionati.
     // Se sono experience delle categorie che l'utente ha scelto,
-    // partono già incluse, come prima.
+    // partono già incluse, come prima — MA solo se non esiste già
+    // una selezione confermata da rispettare.
     const [
         selectedExperienceIds,
         setSelectedExperienceIds
         
     ] = useState<string[]>(
-        includedExperiencesPreSelected
-            ? includedExperiences.map((card: any) => card.id)
-            : []
+        initialConfirmedSelection?.experienceIds
+            ? initialConfirmedSelection.experienceIds
+            : includedExperiencesPreSelected
+                ? includedExperiences.map((card: any) => card.id)
+                : []
     );
 
     // =====================================================
@@ -464,6 +480,7 @@ export default function ProposalClient({
             isMultiDayTrip={isMultiDayTrip}
             guests={guestCount}
             children={childCount}
+            initialSelectedIds={initialConfirmedSelection?.experienceIds}
         />
     </SectionViewTracker>
 

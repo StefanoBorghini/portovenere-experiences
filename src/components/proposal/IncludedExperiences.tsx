@@ -37,6 +37,13 @@ interface IncludedExperiencesProps {
   guests?: number;
  
   children?: number;
+
+  // NUOVO — se il cliente ha già confermato una selezione in
+  // precedenza, questa la rispetta invece di ricalcolare da zero
+  // con la logica preSelected/isMultiDayTrip. undefined (non
+  // passato) = comportamento invariato, per le proposal mai
+  // ancora confermate.
+  initialSelectedIds?: string[];
 }
 
 // =====================================================
@@ -57,6 +64,8 @@ export default function IncludedExperiences({
 
   children = 0,
 
+  initialSelectedIds,
+
 }: IncludedExperiencesProps) {
 
   const [
@@ -64,9 +73,11 @@ export default function IncludedExperiences({
   setSelectedExperiences,
 ] = useState<string[]>(
 
-  preSelected && !isMultiDayTrip
-    ? experiences.map(experience => experience.id)
-    : []
+  initialSelectedIds
+    ? initialSelectedIds
+    : preSelected && !isMultiDayTrip
+      ? experiences.map(experience => experience.id)
+      : []
 
 );
 
