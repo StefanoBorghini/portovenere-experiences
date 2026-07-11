@@ -436,7 +436,7 @@ export default function ProposalClient({
         />
     </SectionViewTracker>
 
-    <SectionViewTracker name="featured_experience" slug={slug}>
+     <SectionViewTracker name="featured_experience" slug={slug}>
         <FeaturedExperience
             image={
                 featuredExperience.detail_image ??
@@ -449,6 +449,10 @@ export default function ProposalClient({
             facts={featuredExperience.facts ?? []}
             basePrice={featuredExperience.base_price}
             priceType={featuredExperience.pricing_type}
+            useGuestTiers={featuredExperience.use_guest_tiers === true}
+            tiers={featuredExperience.price_tiers ?? []}
+            guests={guestCount}
+            children={childCount}
         />
     </SectionViewTracker>
 

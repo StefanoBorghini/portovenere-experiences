@@ -15,6 +15,10 @@ import {
 import {
   formatPrice,
 } from "@/lib/pricing/formatPrice";
+import {
+  calculatePrice,
+  PriceTier,
+} from "@/lib/pricing/calculatePrice";
 
 // =====================================================
 // TYPES
@@ -37,6 +41,16 @@ interface FeaturedExperienceProps {
   essentials: ExperienceSection[];
 
   facts: ExperienceFact[];
+
+  // NUOVI — servono solo quando useGuestTiers e' true, per
+  // calcolare il prezzo vero invece di mostrare basePrice grezzo.
+  useGuestTiers?: boolean;
+
+  tiers?: PriceTier[];
+
+  guests?: number;
+
+  children?: number;
 
 }
 
@@ -63,12 +77,38 @@ export default function FeaturedExperience({
 
   facts,
 
+  useGuestTiers = false,
+
+  tiers = [],
+
+  guests = 1,
+
+  children = 0,
+
 }: FeaturedExperienceProps) {
 
-  const price = formatPrice(
-  basePrice,
-  priceType
-);
+  // =====================================================
+  // PREZZO — se questa esperienza usa il pricing a scaglioni,
+  // IGNORA basePrice/priceType per la visualizzazione e calcola
+  // il prezzo vero in base al numero di ospiti attuale (stesso
+  // calcolo usato da FloatingPriceBar, cosi' i due numeri
+  // combaciano sempre). Altrimenti, comportamento invariato.
+  // =====================================================
+
+  const price = useGuestTiers
+    ? {
+        label: "Price",
+        value: `€${calculatePrice(
+          basePrice,
+          priceType,
+          guests,
+          children,
+          0,
+          tiers,
+          true
+        )}`,
+      }
+    : formatPrice(basePrice, priceType);
 
   return (
 
@@ -142,26 +182,7 @@ export default function FeaturedExperience({
 
               </p>
 
-              {/* TITLE — nome dell'esperienza (es. "Mongolfiera
-                  Experience"), non piu' il nome dell'operatore */}
-
-              <h2
-                className="
-                  text-5xl
-                  md:text-7xl
-                  font-[450]
-                  tracking-[-0.04em]
-                  leading-[0.92]
-                  mb-8
-                "
-              >
-
-                {subtitle}
-
-              </h2>
-
-              {/* OPERATOR — nome dell'operatore/brand (es. "Orizzonte
-                  5 Terre"), ora nella riga piu' piccola sotto */}
+              {/* OPERATOR */}
 
               <p
                 className="
