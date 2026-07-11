@@ -456,12 +456,14 @@ export default function ProposalClient({
         />
     </SectionViewTracker>
 
-    <SectionViewTracker name="included_experiences" slug={slug}>
+  <SectionViewTracker name="included_experiences" slug={slug}>
         <IncludedExperiences
             experiences={includedExperiences}
             onSelectionChange={setSelectedExperienceIds}
             preSelected={includedExperiencesPreSelected}
             isMultiDayTrip={isMultiDayTrip}
+            guests={guestCount}
+            children={childCount}
         />
     </SectionViewTracker>
 

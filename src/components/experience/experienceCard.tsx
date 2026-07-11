@@ -8,6 +8,7 @@ import ExperienceSections from "@/components/experience/experienceSections";
 import { Experience } from "@/types/experience";
 import { fadeReveal } from "@/lib/motion/fadeReveal";
 import { formatPrice } from "@/lib/pricing/formatPrice";
+import { calculatePrice } from "@/lib/pricing/calculatePrice";
 
 interface Props {
 
@@ -20,6 +21,14 @@ interface Props {
     isDisabled: boolean;
 
     onToggle: () => void;
+
+    // NUOVI — servono solo per le esperienze con use_guest_tiers
+    // attivo, per calcolare il prezzo vero invece di mostrare
+    // base_price grezzo (che per queste esperienze è spesso 0,
+    // dato che il prezzo vive nei tier, non in base_price).
+    guests?: number;
+
+    children?: number;
 
 }
 
@@ -35,6 +44,10 @@ export default function ExperienceCard({
 
   onToggle,
 
+  guests = 1,
+
+  children = 0,
+
 }: Props) {
 
   const [showIncluded, setShowIncluded] =
@@ -42,6 +55,34 @@ export default function ExperienceCard({
 
   const hasSections =
     (experience.experience.sections?.length ?? 0) > 0;
+
+  // =====================================================
+  // PREZZO — stesso principio già applicato a FeaturedExperience:
+  // se questa esperienza usa il pricing a scaglioni, ignora
+  // base_price/pricing_type per la visualizzazione e ricalcola
+  // in base al numero di ospiti attuale.
+  // =====================================================
+
+  const useGuestTiers =
+    experience.experience.use_guest_tiers === true;
+
+  const price = useGuestTiers
+    ? {
+        label: "",
+        value: `€${calculatePrice(
+          experience.experience.base_price,
+          experience.experience.pricing_type,
+          guests,
+          children,
+          0,
+          experience.experience.price_tiers ?? [],
+          true
+        )}`,
+      }
+    : formatPrice(
+        experience.experience.base_price,
+        experience.experience.pricing_type
+      );
 
   return (
 
@@ -180,39 +221,32 @@ ${
     {experience.title}
   </h3>
 
-{(() => {
-    const price = formatPrice(
-      experience.experience.base_price,
-      experience.experience.pricing_type
-    );
-    return (
-      <p
-        className="
-          text-white/80
-          text-[24px]
-          font-light
-          tracking-[-0.03em]
-        "
-      >
-        {price.value}
-        {experience.experience.pricing_type === "per_person" && (
-          <span
-            className="
-              block
-              text-[11px]
-              uppercase
-              tracking-[0.25em]
-              text-white/40
-              mt-1
-              font-normal
-            "
-          >
-            Per Person
-          </span>
-        )}
-      </p>
-    );
-  })()}
+  <p
+    className="
+      text-white/80
+      text-[24px]
+      font-light
+      tracking-[-0.03em]
+    "
+  >
+    {price.value}
+    {!useGuestTiers &&
+      experience.experience.pricing_type === "per_person" && (
+        <span
+          className="
+            block
+            text-[11px]
+            uppercase
+            tracking-[0.25em]
+            text-white/40
+            mt-1
+            font-normal
+          "
+        >
+          Per Person
+        </span>
+      )}
+  </p>
 
   <p
     className="

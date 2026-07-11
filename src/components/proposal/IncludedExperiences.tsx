@@ -25,19 +25,18 @@ import {
   trackProposalExperienceRemoved,
 } from "@/lib/analytics/gtag";
 interface IncludedExperiencesProps {
-
+ 
   experiences: ProposalExperienceCard[];
-
+ 
   onSelectionChange?: (selectedIds: string[]) => void;
-
+ 
   preSelected?: boolean;
-
-  // Se il viaggio dura piu' di un giorno, le regole di
-  // incompatibilita' non si applicano piu' (si possono fare
-  // esperienze diverse in giorni diversi): nessuna card viene
-  // mai disabilitata, e nessuna parte pre-selezionata — restano
-  // tutte "da aggiungere" liberamente, senza esclusioni a catena.
+ 
   isMultiDayTrip?: boolean;
+ 
+  guests?: number;
+ 
+  children?: number;
 }
 
 // =====================================================
