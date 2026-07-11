@@ -38,11 +38,6 @@ interface IncludedExperiencesProps {
  
   children?: number;
 
-  // NUOVO — se il cliente ha già confermato una selezione in
-  // precedenza, questa la rispetta invece di ricalcolare da zero
-  // con la logica preSelected/isMultiDayTrip. undefined (non
-  // passato) = comportamento invariato, per le proposal mai
-  // ancora confermate.
   initialSelectedIds?: string[];
 }
 
@@ -158,6 +153,18 @@ function toggleExperience(id: string) {
 
   });
 
+}
+
+// =====================================================
+// FIX: se non ci sono esperienze da mostrare (es. una sola
+// categoria selezionata, nessun suggerimento compatibile
+// trovato), non renderizzare nulla — niente header "You Might
+// Also Like" seguito da uno spazio nero vuoto. Stesso principio
+// già usato da ExperienceFacts (return null se facts e' vuoto).
+// =====================================================
+
+if (!experiences || experiences.length === 0) {
+  return null;
 }
 
 return (
