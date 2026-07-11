@@ -24,6 +24,12 @@ export async function deleteExperience(id: string) {
     .delete()
     .eq("experience_id", id);
 
+  // elimina price tiers
+  await supabase
+    .from("experience_price_tiers")
+    .delete()
+    .eq("experience_id", id);
+
   // elimina experience
   const { error } =
     await supabase
@@ -192,6 +198,129 @@ export async function getExperienceFilters() {
   return data;
 }
 
+// ======================================================
+// PRICE TIERS (pricing_type resta invariato — questo è un
+// flag/tabella a parte, vedi experience_content.use_guest_tiers)
+// ======================================================
+
+export async function getExperiencePriceTiers() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("experience_price_tiers")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
+
+export async function createExperiencePriceTier(tier: any) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { data, error } =
+    await supabase
+      .from("experience_price_tiers")
+      .insert({
+        id: tier.id,
+        experience_id: tier.experience_id,
+        min_guests: tier.min_guests,
+        max_guests: tier.max_guests,
+        price: tier.price,
+        display_order: tier.display_order,
+      })
+      .select();
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function updateExperiencePriceTier(
+  id: string,
+  updates: any
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_price_tiers")
+      .update(updates)
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function deleteExperiencePriceTier(
+  id: string
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_price_tiers")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
 export async function getFullExperiences() {
   
 const experiences = await getExperiences();
@@ -203,6 +332,9 @@ const facts =
   
 const sections =
   await getExperienceSections();
+
+const priceTiers =
+  await getExperiencePriceTiers();
 
 
   return experiences.map((experience) => {
@@ -223,6 +355,18 @@ const sections =
       section.experience_id ===
       experience.id
   );
+
+    const experiencePriceTiers =
+  priceTiers
+    .filter(
+      tier =>
+        tier.experience_id ===
+        experience.id
+    )
+    .sort(
+      (a, b) => a.min_guests - b.min_guests
+    );
+
     const score = scoring.find(
       (s) => s.experience_id === experience.id
     );
@@ -260,6 +404,8 @@ const featuredImage =
   sections: experienceSections,
 
   gallery: experienceGallery,
+
+  price_tiers: experiencePriceTiers,
 
   featured_image: featuredImage,
 

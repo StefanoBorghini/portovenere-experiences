@@ -1,4 +1,6 @@
 "use client";
+
+
 import Header from "./components/Header";
 import GeneralCard from "./components/GeneralCard";
 import FiltersCard from "./components/FiltersCard";
@@ -6,6 +8,7 @@ import MoodCard from "./components/MoodCard";
 import HeroCard from "./components/HeroCard";
 import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
+import PriceTiersCard from "./components/PriceTiersCard";
 import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
@@ -34,6 +37,10 @@ import {
 updateExperienceSection,
 createExperienceFact,
 updateExperienceFact,
+getExperiencePriceTiers,
+createExperiencePriceTier,
+updateExperiencePriceTier,
+deleteExperiencePriceTier,
 } from "@/lib/supabase/experienceRepository";
 
 import IncludedCard
@@ -141,6 +148,14 @@ setExperience(found);
 
 
 <GeneralCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
+
+<PriceTiersCard
 
   experience={experience}
 
@@ -337,6 +352,56 @@ for (const fact of experience.facts) {
 
 }
 
+    // =====================================================
+    // PRICE TIERS — create per le nuove (isNew), update per le
+    // esistenti, delete per quelle rimosse dall'admin prima di
+    // salvare (stesso principio di facts/sections, ma qui serve
+    // anche gestire le rimozioni perché incidono direttamente
+    // sul prezzo mostrato al cliente).
+    // =====================================================
+
+    const existingTiersInDb =
+      await getExperiencePriceTiers();
+
+    const existingTierIdsForThisExperience = existingTiersInDb
+      .filter((tier: any) => tier.experience_id === experience.id)
+      .map((tier: any) => tier.id);
+
+    const currentTierIds = (experience.price_tiers || []).map(
+      (tier: any) => tier.id
+    );
+
+    for (const existingId of existingTierIdsForThisExperience) {
+      if (!currentTierIds.includes(existingId)) {
+        await deleteExperiencePriceTier(existingId);
+      }
+    }
+
+    for (const tier of experience.price_tiers || []) {
+
+      if (tier.isNew) {
+
+        await createExperiencePriceTier({
+          id: tier.id,
+          experience_id: experience.id,
+          min_guests: tier.min_guests,
+          max_guests: tier.max_guests,
+          price: tier.price,
+          display_order: tier.display_order,
+        });
+
+      } else {
+
+        await updateExperiencePriceTier(tier.id, {
+          min_guests: tier.min_guests,
+          max_guests: tier.max_guests,
+          price: tier.price,
+          display_order: tier.display_order,
+        });
+
+      }
+    }
+
     const result =
       await updateExperience(
 
@@ -351,6 +416,9 @@ for (const fact of experience.facts) {
     base_price: experience.base_price,
 
     pricing_type: experience.pricing_type,
+
+    use_guest_tiers:
+      experience.use_guest_tiers,
 
     description:
       experience.description,

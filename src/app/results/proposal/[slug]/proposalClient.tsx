@@ -349,14 +349,16 @@ export default function ProposalClient({
   const guestCount = Number(lead.guests) || 1;
     const childCount = Number(lead.children) || 0;
 
-    const featuredPrice = calculatePrice(
+   const featuredPrice = calculatePrice(
         featuredExperience?.base_price ?? 0,
         featuredExperience?.pricing_type ?? "fixed",
         guestCount,
         childCount,
-        featuredExperience?.child_discount_percentage ?? 0
+        featuredExperience?.child_discount_percentage ?? 0,
+        featuredExperience?.price_tiers ?? [],
+        featuredExperience?.use_guest_tiers === true
     );
-
+ 
     const includedExperiencesPrice = includedExperiences
         .filter((card: any) => selectedExperienceIds.includes(card.id))
         .reduce((sum: number, card: any) =>
@@ -365,7 +367,9 @@ export default function ProposalClient({
                 card.experience?.pricing_type ?? "fixed",
                 guestCount,
                 childCount,
-                card.experience?.child_discount_percentage ?? 0
+                card.experience?.child_discount_percentage ?? 0,
+                card.experience?.price_tiers ?? [],
+                card.experience?.use_guest_tiers === true
             ), 0
         );
 

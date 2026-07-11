@@ -26,7 +26,9 @@ export function calculateProposalTotal({
       experience.pricing_type,
       guestCount,
       childCount,
-      experience.child_discount_percentage ?? 0
+      experience.child_discount_percentage ?? 0,
+      experience.price_tiers ?? [],
+      experience.use_guest_tiers === true
     );
 
     return sum + price;
