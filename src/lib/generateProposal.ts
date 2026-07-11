@@ -152,6 +152,19 @@ const matchesBudget =
         const matchesActive =
           experience.active !== false;
 
+        // =====================================================
+        // MAX PARTICIPANTS
+        // Tetto ESATTO, indipendente dalle checkbox guest_X sopra.
+        // Se non impostato (null), nessun limite extra — comportamento
+        // invariato. Se impostato, il numero di ospiti richiesto non
+        // puo' MAI superarlo, anche se una checkbox larga (es. "5-7")
+        // risulterebbe spuntata.
+        // =====================================================
+
+        const matchesMaxParticipants =
+          experience.max_participants == null ||
+          guestCount <= experience.max_participants;
+
         return (
 
           matchesCategory &&
@@ -162,7 +175,9 @@ const matchesBudget =
 
           matchesChildren &&
 
-          matchesActive
+          matchesActive &&
+
+          matchesMaxParticipants
         );
       }
     );
@@ -390,6 +405,13 @@ if (safeExperiencesSelected.length === 1) {
     // nemmeno tra i suggerimenti (prima non c'era nessun controllo
     // qui, esattamente come nel filtro principale).
     .filter((experience) => experience.active !== false)
+
+    // Stesso tetto massimo esatto anche per i suggerimenti.
+    .filter(
+      (experience) =>
+        experience.max_participants == null ||
+        guestCount <= experience.max_participants
+    )
 
     .filter((experience) => {
 

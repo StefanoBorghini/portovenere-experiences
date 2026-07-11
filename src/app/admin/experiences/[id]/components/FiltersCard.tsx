@@ -201,6 +201,55 @@ Experience Filters
 
 </div>
 
+<div className="mt-6">
+ 
+    <label
+      className="
+        block
+        text-sm
+        text-white/50
+        mb-2
+      "
+    >
+      Max Participants (exact cap)
+    </label>
+ 
+    <input
+      type="number"
+      min={1}
+      value={experience.max_participants ?? ""}
+      placeholder="Leave empty for no exact limit"
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          max_participants:
+            e.target.value === ""
+              ? null
+              : Number(e.target.value),
+        })
+      }
+      className="
+        w-full
+        md:w-1/3
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
+ 
+    <p className="text-white/30 text-xs mt-2">
+      Le checkbox Guests sopra restano fasce larghe per il
+      matching generale. Questo campo è un tetto ESATTO che
+      esclude sempre l'esperienza se il gruppo richiesto è più
+      numeroso — utile quando la fascia più vicina disponibile
+      (es. "5-7") è più larga della capacità reale (es. max 5).
+    </p>
+ 
+  </div>
+
 </div>
 <div>
 

@@ -420,6 +420,9 @@ for (const fact of experience.facts) {
     use_guest_tiers:
       experience.use_guest_tiers,
 
+      max_participants:
+      experience.max_participants,
+
     description:
       experience.description,
 
