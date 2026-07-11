@@ -117,7 +117,11 @@ export function buildRendererData({
   // Se la selezione era di una sola categoria, la sezione
   // "included" sarebbe vuota — usiamo i suggerimenti
   // calcolati in generateProposal, filtrati con la stessa
-  // logica di compatibilità
+  // logica di compatibilità.
+  // NOTA: usingSuggestedAddOns continua a decidere SOLO quale
+  // pool di esperienze mostrare (compatibili vs suggerimenti),
+  // non se partono selezionate — quello ora e' sempre "no",
+  // vedi includedExperiencesPreSelected piu' sotto.
 
   const usingSuggestedAddOns =
     includedExperiencesRaw.length === 0;
@@ -188,13 +192,18 @@ export function buildRendererData({
 
   // ===================================================
   // PRICE
+  // Le esperienze incluse/suggerite non sono più MAI
+  // preselezionate (vedi includedExperiencesPreSelected
+  // sotto), quindi il prezzo "di partenza" usato per le email
+  // riflette solo la featured experience — coerente con quello
+  // che il cliente vede davvero al primo caricamento della
+  // pagina, prima di aggiungere qualcosa lui stesso.
   // ===================================================
 
   const finalPrice =
     calculateProposalTotal({
       experiences: [
         featuredExperience,
-        ...(usingSuggestedAddOns ? [] : finalIncludedExperiencesRaw),
       ],
       guests: lead?.guests,
       children: lead?.children,
@@ -219,8 +228,12 @@ export function buildRendererData({
 
     includedExperiences,
 
-    includedExperiencesPreSelected:
-      !usingSuggestedAddOns,
+    // Decisione di prodotto: le esperienze incluse/suggerite
+    // partono SEMPRE deselezionate ("da aggiungere"), a prescindere
+    // da usingSuggestedAddOns. Prima erano preselezionate quando
+    // il cliente aveva scelto piu' categorie — ora mai, per
+    // trasparenza sul prezzo mostrato di default.
+    includedExperiencesPreSelected: false,
 
     isMultiDayTrip,
 
