@@ -310,35 +310,7 @@ if (!featuredExperience) {
           Back to configurator
         </a>
 
-        {debug && (
-
-          <div
-            className="
-              text-left
-              text-sm
-              text-zinc-500
-              border
-              border-white/10
-              rounded-2xl
-              p-6
-              mt-16
-            "
-          >
-
-            <p className="uppercase tracking-[0.2em] text-zinc-600 text-xs mb-4">
-              Diagnostic — solo per Stefano, da togliere dopo
-            </p>
-
-            <p>Categoria selezionata: {debug.categorySelected.join(", ") || "—"}</p>
-            <p>Ospiti: {debug.guests} — Budget: {debug.budget}</p>
-            <p>Esperienze totali in catalogo: {debug.totalExperiences}</p>
-            <p>Match per categoria: {debug.matchingCategoryCount} ({debug.matchingCategoryTitles.join(", ") || "nessuna"})</p>
-            <p>Di queste, con ospiti giusti: {debug.matchingCategoryAndGuestsCount}</p>
-            <p>Di queste, con budget giusto: {debug.matchingCategoryAndBudgetCount}</p>
-
-          </div>
-
-        )}
+       
 
       </div>
 
