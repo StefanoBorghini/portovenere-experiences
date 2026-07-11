@@ -42,8 +42,6 @@ interface FeaturedExperienceProps {
 
   facts: ExperienceFact[];
 
-  // NUOVI — servono solo quando useGuestTiers e' true, per
-  // calcolare il prezzo vero invece di mostrare basePrice grezzo.
   useGuestTiers?: boolean;
 
   tiers?: PriceTier[];
@@ -86,14 +84,6 @@ export default function FeaturedExperience({
   children = 0,
 
 }: FeaturedExperienceProps) {
-
-  // =====================================================
-  // PREZZO — se questa esperienza usa il pricing a scaglioni,
-  // IGNORA basePrice/priceType per la visualizzazione e calcola
-  // il prezzo vero in base al numero di ospiti attuale (stesso
-  // calcolo usato da FloatingPriceBar, cosi' i due numeri
-  // combaciano sempre). Altrimenti, comportamento invariato.
-  // =====================================================
 
   const price = useGuestTiers
     ? {
@@ -182,7 +172,27 @@ export default function FeaturedExperience({
 
               </p>
 
-              {/* OPERATOR */}
+              {/* TITLE — nome dell'esperienza (es. "Authentic
+                  Ligurian Fishing Experience"). RIMESSO QUI: era
+                  andato perso nella ricostruzione precedente. */}
+
+              <h2
+                className="
+                  text-4xl
+                  md:text-6xl
+                  font-light
+                  tracking-tight
+                  leading-[1.05]
+                  mb-4
+                "
+              >
+
+                {subtitle}
+
+              </h2>
+
+              {/* OPERATOR — nome dell'operatore (es. "Aphrodite"),
+                  nella riga piu' piccola sotto il titolo */}
 
               <p
                 className="
