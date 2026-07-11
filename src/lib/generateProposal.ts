@@ -1,6 +1,8 @@
 // =========================================================
 // generateProposal.ts
-// COMPLETE UPDATED VERSION
+// COMPLETE UPDATED VERSION — con fix "inactive experiences
+// showing in proposal" (matchesActive aggiunto in entrambi i
+// punti di filtro: filteredExperiences e suggestedAddOns)
 // =========================================================
 
 
@@ -137,6 +139,19 @@ const matchesBudget =
 
           experience.children_allowed === true;
 
+        // =====================================================
+        // ACTIVE
+        // Un'esperienza disattivata da /admin/experiences non
+        // deve MAI comparire in una proposal, a prescindere da
+        // quanto bene fa match sugli altri criteri. Usiamo
+        // "!== false" (non "=== true") cosi' un record senza il
+        // campo valorizzato resta visibile di default, e sparisce
+        // solo quando qualcuno lo disattiva esplicitamente.
+        // =====================================================
+
+        const matchesActive =
+          experience.active !== false;
+
         return (
 
           matchesCategory &&
@@ -145,7 +160,9 @@ const matchesBudget =
 
           matchesBudget &&
 
-          matchesChildren
+          matchesChildren &&
+
+          matchesActive
         );
       }
     );
@@ -368,6 +385,11 @@ if (safeExperiencesSelected.length === 1) {
     .filter((experience) => experience.id !== bestExperience.id)
 
     .filter((experience) => experience.category !== bestExperience.category)
+
+    // Stesso fix: un'esperienza disattivata non deve comparire
+    // nemmeno tra i suggerimenti (prima non c'era nessun controllo
+    // qui, esattamente come nel filtro principale).
+    .filter((experience) => experience.active !== false)
 
     .filter((experience) => {
 
