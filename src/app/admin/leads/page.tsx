@@ -8,6 +8,7 @@ import {
   getLeads,
   updateLead,
   deleteLead,
+  getEmailVerifiedMap,
   LeadStatus,
 } from "@/lib/supabase/leadRepository";
 
@@ -37,6 +38,9 @@ export default function AdminLeadsPage() {
   const router = useRouter();
 
   const [leads, setLeads] = useState<any[]>([]);
+  const [emailVerifiedMap, setEmailVerifiedMap] = useState<
+    Record<string, boolean>
+  >({});
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
   const [loading, setLoading] = useState(true);
@@ -58,8 +62,13 @@ export default function AdminLeadsPage() {
         return;
       }
 
-      const data = await getLeads();
+      const [data, verifiedMap] = await Promise.all([
+        getLeads(),
+        getEmailVerifiedMap(),
+      ]);
+
       setLeads(data);
+      setEmailVerifiedMap(verifiedMap);
       setLoading(false);
     }
 
@@ -208,6 +217,7 @@ export default function AdminLeadsPage() {
               <th className="px-5 py-4 font-normal">Email</th>
               <th className="px-5 py-4 font-normal">Experiences</th>
               <th className="px-5 py-4 font-normal">Budget</th>
+              <th className="px-5 py-4 font-normal">Email</th>
               <th className="px-5 py-4 font-normal">Status</th>
               <th className="px-5 py-4 font-normal">Actions</th>
             </tr>
@@ -231,6 +241,17 @@ export default function AdminLeadsPage() {
                   {(lead.experiences || []).join(", ")}
                 </td>
                 <td className="px-5 py-4 text-white/60">{lead.budget}</td>
+                <td className="px-5 py-4">
+                  <span
+                    className={`text-xs px-2.5 py-1 rounded-full border ${
+                      emailVerifiedMap[lead.id]
+                        ? "border-emerald-400/30 text-emerald-400 bg-emerald-400/10"
+                        : "border-amber-400/30 text-amber-400 bg-amber-400/10"
+                    }`}
+                  >
+                    {emailVerifiedMap[lead.id] ? "Confirmed" : "Pending"}
+                  </span>
+                </td>
                 <td className="px-5 py-4">
                   <select
                     value={lead.status || "new"}
@@ -268,7 +289,7 @@ export default function AdminLeadsPage() {
 
             {filteredLeads.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-white/30">
+                <td colSpan={7} className="px-5 py-10 text-center text-white/30">
                   No leads match your filters.
                 </td>
               </tr>

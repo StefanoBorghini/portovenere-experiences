@@ -119,9 +119,16 @@ export async function deleteLead(id: string) {
 export async function getProposalForLead(leadId: string) {
   if (!supabase) return null;
 
+  // Serve anche confirmed_selection (experienceIds/enhancementIds
+  // scelti dal cliente sulla proposal page, vedi
+  // /api/confirm-changes e /api/request-booking) oltre a
+  // email_verified, per mostrare nel dettaglio lead cosa ha
+  // scelto davvero e se ha confermato l'email.
   const { data, error } = await supabase
     .from("Proposal")
-    .select("slug, expires_at, total_price, email_verified")
+    .select(
+      "slug, expires_at, total_price, email_verified, confirmed_selection, proposal_data"
+    )
     .eq("lead_id", leadId)
     .maybeSingle();
 
@@ -131,4 +138,76 @@ export async function getProposalForLead(leadId: string) {
   }
 
   return data;
+}
+
+// =========================================================
+// EMAIL VERIFIED MAP — per la pagina lista, che mostra un
+// badge per ogni riga senza fare una query per lead (N+1).
+// Una sola select su Proposal, poi si incrocia per lead_id.
+// =========================================================
+
+export async function getEmailVerifiedMap(): Promise<
+  Record<string, boolean>
+> {
+  if (!supabase) return {};
+
+  const { data, error } = await supabase
+    .from("Proposal")
+    .select("lead_id, email_verified");
+
+  if (error) {
+    console.error("Error loading proposal verification map:", error);
+    return {};
+  }
+
+  const map: Record<string, boolean> = {};
+  (data || []).forEach((row: any) => {
+    map[row.lead_id] = !!row.email_verified;
+  });
+
+  return map;
+}
+
+// =========================================================
+// RESOLVE SELECTED EXPERIENCES/ENHANCEMENTS
+// La Proposal salva solo gli ID scelti (confirmed_selection).
+// Questa funzione li incrocia con le tabelle experience_content
+// ed enhancement_content per avere titolo, operatore e prezzo
+// da mostrare nel dettaglio lead. Va chiamata passando le liste
+// gia' caricate da getFullExperiences()/getEnhancements(), cosi'
+// da non duplicare quelle chiamate se la pagina le usa gia'.
+// =========================================================
+
+export function resolveLeadSelection(
+  proposal: any,
+  allExperiences: any[],
+  allEnhancements: any[]
+) {
+  const experienceIds: string[] =
+    proposal?.confirmed_selection?.experienceIds || [];
+
+  const enhancementIds: string[] =
+    proposal?.confirmed_selection?.enhancementIds || [];
+
+  const selectedExperiences = experienceIds
+    .map((id) => allExperiences.find((exp) => exp.id === id))
+    .filter(Boolean)
+    .map((exp) => ({
+      id: exp.id,
+      title: exp.title,
+      operator: exp.operator,
+      category: exp.category,
+    }));
+
+  const selectedEnhancements = enhancementIds
+    .map((id) => allEnhancements.find((enh) => enh.id === id))
+    .filter(Boolean)
+    .map((enh) => ({
+      id: enh.id,
+      title: enh.title,
+      base_price: enh.base_price,
+      price_type: enh.price_type,
+    }));
+
+  return { selectedExperiences, selectedEnhancements };
 }

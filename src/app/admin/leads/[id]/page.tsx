@@ -9,8 +9,12 @@ import {
   updateLead,
   deleteLead,
   getProposalForLead,
+  resolveLeadSelection,
   LeadStatus,
 } from "@/lib/supabase/leadRepository";
+
+import { getFullExperiences } from "@/lib/supabase/experienceRepository";
+import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 
 const STATUS_OPTIONS: { value: LeadStatus; label: string }[] = [
   { value: "new", label: "New" },
@@ -27,6 +31,12 @@ export default function LeadDetailPage() {
   const [lead, setLead] = useState<any>(null);
   const [proposal, setProposal] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+
+  // Esperienze/enhancements EFFETTIVAMENTE scelti dal cliente
+  // (risolti dagli ID salvati in confirmed_selection), non solo
+  // le categorie/mood dichiarati nel wizard iniziale.
+  const [selectedExperiences, setSelectedExperiences] = useState<any[]>([]);
+  const [selectedEnhancements, setSelectedEnhancements] = useState<any[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -47,6 +57,27 @@ export default function LeadDetailPage() {
       if (data) {
         const relatedProposal = await getProposalForLead(data.id);
         setProposal(relatedProposal);
+
+        // Se la proposal esiste ma il cliente non ha ancora fatto
+        // una scelta esplicita (confirmed_selection assente perche'
+        // non ha ancora confermato l'email), non c'e' nulla da
+        // risolvere: le liste restano vuote e la UI lo segnala.
+        if (relatedProposal?.confirmed_selection) {
+          const [allExperiences, allEnhancements] = await Promise.all([
+            getFullExperiences(),
+            getEnhancements(),
+          ]);
+
+          const { selectedExperiences, selectedEnhancements } =
+            resolveLeadSelection(
+              relatedProposal,
+              allExperiences,
+              allEnhancements
+            );
+
+          setSelectedExperiences(selectedExperiences);
+          setSelectedEnhancements(selectedEnhancements);
+        }
       }
     }
 
@@ -154,18 +185,84 @@ export default function LeadDetailPage() {
 
         {proposal && (
           <div className="mt-6 pt-6 border-t border-white/[0.08]">
-            <p className="text-white/40 text-sm mb-2">Linked proposal</p>
-            <a
-              href={`/results/proposal/${proposal.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm underline hover:text-white/70"
-            >
-              /{proposal.slug}
-            </a>
-            <span className="text-white/40 text-sm ml-3">
-              {proposal.email_verified ? "Verified" : "Not verified"}
-            </span>
+            <div className="flex items-center gap-3 mb-4">
+              <p className="text-white/40 text-sm">Linked proposal</p>
+              <a
+                href={`/results/proposal/${proposal.slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm underline hover:text-white/70"
+              >
+                /{proposal.slug}
+              </a>
+
+              {/* EMAIL CONFIRMED — badge visivo, non solo testo,
+                  cosi' si vede a colpo d'occhio scorrendo la lista
+                  dettagli senza dover leggere ogni riga. */}
+              <span
+                className={`text-xs px-2.5 py-1 rounded-full border ${
+                  proposal.email_verified
+                    ? "border-emerald-400/30 text-emerald-400 bg-emerald-400/10"
+                    : "border-amber-400/30 text-amber-400 bg-amber-400/10"
+                }`}
+              >
+                {proposal.email_verified
+                  ? "Email confirmed"
+                  : "Email not confirmed"}
+              </span>
+            </div>
+
+            {/* SELECTED EXPERIENCES — le esperienze specifiche scelte
+                (con operatore), non solo le categorie dichiarate nel
+                wizard sopra. */}
+            <p className="text-white/40 text-sm mb-2">
+              Selected experiences
+            </p>
+
+            {selectedExperiences.length > 0 ? (
+              <ul className="space-y-2 mb-5">
+                {selectedExperiences.map((exp) => (
+                  <li
+                    key={exp.id}
+                    className="flex items-center justify-between text-sm bg-white/[0.03] rounded-xl px-4 py-3"
+                  >
+                    <span>{exp.title}</span>
+                    <span className="text-white/40">
+                      {exp.operator || "—"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-white/30 text-sm mb-5">
+                No confirmed selection yet — the client hasn't verified the
+                email or finalized their choice.
+              </p>
+            )}
+
+            {/* SELECTED ENHANCEMENTS */}
+            {selectedEnhancements.length > 0 && (
+              <>
+                <p className="text-white/40 text-sm mb-2">
+                  Selected enhancements
+                </p>
+                <ul className="space-y-2">
+                  {selectedEnhancements.map((enh) => (
+                    <li
+                      key={enh.id}
+                      className="flex items-center justify-between text-sm bg-white/[0.03] rounded-xl px-4 py-3"
+                    >
+                      <span>{enh.title}</span>
+                      <span className="text-white/40">
+                        {enh.price_type === "per_person"
+                          ? `€${enh.base_price} / person`
+                          : `€${enh.base_price}`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         )}
       </div>
