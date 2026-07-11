@@ -6,17 +6,14 @@ import AdminSidebar from "./components/AdminSidebar";
 // =========================================================
 // ADMIN LAYOUT
 // Avvolge tutte le pagine sotto /admin con la sidebar.
-// La pagina di login resta full-screen, senza sidebar:
-// non avrebbe senso mostrare la navigazione prima del login,
-// e finche' non c'e' sessione i link porterebbero comunque
-// al redirect che ogni pagina gia' fa in autonomia.
+// La pagina di login resta full-screen, senza sidebar.
 //
-// NOTA: il check di sessione resta per ora dentro ogni singola
-// pagina (pattern gia' in uso in experiences/leads/enhancements).
-// Se in futuro si aggiungono altre sezioni admin, vale la pena
-// centralizzare quel check qui nel layout — evita di duplicarlo
-// in ogni nuova pagina — ma non l'ho spostato ora per non
-// rischiare regressioni sulle pagine gia' funzionanti.
+// FIX MOBILE: la barra superiore mobile in AdminSidebar.tsx
+// ora usa "fixed" (non riserva più spazio automaticamente nel
+// flusso normale). Il "pt-16 lg:pt-0" qui sotto compensa
+// esattamente l'altezza di quella barra solo su mobile — su
+// desktop (lg+) la barra è comunque nascosta, quindi niente
+// padding extra li'.
 // =========================================================
 
 export default function AdminLayout({
@@ -34,7 +31,7 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-black">
       <AdminSidebar />
-      <div className="flex-1 min-w-0">{children}</div>
+      <div className="flex-1 min-w-0 pt-16 lg:pt-0">{children}</div>
     </div>
   );
 }

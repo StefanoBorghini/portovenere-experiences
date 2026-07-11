@@ -109,8 +109,7 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   // Mobile: sidebar nascosta di default, si apre come overlay
-  // a comparsa sopra il contenuto (stesso spirito, adattato a
-  // schermi stretti dove non c'e' spazio per una colonna fissa).
+  // a comparsa sopra il contenuto.
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(item: (typeof NAV_ITEMS)[number]) {
@@ -187,9 +186,22 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* MOBILE TOP BAR — solo l'hamburger, la sidebar vera resta
-          nascosta finche' non viene aperta */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-4 border-b border-white/[0.08] bg-black text-white sticky top-0 z-30">
+      {/*
+        MOBILE TOP BAR — FIX: "fixed" invece di "sticky".
+        Con "sticky" questo div restava un ELEMENTO FLEX dentro
+        la riga orizzontale creata da layout.tsx (che mette
+        <AdminSidebar/> e il contenuto fianco a fianco con
+        className="flex"), quindi si restringeva al contenuto
+        invece di occupare tutta la larghezza — il bug visto
+        negli screenshot (barra stretta a sinistra, pagina
+        schiacciata a destra).
+        Con "fixed" questo elemento ESCE dal flusso normale (e
+        quindi anche dal flex del genitore): si ancora sempre
+        all'intera larghezza del viewport, indipendentemente da
+        cosa lo circonda. Il padding-top che compensa lo spazio
+        lasciato libero è in layout.tsx.
+      */}
+      <div className="lg:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between px-4 py-4 border-b border-white/[0.08] bg-black text-white">
         <Link href="/admin" className="flex items-center gap-3">
           <img src="/logo-white.png" alt="PV" className="h-7 w-auto" />
         </Link>
@@ -203,7 +215,9 @@ export default function AdminSidebar() {
         </button>
       </div>
 
-      {/* MOBILE OVERLAY */}
+      {/* MOBILE OVERLAY — già "fixed" in precedenza, nessun cambiamento:
+          non soffriva dello stesso bug perché "fixed" esce già dal
+          flusso, quindi non diventava mai un elemento di riga. */}
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div
@@ -216,8 +230,9 @@ export default function AdminSidebar() {
         </div>
       )}
 
-      {/* DESKTOP SIDEBAR — sempre visibile, larghezza variabile
-          in base a collapsed */}
+      {/* DESKTOP SIDEBAR — invariata: su desktop era già corretta,
+          perché li' un elemento "flex item a fianco al contenuto"
+          è esattamente il comportamento voluto. */}
       <aside
         className={`hidden lg:flex flex-col bg-black border-r border-white/[0.08] text-white h-screen sticky top-0 transition-all duration-200 ${
           collapsed ? "w-20" : "w-64"
