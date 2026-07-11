@@ -53,6 +53,10 @@ export default function IncludedExperiences({
 
   isMultiDayTrip = false,
 
+  guests = 1,
+
+  children = 0,
+
 }: IncludedExperiencesProps) {
 
   const [
@@ -243,6 +247,8 @@ return (
     isSelected={isSelected}
     isDisabled={isDisabled}
     onToggle={() => toggleExperience(experience.id)}
+    guests={guests}
+    children={children}
         />
 
     );
