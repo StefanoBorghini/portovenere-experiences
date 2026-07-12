@@ -122,28 +122,52 @@ export default function FloatingPriceBar({
           "
         >
 
-          {/* MESSAGGIO DI STATO — sopra la pill, stessa larghezza,
-              testo centrato, non interattivo (solo informativo) */}
+          {/* MESSAGGIO DI STATO — stesso trattamento visivo della
+              pill sottostante (bordo/blur/sfondo nero semi-trasparente/
+              ombra), cosi' resta leggibile sempre, a prescindere da
+              cosa scorre dietro durante lo scroll. Prima era testo
+              "nudo" senza sfondo, illeggibile su sfondi chiari. */}
 
           {statusMessage && (
 
-            <p
-              className={`
-                text-center
-                text-[12px]
-                md:text-[13px]
-                leading-relaxed
-                px-4
+            <div
+              className="
+                w-full
+                md:w-auto
+                max-w-sm
 
-                ${
-                  bookingState === "error"
-                    ? "text-red-400"
-                    : "text-white/70"
-                }
-              `}
+                px-5
+                py-3
+
+                rounded-[20px]
+                md:rounded-full
+
+                border
+                border-white/12
+                backdrop-blur-[10px]
+                bg-black/70
+                shadow-[0_8px_40px_rgba(0,0,0,0.4)]
+              "
             >
-              {statusMessage}
-            </p>
+
+              <p
+                className={`
+                  text-center
+                  text-[12px]
+                  md:text-[13px]
+                  leading-relaxed
+
+                  ${
+                    bookingState === "error"
+                      ? "text-red-400"
+                      : "text-white/70"
+                  }
+                `}
+              >
+                {statusMessage}
+              </p>
+
+            </div>
 
           )}
 
