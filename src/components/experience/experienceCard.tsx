@@ -22,10 +22,6 @@ interface Props {
 
     onToggle: () => void;
 
-    // NUOVI — servono solo per le esperienze con use_guest_tiers
-    // attivo, per calcolare il prezzo vero invece di mostrare
-    // base_price grezzo (che per queste esperienze è spesso 0,
-    // dato che il prezzo vive nei tier, non in base_price).
     guests?: number;
 
     children?: number;
@@ -55,13 +51,6 @@ export default function ExperienceCard({
 
   const hasSections =
     (experience.experience.sections?.length ?? 0) > 0;
-
-  // =====================================================
-  // PREZZO — stesso principio già applicato a FeaturedExperience:
-  // se questa esperienza usa il pricing a scaglioni, ignora
-  // base_price/pricing_type per la visualizzazione e ricalcola
-  // in base al numero di ospiti attuale.
-  // =====================================================
 
   const useGuestTiers =
     experience.experience.use_guest_tiers === true;
@@ -214,12 +203,33 @@ ${
       leading-[1.02]
       tracking-[-0.03em]
       font-light
-      mb-10
+      mb-3
       mx-auto
     "
   >
     {experience.title}
   </h3>
+
+  {/* OPERATOR — subito sotto il titolo, stesso pattern gia'
+      usato in FeaturedExperience.tsx. Non tutte le esperienze
+      hanno per forza un operatore valorizzato, quindi si mostra
+      solo se presente. */}
+
+  {experience.experience.operator && (
+
+    <p
+      className="
+        text-white/50
+        text-[14px]
+        md:text-[16px]
+        tracking-[-0.01em]
+        mb-7
+      "
+    >
+      {experience.experience.operator}
+    </p>
+
+  )}
 
   <p
     className="

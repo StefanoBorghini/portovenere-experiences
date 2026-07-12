@@ -50,7 +50,7 @@ const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
     title: "Choose the vibe that inspires you.",
   },
   guests: {
-    label: "Guests & Children",
+    label: "Adults & Children",
     title: "Who's joining the adventure?",
   },
   dates: {
@@ -857,7 +857,7 @@ export default function CraftYourExperience() {
           <div>
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-              Guests
+              Adults
             </p>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -882,7 +882,7 @@ export default function CraftYourExperience() {
                       guestCount === item ? "text-black/50" : "text-zinc-500"
                     }`}
                   >
-                    Guests
+                    Adults
                   </span>
                 </button>
               ))}
@@ -906,7 +906,7 @@ export default function CraftYourExperience() {
                     showMoreGuests ? "text-black/50" : "text-zinc-500"
                   }`}
                 >
-                  Guests
+                  Adults
                 </span>
               </button>
             </div>
@@ -916,7 +916,7 @@ export default function CraftYourExperience() {
                 showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
               }`}
             >
-              <p className="text-zinc-500 mb-2 text-xs">Exact number of guests</p>
+              <p className="text-zinc-500 mb-2 text-xs">Exact number of adults</p>
               <input
                 type="number"
                 min={9}
