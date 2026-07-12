@@ -155,6 +155,9 @@ const generatedProposal =
     guests:
       lead.guests,
 
+    children:
+      lead.children,
+
     travelingWithChildren:
       lead.traveling_with_children || false,
 

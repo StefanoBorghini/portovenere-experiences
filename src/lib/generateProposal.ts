@@ -1,8 +1,8 @@
 // =========================================================
 // generateProposal.ts
-// COMPLETE UPDATED VERSION — con fix "inactive experiences
-// showing in proposal" (matchesActive aggiunto in entrambi i
-// punti di filtro: filteredExperiences e suggestedAddOns)
+// COMPLETE UPDATED VERSION — guestCount ora somma adulti +
+// bambini per capacità/matching (guest_X, max_participants),
+// coerente con quello che già facevano i tier di prezzo.
 // =========================================================
 
 
@@ -32,6 +32,12 @@ interface GenerateProposalProps {
 
   guests: string;
 
+  // NUOVO — prima c'era solo travelingWithChildren (booleano),
+  // che non basta per sapere QUANTI bambini sommare al conteggio
+  // ospiti. children resta opzionale: se non passato, si comporta
+  // come prima (0 bambini sommati).
+  children?: number | string;
+
   travelingWithChildren: boolean;
 
   allExperiences: any[];
@@ -49,6 +55,8 @@ export function generateProposal({
 
   guests,
 
+  children,
+
   travelingWithChildren,
 
   allExperiences,
@@ -59,6 +67,18 @@ const safeExperiencesSelected =
 
 const safeMoodsSelected =
   moodsSelected ?? [];
+
+  // =========================================================
+  // GUEST COUNT — somma adulti + bambini, per capire se
+  // un'esperienza ha davvero posto per TUTTI (barca, tavolo,
+  // ecc. contano le teste, non solo gli adulti). Stessa logica
+  // già usata da calculatePrice() per i tier a scaglioni.
+  // =========================================================
+
+  const adultsCount = Number(guests) || 0;
+  const childrenCount = Number(children) || 0;
+  const totalGuestCount = adultsCount + childrenCount;
+
   // =========================================================
   // FILTER EXPERIENCES
   // =========================================================
@@ -92,23 +112,23 @@ const matchesCategory =
 
 
         // =====================================================
-        // GUESTS
+        // GUESTS — usa totalGuestCount (adulti + bambini), non
+        // solo adulti: un bambino occupa comunque un posto barca/
+        // tavolo/ecc.
         // =====================================================
 
-   const guestCount = Number(guests) || 0;
-
 const matchesGuests =
-  guestCount === 2
+  totalGuestCount === 2
     ? experience.guest_2
-  : guestCount >= 3 && guestCount <= 4
+  : totalGuestCount >= 3 && totalGuestCount <= 4
     ? experience.guest_3_4
-  : guestCount >= 5 && guestCount <= 7
+  : totalGuestCount >= 5 && totalGuestCount <= 7
     ? experience.guest_5_7
-  : guestCount >= 8 && guestCount <= 12
+  : totalGuestCount >= 8 && totalGuestCount <= 12
     ? experience.guest_8_12
-  : guestCount >= 13 && guestCount <= 20
+  : totalGuestCount >= 13 && totalGuestCount <= 20
     ? experience.guest_13_20
-  : guestCount > 20
+  : totalGuestCount > 20
     ? experience.guest_20_plus
   : true;
 
@@ -155,15 +175,14 @@ const matchesBudget =
         // =====================================================
         // MAX PARTICIPANTS
         // Tetto ESATTO, indipendente dalle checkbox guest_X sopra.
-        // Se non impostato (null), nessun limite extra — comportamento
-        // invariato. Se impostato, il numero di ospiti richiesto non
-        // puo' MAI superarlo, anche se una checkbox larga (es. "5-7")
-        // risulterebbe spuntata.
+        // Usa anch'esso totalGuestCount (adulti + bambini), stesso
+        // motivo di matchesGuests: un bambino occupa comunque un
+        // posto reale.
         // =====================================================
 
         const matchesMaxParticipants =
           experience.max_participants == null ||
-          guestCount <= experience.max_participants;
+          totalGuestCount <= experience.max_participants;
 
         return (
 
@@ -333,8 +352,6 @@ if (!bestExperience) {
       category.toLowerCase().replaceAll(" ", "_")
     );
 
-  const guestCount = Number(guests) || 0;
-
   const matchingCategory = safeAllExperiences.filter(
     (experience) =>
       normalizedSelected.length === 0 ||
@@ -342,10 +359,10 @@ if (!bestExperience) {
   );
 
   const matchingCategoryAndGuests = matchingCategory.filter((experience) => {
-    if (guestCount === 2) return experience.guest_2;
-    if (guestCount >= 3 && guestCount <= 4) return experience.guest_3_4;
-    if (guestCount >= 5 && guestCount <= 7) return experience.guest_5_7;
-    if (guestCount >= 8) return experience.guest_8_plus;
+    if (totalGuestCount === 2) return experience.guest_2;
+    if (totalGuestCount >= 3 && totalGuestCount <= 4) return experience.guest_3_4;
+    if (totalGuestCount >= 5 && totalGuestCount <= 7) return experience.guest_5_7;
+    if (totalGuestCount >= 8) return experience.guest_8_plus;
     return true;
   });
 
@@ -367,7 +384,7 @@ if (!bestExperience) {
 
     noMatchDebug: {
       categorySelected: safeExperiencesSelected,
-      guests,
+      guests: totalGuestCount,
       budget,
       totalExperiences: safeAllExperiences.length,
       matchingCategoryCount: matchingCategory.length,
@@ -393,8 +410,6 @@ let suggestedAddOns: any[] = [];
 
 if (safeExperiencesSelected.length === 1) {
 
-  const guestCount = Number(guests) || 0;
-
   suggestedAddOns = safeAllExperiences
 
     .filter((experience) => experience.id !== bestExperience.id)
@@ -406,27 +421,28 @@ if (safeExperiencesSelected.length === 1) {
     // qui, esattamente come nel filtro principale).
     .filter((experience) => experience.active !== false)
 
-    // Stesso tetto massimo esatto anche per i suggerimenti.
+    // Stesso tetto massimo esatto anche per i suggerimenti,
+    // stesso totalGuestCount (adulti + bambini).
     .filter(
       (experience) =>
         experience.max_participants == null ||
-        guestCount <= experience.max_participants
+        totalGuestCount <= experience.max_participants
     )
 
     .filter((experience) => {
 
       const matchesGuests =
-        guestCount === 2
+        totalGuestCount === 2
           ? experience.guest_2
-        : guestCount >= 3 && guestCount <= 4
+        : totalGuestCount >= 3 && totalGuestCount <= 4
           ? experience.guest_3_4
-        : guestCount >= 5 && guestCount <= 7
+        : totalGuestCount >= 5 && totalGuestCount <= 7
           ? experience.guest_5_7
-        : guestCount >= 8 && guestCount <= 12
+        : totalGuestCount >= 8 && totalGuestCount <= 12
           ? experience.guest_8_12
-        : guestCount >= 13 && guestCount <= 20
+        : totalGuestCount >= 13 && totalGuestCount <= 20
           ? experience.guest_13_20
-        : guestCount > 20
+        : totalGuestCount > 20
           ? experience.guest_20_plus
         : true;
 
