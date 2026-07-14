@@ -10,6 +10,7 @@ import {
   deleteLead,
   getProposalForLead,
   resolveLeadSelection,
+  restartProposalTimer,
   LeadStatus,
 } from "@/lib/supabase/leadRepository";
 
@@ -37,6 +38,10 @@ export default function LeadDetailPage() {
   // le categorie/mood dichiarati nel wizard iniziale.
   const [selectedExperiences, setSelectedExperiences] = useState<any[]>([]);
   const [selectedEnhancements, setSelectedEnhancements] = useState<any[]>([]);
+
+  // Stato separato per il bottone "Restart Timer", cosi' non si
+  // confonde con il salvataggio generale del lead (saving).
+  const [restartingTimer, setRestartingTimer] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -125,6 +130,39 @@ export default function LeadDetailPage() {
     }
   }
 
+  // =========================================================
+  // RESTART TIMER — rimanda expires_at a 48h da ora sulla
+  // proposal collegata. Aggiorna anche lo stato locale, cosi'
+  // il countdown mostrato qui si allinea subito senza dover
+  // ricaricare la pagina.
+  // =========================================================
+
+  async function handleRestartTimer() {
+    if (!proposal) return;
+
+    const confirmed = window.confirm(
+      "Restart the 48h timer for this proposal? The client will get a fresh 48 hours from right now."
+    );
+
+    if (!confirmed) return;
+
+    setRestartingTimer(true);
+
+    const result = await restartProposalTimer(lead.id);
+
+    setRestartingTimer(false);
+
+    if (result.success) {
+      setProposal((prev: any) => ({
+        ...prev,
+        expires_at: result.expiresAt,
+      }));
+      alert("Timer restarted — 48 fresh hours from now.");
+    } else {
+      alert("Could not restart the timer — please try again.");
+    }
+  }
+
   return (
     <div style={{ padding: "30px", maxWidth: "1000px", margin: "0 auto" }}>
       <button
@@ -185,7 +223,7 @@ export default function LeadDetailPage() {
 
         {proposal && (
           <div className="mt-6 pt-6 border-t border-white/[0.08]">
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
               <p className="text-white/40 text-sm">Linked proposal</p>
               <a
                 href={`/results/proposal/${proposal.slug}`}
@@ -196,9 +234,6 @@ export default function LeadDetailPage() {
                 /{proposal.slug}
               </a>
 
-              {/* EMAIL CONFIRMED — badge visivo, non solo testo,
-                  cosi' si vede a colpo d'occhio scorrendo la lista
-                  dettagli senza dover leggere ogni riga. */}
               <span
                 className={`text-xs px-2.5 py-1 rounded-full border ${
                   proposal.email_verified
@@ -210,11 +245,28 @@ export default function LeadDetailPage() {
                   ? "Email confirmed"
                   : "Email not confirmed"}
               </span>
+
+              {proposal.expires_at && (
+                <span className="text-xs px-2.5 py-1 rounded-full border border-white/15 text-white/50">
+                  Expires{" "}
+                  {new Date(proposal.expires_at).toLocaleString("en-GB", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </span>
+              )}
+
+              {/* RESTART TIMER — rimanda la scadenza a 48h da ora */}
+              <button
+                onClick={handleRestartTimer}
+                disabled={restartingTimer}
+                className="text-xs px-3 py-1.5 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+              >
+                {restartingTimer ? "Restarting..." : "⟳ Restart Timer (48h)"}
+              </button>
             </div>
 
-            {/* SELECTED EXPERIENCES — le esperienze specifiche scelte
-                (con operatore), non solo le categorie dichiarate nel
-                wizard sopra. */}
+            {/* SELECTED EXPERIENCES */}
             <p className="text-white/40 text-sm mb-2">
               Selected experiences
             </p>
@@ -268,7 +320,7 @@ export default function LeadDetailPage() {
       </div>
 
       {/* =================================================
-          STATUS + INTERNAL NOTES — gli unici campi editabili
+          STATUS + INTERNAL NOTES
           ================================================= */}
       <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 mb-6 text-white">
         <h2 className="text-lg font-medium mb-4">Status &amp; notes</h2>
