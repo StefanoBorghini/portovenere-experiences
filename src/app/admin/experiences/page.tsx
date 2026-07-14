@@ -10,6 +10,7 @@ import {
   createExperience,
   getFullExperiences,
   updateExperience,
+  duplicateExperience,
 } from "@/lib/supabase/experienceRepository";
 
 export default function AdminExperiencesPage() {
@@ -26,6 +27,11 @@ export default function AdminExperiencesPage() {
   // esperienza (cosi' puoi comunque togglarne un'altra nel
   // frattempo senza aspettare).
   const [togglingIds, setTogglingIds] =
+    useState<Set<string>>(new Set());
+
+  // Stesso principio, per il bottone Duplicate — separato da
+  // togglingIds cosi' le due azioni non si bloccano a vicenda.
+  const [duplicatingIds, setDuplicatingIds] =
     useState<Set<string>>(new Set());
 
 
@@ -132,6 +138,33 @@ useEffect(() => {
       next.delete(experience.id);
       return next;
     });
+  }
+
+  // =======================================================
+  // DUPLICATE — clona l'esperienza intera (dati, filtri, scoring,
+  // facts, sections, tier, galleria), poi porta direttamente alla
+  // pagina di modifica della copia per aggiustare titolo/prezzo/
+  // operatore prima di riattivarla (la copia parte disattivata).
+  // =======================================================
+
+  async function handleDuplicate(experience: any) {
+
+    setDuplicatingIds((prev) => new Set(prev).add(experience.id));
+
+    const result = await duplicateExperience(experience.id);
+
+    setDuplicatingIds((prev) => {
+      const next = new Set(prev);
+      next.delete(experience.id);
+      return next;
+    });
+
+    if (!result.success || !result.newId) {
+      alert("Could not duplicate this experience — please try again.");
+      return;
+    }
+
+    router.push(`/admin/experiences/${result.newId}`);
   }
 
   return (
@@ -482,24 +515,48 @@ onChange={(e) =>
 
         </div>
 
-        <Link
-          href={`/admin/experiences/${experience.id}`}
-          className="
-            mt-4
-            w-full
-            flex
-            justify-center
-            py-3
-            rounded-xl
-            bg-white
-            text-black
-            font-medium
-          "
-        >
+        <div className="flex gap-2 mt-4">
 
-          Edit
+          <Link
+            href={`/admin/experiences/${experience.id}`}
+            className="
+              flex-1
+              flex
+              justify-center
+              py-3
+              rounded-xl
+              bg-white
+              text-black
+              font-medium
+            "
+          >
 
-        </Link>
+            Edit
+
+          </Link>
+
+          <button
+            onClick={() => handleDuplicate(experience)}
+            disabled={duplicatingIds.has(experience.id)}
+            className="
+              flex-1
+              flex
+              justify-center
+              py-3
+              rounded-xl
+              border
+              border-white/15
+              text-white/80
+              font-medium
+              disabled:opacity-50
+            "
+          >
+
+            {duplicatingIds.has(experience.id) ? "Duplicating..." : "Duplicate"}
+
+          </button>
+
+        </div>
 
       </div>
 
@@ -678,22 +735,48 @@ onChange={(e) =>
 
             <td className="p-4 text-right">
 
-              <Link
-                href={`/admin/experiences/${experience.id}`}
-                className="
-                  inline-flex
-                  px-4
-                  py-2
-                  rounded-xl
-                  bg-white
-                  text-black
-                  font-medium
-                "
-              >
+              <div className="flex items-center justify-end gap-2">
 
-                Edit
+                <button
+                  onClick={() => handleDuplicate(experience)}
+                  disabled={duplicatingIds.has(experience.id)}
+                  className="
+                    inline-flex
+                    px-4
+                    py-2
+                    rounded-xl
+                    border
+                    border-white/15
+                    text-white/80
+                    font-medium
+                    disabled:opacity-50
+                    hover:bg-white/5
+                    transition-colors
+                  "
+                >
 
-              </Link>
+                  {duplicatingIds.has(experience.id) ? "Duplicating..." : "Duplicate"}
+
+                </button>
+
+                <Link
+                  href={`/admin/experiences/${experience.id}`}
+                  className="
+                    inline-flex
+                    px-4
+                    py-2
+                    rounded-xl
+                    bg-white
+                    text-black
+                    font-medium
+                  "
+                >
+
+                  Edit
+
+                </Link>
+
+              </div>
 
             </td>
 

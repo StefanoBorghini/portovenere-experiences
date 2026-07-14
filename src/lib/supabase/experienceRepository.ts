@@ -142,6 +142,198 @@ const scoringInsert =await supabase
 
 }
 
+// =========================================================
+// DUPLICATE EXPERIENCE
+// Clona un'esperienza intera: dati generali, filtri guest/budget,
+// punteggi mood, facts, sections, tier di prezzo (se presenti) e
+// galleria immagini (stessi URL, righe nuove).
+//
+// La copia parte SEMPRE con active=false e featured=false — cosi'
+// puoi rivederla/aggiustarla prima che compaia ai clienti, invece
+// di pubblicare per sbaglio un duplicato ancora da sistemare
+// (titolo, prezzo, operatore quasi certamente vanno cambiati).
+// =========================================================
+
+export async function duplicateExperience(id: string) {
+
+  if (!supabase) {
+    return { success: false, error: "Supabase not initialized" };
+  }
+
+  // ---------------------------------------------------------
+  // 1. ESPERIENZA BASE
+  // ---------------------------------------------------------
+
+  const { data: original, error: fetchError } = await supabase
+    .from("experience_content")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !original) {
+    console.error("duplicateExperience: fetch error", fetchError);
+    return { success: false, error: fetchError };
+  }
+
+  const newId = `dup-${Date.now()}`;
+
+  const { id: _oldId, ...rest } = original;
+
+  const { error: createError } = await supabase
+    .from("experience_content")
+    .insert({
+      ...rest,
+      id: newId,
+      title: `${original.title} (Copy)`,
+      active: false,
+      featured: false,
+    });
+
+  if (createError) {
+    console.error("duplicateExperience: create error", createError);
+    return { success: false, error: createError };
+  }
+
+  // ---------------------------------------------------------
+  // 2. FILTERS
+  // ---------------------------------------------------------
+
+  const { data: filters } = await supabase
+    .from("experience_filters")
+    .select("*")
+    .eq("experience_id", id)
+    .maybeSingle();
+
+  if (filters) {
+    await supabase.from("experience_filters").insert({
+      experience_id: newId,
+      guest_2: filters.guest_2,
+      guest_3_4: filters.guest_3_4,
+      guest_5_7: filters.guest_5_7,
+      guest_8_12: filters.guest_8_12,
+      guest_13_20: filters.guest_13_20,
+      guest_20_plus: filters.guest_20_plus,
+      budget_500_1000: filters.budget_500_1000,
+      budget_1000_3000: filters.budget_1000_3000,
+      budget_3000_plus: filters.budget_3000_plus,
+    });
+  }
+
+  // ---------------------------------------------------------
+  // 3. SCORING
+  // ---------------------------------------------------------
+
+  const { data: scoring } = await supabase
+    .from("experience_scoring")
+    .select("*")
+    .eq("experience_id", id)
+    .maybeSingle();
+
+  if (scoring) {
+    await supabase.from("experience_scoring").insert({
+      experience_id: newId,
+      romantic_score: scoring.romantic_score,
+      authentic_score: scoring.authentic_score,
+      adventure_score: scoring.adventure_score,
+      cinematic_score: scoring.cinematic_score,
+    });
+  }
+
+  // ---------------------------------------------------------
+  // 4. FACTS
+  // ---------------------------------------------------------
+
+  const { data: facts } = await supabase
+    .from("experience_facts")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (facts && facts.length > 0) {
+
+    const newFacts = facts.map((fact: any, index: number) => ({
+      id: `dup-fact-${Date.now()}-${index}`,
+      experience_id: newId,
+      label: fact.label,
+      value: fact.value,
+      display_order: fact.display_order,
+      active: fact.active,
+    }));
+
+    await supabase.from("experience_facts").insert(newFacts);
+  }
+
+  // ---------------------------------------------------------
+  // 5. SECTIONS
+  // ---------------------------------------------------------
+
+  const { data: sections } = await supabase
+    .from("experience_sections")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (sections && sections.length > 0) {
+
+    const newSections = sections.map((section: any, index: number) => ({
+      id: `dup-section-${Date.now()}-${index}`,
+      experience_id: newId,
+      title: section.title,
+      description: section.description,
+      display_order: section.display_order,
+      active: section.active,
+    }));
+
+    await supabase.from("experience_sections").insert(newSections);
+  }
+
+  // ---------------------------------------------------------
+  // 6. PRICE TIERS
+  // ---------------------------------------------------------
+
+  const { data: tiers } = await supabase
+    .from("experience_price_tiers")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (tiers && tiers.length > 0) {
+
+    const newTiers = tiers.map((tier: any, index: number) => ({
+      id: `dup-tier-${Date.now()}-${index}`,
+      experience_id: newId,
+      min_guests: tier.min_guests,
+      max_guests: tier.max_guests,
+      price: tier.price,
+      display_order: tier.display_order,
+    }));
+
+    await supabase.from("experience_price_tiers").insert(newTiers);
+  }
+
+  // ---------------------------------------------------------
+  // 7. GALLERY
+  // ---------------------------------------------------------
+
+  const { data: gallery } = await supabase
+    .from("experience_gallery")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (gallery && gallery.length > 0) {
+
+    const newGalleryImages = gallery.map((image: any) => ({
+      experience_id: newId,
+      image_url: image.image_url,
+      caption: image.caption,
+      featured: image.featured,
+      active: image.active,
+      display_order: image.display_order,
+    }));
+
+    await supabase.from("experience_gallery").insert(newGalleryImages);
+  }
+
+  return { success: true, newId };
+}
+
 
 export async function getExperiences() {
   if (!supabase) {
@@ -199,8 +391,7 @@ export async function getExperienceFilters() {
 }
 
 // ======================================================
-// PRICE TIERS (pricing_type resta invariato — questo è un
-// flag/tabella a parte, vedi experience_content.use_guest_tiers)
+// PRICE TIERS
 // ======================================================
 
 export async function getExperiencePriceTiers() {
@@ -632,9 +823,6 @@ export async function createGalleryImage(
 // IMAGE UPLOAD VALIDATION
 // ======================================================
 
-// Tipi accettati IN INGRESSO (quello che l'utente seleziona
-// dal proprio dispositivo) — l'output verso lo storage e'
-// sempre WebP, vedi resizeImageBeforeUpload().
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -643,8 +831,7 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 
 const MAX_IMAGE_SIZE_BYTES =
-  5 * 1024 * 1024; // 5 MB — controllo sul file originale,
-                   // prima del resize
+  5 * 1024 * 1024;
 
 export async function uploadImage(
   file: File
@@ -897,7 +1084,7 @@ export async function deleteExperienceFact(
 }
 
 // ======================================================
-// PROPOSAL CONFIG
+// SECTIONS
 // ======================================================
 
 export async function getExperienceSections() {
