@@ -141,6 +141,37 @@ export async function getProposalForLead(leadId: string) {
 }
 
 // =========================================================
+// RESTART PROPOSAL TIMER
+// Rimanda expires_at a 48h da ORA, sulla Proposal collegata a
+// questo lead. Serve quando una proposal sta per scadere (o è
+// già scaduta) ma il cliente ha bisogno di più tempo — l'admin
+// può "resettarla" senza dover ricreare tutto da capo.
+// =========================================================
+
+export async function restartProposalTimer(leadId: string) {
+
+  if (!supabase) {
+    return { success: false, error: "Supabase not initialized" };
+  }
+
+  const newExpiresAt = new Date(
+    Date.now() + 48 * 60 * 60 * 1000
+  ).toISOString();
+
+  const { error } = await supabase
+    .from("Proposal")
+    .update({ expires_at: newExpiresAt })
+    .eq("lead_id", leadId);
+
+  if (error) {
+    console.error("Error restarting proposal timer:", error);
+    return { success: false, error };
+  }
+
+  return { success: true, expiresAt: newExpiresAt };
+}
+
+// =========================================================
 // EMAIL VERIFIED MAP — per la pagina lista, che mostra un
 // badge per ogni riga senza fare una query per lead (N+1).
 // Una sola select su Proposal, poi si incrocia per lead_id.
