@@ -135,10 +135,10 @@ const MOOD_IMAGES: Record<string, string> = {
 // =========================================================
 
 const TIME_SLOTS: { value: string; label: string; emoji: string }[] = [
-  { value: "morning", label: "Mattina", emoji: "🌅" },
-  { value: "afternoon", label: "Pomeriggio", emoji: "☀️" },
-  { value: "sunset", label: "Tramonto", emoji: "🌇" },
-  { value: "full_day", label: "Giornata intera", emoji: "🌞" },
+  { value: "morning", label: "Morning", emoji: "🌅" },
+  { value: "afternoon", label: "Afternoon", emoji: "☀️" },
+  { value: "sunset", label: "Sunset", emoji: "🌇" },
+  { value: "full_day", label: "Full Day", emoji: "🌞" },
 ];
 
 export default function CraftYourExperience() {
