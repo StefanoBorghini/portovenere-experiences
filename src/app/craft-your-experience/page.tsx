@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import {
@@ -137,12 +138,12 @@ const MOOD_IMAGES: Record<string, string> = {
 const TIME_SLOTS: {
   value: string;
   label: string;
-  image: string;
+  icon: typeof Sunrise;
 }[] = [
-  { value: "morning", label: "Morning", image: "/images/timeslots/morning.jpg" },
-  { value: "afternoon", label: "Afternoon", image: "/images/timeslots/afternoon.jpg" },
-  { value: "sunset", label: "Sunset", image: "/images/timeslots/sunset.jpg" },
-  { value: "full_day", label: "Full Day", image: "/images/timeslots/full-day.jpg" },
+  { value: "morning", label: "Morning", icon: Sunrise },
+  { value: "afternoon", label: "Afternoon", icon: Sun },
+  { value: "sunset", label: "Sunset", icon: Sunset },
+  { value: "full_day", label: "Full Day", icon: Clock },
 ];
 
 export default function CraftYourExperience() {
@@ -1182,41 +1183,27 @@ export default function CraftYourExperience() {
                 {TIME_SLOTS.map((slot) => {
 
                   const isSelected = formData.preferredTime === slot.value;
+                  const Icon = slot.icon;
 
                   return (
                     <button
                       type="button"
                       key={slot.value}
                       onClick={() => handleSelect("preferredTime", slot.value)}
-                      className={`relative rounded-2xl overflow-hidden h-16 md:h-32 border transition-all duration-500 ${
-                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                      className={`border rounded-2xl px-3 py-2.5 md:px-4 md:py-3 text-center transition-all duration-500 ease-out ${
+                        isSelected
+                          ? "border-white bg-white text-black"
+                          : "border-white/10 bg-white/5 hover:border-white/40"
                       }`}
                     >
-                      <Image
-                        src={slot.image}
-                        alt={slot.label}
-                        fill
-                        sizes="50vw"
-                        className="object-cover"
+                      <Icon
+                        className="mx-auto mb-1 md:mb-1.5"
+                        size={18}
+                        strokeWidth={1.5}
                       />
-
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-
-                      <div
-                        className={`absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 flex items-center justify-center ${
-                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
-                        }`}
-                      >
-                        {isSelected && (
-                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-black" />
-                        )}
-                      </div>
-
-                      <div className="absolute bottom-0 left-0 p-2 md:p-3">
-                        <p className="text-white text-[11px] md:text-sm font-medium text-left">
-                          {slot.label}
-                        </p>
-                      </div>
+                      <span className="block text-[11px] md:text-xs">
+                        {slot.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -1527,10 +1514,12 @@ export default function CraftYourExperience() {
           flex
           flex-col
           justify-between
-          gap-6
+          gap-3
+          md:gap-6
           overflow-y-auto
           pt-4
-          pb-6
+          pb-4
+          md:pb-6
           px-6
           max-w-xl
           w-full
