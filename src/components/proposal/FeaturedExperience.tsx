@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExperienceFact } from "@/types/experience";
 import Section
@@ -100,6 +101,35 @@ export default function FeaturedExperience({
       }
     : formatPrice(basePrice, priceType);
 
+  // =====================================================
+  // SHOW MORE / SHOW ALL — stesso pattern gia' usato in
+  // ExperienceCard.tsx per "What's included" (collassato di
+  // default, max-height + opacity in transizione), riusato qui
+  // per description, facts e included, cosi' la card featured
+  // non risulta enorme quando un'esperienza ha molto testo.
+  // =====================================================
+
+  const [showFullDescription, setShowFullDescription] =
+    useState(false);
+
+  const [showAllFacts, setShowAllFacts] =
+    useState(false);
+
+  const [showAllIncluded, setShowAllIncluded] =
+    useState(false);
+
+  // Soglie: sotto queste, il contenuto e' gia' corto di suo e
+  // il toggle sarebbe superfluo (es. 2 facts non hanno bisogno
+  // di "Show all"). Sopra, mostriamo il pulsante.
+  const isDescriptionLong =
+    (description?.length ?? 0) > 220;
+
+  const hasManyFacts =
+    (facts?.length ?? 0) > 3;
+
+  const hasEssentials =
+    (essentials?.length ?? 0) > 0;
+
   return (
 
     <Section className="bg-black">
@@ -173,8 +203,7 @@ export default function FeaturedExperience({
               </p>
 
               {/* TITLE — nome dell'esperienza (es. "Authentic
-                  Ligurian Fishing Experience"). RIMESSO QUI: era
-                  andato perso nella ricostruzione precedente. */}
+                  Ligurian Fishing Experience"). */}
 
               <h2
                 className="
@@ -209,66 +238,211 @@ export default function FeaturedExperience({
 
               </p>
 
-              {/* DESCRIPTION */}
+              {/* DESCRIPTION — line-clamp a 4 righe quando
+                  collassata; nessun toggle se il testo e' gia'
+                  corto (isDescriptionLong = false). Nota: il
+                  blocco prezzo qui sotto e' stato spostato FUORI
+                  dal <p> della description (prima era annidato
+                  dentro, <div> dentro <p> non e' HTML valido) —
+                  stesso ordine visivo di prima, solo markup corretto. */}
 
               <p
-                className="
+                className={`
                   text-white/50
                   text-[15px]
                   md:text-[18px]
                   leading-[1.9]
                   max-w-2xl
-                  mb-14
-                "
+                  ${
+                    !showFullDescription && isDescriptionLong
+                      ? "line-clamp-4"
+                      : ""
+                  }
+                `}
               >
 
                 {description}
-{(price.label || price.value) && (
 
-  <div className="mb-16 mt-10">
-
-    {price.label && (
-
-      <p
-        className="
-           uppercase
-          tracking-[0.35em]
-          text-[11px]
-          text-white/35
-          mb-4
-        "
-      >
-        {price.label}
-      </p>
-
-    )}
-
-    {price.value && (
-
-      <p
-        className="
-         text-6xl
-        font-light
-        tracking-tight
-        leading-none
-        "
-      >
-        {price.value}
-      </p>
-
-    )}
-
-  </div>
-
-)}
               </p>
-<ExperienceFacts facts={facts} />
-          
-              {/* ESSENTIALS */}
 
-             <ExperienceSections
-  sections={essentials}
-/> 
+              {isDescriptionLong && (
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowFullDescription((prev) => !prev)
+                  }
+                  className="
+                    mt-4
+                    uppercase
+                    tracking-[0.25em]
+                    text-[11px]
+                    text-white/40
+                    hover:text-white/70
+                    transition
+                    cursor-pointer
+                  "
+                >
+                  {showFullDescription
+                    ? "Show less  −"
+                    : "Show more  +"}
+                </button>
+
+              )}
+
+              {(price.label || price.value) && (
+
+                <div className="mb-16 mt-10">
+
+                  {price.label && (
+
+                    <p
+                      className="
+                         uppercase
+                        tracking-[0.35em]
+                        text-[11px]
+                        text-white/35
+                        mb-4
+                      "
+                    >
+                      {price.label}
+                    </p>
+
+                  )}
+
+                  {price.value && (
+
+                    <p
+                      className="
+                       text-6xl
+                      font-light
+                      tracking-tight
+                      leading-none
+                      "
+                    >
+                      {price.value}
+                    </p>
+
+                  )}
+
+                </div>
+
+              )}
+
+              {/* FACTS — collassati solo se ce ne sono molti
+                  (soglia: piu' di 3). Con 1-2 facts, come duration
+                  e departure, il toggle non compare: sarebbe
+                  superfluo per due righe di testo. */}
+
+              <div
+                className={`
+                  overflow-hidden
+                  transition-all
+                  duration-500
+                  ease-out
+
+                  ${
+                    showAllFacts || !hasManyFacts
+                      ? "max-h-[2000px] opacity-100"
+                      : "max-h-[220px] opacity-100"
+                  }
+                `}
+              >
+
+                <ExperienceFacts facts={facts} />
+
+              </div>
+
+              {hasManyFacts && (
+
+                <div
+
+                  onClick={() =>
+                    setShowAllFacts((prev) => !prev)
+                  }
+
+                  className="
+                    mt-4
+                    text-center
+                    uppercase
+                    tracking-[0.25em]
+                    text-[11px]
+                    text-white/40
+                    hover:text-white/70
+                    transition
+                    cursor-pointer
+                  "
+                >
+
+                  {showAllFacts
+                    ? "Show less  −"
+                    : "Show all  +"}
+
+                </div>
+
+              )}
+
+              {/* ESSENTIALS ("Included in the tour" ecc.) —
+                  stesso pattern "What's included +/−" gia' usato
+                  in ExperienceCard.tsx per le card piu' piccole:
+                  collassato di default, cosi' la card featured
+                  non diventa enorme quando ci sono molte sezioni
+                  (es. "Included in the tour" + "The boat is
+                  equipped with"). */}
+
+              {hasEssentials && (
+
+                <>
+
+                  <div
+
+                    onClick={() =>
+                      setShowAllIncluded((prev) => !prev)
+                    }
+
+                    className="
+                      mt-8
+                      text-center
+                      uppercase
+                      tracking-[0.25em]
+                      text-[11px]
+                      text-white/40
+                      hover:text-white/70
+                      transition
+                      cursor-pointer
+                    "
+                  >
+
+                    {showAllIncluded
+                      ? "Hide what's included  −"
+                      : "What's included  +"}
+
+                  </div>
+
+                  <div
+                    className={`
+                      overflow-hidden
+                      transition-all
+                      duration-500
+                      ease-out
+
+                      ${
+                        showAllIncluded
+                          ? "max-h-[3000px] opacity-100"
+                          : "max-h-0 opacity-0"
+                      }
+                    `}
+                  >
+
+                    <ExperienceSections
+                      sections={essentials}
+                    />
+
+                  </div>
+
+                </>
+
+              )}
 
             </div>
 

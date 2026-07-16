@@ -64,22 +64,22 @@ const budgetOptions = [
 const timeSlotOptions = [
 
   {
-    label: "🌅 Mattina",
+    label: "🌅 Morning",
     key: "available_morning",
   },
 
   {
-    label: "☀️ Pomeriggio",
+    label: "☀️ Afternoon",
     key: "available_afternoon",
   },
 
   {
-    label: "🌇 Tramonto",
+    label: "🌇 Sunset",
     key: "available_sunset",
   },
 
   {
-    label: "🌞 Giornata intera",
+    label: "🌞 Full Day",
     key: "available_full_day",
   },
 
