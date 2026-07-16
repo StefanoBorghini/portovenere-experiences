@@ -201,9 +201,11 @@ export default function HomePage() {
           {/* GRAIN */}
           <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
 
-          {/* NAVBAR — statica, in cima all'hero, non segue lo scroll */}
+          {/* NAVBAR — statica, in cima all'hero, non segue lo scroll.
+              Logo e padding ridotti solo su mobile per lasciare piu'
+              spazio verticale al contenuto sotto — invariati da md in su. */}
           <nav className="relative z-50">
-            <div className="max-w-7xl mx-auto flex justify-center py-6 md:py-8">
+            <div className="max-w-7xl mx-auto flex justify-center py-4 md:py-8">
 
               <a
                 href="/"
@@ -212,7 +214,7 @@ export default function HomePage() {
                 <img
                   src="/logo-white.png"
                   alt="Portovenere Experiences"
-                  className="w-auto h-20 md:h-24"
+                  className="w-auto h-12 md:h-24"
                 />
               </a>
 
@@ -220,44 +222,47 @@ export default function HomePage() {
           </nav>
 
 
-          {/* HERO CONTENT */}
+          {/* HERO CONTENT — su mobile: meno padding-top, titolo piu'
+              piccolo, margini ridotti tra gli elementi, cosi' che
+              entrambi i bottoni CTA restino visibili senza scroll.
+              Tutte le classi md: sono rimaste identiche a prima. */}
           <div className="relative z-20 min-h-screen flex items-center justify-center px-6 text-center">
-            <div className="max-w-6xl pt-32">
-              <p className="uppercase tracking-[0.45em] text-zinc-300 text-[11px] md:text-sm mb-8">
+            <div className="max-w-6xl pt-16 md:pt-32">
+              <p className="uppercase tracking-[0.3em] md:tracking-[0.45em] text-zinc-300 text-[10px] md:text-sm mb-4 md:mb-8">
                 Curated Luxury Experiences — Italian Riviera
               </p>
 
-              <h1 className="text-[58px] leading-[0.9] md:text-[140px] font-light tracking-tight mb-10">
+              <h1 className="text-[40px] leading-[0.95] md:text-[140px] md:leading-[0.9] font-light tracking-tight mb-5 md:mb-10">
                 Beyond the
                 <br />
                 Cinque Terre
               </h1>
 
-              <p className="max-w-2xl mx-auto text-zinc-200 text-lg md:text-2xl leading-relaxed">
+              <p className="max-w-2xl mx-auto text-zinc-200 text-sm md:text-2xl leading-relaxed">
                 Private yacht escapes, cinematic sunsets and curated experiences
                 on the hidden side of the Italian Riviera.
               </p>
 
               {/* CTA */}
-              <div className="flex flex-col md:flex-row justify-center gap-5 mt-12">
+              <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-5 mt-6 md:mt-12">
                 <a
                   href="/craft-your-experience"
                   onClick={() => trackCtaClicked("hero")}
-                  className="bg-[#EDEBE7] text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+                  className="bg-[#EDEBE7] text-black px-8 py-3.5 md:px-10 md:py-5 rounded-full uppercase tracking-[0.2em] md:tracking-[0.25em] text-[11px] md:text-xs hover:scale-105 transition-all duration-500"
                 >
                   Craft Your Experience
                 </a>
 
                 <a
                   href="#how-it-works"
-                  className="border border-[#EDEBE7]/30 backdrop-blur-md px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
+                  className="border border-[#EDEBE7]/30 backdrop-blur-md px-8 py-3.5 md:px-10 md:py-5 rounded-full uppercase tracking-[0.2em] md:tracking-[0.25em] text-[11px] md:text-xs hover:bg-[#EDEBE7] hover:text-black transition-all duration-500"
                 >
                   How it Works
                 </a>
               </div>
 
               {/* TRUST STRIP */}
-              <div className="flex flex-wrap justify-center gap-6 md:gap-10 mt-14 text-[10px] md:text-xs uppercase tracking-[0.3em] text-zinc-300">
+              <div className="flex flex-wrap justify-center gap-3 md:gap-10 mt-6 md:mt-14 text-[9px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] text-zinc-300">
                 <span>Limited Summer Availability</span>
                 <span>Private Access</span>
                 <span>Selected Collaborations</span>
