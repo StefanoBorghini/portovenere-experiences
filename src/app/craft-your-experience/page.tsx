@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import {
@@ -138,12 +137,12 @@ const MOOD_IMAGES: Record<string, string> = {
 const TIME_SLOTS: {
   value: string;
   label: string;
-  icon: typeof Sunrise;
+  image: string;
 }[] = [
-  { value: "morning", label: "Mattina", icon: Sunrise },
-  { value: "afternoon", label: "Pomeriggio", icon: Sun },
-  { value: "sunset", label: "Tramonto", icon: Sunset },
-  { value: "full_day", label: "Giornata intera", icon: Clock },
+  { value: "morning", label: "Morning", image: "/images/timeslots/morning.jpg" },
+  { value: "afternoon", label: "Afternoon", image: "/images/timeslots/afternoon.jpg" },
+  { value: "sunset", label: "Sunset", image: "/images/timeslots/sunset.jpg" },
+  { value: "full_day", label: "Full Day", image: "/images/timeslots/full-day.jpg" },
 ];
 
 export default function CraftYourExperience() {
@@ -1176,34 +1175,48 @@ export default function CraftYourExperience() {
             <div className="mt-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-                Fascia oraria preferita
+                Preferred Time Slot
               </p>
 
               <div className="grid grid-cols-2 gap-2.5">
                 {TIME_SLOTS.map((slot) => {
 
                   const isSelected = formData.preferredTime === slot.value;
-                  const Icon = slot.icon;
 
                   return (
                     <button
                       type="button"
                       key={slot.value}
                       onClick={() => handleSelect("preferredTime", slot.value)}
-                      className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
-                        isSelected
-                          ? "border-white bg-white text-black"
-                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                       }`}
                     >
-                      <Icon
-                        className="mx-auto mb-1.5"
-                        size={20}
-                        strokeWidth={1.5}
+                      <Image
+                        src={slot.image}
+                        alt={slot.label}
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
                       />
-                      <span className="block text-xs">
-                        {slot.label}
-                      </span>
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+
+                      <div
+                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <p className="text-white text-sm font-medium text-left">
+                          {slot.label}
+                        </p>
+                      </div>
                     </button>
                   );
                 })}
