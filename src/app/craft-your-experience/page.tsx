@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import {
@@ -138,12 +137,12 @@ const MOOD_IMAGES: Record<string, string> = {
 const TIME_SLOTS: {
   value: string;
   label: string;
-  icon: typeof Sunrise;
+  image: string;
 }[] = [
-  { value: "morning", label: "Mattina", icon: Sunrise },
-  { value: "afternoon", label: "Pomeriggio", icon: Sun },
-  { value: "sunset", label: "Tramonto", icon: Sunset },
-  { value: "full_day", label: "Giornata intera", icon: Clock },
+  { value: "morning", label: "Morning", image: "/images/timeslots/morning.jpg" },
+  { value: "afternoon", label: "Afternoon", image: "/images/timeslots/afternoon.jpg" },
+  { value: "sunset", label: "Sunset", image: "/images/timeslots/sunset.jpg" },
+  { value: "full_day", label: "Full Day", image: "/images/timeslots/full-day.jpg" },
 ];
 
 export default function CraftYourExperience() {
@@ -978,7 +977,7 @@ export default function CraftYourExperience() {
 
             {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
-              Children 0-8
+              Children 0-6
             </p>
 
             <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
@@ -1106,7 +1105,7 @@ export default function CraftYourExperience() {
               {weekdayLabels.map((label, index) => (
                 <div
                   key={index}
-                  className="h-5 flex items-center justify-center text-[10px] text-zinc-500"
+                  className="h-4 md:h-5 flex items-center justify-center text-[10px] text-zinc-500"
                 >
                   {label}
                 </div>
@@ -1140,7 +1139,7 @@ export default function CraftYourExperience() {
                       if (!disabled) startDateDrag(iso);
                     }}
                     className={`
-                      h-9 flex items-center justify-center relative
+                      h-8 md:h-9 flex items-center justify-center relative
                       ${inRange ? "bg-[#d6c6a5]/20" : ""}
                       ${isStart && !isEnd ? "rounded-l-full" : ""}
                       ${isEnd && !isStart ? "rounded-r-full" : ""}
@@ -1161,7 +1160,7 @@ export default function CraftYourExperience() {
               })}
             </div>
 
-            <p className="text-zinc-500 text-[11px] mt-2 text-center">
+            <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
               Tap a date, or drag across dates to select a range.
             </p>
 
@@ -1173,37 +1172,51 @@ export default function CraftYourExperience() {
                 e' coerente con come funzionano gia' guests/budget.
                 =================================================== */}
 
-            <div className="mt-6">
+            <div className="mt-3 md:mt-6">
 
-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-                Fascia oraria preferita
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2 md:mb-3">
+                Preferred Time Slot
               </p>
 
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2 md:gap-2.5">
                 {TIME_SLOTS.map((slot) => {
 
                   const isSelected = formData.preferredTime === slot.value;
-                  const Icon = slot.icon;
 
                   return (
                     <button
                       type="button"
                       key={slot.value}
                       onClick={() => handleSelect("preferredTime", slot.value)}
-                      className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
-                        isSelected
-                          ? "border-white bg-white text-black"
-                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      className={`relative rounded-2xl overflow-hidden h-16 md:h-32 border transition-all duration-500 ${
+                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                       }`}
                     >
-                      <Icon
-                        className="mx-auto mb-1.5"
-                        size={20}
-                        strokeWidth={1.5}
+                      <Image
+                        src={slot.image}
+                        alt={slot.label}
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
                       />
-                      <span className="block text-xs">
-                        {slot.label}
-                      </span>
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+
+                      <div
+                        className={`absolute top-1.5 right-1.5 md:top-2 md:right-2 w-4 h-4 md:w-5 md:h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-black" />
+                        )}
+                      </div>
+
+                      <div className="absolute bottom-0 left-0 p-2 md:p-3">
+                        <p className="text-white text-[11px] md:text-sm font-medium text-left">
+                          {slot.label}
+                        </p>
+                      </div>
                     </button>
                   );
                 })}
@@ -1472,9 +1485,9 @@ export default function CraftYourExperience() {
     <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col">
 
       {/* HEADER: back + progress + counter — compatto, altezza fissa */}
-      <div className="px-6 pt-6 pb-3 max-w-xl w-full mx-auto shrink-0">
+      <div className="px-6 pt-4 pb-2 md:pt-6 md:pb-3 max-w-xl w-full mx-auto shrink-0">
 
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-2 md:mb-4">
 
           <button
             type="button"
@@ -1501,7 +1514,7 @@ export default function CraftYourExperience() {
           {STEP_LABELS[stepId as StepId].label}
         </p>
 
-        <h1 className="text-2xl md:text-4xl font-light leading-tight">
+        <h1 className="text-xl md:text-4xl font-light leading-tight">
           {STEP_LABELS[stepId as StepId].title}
         </h1>
 
