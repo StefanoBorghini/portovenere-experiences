@@ -1162,7 +1162,9 @@ export default function CraftYourExperience() {
             <div className="mt-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-                Fascia oraria preferita
+preferred time slot
+
+
               </p>
 
               <div className="grid grid-cols-2 gap-2.5">
