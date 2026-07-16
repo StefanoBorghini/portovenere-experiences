@@ -149,7 +149,7 @@ export default function HomePage() {
         {/* HERO */}
         <section
           ref={heroRef}
-          className="relative min-h-screen overflow-hidden pb-24 md:pb-0"
+          className="relative min-h-dvh overflow-hidden pb-24 md:pb-0"
         >
           {/* DESKTOP VIDEO */}
           <video
@@ -226,7 +226,7 @@ export default function HomePage() {
               piccolo, margini ridotti tra gli elementi, cosi' che
               entrambi i bottoni CTA restino visibili senza scroll.
               Tutte le classi md: sono rimaste identiche a prima. */}
-          <div className="relative z-20 min-h-screen flex items-center justify-center px-6 text-center">
+          <div className="relative z-20 min-h-dvh flex items-center justify-center px-6 text-center">
             <div className="max-w-6xl pt-16 md:pt-32">
               <p className="uppercase tracking-[0.3em] md:tracking-[0.45em] text-zinc-300 text-[10px] md:text-sm mb-4 md:mb-8">
                 Curated Luxury Experiences — Italian Riviera
