@@ -105,7 +105,7 @@ export default function FloatingPriceBar({
 
           className="
             fixed
-            bottom-10
+            bottom-14
             md:bottom-6
             left-1/2
             -translate-x-1/2
