@@ -523,6 +523,22 @@ for (const fact of experience.facts) {
           budget_3000_plus:
             experience.budget_3000_plus,
 
+          // Fascia oraria preferita — mancavano qui: lo stato
+          // locale veniva aggiornato correttamente dai checkbox
+          // in FiltersCard, ma senza questi 4 campi nella chiamata
+          // di salvataggio non venivano mai inviati a Supabase.
+          available_morning:
+            experience.available_morning,
+
+          available_afternoon:
+            experience.available_afternoon,
+
+          available_sunset:
+            experience.available_sunset,
+
+          available_full_day:
+            experience.available_full_day,
+
         }
 
       );
