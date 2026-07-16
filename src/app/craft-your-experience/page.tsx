@@ -978,7 +978,7 @@ export default function CraftYourExperience() {
 
             {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
-              Children 0-6
+              Children 0-8
             </p>
 
             <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
