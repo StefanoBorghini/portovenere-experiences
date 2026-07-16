@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import {
@@ -134,11 +135,15 @@ const MOOD_IMAGES: Record<string, string> = {
 // dalla specifica: morning | afternoon | sunset | full_day.
 // =========================================================
 
-const TIME_SLOTS: { value: string; label: string; emoji: string }[] = [
-  { value: "morning", label: "Mattina", emoji: "🌅" },
-  { value: "afternoon", label: "Pomeriggio", emoji: "☀️" },
-  { value: "sunset", label: "Tramonto", emoji: "🌇" },
-  { value: "full_day", label: "Giornata intera", emoji: "🌞" },
+const TIME_SLOTS: {
+  value: string;
+  label: string;
+  icon: typeof Sunrise;
+}[] = [
+  { value: "morning", label: "Mattina", icon: Sunrise },
+  { value: "afternoon", label: "Pomeriggio", icon: Sun },
+  { value: "sunset", label: "Tramonto", icon: Sunset },
+  { value: "full_day", label: "Giornata intera", icon: Clock },
 ];
 
 export default function CraftYourExperience() {
@@ -864,7 +869,7 @@ export default function CraftYourExperience() {
                       className="object-cover"
                     />
 
-                    <div className="absolute inset-0 bg-black/40" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
 
                     <div
                       className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
@@ -876,8 +881,8 @@ export default function CraftYourExperience() {
                       )}
                     </div>
 
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <p className="text-white text-sm font-medium">{item}</p>
+                    <div className="absolute bottom-0 left-0 p-3">
+                      <p className="text-white text-sm font-medium text-left">{item}</p>
                     </div>
                   </button>
                 );
@@ -1178,6 +1183,7 @@ export default function CraftYourExperience() {
                 {TIME_SLOTS.map((slot) => {
 
                   const isSelected = formData.preferredTime === slot.value;
+                  const Icon = slot.icon;
 
                   return (
                     <button
@@ -1190,9 +1196,11 @@ export default function CraftYourExperience() {
                           : "border-white/10 bg-white/5 hover:border-white/40"
                       }`}
                     >
-                      <span className="block text-lg leading-tight mb-1">
-                        {slot.emoji}
-                      </span>
+                      <Icon
+                        className="mx-auto mb-1.5"
+                        size={20}
+                        strokeWidth={1.5}
+                      />
                       <span className="block text-xs">
                         {slot.label}
                       </span>
