@@ -128,6 +128,19 @@ const MOOD_IMAGES: Record<string, string> = {
   Adventure: "/images/adventure.jpg",
 };
 
+// =========================================================
+// FASCIA ORARIA PREFERITA — nuovo parametro (richiesta LPG Italia).
+// Valore salvato su leads.preferred_time, uno dei quattro definiti
+// dalla specifica: morning | afternoon | sunset | full_day.
+// =========================================================
+
+const TIME_SLOTS: { value: string; label: string; emoji: string }[] = [
+  { value: "morning", label: "Mattina", emoji: "🌅" },
+  { value: "afternoon", label: "Pomeriggio", emoji: "☀️" },
+  { value: "sunset", label: "Tramonto", emoji: "🌇" },
+  { value: "full_day", label: "Giornata intera", emoji: "🌞" },
+];
+
 export default function CraftYourExperience() {
 
   const router = useRouter();
@@ -230,6 +243,11 @@ export default function CraftYourExperience() {
 
     startDate: "",
     endDate: "",
+
+    // Fascia oraria preferita — "" finche' l'utente non sceglie,
+    // volutamente NON obbligatoria (non e' richiesto dalla spec
+    // che blocchi il proseguimento del wizard).
+    preferredTime: "",
 
     travelingWithChildren: false,
 
@@ -396,6 +414,14 @@ export default function CraftYourExperience() {
 
     if (field === "budget") {
       trackBudgetChanged(value);
+    }
+
+    if (field === "preferredTime") {
+      trackEvent({
+        action: "preferred_time_selected",
+        category: "configurator",
+        label: value,
+      });
     }
 
     setFormData((prev) => ({
@@ -632,6 +658,9 @@ export default function CraftYourExperience() {
             budget: formData.budget,
             start_date: formData.startDate,
             end_date: formData.endDate,
+            // Fascia oraria preferita — nuovo campo, null se l'utente
+            // non ha scelto (non obbligatorio).
+            preferred_time: formData.preferredTime || null,
             traveling_with_children: formData.travelingWithChildren,
             children: formData.children,
           },
@@ -685,6 +714,7 @@ export default function CraftYourExperience() {
               budget: formData.budget,
               start_date: formData.startDate,
               end_date: formData.endDate,
+              preferred_time: formData.preferredTime || null,
               traveling_with_children: formData.travelingWithChildren,
             },
             total_price: 0,
@@ -1121,6 +1151,48 @@ export default function CraftYourExperience() {
             <p className="text-zinc-500 text-[11px] mt-2 text-center">
               Tap a date, or drag across dates to select a range.
             </p>
+
+            {/* ===================================================
+                FASCIA ORARIA PREFERITA — nuova sezione, subito sotto
+                il calendario, stesso stile a bottoni singola-selezione
+                gia' usato per il budget. Nessuno step nuovo, nessuna
+                validazione bloccante: campo opzionale.
+                =================================================== */}
+
+            <div className="mt-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
+                Fascia oraria preferita
+              </p>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                {TIME_SLOTS.map((slot) => {
+
+                  const isSelected = formData.preferredTime === slot.value;
+
+                  return (
+                    <button
+                      type="button"
+                      key={slot.value}
+                      onClick={() => handleSelect("preferredTime", slot.value)}
+                      className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
+                        isSelected
+                          ? "border-white bg-white text-black"
+                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      }`}
+                    >
+                      <span className="block text-lg leading-tight mb-1">
+                        {slot.emoji}
+                      </span>
+                      <span className="block text-xs">
+                        {slot.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+            </div>
 
           </div>
         );

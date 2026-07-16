@@ -52,6 +52,39 @@ const budgetOptions = [
 
 ];
 
+// =========================================================
+// FASCIA ORARIA — nuovo parametro (richiesta LPG Italia).
+// Stessi campi definiti nello schema experience_filters:
+// available_morning, available_afternoon, available_sunset,
+// available_full_day. Default true a livello DB, quindi qui
+// se il campo non e' ancora presente su una experience esistente
+// il checkbox risultera' comunque marcato (coerente col default).
+// =========================================================
+
+const timeSlotOptions = [
+
+  {
+    label: "🌅 Mattina",
+    key: "available_morning",
+  },
+
+  {
+    label: "☀️ Pomeriggio",
+    key: "available_afternoon",
+  },
+
+  {
+    label: "🌇 Tramonto",
+    key: "available_sunset",
+  },
+
+  {
+    label: "🌞 Giornata intera",
+    key: "available_full_day",
+  },
+
+];
+
 export default function FiltersCard({
 
   experience,
@@ -311,6 +344,73 @@ Experience Filters
 
   </div>
 
+
+</div>
+
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+    Fascia oraria disponibile
+  </label>
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+    {timeSlotOptions.map((slot) => (
+
+      <label
+        key={slot.key}
+        className="
+          flex
+          items-center
+          gap-2
+          rounded-xl
+          border
+          border-white/10
+          bg-white/5
+          px-4
+          py-3
+          cursor-pointer
+        "
+      >
+
+        <input
+          type="checkbox"
+          checked={
+            experience[slot.key] ?? true
+          }
+          onChange={(e) =>
+
+            setExperience({
+
+              ...experience,
+
+              [slot.key]: e.target.checked,
+
+            })
+
+          }
+        />
+
+        {slot.label}
+
+      </label>
+
+    ))}
+
+  </div>
+
+  <p className="text-white/30 text-xs mt-2">
+    Determina in quali fasce orarie questa esperienza è
+    prioritaria nel matching. Se il cliente non seleziona
+    nessuna fascia, questo filtro non ha effetto.
+  </p>
 
 </div>
 

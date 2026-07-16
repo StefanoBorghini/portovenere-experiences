@@ -3,6 +3,13 @@
 // COMPLETE UPDATED VERSION — guestCount ora somma adulti +
 // bambini per capacità/matching (guest_X, max_participants),
 // coerente con quello che già facevano i tier di prezzo.
+//
+// AGGIUNTA — Fascia oraria preferita (richiesta LPG Italia):
+// priorità di scoring (non filtro escludente) per le esperienze
+// compatibili con available_<fascia> === true. Essendo un bonus
+// di punteggio e non un filtro, il "rilassamento" richiesto dalla
+// spec quando nessuna esperienza soddisfa il requisito è già
+// garantito per costruzione — non serve logica separata.
 // =========================================================
 
 
@@ -40,6 +47,12 @@ interface GenerateProposalProps {
 
   travelingWithChildren: boolean;
 
+  // NUOVO — "morning" | "afternoon" | "sunset" | "full_day".
+  // Opzionale: se non passato (utente non l'ha selezionata nel
+  // wizard), nessun bonus di scoring viene applicato — comportamento
+  // identico a prima dell'introduzione del parametro.
+  preferredTime?: string;
+
   allExperiences: any[];
 }
 
@@ -58,6 +71,8 @@ export function generateProposal({
   children,
 
   travelingWithChildren,
+
+  preferredTime,
 
   allExperiences,
 
@@ -78,6 +93,17 @@ const safeMoodsSelected =
   const adultsCount = Number(guests) || 0;
   const childrenCount = Number(children) || 0;
   const totalGuestCount = adultsCount + childrenCount;
+
+  // =========================================================
+  // FASCIA ORARIA — nome del campo booleano su experience_filters
+  // corrispondente al valore scelto nel wizard, es. "morning" ->
+  // "available_morning". undefined se preferredTime non e' stato
+  // passato, cosi' il controllo piu' sotto (experience[...]) risulta
+  // sempre false/undefined senza bisogno di un if separato.
+  // =========================================================
+
+  const preferredTimeField =
+    preferredTime ? `available_${preferredTime}` : null;
 
   // =========================================================
   // FILTER EXPERIENCES
@@ -268,6 +294,26 @@ const matchesBudget =
   }
 
 });
+
+        // =====================================================
+        // FASCIA ORARIA PREFERITA — bonus di priorità, non filtro.
+        // +50 se l'esperienza e' disponibile nella fascia scelta
+        // dal cliente (peso intermedio tra "ideal guests" ±80/100
+        // e un singolo punto mood ±10, coerente con l'importanza
+        // relativa che la spec le assegna: "priorità", non
+        // requisito assoluto).
+        // =====================================================
+
+        if (
+
+          preferredTimeField &&
+
+          experience[preferredTimeField] === true
+
+        ) {
+
+          score += 50;
+        }
 
         // =====================================================
         // RETURN
@@ -474,6 +520,15 @@ if (safeExperiencesSelected.length === 1) {
         if (mood === "Adventure") score += (experience.adventure_score ?? 0) * 10;
         if (mood === "Cinematic") score += (experience.cinematic_score ?? 0) * 10;
       });
+
+      // Stesso bonus fascia oraria applicato anche ai suggerimenti,
+      // per coerenza con la lista principale.
+      if (
+        preferredTimeField &&
+        experience[preferredTimeField] === true
+      ) {
+        score += 50;
+      }
 
       return { ...experience, finalScore: score };
     })
