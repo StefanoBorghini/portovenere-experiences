@@ -135,10 +135,10 @@ const MOOD_IMAGES: Record<string, string> = {
 // =========================================================
 
 const TIME_SLOTS: { value: string; label: string; emoji: string }[] = [
-  { value: "morning", label: "Morning", emoji: "🌅" },
-  { value: "afternoon", label: "Afternoon", emoji: "☀️" },
-  { value: "sunset", label: "Sunset", emoji: "🌇" },
-  { value: "full_day", label: "Full Day", emoji: "🌞" },
+  { value: "morning", label: "Mattina", emoji: "🌅" },
+  { value: "afternoon", label: "Pomeriggio", emoji: "☀️" },
+  { value: "sunset", label: "Tramonto", emoji: "🌇" },
+  { value: "full_day", label: "Giornata intera", emoji: "🌞" },
 ];
 
 export default function CraftYourExperience() {
@@ -244,9 +244,9 @@ export default function CraftYourExperience() {
     startDate: "",
     endDate: "",
 
-    // Fascia oraria preferita — "" finche' l'utente non sceglie,
-    // volutamente NON obbligatoria (non e' richiesto dalla spec
-    // che blocchi il proseguimento del wizard).
+    // Fascia oraria preferita — ora OBBLIGATORIA: il Next dello
+    // step "dates" resta disabilitato finche' non viene scelta,
+    // vedi isStepValid("dates") piu' sotto.
     preferredTime: "",
 
     travelingWithChildren: false,
@@ -509,7 +509,15 @@ export default function CraftYourExperience() {
         return formData.guests !== "";
 
       case "dates":
-        return formData.startDate !== "" && formData.endDate !== "";
+        // Ora richiede ANCHE la fascia oraria, non solo le date:
+        // il Next resta disabilitato finche' l'utente non seleziona
+        // una delle 4 opzioni (Mattina/Pomeriggio/Tramonto/Giornata
+        // intera), oltre al range di date come prima.
+        return (
+          formData.startDate !== "" &&
+          formData.endDate !== "" &&
+          formData.preferredTime !== ""
+        );
 
       case "budget":
         return formData.budget !== "";
@@ -658,8 +666,8 @@ export default function CraftYourExperience() {
             budget: formData.budget,
             start_date: formData.startDate,
             end_date: formData.endDate,
-            // Fascia oraria preferita — nuovo campo, null se l'utente
-            // non ha scelto (non obbligatorio).
+            // Fascia oraria preferita — ora sempre valorizzata,
+            // essendo diventata obbligatoria nello step dates.
             preferred_time: formData.preferredTime || null,
             traveling_with_children: formData.travelingWithChildren,
             children: formData.children,
@@ -1153,18 +1161,17 @@ export default function CraftYourExperience() {
             </p>
 
             {/* ===================================================
-                FASCIA ORARIA PREFERITA — nuova sezione, subito sotto
-                il calendario, stesso stile a bottoni singola-selezione
-                gia' usato per il budget. Nessuno step nuovo, nessuna
-                validazione bloccante: campo opzionale.
+                FASCIA ORARIA PREFERITA — ORA OBBLIGATORIA. Nessun
+                asterisco o testo "required" aggiunto per non rompere
+                lo stile minimale del resto del wizard: la validazione
+                silenziosa (Next disabilitato finche' non si sceglie)
+                e' coerente con come funzionano gia' guests/budget.
                 =================================================== */}
 
             <div className="mt-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-preferred time slot
-
-
+                Fascia oraria preferita
               </p>
 
               <div className="grid grid-cols-2 gap-2.5">
@@ -1328,12 +1335,6 @@ preferred time slot
         {/* OVERLAY — se l'immagine non è ancora impostata resta semplicemente nero */}
         <div className="absolute inset-0 bg-black/60" />
 
-        {/*
-          BLOCCO CENTRALE — logo, testo e bottone centrati come un unico blocco.
-          max-w-xl + mx-auto impediscono che il contenuto si stiri edge-to-edge
-          su schermi larghi; le classi md: scalano tipografia e spaziature
-          per una resa desktop proporzionata, non solo un "mobile ingrandito".
-        */}
         <div
           className="
             relative
@@ -1498,15 +1499,6 @@ preferred time slot
 
       </div>
 
-      {/*
-        CONTENUTO + PULSANTI insieme, centrati come blocco unico
-        nello spazio restante. Questo è il punto chiave: su step corti
-        (experiences, moods, guests, budget) i pulsanti Next/Back
-        restano incollati subito sotto la griglia invece di finire
-        in fondo allo schermo. Su step più alti (dates, terms con
-        captcha) min-h-0 + overflow-y-auto permette uno scroll interno
-        di fallback senza rompere il layout.
-      */}
       <div
         className="
           flex-1
