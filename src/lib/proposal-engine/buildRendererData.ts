@@ -151,7 +151,13 @@ export function buildRendererData({
 
   // ===================================================
   // ENHANCEMENTS (filtro quelli incompatibili con la
-  // featured o con una qualsiasi delle experience incluse)
+  // featured o con una qualsiasi delle experience incluse
+  // — a meno che il viaggio non duri piu' di un giorno,
+  // stessa eccezione multi-day gia' applicata sopra alle
+  // esperienze: un enhancement "incompatibile" puo' comunque
+  // stare nella proposal se va programmato in un giorno diverso.
+  // Prima questo controllo mancava qui, quindi gli enhancement
+  // restavano esclusi anche nei viaggi multi-giorno.
   // ===================================================
 
   const relevantExperiences = [
@@ -161,12 +167,15 @@ export function buildRendererData({
 
   const incompatibleEnhancementIds = new Set<string>();
 
-  relevantExperiences.forEach((experience: any) => {
+  if (!isMultiDayTrip) {
 
-    (experience.incompatible_enhancements ?? []).forEach(
-      (id: any) => incompatibleEnhancementIds.add(String(id))
-    );
-  });
+    relevantExperiences.forEach((experience: any) => {
+
+      (experience.incompatible_enhancements ?? []).forEach(
+        (id: any) => incompatibleEnhancementIds.add(String(id))
+      );
+    });
+  }
 
   const enhancementCards =
     enhancements
