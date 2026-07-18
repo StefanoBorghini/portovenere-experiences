@@ -165,6 +165,15 @@ setExperience(found);
 
 />
 
+<HeroTitlesCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
+
+
 <IncludedCard
 
     experience={experience}
@@ -217,13 +226,6 @@ setExperience={setExperience}
 
 />
 
-<HeroTitlesCard
-
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
 
 <GalleryCard
 
