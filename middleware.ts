@@ -5,12 +5,20 @@ import { NextRequest, NextResponse } from "next/server";
 // ciascuna, es. link di proposal privata per un cliente specifico)
 // =========================================================
 
-const protectedRoutes = {
-  "/craft-your-experience": {
-    username: process.env.PRIVATE_LOGIN_STEFANO_USER!,
-    password: process.env.PRIVATE_LOGIN_STEFANO_PASS!,
-    expiresAt: "2027-05-23T23:59:59",
-  },
+// Annotazione esplicita necessaria: con l'oggetto vuoto, TypeScript
+// altrimenti inferisce i valori come tipo "never" e ogni proprieta'
+// (expiresAt, username, password) risulta inesistente piu' sotto.
+type ProtectedRoute = {
+  username: string;
+  password: string;
+  expiresAt: string;
+};
+
+const protectedRoutes: Record<string, ProtectedRoute> = {
+  // "/craft-your-experience" rimosso — configuratore pubblico,
+  // nessun login richiesto. Se in futuro serve rimetterlo dietro
+  // accesso privato, basta reinserire questa voce con lo stesso
+  // shape delle altre.
 };
 
 // =========================================================
