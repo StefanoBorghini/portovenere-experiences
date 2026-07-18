@@ -145,8 +145,8 @@ const scoringInsert =await supabase
 // =========================================================
 // DUPLICATE EXPERIENCE
 // Clona un'esperienza intera: dati generali, filtri guest/budget,
-// punteggi mood, facts, sections, tier di prezzo (se presenti) e
-// galleria immagini (stessi URL, righe nuove).
+// punteggi mood, facts, sections, hero titles, tier di prezzo
+// (se presenti) e galleria immagini (stessi URL, righe nuove).
 //
 // La copia parte SEMPRE con active=false e featured=false — cosi'
 // puoi rivederla/aggiustarla prima che compaia ai clienti, invece
@@ -286,7 +286,29 @@ export async function duplicateExperience(id: string) {
   }
 
   // ---------------------------------------------------------
-  // 6. PRICE TIERS
+  // 6. HERO TITLES
+  // ---------------------------------------------------------
+
+  const { data: heroTitles } = await supabase
+    .from("experience_hero_titles")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (heroTitles && heroTitles.length > 0) {
+
+    const newHeroTitles = heroTitles.map((heroTitle: any, index: number) => ({
+      id: `dup-hero-title-${Date.now()}-${index}`,
+      experience_id: newId,
+      title: heroTitle.title,
+      display_order: heroTitle.display_order,
+      active: heroTitle.active,
+    }));
+
+    await supabase.from("experience_hero_titles").insert(newHeroTitles);
+  }
+
+  // ---------------------------------------------------------
+  // 7. PRICE TIERS
   // ---------------------------------------------------------
 
   const { data: tiers } = await supabase
@@ -309,7 +331,7 @@ export async function duplicateExperience(id: string) {
   }
 
   // ---------------------------------------------------------
-  // 7. GALLERY
+  // 8. GALLERY
   // ---------------------------------------------------------
 
   const { data: gallery } = await supabase
@@ -512,6 +534,133 @@ export async function deleteExperiencePriceTier(
 
 }
 
+// ======================================================
+// HERO TITLES
+// Stesso pattern esatto di facts/sections: 1 esperienza -> N
+// righe, ognuna con title/active/display_order. Consumato da
+// generateProposal.ts (filtra le active, ne sceglie una a caso).
+// ======================================================
+
+export async function getExperienceHeroTitles() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("experience_hero_titles")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
+
+export async function createExperienceHeroTitle(heroTitle: any) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { data, error } =
+    await supabase
+      .from("experience_hero_titles")
+      .insert({
+        id: heroTitle.id,
+        experience_id: heroTitle.experience_id,
+        title: heroTitle.title,
+        display_order: heroTitle.display_order,
+        active: heroTitle.active,
+      })
+      .select();
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function updateExperienceHeroTitle(
+
+  id: string,
+
+  updates: any
+
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_hero_titles")
+      .update(updates)
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function deleteExperienceHeroTitle(
+  id: string
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_hero_titles")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
 export async function getFullExperiences() {
   
 const experiences = await getExperiences();
@@ -526,6 +675,9 @@ const sections =
 
 const priceTiers =
   await getExperiencePriceTiers();
+
+const heroTitles =
+  await getExperienceHeroTitles();
 
 
   return experiences.map((experience) => {
@@ -557,6 +709,13 @@ const priceTiers =
     .sort(
       (a, b) => a.min_guests - b.min_guests
     );
+
+    const experienceHeroTitles =
+  heroTitles.filter(
+    heroTitle =>
+      heroTitle.experience_id ===
+      experience.id
+  );
 
     const score = scoring.find(
       (s) => s.experience_id === experience.id
@@ -597,6 +756,8 @@ const featuredImage =
   gallery: experienceGallery,
 
   price_tiers: experiencePriceTiers,
+
+  hero_titles: experienceHeroTitles,
 
   featured_image: featuredImage,
 

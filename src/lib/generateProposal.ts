@@ -10,12 +10,20 @@
 // di punteggio e non un filtro, il "rilassamento" richiesto dalla
 // spec quando nessuna esperienza soddisfa il requisito è già
 // garantito per costruzione — non serve logica separata.
+//
+// AGGIORNATO — Hero Title ora per-esperienza (experience_hero_titles),
+// non piu' una lookup statica per categoria+mood (proposalTitles).
+// Ogni esperienza porta i propri titoli hero via
+// getActiveHeroTitleStrings() -> experience.hero_titles: string[],
+// caricati da getFullExperiences(). Se l'esperienza non ne ha
+// ancora nessuno, fallback sul titolo dell'esperienza stessa, poi
+// sul default generico — stessa catena di fallback di prima.
+// Questo risolve anche il limite del vecchio proposalTitles, che
+// copriva solo 4 delle 8 categorie reali.
 // =========================================================
 
 
 import {
-
-  proposalTitles,
 
   introTitles,
 
@@ -538,44 +546,35 @@ if (safeExperiencesSelected.length === 1) {
    
 }
  // =========================================================
-// HERO TITLE
+// HERO TITLE — per-esperienza (experience_hero_titles), non piu'
+// una lookup statica per categoria+mood. bestExperience.hero_titles
+// arriva da getFullExperiences() come array di righe complete
+// ({id, title, active, display_order}), stesso pattern di facts/
+// sections — filtriamo le attive e prendiamo solo il titolo. Se
+// vuoto, fallback sul titolo dell'esperienza, poi sul default
+// generico.
 // =========================================================
 
-const primaryMood =
+const availableHeroTitles: string[] =
 
- safeMoodsSelected[0];
-
-const categoryMap = {
-  sea_escape: "Sea Escape",
-  aerial_escape: "Aerial Escape",
-  gourmet_escape: "Gourmet Escape",
-  wild_escape: "Wild Escape",
-};
-
-const proposalCategory =
-  categoryMap[
-    bestExperience.category as keyof typeof categoryMap
-  ];
-
-const availableTitles =
-  proposalTitles[
-    proposalCategory as keyof typeof proposalTitles
-  ]?.[
-    primaryMood as keyof typeof proposalTitles["Sea Escape"]
-  ] || [];
+  (bestExperience?.hero_titles || [])
+    .filter((heroTitle: any) => heroTitle.active !== false)
+    .map((heroTitle: any) => heroTitle.title);
 
 const heroTitle =
 
-  availableTitles[
-    Math.floor(
-      Math.random() *
-      availableTitles.length
-    )
-  ] ||
+  availableHeroTitles.length > 0
 
-  bestExperience?.title ||
+    ? availableHeroTitles[
+        Math.floor(
+          Math.random() *
+          availableHeroTitles.length
+        )
+      ]
 
-  "Private Riviera Experience";
+    : bestExperience?.title ||
+
+      "Private Riviera Experience";
 
 // =========================================================
 // HERO IMAGE

@@ -6,6 +6,7 @@ import GeneralCard from "./components/GeneralCard";
 import FiltersCard from "./components/FiltersCard";
 import MoodCard from "./components/MoodCard";
 import HeroCard from "./components/HeroCard";
+import HeroTitlesCard from "./components/heroTitleCard";
 import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
 import PriceTiersCard from "./components/PriceTiersCard";
@@ -37,6 +38,8 @@ import {
 updateExperienceSection,
 createExperienceFact,
 updateExperienceFact,
+createExperienceHeroTitle,
+updateExperienceHeroTitle,
 getExperiencePriceTiers,
 createExperiencePriceTier,
 updateExperiencePriceTier,
@@ -146,7 +149,6 @@ setExperience(found);
 
 />
 
-
 <GeneralCard
 
   experience={experience}
@@ -208,6 +210,14 @@ setExperience={setExperience}
 />
      
 <HeroCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
+
+<HeroTitlesCard
 
   experience={experience}
 
@@ -351,6 +361,52 @@ for (const fact of experience.facts) {
   }
 
 }
+
+    // =====================================================
+    // HERO TITLES — stesso pattern esatto di facts/sections:
+    // create per le nuove (isNew), update per le esistenti. Le
+    // rimozioni vengono gia' gestite subito da HeroTitlesCard
+    // (delete immediato al click, non batched qui).
+    // =====================================================
+
+    for (const heroTitle of experience.hero_titles || []) {
+
+      if (heroTitle.isNew) {
+
+        await createExperienceHeroTitle({
+
+          id: heroTitle.id,
+
+          experience_id: experience.id,
+
+          title: heroTitle.title,
+
+          display_order: heroTitle.display_order,
+
+          active: heroTitle.active,
+
+        });
+
+      } else {
+
+        await updateExperienceHeroTitle(
+
+          heroTitle.id,
+
+          {
+
+            title: heroTitle.title,
+
+            display_order: heroTitle.display_order,
+
+            active: heroTitle.active,
+
+          }
+
+        );
+
+      }
+    }
 
     // =====================================================
     // PRICE TIERS — create per le nuove (isNew), update per le
