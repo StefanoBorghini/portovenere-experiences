@@ -484,6 +484,9 @@ for (const fact of experience.facts) {
       max_participants:
       experience.max_participants,
 
+      min_days:
+      experience.min_days,
+
     description:
       experience.description,
 

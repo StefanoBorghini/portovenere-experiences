@@ -46,7 +46,7 @@ export default async function ProposalPage({
   // PARAMS
   // =======================================================
 
- 
+
 
   const { slug } =
     await params;
@@ -129,6 +129,29 @@ const resolvedSearchParams =
   }
 
   // =======================================================
+  // TRIP DAYS
+  // Numero di giorni richiesti dal cliente, calcolato da
+  // start_date/end_date del lead (inclusivo: stesso giorno = 1,
+  // giorno successivo = 2, ecc.) — usato da generateProposal per
+  // escludere esperienze che richiedono piu' giorni di quelli
+  // disponibili (min_days). Se le date non sono presenti sul lead
+  // (non dovrebbe succedere, ma per sicurezza), tripDays resta
+  // undefined e il filtro min_days semplicemente non si applica.
+  // =======================================================
+
+  const tripDays =
+    lead.start_date && lead.end_date
+      ? Math.max(
+          1,
+          Math.round(
+            (new Date(lead.end_date).getTime() -
+              new Date(lead.start_date).getTime()) /
+              (1000 * 60 * 60 * 24)
+          ) + 1
+        )
+      : undefined;
+
+  // =======================================================
   // GENERATE PROPOSAL
   // =======================================================
 
@@ -138,7 +161,7 @@ const resolvedSearchParams =
   const dynamicEnhancements =
   await getEnhancements();
 
- 
+
 const generatedProposal =
 
   generateProposal({
@@ -160,6 +183,8 @@ const generatedProposal =
 
     travelingWithChildren:
       lead.traveling_with_children || false,
+
+    tripDays,
 
     allExperiences:
       dynamicExperiences,
@@ -293,7 +318,7 @@ if (!featuredExperience) {
 
         </p>
 <a
-        
+
           href="/craft-your-experience"
           className="
             inline-block
@@ -313,7 +338,7 @@ if (!featuredExperience) {
           Back to configurator
         </a>
 
-       
+
 
       </div>
 
@@ -322,8 +347,8 @@ if (!featuredExperience) {
 }
 
 
-    
-    
+
+
   // =======================================================
   // EXPIRATION
   // =======================================================
@@ -475,7 +500,7 @@ const featuredEssentials =
     whatsappUrl={whatsappUrl}
 
     isMultiDayTrip={isMultiDayTrip}
-    
+
 
   dynamicIntroParagraph={dynamicIntroParagraph ?? ""}
 dynamicClosingParagraph={dynamicClosingParagraph ?? ""}
@@ -489,7 +514,7 @@ dynamicIntroTitle={dynamicIntroTitle ?? ""}
       leadName={lead.name}
       leadEmail={lead.email}
 alreadyVerified={proposal.email_verified === true}
-confirmedSelection={proposal.confirmed_selection ?? null}    
+confirmedSelection={proposal.confirmed_selection ?? null}
 
 />
 

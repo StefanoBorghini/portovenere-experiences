@@ -27,6 +27,15 @@
 // viene esclusa se il gruppo richiesto (adulti + bambini) è
 // inferiore al minimo — utile per esperienze con costi fissi che
 // non hanno senso sotto una certa soglia di partecipanti.
+//
+// AGGIUNTA — Min Days (durata minima del viaggio): tripDays viene
+// calcolato dal chiamante (start_date/end_date del lead) e passato
+// come prop opzionale. Un'esperienza con min_days valorizzato viene
+// esclusa se il viaggio richiesto dura meno giorni del minimo —
+// utile per esperienze che non si possono fare in giornata (es.
+// richiedono almeno un weekend). Se tripDays non viene passato dal
+// chiamante, il filtro non si applica (comportamento invariato),
+// stesso principio giа usato per preferredTime.
 // =========================================================
 
 
@@ -68,6 +77,13 @@ interface GenerateProposalProps {
   // identico a prima dell'introduzione del parametro.
   preferredTime?: string;
 
+  // NUOVO — numero di giorni del viaggio richiesto dal cliente,
+  // calcolato dal chiamante da start_date/end_date (inclusivo:
+  // stesso giorno = 1, giorno dopo = 2, ecc.). Opzionale: se non
+  // passato, il filtro min_days non si applica a nessuna esperienza
+  // (comportamento identico a prima dell'introduzione del parametro).
+  tripDays?: number;
+
   allExperiences: any[];
 }
 
@@ -88,6 +104,8 @@ export function generateProposal({
   travelingWithChildren,
 
   preferredTime,
+
+  tripDays,
 
   allExperiences,
 
@@ -236,6 +254,20 @@ const matchesBudget =
           experience.min_participants == null ||
           totalGuestCount >= experience.min_participants;
 
+        // =====================================================
+        // MIN DAYS
+        // Esclude l'esperienza se il viaggio richiesto dura meno
+        // giorni del minimo dichiarato (es. non fattibile in
+        // giornata, serve almeno un weekend). Se tripDays non e'
+        // stato passato dal chiamante, il filtro non si applica —
+        // stesso principio di preferredTime/preferredTimeField.
+        // =====================================================
+
+        const matchesMinDays =
+          experience.min_days == null ||
+          tripDays == null ||
+          tripDays >= experience.min_days;
+
         return (
 
           matchesCategory &&
@@ -250,7 +282,9 @@ const matchesBudget =
 
           matchesMaxParticipants &&
 
-          matchesMinParticipants
+          matchesMinParticipants &&
+
+          matchesMinDays
         );
       }
     );
@@ -508,6 +542,14 @@ if (safeExperiencesSelected.length === 1) {
       (experience) =>
         experience.min_participants == null ||
         totalGuestCount >= experience.min_participants
+    )
+
+    // Stesso vincolo di durata minima anche per i suggerimenti.
+    .filter(
+      (experience) =>
+        experience.min_days == null ||
+        tripDays == null ||
+        tripDays >= experience.min_days
     )
 
     .filter((experience) => {

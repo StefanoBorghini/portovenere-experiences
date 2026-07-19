@@ -328,6 +328,55 @@ Experience Filters
 </p>
 
 </div>
+
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-2
+    "
+  >
+    Minimum Trip Duration (days)
+  </label>
+
+  <input
+    type="number"
+    min={1}
+    value={experience.min_days ?? ""}
+    placeholder="Leave empty if a single day is fine"
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        min_days:
+          e.target.value === ""
+            ? null
+            : Number(e.target.value),
+      })
+    }
+    className="
+      w-full
+      md:w-1/3
+      rounded-xl
+      bg-white/5
+      border
+      border-white/10
+      px-4
+      py-3
+    "
+  />
+
+  <p className="text-white/30 text-xs mt-2">
+    Numero minimo di giorni necessari per fare questa esperienza
+    (es. 2 = non fattibile in giornata, richiede almeno un
+    weekend; 7 = richiede almeno una settimana). Calcolato dalle
+    date scelte dal cliente nel wizard. Lascia vuoto se
+    l'esperienza si può fare anche in giornata.
+  </p>
+
+</div>
 <div>
 
   <label
@@ -468,7 +517,7 @@ Experience Filters
       mb-4
     "
   >
-    Children (0–8 years)
+    Children (0–6 years)
   </label>
 
   <div className="grid md:grid-cols-2 gap-3">
