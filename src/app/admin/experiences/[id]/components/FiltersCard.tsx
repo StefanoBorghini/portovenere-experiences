@@ -468,7 +468,7 @@ Experience Filters
       mb-4
     "
   >
-    Children (0–6 years)
+    Children (0–8 years)
   </label>
 
   <div className="grid md:grid-cols-2 gap-3">
