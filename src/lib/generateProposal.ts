@@ -1,8 +1,9 @@
 // =========================================================
 // generateProposal.ts
 // COMPLETE UPDATED VERSION — guestCount ora somma adulti +
-// bambini per capacità/matching (guest_X, max_participants),
-// coerente con quello che già facevano i tier di prezzo.
+// bambini per capacità/matching (guest_X, max_participants,
+// min_participants), coerente con quello che già facevano i
+// tier di prezzo.
 //
 // AGGIUNTA — Fascia oraria preferita (richiesta LPG Italia):
 // priorità di scoring (non filtro escludente) per le esperienze
@@ -20,6 +21,12 @@
 // sul default generico — stessa catena di fallback di prima.
 // Questo risolve anche il limite del vecchio proposalTitles, che
 // copriva solo 4 delle 8 categorie reali.
+//
+// AGGIUNTA — Min Participants (pavimento esatto): specchia
+// max_participants. Un'esperienza con min_participants valorizzato
+// viene esclusa se il gruppo richiesto (adulti + bambini) è
+// inferiore al minimo — utile per esperienze con costi fissi che
+// non hanno senso sotto una certa soglia di partecipanti.
 // =========================================================
 
 
@@ -218,6 +225,17 @@ const matchesBudget =
           experience.max_participants == null ||
           totalGuestCount <= experience.max_participants;
 
+        // =====================================================
+        // MIN PARTICIPANTS
+        // Pavimento ESATTO, stesso principio del tetto massimo
+        // ma nella direzione opposta: esclude l'esperienza se il
+        // gruppo richiesto è più piccolo del minimo dichiarato.
+        // =====================================================
+
+        const matchesMinParticipants =
+          experience.min_participants == null ||
+          totalGuestCount >= experience.min_participants;
+
         return (
 
           matchesCategory &&
@@ -230,7 +248,9 @@ const matchesBudget =
 
           matchesActive &&
 
-          matchesMaxParticipants
+          matchesMaxParticipants &&
+
+          matchesMinParticipants
         );
       }
     );
@@ -348,7 +368,7 @@ const matchesBudget =
         b.finalScore - a.finalScore
     );
 
-    
+
 
 
 
@@ -483,6 +503,13 @@ if (safeExperiencesSelected.length === 1) {
         totalGuestCount <= experience.max_participants
     )
 
+    // Stesso pavimento minimo esatto anche per i suggerimenti.
+    .filter(
+      (experience) =>
+        experience.min_participants == null ||
+        totalGuestCount >= experience.min_participants
+    )
+
     .filter((experience) => {
 
       const matchesGuests =
@@ -543,7 +570,7 @@ if (safeExperiencesSelected.length === 1) {
 
     .sort((a, b) => b.finalScore - a.finalScore);
 
-   
+
 }
  // =========================================================
 // HERO TITLE — per-esperienza (experience_hero_titles), non piu'
@@ -825,5 +852,5 @@ const orderedCategories =
     suggestedAddOns,
   };
 
-  
+
 }

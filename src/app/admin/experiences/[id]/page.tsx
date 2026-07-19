@@ -117,7 +117,7 @@ setExperience(found);
 
   return (
 
-    
+
 
     <div
       style={{
@@ -217,7 +217,7 @@ setExperience={setExperience}
   setExperience={setExperience}
 
 />
-     
+
 <HeroCard
 
   experience={experience}
@@ -236,7 +236,7 @@ setExperience={setExperience}
 />
 
 
-    
+
 <SaveBar
 
   deleteLabel="Delete Experience"
@@ -274,7 +274,7 @@ setExperience={setExperience}
 
   }}
 
-  
+
 
   onSave={async () => {
 for (const fact of experience.facts) {
@@ -478,6 +478,9 @@ for (const fact of experience.facts) {
     use_guest_tiers:
       experience.use_guest_tiers,
 
+      min_participants:
+      experience.min_participants,
+
       max_participants:
       experience.max_participants,
 
@@ -602,7 +605,7 @@ for (const fact of experience.facts) {
       );
     const scoringResult =
 
- 
+
       await updateExperienceScoring(
 
         experience.id,
@@ -625,7 +628,7 @@ for (const fact of experience.facts) {
 
       );
 
-   
+
 
     if (result.success) {
 

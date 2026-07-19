@@ -234,8 +234,50 @@ Experience Filters
 
 </div>
 
-<div className="mt-6">
- 
+<div className="mt-6 grid md:grid-cols-2 gap-6">
+
+  <div>
+
+    <label
+      className="
+        block
+        text-sm
+        text-white/50
+        mb-2
+      "
+    >
+      Min Participants (exact minimum)
+    </label>
+
+    <input
+      type="number"
+      min={1}
+      value={experience.min_participants ?? ""}
+      placeholder="Leave empty for no minimum"
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          min_participants:
+            e.target.value === ""
+              ? null
+              : Number(e.target.value),
+        })
+      }
+      className="
+        w-full
+        rounded-xl
+        bg-white/5
+        border
+        border-white/10
+        px-4
+        py-3
+      "
+    />
+
+  </div>
+
+  <div>
+
     <label
       className="
         block
@@ -246,7 +288,7 @@ Experience Filters
     >
       Max Participants (exact cap)
     </label>
- 
+
     <input
       type="number"
       min={1}
@@ -263,7 +305,6 @@ Experience Filters
       }
       className="
         w-full
-        md:w-1/3
         rounded-xl
         bg-white/5
         border
@@ -272,16 +313,19 @@ Experience Filters
         py-3
       "
     />
- 
-    <p className="text-white/30 text-xs mt-2">
-      Le checkbox Guests sopra restano fasce larghe per il
-      matching generale. Questo campo è un tetto ESATTO che
-      esclude sempre l'esperienza se il gruppo richiesto è più
-      numeroso — utile quando la fascia più vicina disponibile
-      (es. "5-7") è più larga della capacità reale (es. max 5).
-    </p>
- 
+
   </div>
+
+</div>
+
+<p className="text-white/30 text-xs mt-2">
+  Le checkbox Guests sopra restano fasce larghe per il
+  matching generale. Questi due campi sono un pavimento/tetto ESATTI
+  che escludono sempre l'esperienza se il gruppo richiesto è,
+  rispettivamente, più piccolo del minimo o più numeroso del massimo —
+  utile quando la fascia più vicina disponibile (es. "5-7") non
+  riflette la capacità reale (es. minimo 6, o massimo 5).
+</p>
 
 </div>
 <div>
