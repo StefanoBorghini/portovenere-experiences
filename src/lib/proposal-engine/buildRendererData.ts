@@ -207,6 +207,11 @@ export function buildRendererData({
   // riflette solo la featured experience — coerente con quello
   // che il cliente vede davvero al primo caricamento della
   // pagina, prima di aggiungere qualcosa lui stesso.
+  //
+  // checkInDate: lead.start_date determina quale fascia di
+  // seasonal pricing si applica alla featured experience, se
+  // ce l'ha attiva — stessa logica usata poi lato client in
+  // proposalClient.tsx per il ricalcolo live.
   // ===================================================
 
   const finalPrice =
@@ -216,6 +221,7 @@ export function buildRendererData({
       ],
       guests: lead?.guests,
       children: lead?.children,
+      checkInDate: lead?.start_date,
     });
 
   // ===================================================

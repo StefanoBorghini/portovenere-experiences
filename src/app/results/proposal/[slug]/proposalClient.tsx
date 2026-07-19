@@ -9,6 +9,7 @@ import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
 import ShareButton from "@/components/ShareButton";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
+import { resolveSeasonalPriceOverride } from "@/lib/pricing/resolveSeasonalPrice";
 import { useState, useEffect, useRef } from "react";
 import {
     trackProposalSent,
@@ -124,7 +125,7 @@ export default function ProposalClient({
     const [
         selectedExperienceIds,
         setSelectedExperienceIds
-        
+
     ] = useState<string[]>(
         initialConfirmedSelection?.experienceIds
             ? initialConfirmedSelection.experienceIds
@@ -365,29 +366,55 @@ export default function ProposalClient({
   const guestCount = Number(lead.guests) || 1;
     const childCount = Number(lead.children) || 0;
 
-   const featuredPrice = calculatePrice(
-        featuredExperience?.base_price ?? 0,
-        featuredExperience?.pricing_type ?? "fixed",
-        guestCount,
-        childCount,
-        featuredExperience?.child_discount_percentage ?? 0,
-        featuredExperience?.price_tiers ?? [],
-        featuredExperience?.use_guest_tiers === true
+    // Data di check-in del cliente: determina quale fascia di
+    // seasonal pricing si applica (se l'esperienza ce l'ha attiva).
+    const checkInDate = lead.start_date;
+
+    // Se seasonal_pricing_enabled e il check-in cade in una fascia,
+    // quel prezzo sostituisce interamente il prezzo dell'esperienza
+    // — bypassa sia pricing_type sia i price tiers a scaglioni,
+    // perché è un prezzo fisso sostitutivo per quel periodo.
+    const featuredSeasonalPrice = resolveSeasonalPriceOverride(
+        featuredExperience,
+        checkInDate
     );
- 
+
+   const featuredPrice = featuredSeasonalPrice !== null
+        ? featuredSeasonalPrice
+        : calculatePrice(
+            featuredExperience?.base_price ?? 0,
+            featuredExperience?.pricing_type ?? "fixed",
+            guestCount,
+            childCount,
+            featuredExperience?.child_discount_percentage ?? 0,
+            featuredExperience?.price_tiers ?? [],
+            featuredExperience?.use_guest_tiers === true
+        );
+
     const includedExperiencesPrice = includedExperiences
         .filter((card: any) => selectedExperienceIds.includes(card.id))
-        .reduce((sum: number, card: any) =>
-            sum + calculatePrice(
-                card.experience?.base_price ?? 0,
-                card.experience?.pricing_type ?? "fixed",
-                guestCount,
-                childCount,
-                card.experience?.child_discount_percentage ?? 0,
-                card.experience?.price_tiers ?? [],
-                card.experience?.use_guest_tiers === true
-            ), 0
-        );
+        .reduce((sum: number, card: any) => {
+
+            const seasonalPrice = resolveSeasonalPriceOverride(
+                card.experience,
+                checkInDate
+            );
+
+            const price = seasonalPrice !== null
+                ? seasonalPrice
+                : calculatePrice(
+                    card.experience?.base_price ?? 0,
+                    card.experience?.pricing_type ?? "fixed",
+                    guestCount,
+                    childCount,
+                    card.experience?.child_discount_percentage ?? 0,
+                    card.experience?.price_tiers ?? [],
+                    card.experience?.use_guest_tiers === true
+                );
+
+            return sum + price;
+
+        }, 0);
 
     const enhancementsPrice = enhancements
         .filter((enh: any) => selectedEnhancements.includes(enh.id))
@@ -463,9 +490,21 @@ export default function ProposalClient({
             description={featuredExperience.description}
             essentials={featuredExperience.sections}
             facts={featuredExperience.facts ?? []}
-            basePrice={featuredExperience.base_price}
-            priceType={featuredExperience.pricing_type}
-            useGuestTiers={featuredExperience.use_guest_tiers === true}
+            basePrice={
+                featuredSeasonalPrice !== null
+                    ? featuredSeasonalPrice
+                    : featuredExperience.base_price
+            }
+            priceType={
+                featuredSeasonalPrice !== null
+                    ? "fixed"
+                    : featuredExperience.pricing_type
+            }
+            useGuestTiers={
+                featuredSeasonalPrice !== null
+                    ? false
+                    : featuredExperience.use_guest_tiers === true
+            }
             tiers={featuredExperience.price_tiers ?? []}
             guests={guestCount}
             children={childCount}

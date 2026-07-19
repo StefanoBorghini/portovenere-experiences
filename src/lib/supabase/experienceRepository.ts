@@ -30,6 +30,12 @@ export async function deleteExperience(id: string) {
     .delete()
     .eq("experience_id", id);
 
+  // elimina seasonal pricing
+  await supabase
+    .from("experience_seasonal_pricing")
+    .delete()
+    .eq("experience_id", id);
+
   // elimina experience
   const { error } =
     await supabase
@@ -146,7 +152,8 @@ const scoringInsert =await supabase
 // DUPLICATE EXPERIENCE
 // Clona un'esperienza intera: dati generali, filtri guest/budget,
 // punteggi mood, facts, sections, hero titles, tier di prezzo
-// (se presenti) e galleria immagini (stessi URL, righe nuove).
+// (se presenti), fasce di seasonal pricing (se presenti) e galleria
+// immagini (stessi URL, righe nuove).
 //
 // La copia parte SEMPRE con active=false e featured=false — cosi'
 // puoi rivederla/aggiustarla prima che compaia ai clienti, invece
@@ -331,7 +338,30 @@ export async function duplicateExperience(id: string) {
   }
 
   // ---------------------------------------------------------
-  // 8. GALLERY
+  // 8. SEASONAL PRICING
+  // ---------------------------------------------------------
+
+  const { data: seasonalPricing } = await supabase
+    .from("experience_seasonal_pricing")
+    .select("*")
+    .eq("experience_id", id);
+
+  if (seasonalPricing && seasonalPricing.length > 0) {
+
+    const newSeasonalPricing = seasonalPricing.map((range: any, index: number) => ({
+      id: `dup-season-${Date.now()}-${index}`,
+      experience_id: newId,
+      start_date: range.start_date,
+      end_date: range.end_date,
+      price: range.price,
+      display_order: range.display_order,
+    }));
+
+    await supabase.from("experience_seasonal_pricing").insert(newSeasonalPricing);
+  }
+
+  // ---------------------------------------------------------
+  // 9. GALLERY
   // ---------------------------------------------------------
 
   const { data: gallery } = await supabase
@@ -535,6 +565,132 @@ export async function deleteExperiencePriceTier(
 }
 
 // ======================================================
+// SEASONAL PRICING
+// Stesso identico pattern di PRICE TIERS: 1 esperienza -> N fasce
+// di date, ognuna con un prezzo fisso sostitutivo. Consumato da
+// resolveSeasonalPrice.ts (sceglie la fascia che contiene il
+// check-in del cliente).
+// ======================================================
+
+export async function getExperienceSeasonalPricing() {
+
+  if (!supabase) return [];
+
+  const { data, error } =
+    await supabase
+      .from("experience_seasonal_pricing")
+      .select("*")
+      .order("display_order");
+
+  if (error) {
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data;
+
+}
+
+export async function createExperienceSeasonalPricing(range: any) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { data, error } =
+    await supabase
+      .from("experience_seasonal_pricing")
+      .insert({
+        id: range.id,
+        experience_id: range.experience_id,
+        start_date: range.start_date,
+        end_date: range.end_date,
+        price: range.price,
+        display_order: range.display_order,
+      })
+      .select();
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function updateExperienceSeasonalPricing(
+  id: string,
+  updates: any
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_seasonal_pricing")
+      .update(updates)
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+export async function deleteExperienceSeasonalPricing(
+  id: string
+) {
+
+  if (!supabase)
+    return { success: false };
+
+  const { error } =
+    await supabase
+      .from("experience_seasonal_pricing")
+      .delete()
+      .eq("id", id);
+
+  if (error) {
+
+    console.error(error);
+
+    return {
+      success: false,
+      error,
+    };
+
+  }
+
+  return {
+    success: true,
+  };
+
+}
+
+// ======================================================
 // HERO TITLES
 // Stesso pattern esatto di facts/sections: 1 esperienza -> N
 // righe, ognuna con title/active/display_order. Consumato da
@@ -676,6 +832,9 @@ const sections =
 const priceTiers =
   await getExperiencePriceTiers();
 
+const seasonalPricing =
+  await getExperienceSeasonalPricing();
+
 const heroTitles =
   await getExperienceHeroTitles();
 
@@ -708,6 +867,17 @@ const heroTitles =
     )
     .sort(
       (a, b) => a.min_guests - b.min_guests
+    );
+
+    const experienceSeasonalPricing =
+  seasonalPricing
+    .filter(
+      (range: any) =>
+        range.experience_id ===
+        experience.id
+    )
+    .sort(
+      (a: any, b: any) => a.display_order - b.display_order
     );
 
     const experienceHeroTitles =
@@ -756,6 +926,8 @@ const featuredImage =
   gallery: experienceGallery,
 
   price_tiers: experiencePriceTiers,
+
+  seasonal_pricing: experienceSeasonalPricing,
 
   hero_titles: experienceHeroTitles,
 
