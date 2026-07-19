@@ -10,6 +10,7 @@ import HeroTitlesCard from "./components/heroTitleCard";
 import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
 import PriceTiersCard from "./components/PriceTiersCard";
+import SeasonalPricingCard from "./components/SeasonalPricingCard";
 import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
@@ -44,6 +45,10 @@ getExperiencePriceTiers,
 createExperiencePriceTier,
 updateExperiencePriceTier,
 deleteExperiencePriceTier,
+getExperienceSeasonalPricing,
+createExperienceSeasonalPricing,
+updateExperienceSeasonalPricing,
+deleteExperienceSeasonalPricing,
 } from "@/lib/supabase/experienceRepository";
 
 import IncludedCard
@@ -158,6 +163,14 @@ setExperience(found);
 />
 
 <PriceTiersCard
+
+  experience={experience}
+
+  setExperience={setExperience}
+
+/>
+
+<SeasonalPricingCard
 
   experience={experience}
 
@@ -460,6 +473,55 @@ for (const fact of experience.facts) {
       }
     }
 
+    // =====================================================
+    // SEASONAL PRICING — stesso identico pattern di PRICE TIERS:
+    // create per le nuove (isNew), update per le esistenti, delete
+    // per quelle rimosse dall'admin prima di salvare (di nuovo,
+    // incidono direttamente sul prezzo mostrato al cliente).
+    // =====================================================
+
+    const existingSeasonalPricingInDb =
+      await getExperienceSeasonalPricing();
+
+    const existingSeasonalPricingIdsForThisExperience = existingSeasonalPricingInDb
+      .filter((range: any) => range.experience_id === experience.id)
+      .map((range: any) => range.id);
+
+    const currentSeasonalPricingIds = (experience.seasonal_pricing || []).map(
+      (range: any) => range.id
+    );
+
+    for (const existingId of existingSeasonalPricingIdsForThisExperience) {
+      if (!currentSeasonalPricingIds.includes(existingId)) {
+        await deleteExperienceSeasonalPricing(existingId);
+      }
+    }
+
+    for (const range of experience.seasonal_pricing || []) {
+
+      if (range.isNew) {
+
+        await createExperienceSeasonalPricing({
+          id: range.id,
+          experience_id: experience.id,
+          start_date: range.start_date,
+          end_date: range.end_date,
+          price: range.price,
+          display_order: range.display_order,
+        });
+
+      } else {
+
+        await updateExperienceSeasonalPricing(range.id, {
+          start_date: range.start_date,
+          end_date: range.end_date,
+          price: range.price,
+          display_order: range.display_order,
+        });
+
+      }
+    }
+
     const result =
       await updateExperience(
 
@@ -486,6 +548,9 @@ for (const fact of experience.facts) {
 
       min_days:
       experience.min_days,
+
+      seasonal_pricing_enabled:
+      experience.seasonal_pricing_enabled,
 
     description:
       experience.description,
