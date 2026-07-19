@@ -11,6 +11,7 @@ import GalleryCard from "./components/GalleryCard";
 import SaveBar from "./components/SaveBar";
 import PriceTiersCard from "./components/PriceTiersCard";
 import SeasonalPricingCard from "./components/SeasonalPricingCard";
+import CollapsibleSection from "./components/CollapsibleSection";
 import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
@@ -154,82 +155,109 @@ setExperience(found);
 
 />
 
-<GeneralCard
+{/* ===================================================
+    Ogni sezione qui sotto e' apri/chiudi (accordion),
+    tranne le due sezioni immagini (Hero/Detail e Gallery)
+    piu' in basso, che restano sempre visibili per intero.
+    Le card interne non sono state toccate: stesso contenuto,
+    stesso stile, solo avvolte in un toggle.
+    =================================================== */}
 
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
-
-<PriceTiersCard
-
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
-
-<SeasonalPricingCard
-
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
-
-<HeroTitlesCard
-
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
-
-
-<IncludedCard
+<CollapsibleSection title="General Information">
+  <GeneralCard
 
     experience={experience}
 
     setExperience={setExperience}
 
-/>
+  />
+</CollapsibleSection>
 
-<CompatibilityCard
+<CollapsibleSection title="Price Tiers">
+  <PriceTiersCard
 
     experience={experience}
 
     setExperience={setExperience}
 
-    experiences={allExperiences}
+  />
+</CollapsibleSection>
 
-    enhancements={allEnhancements}
+<CollapsibleSection title="Seasonal Pricing">
+  <SeasonalPricingCard
 
-/>
+    experience={experience}
 
-<FactsCard
+    setExperience={setExperience}
+
+  />
+</CollapsibleSection>
+
+<CollapsibleSection title="Hero Titles">
+  <HeroTitlesCard
+
+    experience={experience}
+
+    setExperience={setExperience}
+
+  />
+</CollapsibleSection>
+
+<CollapsibleSection title="Included Experiences">
+  <IncludedCard
+
+      experience={experience}
+
+      setExperience={setExperience}
+
+  />
+</CollapsibleSection>
+
+<CollapsibleSection title="Compatibility">
+  <CompatibilityCard
+
+      experience={experience}
+
+      setExperience={setExperience}
+
+      experiences={allExperiences}
+
+      enhancements={allEnhancements}
+
+  />
+</CollapsibleSection>
+
+<CollapsibleSection title="Facts">
+  <FactsCard
+
+    experience={experience}
+
+    setExperience={setExperience}
+
+  />
+</CollapsibleSection>
+
+<CollapsibleSection title="Experience Filters">
+  <FiltersCard
 
   experience={experience}
 
   setExperience={setExperience}
 
-/>
+  />
+</CollapsibleSection>
 
-<FiltersCard
+<CollapsibleSection title="Mood Scoring">
+  <MoodCard
 
-experience={experience}
+    experience={experience}
 
-setExperience={setExperience}
+    setExperience={setExperience}
 
-/>
+  />
+</CollapsibleSection>
 
-<MoodCard
-
-  experience={experience}
-
-  setExperience={setExperience}
-
-/>
+{/* IMMAGINI — sempre aperte, nessun toggle */}
 
 <HeroCard
 
