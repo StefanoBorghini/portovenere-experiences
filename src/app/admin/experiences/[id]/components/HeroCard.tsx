@@ -1,4 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import {
+  uploadImage,
+} from "@/lib/supabase/experienceRepository";
+import {
+  HERO_RESIZE_OPTIONS,
+} from "@/lib/upload/resizeImageBeforeUpload";
 
 interface HeroCardProps {
 
@@ -55,6 +60,8 @@ Images
   <img
     src={experience.hero_image}
     alt={experience.title}
+    loading="lazy"
+    decoding="async"
     className="
       w-full
       h-[380px]
@@ -102,28 +109,14 @@ Images
 
         if (!file) return;
 
-        if (!supabase) {
+        const imageUrl =
+          await uploadImage(
+            file,
+            "hero",
+            HERO_RESIZE_OPTIONS
+          );
 
-          alert("Supabase not initialized");
-
-          return;
-
-        }
-
-        const fileName =
-          `${Date.now()}-${file.name}`;
-
-        const { error } =
-          await supabase.storage
-            .from("experience-images")
-            .upload(
-              `hero/${fileName}`,
-              file
-            );
-
-        if (error) {
-
-          console.error(error);
+        if (!imageUrl) {
 
           alert("Upload failed");
 
@@ -131,21 +124,12 @@ Images
 
         }
 
-        const {
-          data,
-        } =
-          supabase.storage
-            .from("experience-images")
-            .getPublicUrl(
-              `hero/${fileName}`
-            );
-
         setExperience({
 
           ...experience,
 
           hero_image:
-            data.publicUrl,
+            imageUrl,
 
         });
 
@@ -189,6 +173,8 @@ Detail Image
   <img
     src={experience.detail_image}
     alt=""
+    loading="lazy"
+    decoding="async"
     className="
       w-full
       h-[380px]
@@ -236,28 +222,14 @@ Detail Image
 
         if (!file) return;
 
-        if (!supabase) {
+        const imageUrl =
+          await uploadImage(
+            file,
+            "detail",
+            HERO_RESIZE_OPTIONS
+          );
 
-          alert("Supabase not initialized");
-
-          return;
-
-        }
-
-        const fileName =
-          `${Date.now()}-${file.name}`;
-
-        const { error } =
-          await supabase.storage
-            .from("experience-images")
-            .upload(
-              `detail/${fileName}`,
-              file
-            );
-
-        if (error) {
-
-          console.error(error);
+        if (!imageUrl) {
 
           alert("Upload failed");
 
@@ -265,21 +237,12 @@ Detail Image
 
         }
 
-        const {
-          data,
-        } =
-          supabase.storage
-            .from("experience-images")
-            .getPublicUrl(
-              `detail/${fileName}`
-            );
-
         setExperience({
 
           ...experience,
 
           detail_image:
-            data.publicUrl,
+            imageUrl,
 
         });
 

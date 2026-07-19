@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -555,6 +554,8 @@ export default function CinematicGallery({
               <img
                 src={image}
                 alt="Experience"
+                loading="lazy"
+                decoding="async"
                 pointer-events-none
                 select-none
                 draggable={false}

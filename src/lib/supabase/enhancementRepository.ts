@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
 // ======================================================
 // ENHANCEMENTS
 // ======================================================
@@ -152,6 +153,22 @@ export async function deleteEnhancement(
 
 }
 
+// ======================================================
+// IMAGE UPLOAD VALIDATION
+// (stesse regole di experienceRepository.ts: tipo consentito
+// + dimensione massima sul file originale, prima del resize)
+// ======================================================
+
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+
+const MAX_IMAGE_SIZE_BYTES =
+  5 * 1024 * 1024; // 5 MB
+
 export async function uploadEnhancementImage(
   file:File
 ) {
@@ -159,8 +176,36 @@ export async function uploadEnhancementImage(
   if (!supabase)
     return null;
 
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+
+    console.error(
+      "uploadEnhancementImage: tipo file non consentito:",
+      file.type
+    );
+
+    return null;
+
+  }
+
+  if (file.size > MAX_IMAGE_SIZE_BYTES) {
+
+    console.error(
+      "uploadEnhancementImage: file troppo grande:",
+      file.size
+    );
+
+    return null;
+
+  }
+
+  const resizedFile =
+    await resizeImageBeforeUpload(
+      file,
+      HERO_RESIZE_OPTIONS
+    );
+
   const fileName =
-    `${Date.now()}-${file.name}`;
+    `${Date.now()}-${crypto.randomUUID()}.webp`;
 
   const { error } =
     await supabase.storage
@@ -169,7 +214,7 @@ export async function uploadEnhancementImage(
 
       .upload(
         `enhancements/${fileName}`,
-        file
+        resizedFile
       );
 
   if (error) {
@@ -192,5 +237,3 @@ export async function uploadEnhancementImage(
   return data.publicUrl;
 
 }
-
-

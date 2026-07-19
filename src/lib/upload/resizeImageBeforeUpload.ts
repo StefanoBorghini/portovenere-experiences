@@ -18,16 +18,28 @@ interface ResizeOptions {
   // Altezza massima in px — stesso criterio della larghezza.
   maxHeight?: number;
 
-  // Qualita' WebP, da 0 a 1 (0.82 e' un buon compromesso tra
-  // peso del file e qualita' visiva).
+  // Qualita' WebP, da 0 a 1.
   quality?: number;
 
 }
 
+// Preset di default: thumbnail/gallery — immagini mostrate
+// piccole (card, gallery grid), possiamo comprimere forte.
 const DEFAULT_OPTIONS: Required<ResizeOptions> = {
-  maxWidth: 900,
-  maxHeight: 900,
-  quality: 0.75,
+  maxWidth: 800,
+  maxHeight: 800,
+  quality: 0.62,
+};
+
+// Preset per immagini mostrate a piena pagina (hero, detail,
+// enhancement): dimensioni un po' piu' generose per non essere
+// sgranate su schermi grandi, ma qualita' comunque compressa —
+// il risparmio vero arriva dal fatto che PRIMA queste immagini
+// non passavano da nessuna compressione.
+export const HERO_RESIZE_OPTIONS: Required<ResizeOptions> = {
+  maxWidth: 1600,
+  maxHeight: 1600,
+  quality: 0.68,
 };
 
 export async function resizeImageBeforeUpload(

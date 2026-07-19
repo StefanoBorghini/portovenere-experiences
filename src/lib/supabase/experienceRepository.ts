@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { resizeImageBeforeUpload } from "../../lib/upload/resizeImageBeforeUpload";
+import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
 
 export async function deleteExperience(id: string) {
 
@@ -662,14 +662,14 @@ export async function deleteExperienceHeroTitle(
 }
 
 export async function getFullExperiences() {
-  
+
 const experiences = await getExperiences();
 const scoring = await getExperienceScoring();
 const filters = await getExperienceFilters();
 const gallery = await getExperienceGallery();
 const facts =
   await getExperienceFacts();
-  
+
 const sections =
   await getExperienceSections();
 
@@ -691,7 +691,7 @@ const heroTitles =
 
 
 
-  
+
     const experienceSections =
   sections.filter(
     section =>
@@ -995,7 +995,9 @@ const MAX_IMAGE_SIZE_BYTES =
   5 * 1024 * 1024;
 
 export async function uploadImage(
-  file: File
+  file: File,
+  folder?: string,
+  resizeOptions?: Parameters<typeof resizeImageBeforeUpload>[1]
 ) {
   if (!supabase) return null;
 
@@ -1024,11 +1026,15 @@ export async function uploadImage(
 
   const resizedFile =
     await resizeImageBeforeUpload(
-      file
+      file,
+      resizeOptions
     );
 
   const fileName =
     `${Date.now()}-${crypto.randomUUID()}.webp`;
+
+  const path =
+    folder ? `${folder}/${fileName}` : fileName;
 
   const { error } =
     await supabase.storage
@@ -1036,7 +1042,7 @@ export async function uploadImage(
         "experience-images"
       )
       .upload(
-        fileName,
+        path,
         resizedFile
       );
 
@@ -1051,7 +1057,7 @@ export async function uploadImage(
         "experience-images"
       )
       .getPublicUrl(
-        fileName
+        path
       );
 
   return data.publicUrl;
@@ -1147,7 +1153,7 @@ export async function createExperienceFact(fact: any) {
   if (!supabase)
     return { success: false };
 
-  
+
 
   const { data, error } =
     await supabase
@@ -1162,7 +1168,7 @@ export async function createExperienceFact(fact: any) {
       })
       .select();
 
- 
+
 
   if (error) {
 
@@ -1289,7 +1295,7 @@ export async function createExperienceSection(section: any) {
       })
       .select();
 
-  
+
 
   if (error) {
 
