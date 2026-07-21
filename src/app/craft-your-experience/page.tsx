@@ -109,7 +109,7 @@ const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }>
     description: "Private sailing and sunset cruises along the Riviera coast.",
   },
   "Aerial Escape": {
-    image: "/images/flying/aereo/img-1.jpg",
+    image: "/images/flying/para.webp",
     description: "See the coast from above with unforgettable views.",
   },
   "Gourmet Escape": {
