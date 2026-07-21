@@ -20,6 +20,8 @@ interface ProposalSummary {
   // per non rompere le chiamate gia' in produzione.
   enhancements?: string[];
   totalPrice?: number;
+  notes?: string;
+  dashboardUrl?: string;
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
@@ -297,21 +299,66 @@ export function ownerNewProposalTemplate(data: ProposalSummary) {
 
 // ---------------------------------------------------------
 // 3. Email al PROPRIETARIO — il cliente ha confermato l'email
+//
+// ARRICCHITA: questo e' il primo momento in cui esistono davvero
+// tutti i dati operativi (enhancement scelti, totale stimato,
+// eventuali note) — a differenza di ownerNewProposalTemplate,
+// che parte alla creazione della proposal quando questi dati
+// sono ancora vuoti. Aggiunto anche il link diretto al dashboard
+// admin, oltre a quello alla proposal pubblica.
 // ---------------------------------------------------------
 
 export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
+
+  const enhancementsRow =
+    data.enhancements && data.enhancements.length > 0
+      ? `<tr><td style="padding: 6px 0; color: #666;">Enhancements</td><td>${escapeList(data.enhancements)}</td></tr>`
+      : "";
+
+  const totalRow =
+    data.totalPrice && data.totalPrice > 0
+      ? `<tr><td style="padding: 6px 0; color: #666;">Estimated total</td><td><strong>${formatPrice(data.totalPrice)}</strong></td></tr>`
+      : "";
+
+  const notesRow =
+    data.notes && data.notes.trim() !== ""
+      ? `<tr><td style="padding: 6px 0; color: #666; vertical-align: top;">Notes</td><td>${escapeHtml(data.notes)}</td></tr>`
+      : "";
+
+  const dashboardLink =
+    data.dashboardUrl
+      ? `<p style="margin: 8px 0;">
+          <a href="${data.dashboardUrl}" style="color: #111;">
+            Open in dashboard →
+          </a>
+        </p>`
+      : "";
+
   return `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
       <h2 style="font-weight: 300;">Email confirmed — booking request is real</h2>
       <p>
         <strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) has confirmed their
-        email address after requesting a private booking.
+        email address after requesting a private booking. Here are the full details:
       </p>
+
+      <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
+        <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
+        ${enhancementsRow}
+        <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
+        ${totalRow}
+        ${notesRow}
+      </table>
+
       <p style="margin: 24px 0;">
         <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
-          View this proposal →
+          View public proposal →
         </a>
       </p>
+      ${dashboardLink}
     </div>
   `;
 }
