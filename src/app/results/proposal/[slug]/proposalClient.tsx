@@ -275,18 +275,19 @@ export default function ProposalClient({
             const response = await fetch("/api/request-booking", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    experienceIds: selectedExperienceIds,
-                    enhancementIds: selectedEnhancements,
-                    // Aggiunto: il totale live calcolato qui sotto (liveTotal),
-                    // cosi' la mail di conferma puo' mostrare un importo stimato
-                    // reale invece di restare sempre a 0. Il server non ricalcola
-                    // il prezzo (richiederebbe duplicare tutta la logica di
-                    // pricing lato API) — si fida di questo valore solo per la
-                    // mail, non per transazioni economiche vere e proprie.
-                    totalPrice: liveTotal,
-                }),
+               body: JSON.stringify({
+    slug,
+    // L'esperienza principale (featuredExperience) NON fa mai parte di
+    // selectedExperienceIds — quello stato traccia solo le esperienze
+    // EXTRA scelte in IncludedExperiences. Senza aggiungerla qui,
+    // confirmed_selection sul DB non la conterrebbe mai, e la pagina
+    // admin (che risolve la lista esperienze da quegli ID) non la mostra.
+    experienceIds: Array.from(
+        new Set([featuredExperience.id, ...selectedExperienceIds])
+    ),
+    enhancementIds: selectedEnhancements,
+    totalPrice: liveTotal,
+}),
             });
 
             const data = await response.json();
@@ -328,11 +329,13 @@ export default function ProposalClient({
             const response = await fetch("/api/confirm-changes", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    experienceIds: selectedExperienceIds,
-                    enhancementIds: selectedEnhancements,
-                }),
+               body: JSON.stringify({
+    slug,
+    experienceIds: Array.from(
+        new Set([featuredExperience.id, ...selectedExperienceIds])
+    ),
+    enhancementIds: selectedEnhancements,
+}),
             });
 
             const data = await response.json();

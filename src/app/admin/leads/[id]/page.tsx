@@ -335,7 +335,7 @@ export default function LeadDetailPage() {
               {/* SEND REMINDER NOW — solo se non ancora confermata
                   e il cliente ha gia' ricevuto la prima mail (senza
                   verification_sent_at non c'e' nulla da rimandare) */}
-              {!proposal.email_verified && proposal.verification_sent_at && (
+              {!proposal.email_verified && (
                 <button
                   onClick={handleSendReminder}
                   disabled={sendingReminder}
@@ -389,8 +389,8 @@ export default function LeadDetailPage() {
                       <span>{enh.title}</span>
                       <span className="text-white/40">
                         {enh.price_type === "per_person"
-                          ? `€${enh.base_price} / person`
-                          : `€${enh.base_price}`}
+                         ? `€${enh.base_price ?? "—"} / person`
+    : `€${enh.base_price ?? "—"}`}
                       </span>
                     </li>
                   ))}

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
-import { reminderEmailTemplate } from "@/lib/email/templates";
+import { reminderEmailTemplate, verificationEmailTemplate } from "@/lib/email/templates";
+import { randomUUID } from "crypto";
 import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 
 // =========================================================
@@ -79,13 +80,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    if (!proposal.verification_sent_at) {
-      return NextResponse.json(
-        { success: false, error: "The client hasn't requested a booking yet — nothing to remind" },
-        { status: 400 }
-      );
-    }
+const isFirstSend = !proposal.verification_sent_at;
+const token = proposal.verification_token || randomUUID();
 
     const leadData = proposal.proposal_data || {};
 
@@ -96,10 +92,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Prossimo stage in sequenza — non torna mai indietro, e resta
-    // fermo a 3 (ultimo reminder) se gia' arrivato li', cosi' il
-    // bottone resta sempre utilizzabile per un "resend" a mano.
-    const nextStage = Math.min((proposal.reminder_stage || 0) + 1, 3) as 1 | 2 | 3;
+    const nextStage = isFirstSend
+  ? null
+  : (Math.min((proposal.reminder_stage || 0) + 1, 3) as 1 | 2 | 3);
 
     let enhancementNames: string[] = [];
 
@@ -118,8 +113,8 @@ export async function POST(req: NextRequest) {
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
 
-    const verifyUrl =
-      `${siteUrl}/api/verify-email?token=${proposal.verification_token}&slug=${proposal.slug}`;
+  const verifyUrl =
+  `${siteUrl}/api/verify-email?token=${token}&slug=${proposal.slug}`;
 
     const summaryData = {
       name: leadData.name || "",
@@ -135,16 +130,19 @@ export async function POST(req: NextRequest) {
       totalPrice: proposal.total_price || 0,
     };
 
-    const emailResult = await sendEmail({
-      to: leadData.email,
-      subject:
-        nextStage === 1
-          ? "Your Riviera proposal is waiting for you"
-          : nextStage === 2
-          ? "Reminder: confirm your Riviera booking request"
-          : "Last reminder: your Riviera proposal request",
-      html: reminderEmailTemplate(summaryData, verifyUrl, nextStage),
-    });
+   const emailResult = await sendEmail({
+  to: leadData.email,
+  subject: isFirstSend
+    ? "Confirm your booking request — Portovenere Experiences"
+    : nextStage === 1
+    ? "Your Riviera proposal is waiting for you"
+    : nextStage === 2
+    ? "Reminder: confirm your Riviera booking request"
+    : "Last reminder: your Riviera proposal request",
+  html: isFirstSend
+    ? verificationEmailTemplate(summaryData, verifyUrl)
+    : reminderEmailTemplate(summaryData, verifyUrl, nextStage as 1 | 2 | 3),
+});
 
     if (!emailResult.success) {
       return NextResponse.json(
@@ -153,15 +151,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Non torniamo mai indietro nello stage anche se il cron nel
-    // frattempo fosse gia' arrivato piu' avanti (caso limite, ma
-    // meglio essere espliciti con Math.max invece di sovrascrivere).
-    await supabase
-      .from("Proposal")
-      .update({ reminder_stage: Math.max(proposal.reminder_stage || 0, nextStage) })
-      .eq("lead_id", leadId);
+   await supabase
+  .from("Proposal")
+  .update({
+    verification_token: token,
+    verification_sent_at: proposal.verification_sent_at || new Date().toISOString(),
+    reminder_stage: isFirstSend
+      ? proposal.reminder_stage || 0
+      : Math.max(proposal.reminder_stage || 0, nextStage || 0),
+  })
+  .eq("lead_id", leadId);
 
-    return NextResponse.json({ success: true, stage: nextStage });
+return NextResponse.json({ success: true, stage: isFirstSend ? 0 : nextStage });
 
   } catch (err) {
 
