@@ -3,10 +3,12 @@ import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { ownerEmailConfirmedTemplate } from "@/lib/email/templates";
 
-const ADMIN_DASHBOARD_BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin/leads`
-    : "https://www.portovenere.com/admin/leads";
+// =========================================================
+// GET /api/verify-email?token=...&slug=...
+// Link cliccato dal cliente nell'email di verifica.
+// Marca la proposal come confermata, notifica il proprietario,
+// e reindirizza il cliente a una pagina di conferma.
+// =========================================================
 
 export async function GET(req: NextRequest) {
 
@@ -36,6 +38,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${siteUrl}/results/verification-error`);
     }
 
+    // Se e' gia' verificata, evitiamo di rimandare due volte
+    // l'email al proprietario se il cliente clicca il link di nuovo.
     if (!proposal.email_verified) {
 
       await supabase
@@ -46,26 +50,6 @@ export async function GET(req: NextRequest) {
       const leadData = proposal.proposal_data || {};
 
       const ownerEmail = process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com";
-
-      let internalNotes = "";
-
-      try {
-        if (proposal.lead_id) {
-          const { data: leadRow } = await supabase
-            .from("leads")
-            .select("internal_notes")
-            .eq("id", proposal.lead_id)
-            .maybeSingle();
-
-          internalNotes = leadRow?.internal_notes || "";
-        }
-      } catch (leadErr) {
-        console.error("verify-email: could not fetch lead notes:", leadErr);
-      }
-
-      const dashboardUrl = proposal.lead_id
-        ? `${ADMIN_DASHBOARD_BASE_URL}/${proposal.lead_id}`
-        : undefined;
 
       await sendEmail({
         to: ownerEmail,
@@ -80,11 +64,6 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug,
-          experienceDetails: proposal.confirmed_selection?.experienceDetails || [],
-          enhancementDetails: proposal.confirmed_selection?.enhancementDetails || [],
-          totalPrice: proposal.total_price || 0,
-          notes: internalNotes,
-          dashboardUrl,
         }),
       });
     }

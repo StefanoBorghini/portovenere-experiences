@@ -4,6 +4,15 @@ import { sendEmail } from "@/lib/email/sendEmail";
 import { verificationEmailTemplate } from "@/lib/email/templates";
 import { randomUUID } from "crypto";
 
+// =========================================================
+// POST /api/request-booking
+// Chiamata quando il cliente clicca "Request Private Booking"
+// sulla pagina della proposal. Genera un token, lo salva sulla
+// riga Proposal, e invia al cliente (all'email salvata nel DB,
+// non a quella passata dal client) il link di verifica con il
+// resoconto completo della proposta.
+// =========================================================
+
 export async function POST(req: NextRequest) {
 
   try {
@@ -15,14 +24,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const {
-      slug,
-      experienceIds,
-      enhancementIds,
-      totalPrice,
-      experienceDetails,
-      enhancementDetails,
-    } = await req.json();
+    const { slug, experienceIds, enhancementIds } = await req.json();
 
     if (!slug) {
       return NextResponse.json(
@@ -31,6 +33,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Recuperiamo la proposal dal DB — cosi' usiamo i dati REALI
+    // (email compresa) invece di fidarci ciecamente di quello che
+    // manda il client. Senza questo controllo, chiunque conoscesse
+    // uno slug potrebbe far inviare email di verifica a un indirizzo
+    // arbitrario passandolo semplicemente nel body della richiesta.
     const { data: proposal, error: fetchError } = await supabase
       .from("Proposal")
       .select("*")
@@ -55,14 +62,21 @@ export async function POST(req: NextRequest) {
 
     const token = randomUUID();
 
+    // Il countdown sulla pagina SPARISCE non appena questa richiesta
+    // va a buon fine (bookingState diventa "sent") — se non allunghiamo
+    // qui anche la scadenza reale, il cliente vede "Check your inbox"
+    // senza alcuna pressione di tempo, ma la prenotazione potrebbe
+    // comunque scadere in background mentre lui controlla la posta.
+    // Allunghiamo quindi expires_at di 48h fresche da ORA, esattamente
+    // come gia' fa /api/confirm-changes per le modifiche successive —
+    // cosi' countdown nascosto e scadenza reale sono sempre coerenti.
     const newExpiresAt =
       new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
-    const safeTotalPrice =
-      typeof totalPrice === "number" && Number.isFinite(totalPrice) && totalPrice > 0
-        ? Math.round(totalPrice)
-        : 0;
-
+    // Salviamo gia' ora la selezione scelta al momento della richiesta —
+    // diventera' il "confirmed_selection" di riferimento una volta che
+    // l'email viene verificata. Se il cliente non verifica mai, questo
+    // dato semplicemente non conta per nulla.
     const { error: updateError } = await supabase
       .from("Proposal")
       .update({
@@ -70,15 +84,9 @@ export async function POST(req: NextRequest) {
         verification_sent_at: new Date().toISOString(),
         booking_requested_at: new Date().toISOString(),
         expires_at: newExpiresAt,
-        total_price: safeTotalPrice,
         confirmed_selection: {
           experienceIds: experienceIds || [],
           enhancementIds: enhancementIds || [],
-          // Dettagli gia' risolti lato client (titolo/operatore/
-          // prezzo) — salvati qui cosi' reminder e route admin li
-          // possono riusare senza ricalcolare nulla lato server.
-          experienceDetails: experienceDetails || [],
-          enhancementDetails: enhancementDetails || [],
         },
       })
       .eq("slug", slug);
@@ -110,14 +118,14 @@ export async function POST(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug,
-          experienceDetails: experienceDetails || [],
-          enhancementDetails: enhancementDetails || [],
-          totalPrice: safeTotalPrice,
         },
         verifyUrl
       ),
     });
 
+    // Il client (proposalClient.tsx) non legge expires_at dalla
+    // risposta di questa route oggi — vedi nota sotto per il
+    // secondo intervento necessario lato frontend.
     return NextResponse.json({
       ...result,
       expiresAt: newExpiresAt,

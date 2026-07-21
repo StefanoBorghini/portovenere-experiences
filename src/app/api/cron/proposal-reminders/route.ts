@@ -3,6 +3,21 @@ import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { reminderEmailTemplate } from "@/lib/email/templates";
 
+// =========================================================
+// GET /api/cron/proposal-reminders
+// Chiamata da Vercel Cron ogni 30 minuti (vedi vercel.json).
+// Per ogni Proposal con email non verificata, controlla quante
+// ore sono passate da created_at e invia il reminder dovuto
+// (12h -> stage 1, 24h -> stage 2, 36h -> stage 3), uno per
+// proposal per run, senza mai rimandare lo stesso stage due
+// volte grazie al confronto con reminder_stage salvato in DB.
+//
+// Protetta da CRON_SECRET: Vercel Cron manda automaticamente
+// l'header Authorization con questo valore, ma la route resta
+// raggiungibile via URL diretto — senza questo controllo
+// chiunque potrebbe triggerare invii massivi di email a caso.
+// =========================================================
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
 const REMINDER_THRESHOLDS_HOURS: Record<number, number> = {
@@ -23,6 +38,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Supabase not configured" }, { status: 500 });
   }
 
+  // Assegnato a una costante locale subito dopo il check: dentro la
+  // closure di .map() piu' sotto, TypeScript non riesce a "ricordare"
+  // che supabase non e' null solo guardando il controllo qui sopra,
+  // quindi segnala erroneamente "possibly null". Con questa costante
+  // il narrowing resta valido in tutta la funzione.
   const db = supabase;
 
   try {
@@ -31,7 +51,6 @@ export async function GET(req: NextRequest) {
       .from("Proposal")
       .select("*")
       .eq("email_verified", false)
-      .not("verification_sent_at", "is", null)
       .lt("reminder_stage", 3);
 
     if (fetchError) {
@@ -45,18 +64,23 @@ export async function GET(req: NextRequest) {
 
     const now = Date.now();
 
+    // Per ogni proposal calcoliamo lo stage dovuto e, se e'
+    // superiore a quello gia' inviato, mandiamo il reminder.
+    // Promise.allSettled: un fallimento su una proposal (es.
+    // email malformata) non deve bloccare le altre in coda.
+
     const results = await Promise.allSettled(
 
       pendingProposals.map(async (proposal) => {
 
-        const hoursSincePending =
-          (now - new Date(proposal.verification_sent_at).getTime()) / (1000 * 60 * 60);
+        const hoursSinceCreation =
+          (now - new Date(proposal.created_at).getTime()) / (1000 * 60 * 60);
 
         let dueStage = 0;
 
-        if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[3]) dueStage = 3;
-        else if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[2]) dueStage = 2;
-        else if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[1]) dueStage = 1;
+        if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[3]) dueStage = 3;
+        else if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[2]) dueStage = 2;
+        else if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[1]) dueStage = 1;
 
         if (dueStage === 0 || dueStage <= proposal.reminder_stage) {
           return { slug: proposal.slug, skipped: true };
@@ -81,9 +105,6 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug: proposal.slug,
-          experienceDetails: proposal.confirmed_selection?.experienceDetails || [],
-          enhancementDetails: proposal.confirmed_selection?.enhancementDetails || [],
-          totalPrice: proposal.total_price || 0,
         };
 
         const emailResult = await sendEmail({
