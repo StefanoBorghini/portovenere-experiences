@@ -23,11 +23,8 @@ interface ProposalSummary {
   startDate: string;
   endDate: string;
   slug: string;
-  // Preferiti quando presenti: titolo/operatore/prezzo reali invece
-  // della sola macro-categoria scelta nel wizard (data.experiences).
   experienceDetails?: ExperienceDetail[];
   enhancementDetails?: EnhancementDetail[];
-  // Fallback legacy — usati solo se i Details sopra non ci sono.
   enhancements?: string[];
   totalPrice?: number;
   notes?: string;
@@ -41,9 +38,7 @@ const CONTACT_WHATSAPP_URL = "https://wa.me/393487140722";
 const CONTACT_EMAIL = "info@portovenere.com";
 
 function escapeHtml(value: unknown): string {
-
   if (value === null || value === undefined) return "";
-
   return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -90,27 +85,15 @@ function enhancementDetailsList(details: EnhancementDetail[]): string {
 function contactsBlock(): string {
   return `
     <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">
-      <p style="color: #666; font-size: 13px; margin: 0 0 8px;">
-        Questions? Reach us directly:
-      </p>
+      <p style="color: #666; font-size: 13px; margin: 0 0 8px;">Questions? Reach us directly:</p>
       <p style="font-size: 13px; margin: 0;">
-        <a href="${CONTACT_WHATSAPP_URL}" style="color: #111; text-decoration: none;">
-          WhatsApp: ${CONTACT_WHATSAPP}
-        </a>
+        <a href="${CONTACT_WHATSAPP_URL}" style="color: #111; text-decoration: none;">WhatsApp: ${CONTACT_WHATSAPP}</a>
         &nbsp;·&nbsp;
-        <a href="mailto:${CONTACT_EMAIL}" style="color: #111; text-decoration: none;">
-          ${CONTACT_EMAIL}
-        </a>
+        <a href="mailto:${CONTACT_EMAIL}" style="color: #111; text-decoration: none;">${CONTACT_EMAIL}</a>
       </p>
     </div>
   `;
 }
-
-// =========================================================
-// RIGHE DI RIEPILOGO condivise — preferisce i Details (titolo/
-// operatore/prezzo reali) quando disponibili, altrimenti ripiega
-// sulla lista di macro-categorie del wizard.
-// =========================================================
 
 function summaryTable(data: ProposalSummary): string {
 
@@ -149,69 +132,29 @@ function summaryTable(data: ProposalSummary): string {
   `;
 }
 
-// ---------------------------------------------------------
-// 1. Email al CLIENTE — link di verifica
-// ---------------------------------------------------------
-
 export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
-
       <div style="text-align: center; margin-bottom: 24px;">
-        <img
-          src="${SITE_URL}/logo-white.png"
-          alt="Portovenere Experiences"
-          style="height: 36px; filter: invert(1);"
-        />
+        <img src="${SITE_URL}/logo-white.png" alt="Portovenere Experiences" style="height: 36px; filter: invert(1);" />
       </div>
 
       <h2 style="font-weight: 300;">Thank you for crafting your experience</h2>
       <p>Hi ${escapeHtml(data.name) || "there"},</p>
-      <p>
-        Thank you for putting together your private Riviera experience with
-        Portovenere Experiences. We've received your request and we're
-        already looking forward to making it happen. Here's a summary of
-        what you selected:
-      </p>
+      <p>Thank you for putting together your private Riviera experience with Portovenere Experiences. We've received your request and we're already looking forward to making it happen. Here's a summary of what you selected:</p>
 
       ${summaryTable(data)}
 
-      <p style="color: #666; font-size: 13px;">
-        We typically respond within 24 hours with availability and final
-        details.
-      </p>
-
+      <p style="color: #666; font-size: 13px;">We typically respond within 24 hours with availability and final details.</p>
       <p>Please confirm your email address to activate your request.</p>
 
-      <p style="margin: 32px 0;">
-        
-          href="${verifyUrl}"
-          style="
-            background: #111;
-            color: #fff;
-            padding: 14px 28px;
-            text-decoration: none;
-            border-radius: 999px;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-          "
-        >
-          View my request
-        </a>
-      </p>
-      <p style="color: #666; font-size: 13px;">
-        If you didn't request this, you can safely ignore this email.
-      </p>
+      <p style="margin: 32px 0;"><a href="${verifyUrl}" style="background: #111; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 999px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;">View my request</a></p>
+      <p style="color: #666; font-size: 13px;">If you didn't request this, you can safely ignore this email.</p>
 
       ${contactsBlock()}
     </div>
   `;
 }
-
-// ---------------------------------------------------------
-// 1b. Email al CLIENTE — REMINDER
-// ---------------------------------------------------------
 
 const REMINDER_COPY: Record<number, { subject: string; heading: string; intro: string }> = {
   1: {
@@ -231,23 +174,14 @@ const REMINDER_COPY: Record<number, { subject: string; heading: string; intro: s
   },
 };
 
-export function reminderEmailTemplate(
-  data: ProposalSummary,
-  verifyUrl: string,
-  stage: 1 | 2 | 3
-) {
+export function reminderEmailTemplate(data: ProposalSummary, verifyUrl: string, stage: 1 | 2 | 3) {
 
   const copy = REMINDER_COPY[stage];
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
-
       <div style="text-align: center; margin-bottom: 24px;">
-        <img
-          src="${SITE_URL}/logo-white.png"
-          alt="Portovenere Experiences"
-          style="height: 36px; filter: invert(1);"
-        />
+        <img src="${SITE_URL}/logo-white.png" alt="Portovenere Experiences" style="height: 36px; filter: invert(1);" />
       </div>
 
       <h2 style="font-weight: 300;">${copy.heading}</h2>
@@ -256,35 +190,13 @@ export function reminderEmailTemplate(
 
       ${summaryTable(data)}
 
-      <p style="margin: 32px 0;">
-        
-          href="${verifyUrl}"
-          style="
-            background: #111;
-            color: #fff;
-            padding: 14px 28px;
-            text-decoration: none;
-            border-radius: 999px;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-          "
-        >
-          View my request
-        </a>
-      </p>
-      <p style="color: #666; font-size: 13px;">
-        If you didn't request this, you can safely ignore this email.
-      </p>
+      <p style="margin: 32px 0;"><a href="${verifyUrl}" style="background: #111; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 999px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;">View my request</a></p>
+      <p style="color: #666; font-size: 13px;">If you didn't request this, you can safely ignore this email.</p>
 
       ${contactsBlock()}
     </div>
   `;
 }
-
-// ---------------------------------------------------------
-// 2. Email al PROPRIETARIO — nuova proposal generata
-// ---------------------------------------------------------
 
 export function ownerNewProposalTemplate(data: ProposalSummary) {
   return `
@@ -299,18 +211,10 @@ export function ownerNewProposalTemplate(data: ProposalSummary) {
         <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget)}</td></tr>
         <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate)} → ${escapeHtml(data.endDate)}</td></tr>
       </table>
-      <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
-          View this proposal →
-        </a>
-      </p>
+      <p style="margin: 24px 0;"><a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">View this proposal →</a></p>
     </div>
   `;
 }
-
-// ---------------------------------------------------------
-// 3. Email al PROPRIETARIO — email confermata (dati completi)
-// ---------------------------------------------------------
 
 export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
 
@@ -321,85 +225,40 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
 
   const dashboardLink =
     data.dashboardUrl
-      ? `<p style="margin: 8px 0;">
-          <a href="${data.dashboardUrl}" style="color: #111;">
-            Open in dashboard →
-          </a>
-        </p>`
+      ? `<p style="margin: 8px 0;"><a href="${data.dashboardUrl}" style="color: #111;">Open in dashboard →</a></p>`
       : "";
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
       <h2 style="font-weight: 300;">Email confirmed — booking request is real</h2>
-      <p>
-        <strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) has confirmed their
-        email address after requesting a private booking. Here are the full details:
-      </p>
+      <p><strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) has confirmed their email address after requesting a private booking. Here are the full details:</p>
 
       ${summaryTable(data)}
       ${notesRow}
 
-      <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
-          View public proposal →
-        </a>
-      </p>
+      <p style="margin: 24px 0;"><a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">View public proposal →</a></p>
       ${dashboardLink}
     </div>
   `;
 }
 
-// ---------------------------------------------------------
-// 4. Email al PROPRIETARIO — modifiche dopo conferma
-// ---------------------------------------------------------
-
 export function ownerProposalModifiedTemplate(data: ProposalSummary) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
       <h2 style="font-weight: 300;">Client modified their proposal</h2>
-      <p>
-        <strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) has changed their
-        selection after already confirming their email address.
-      </p>
-      <p style="margin: 24px 0;">
-        <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
-          View the updated proposal →
-        </a>
-      </p>
+      <p><strong>${escapeHtml(data.name)}</strong> (${escapeHtml(data.email)}) has changed their selection after already confirming their email address.</p>
+      <p style="margin: 24px 0;"><a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">View the updated proposal →</a></p>
     </div>
   `;
 }
-
-// ---------------------------------------------------------
-// 5. Email al CLIENTE — modifiche confermate
-// ---------------------------------------------------------
 
 export function clientChangesConfirmedTemplate(data: ProposalSummary) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
       <h2 style="font-weight: 300;">Your changes have been confirmed</h2>
       <p>Hi ${escapeHtml(data.name) || "there"},</p>
-      <p>
-        We've updated your private Riviera proposal with your latest
-        selection, and refreshed your private reservation window.
-      </p>
-      <p style="margin: 32px 0;">
-        
-          href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}"
-          style="
-            background: #111;
-            color: #fff;
-            padding: 14px 28px;
-            text-decoration: none;
-            border-radius: 999px;
-            font-size: 13px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-          "
-        >
-          View your proposal
-        </a>
-      </p>
+      <p>We've updated your private Riviera proposal with your latest selection, and refreshed your private reservation window.</p>
+      <p style="margin: 32px 0;"><a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="background: #111; color: #fff; padding: 14px 28px; text-decoration: none; border-radius: 999px; font-size: 13px; letter-spacing: 1px; text-transform: uppercase;">View your proposal</a></p>
     </div>
   `;
 }
