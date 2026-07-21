@@ -172,7 +172,7 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
             text-transform: uppercase;
           "
         >
-          View my request
+          Confirm my email
         </a>
       </p>
       <p style="color: #666; font-size: 13px;">
