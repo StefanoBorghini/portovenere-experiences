@@ -303,12 +303,12 @@ export default function LeadDetailPage() {
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <p className="text-white/40 text-sm">Linked proposal</p>
               
-                <a>href={`/results/proposal/${proposal.slug}`}
+                <a href={`/results/proposal/${proposal.slug}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-sm underline hover:text-white/70"
               
-                /{proposal.slug}
+                >/{proposal.slug}
               </a>
 
               <span
