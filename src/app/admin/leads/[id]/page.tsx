@@ -169,12 +169,17 @@ export default function LeadDetailPage() {
   }
 
   // =========================================================
-  // SEND REMINDER NOW — forza l'invio del prossimo reminder in
-  // sequenza (stage attuale + 1, saturo a 3) fuori dal timing
-  // automatico del cron 12/24/36h. Chiama direttamente la route
-  // API (non un repository) perche' l'invio email richiede il
-  // server, non puo' essere una semplice chiamata Supabase come
-  // updateLead/deleteLead.
+  // SEND REMINDER NOW — visibile ogni volta che la mail non e'
+  // ancora confermata. Due casi gestiti dalla route dietro le
+  // quinte:
+  // - se verification_sent_at e' gia' valorizzato, manda il
+  //   prossimo reminder in sequenza (stage attuale + 1, saturo a 3)
+  // - se verification_sent_at e' vuoto (il cliente non ha mai
+  //   cliccato "Request Private Booking"), manda la mail INIZIALE
+  //   vera e propria, non un reminder di qualcosa mai partito
+  // Chiama direttamente la route API (non un repository) perche'
+  // l'invio email richiede il server, non puo' essere una semplice
+  // chiamata Supabase come updateLead/deleteLead.
   // =========================================================
 
   async function handleSendReminder() {
@@ -214,10 +219,15 @@ export default function LeadDetailPage() {
       setSendingReminder(false);
 
       if (data.success) {
-        alert(`Reminder sent (stage ${data.stage} of 3).`);
+        alert(
+          data.stage
+            ? `Reminder sent (stage ${data.stage} of 3).`
+            : "Confirmation email sent."
+        );
         setProposal((prev: any) => ({
           ...prev,
-          reminder_stage: Math.max(prev.reminder_stage || 0, data.stage),
+          verification_sent_at: prev.verification_sent_at || new Date().toISOString(),
+          reminder_stage: Math.max(prev.reminder_stage || 0, data.stage || 0),
         }));
       } else {
         alert(data.error || "Could not send the reminder — please try again.");
@@ -292,12 +302,12 @@ export default function LeadDetailPage() {
           <div className="mt-6 pt-6 border-t border-white/[0.08]">
             <div className="flex items-center gap-3 mb-4 flex-wrap">
               <p className="text-white/40 text-sm">Linked proposal</p>
-              <a
+              
                 href={`/results/proposal/${proposal.slug}`}
                 target="_blank"
                 rel="noreferrer"
                 className="text-sm underline hover:text-white/70"
-              >
+              <a>
                 /{proposal.slug}
               </a>
 
@@ -332,9 +342,10 @@ export default function LeadDetailPage() {
                 {restartingTimer ? "Restarting..." : "⟳ Restart Timer (48h)"}
               </button>
 
-              {/* SEND REMINDER NOW — solo se non ancora confermata
-                  e il cliente ha gia' ricevuto la prima mail (senza
-                  verification_sent_at non c'e' nulla da rimandare) */}
+              {/* SEND REMINDER NOW — visibile ogni volta che la mail
+                  non e' ancora confermata, anche se il cliente non ha
+                  mai cliccato "Request Private Booking" (in quel caso
+                  manda la mail iniziale vera, non un reminder) */}
               {!proposal.email_verified && (
                 <button
                   onClick={handleSendReminder}
@@ -343,7 +354,9 @@ export default function LeadDetailPage() {
                 >
                   {sendingReminder
                     ? "Sending..."
-                    : `✉ Send Reminder Now (stage ${Math.min((proposal.reminder_stage || 0) + 1, 3)}/3)`}
+                    : proposal.verification_sent_at
+                      ? `✉ Send Reminder Now (stage ${Math.min((proposal.reminder_stage || 0) + 1, 3)}/3)`
+                      : "✉ Send Confirmation Email"}
                 </button>
               )}
             </div>
@@ -389,8 +402,8 @@ export default function LeadDetailPage() {
                       <span>{enh.title}</span>
                       <span className="text-white/40">
                         {enh.price_type === "per_person"
-                         ? `€${enh.base_price ?? "—"} / person`
-    : `€${enh.base_price ?? "—"}`}
+                          ? `€${enh.base_price ?? "—"} / person`
+                          : `€${enh.base_price ?? "—"}`}
                       </span>
                     </li>
                   ))}

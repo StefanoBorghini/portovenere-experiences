@@ -346,9 +346,11 @@ export default function ProposalClient({
             }
 
             setConfirmedSelection({
-                experienceIds: selectedExperienceIds,
-                enhancementIds: selectedEnhancements,
-            });
+    experienceIds: Array.from(
+        new Set([featuredExperience.id, ...selectedExperienceIds])
+    ),
+    enhancementIds: selectedEnhancements,
+});
 
             trackBookingChangesConfirmed(slug);
 

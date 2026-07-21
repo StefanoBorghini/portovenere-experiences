@@ -2,23 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { reminderEmailTemplate, verificationEmailTemplate } from "@/lib/email/templates";
-import { randomUUID } from "crypto";
 import { getEnhancements } from "@/lib/supabase/enhancementRepository";
+import { randomUUID } from "crypto";
 
 // =========================================================
 // POST /api/admin/send-reminder
-// Chiamata dal bottone "Send reminder now" nella pagina admin
-// di dettaglio lead. Manda il prossimo reminder in sequenza
-// (stage attuale + 1, saturato a 3) fuori dal timing automatico
-// del cron — utile quando sai gia' che il cliente sta aspettando
-// la mail (es. dopo una chiamata) e non vuoi aspettare le 12/24/36h.
+// Chiamata dal bottone nella pagina admin di dettaglio lead.
 //
-// NOTA SICUREZZA: richiede il token della sessione admin (stesso
-// meccanismo di auth gia' usato per proteggere /admin/leads lato
-// client). Se il pattern di autenticazione reale del progetto e'
-// diverso da supabase.auth.getUser(token), questo controllo va
-// adattato — non avendo visto lib/supabase.ts non posso confermarlo
-// al 100%.
+// Due casi distinti:
+// - isFirstSend = true: il cliente non ha MAI ricevuto la mail
+//   di verifica (non ha mai cliccato "Request Private Booking").
+//   Generiamo un token nuovo e mandiamo la mail INIZIALE vera e
+//   propria (verificationEmailTemplate), non un "reminder" di
+//   qualcosa mai partito. Da questo momento verification_sent_at
+//   si valorizza e il cron automatico prende il timing da qui.
+// - isFirstSend = false: il cliente ha gia' ricevuto almeno una
+//   mail — mandiamo il prossimo reminder in sequenza (stage
+//   attuale + 1, saturo a 3).
 // =========================================================
 
 export async function POST(req: NextRequest) {
@@ -80,8 +80,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-const isFirstSend = !proposal.verification_sent_at;
-const token = proposal.verification_token || randomUUID();
 
     const leadData = proposal.proposal_data || {};
 
@@ -92,9 +90,12 @@ const token = proposal.verification_token || randomUUID();
       );
     }
 
+    const isFirstSend = !proposal.verification_sent_at;
+    const token = proposal.verification_token || randomUUID();
+
     const nextStage = isFirstSend
-  ? null
-  : (Math.min((proposal.reminder_stage || 0) + 1, 3) as 1 | 2 | 3);
+      ? null
+      : (Math.min((proposal.reminder_stage || 0) + 1, 3) as 1 | 2 | 3);
 
     let enhancementNames: string[] = [];
 
@@ -113,8 +114,8 @@ const token = proposal.verification_token || randomUUID();
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
 
-  const verifyUrl =
-  `${siteUrl}/api/verify-email?token=${token}&slug=${proposal.slug}`;
+    const verifyUrl =
+      `${siteUrl}/api/verify-email?token=${token}&slug=${proposal.slug}`;
 
     const summaryData = {
       name: leadData.name || "",
@@ -130,19 +131,19 @@ const token = proposal.verification_token || randomUUID();
       totalPrice: proposal.total_price || 0,
     };
 
-   const emailResult = await sendEmail({
-  to: leadData.email,
-  subject: isFirstSend
-    ? "Confirm your booking request — Portovenere Experiences"
-    : nextStage === 1
-    ? "Your Riviera proposal is waiting for you"
-    : nextStage === 2
-    ? "Reminder: confirm your Riviera booking request"
-    : "Last reminder: your Riviera proposal request",
-  html: isFirstSend
-    ? verificationEmailTemplate(summaryData, verifyUrl)
-    : reminderEmailTemplate(summaryData, verifyUrl, nextStage as 1 | 2 | 3),
-});
+    const emailResult = await sendEmail({
+      to: leadData.email,
+      subject: isFirstSend
+        ? "Confirm your booking request — Portovenere Experiences"
+        : nextStage === 1
+        ? "Your Riviera proposal is waiting for you"
+        : nextStage === 2
+        ? "Reminder: confirm your Riviera booking request"
+        : "Last reminder: your Riviera proposal request",
+      html: isFirstSend
+        ? verificationEmailTemplate(summaryData, verifyUrl)
+        : reminderEmailTemplate(summaryData, verifyUrl, nextStage as 1 | 2 | 3),
+    });
 
     if (!emailResult.success) {
       return NextResponse.json(
@@ -151,18 +152,18 @@ const token = proposal.verification_token || randomUUID();
       );
     }
 
-   await supabase
-  .from("Proposal")
-  .update({
-    verification_token: token,
-    verification_sent_at: proposal.verification_sent_at || new Date().toISOString(),
-    reminder_stage: isFirstSend
-      ? proposal.reminder_stage || 0
-      : Math.max(proposal.reminder_stage || 0, nextStage || 0),
-  })
-  .eq("lead_id", leadId);
+    await supabase
+      .from("Proposal")
+      .update({
+        verification_token: token,
+        verification_sent_at: proposal.verification_sent_at || new Date().toISOString(),
+        reminder_stage: isFirstSend
+          ? proposal.reminder_stage || 0
+          : Math.max(proposal.reminder_stage || 0, nextStage || 0),
+      })
+      .eq("lead_id", leadId);
 
-return NextResponse.json({ success: true, stage: isFirstSend ? 0 : nextStage });
+    return NextResponse.json({ success: true, stage: isFirstSend ? 0 : nextStage });
 
   } catch (err) {
 
