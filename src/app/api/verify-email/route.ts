@@ -2,19 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { ownerEmailConfirmedTemplate } from "@/lib/email/templates";
-import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 
-// =========================================================
-// GET /api/verify-email?token=...&slug=...
-// Link cliccato dal cliente nell'email di verifica.
-// Marca la proposal come confermata, notifica il proprietario
-// con tutti i dati operativi (enhancement, totale, note, link
-// dashboard), e reindirizza il cliente a una pagina di conferma.
-// =========================================================
-
-// Pattern confermato dal file reale della pagina admin
-// (app/admin/leads/[id]/page.tsx usa useParams().id): route
-// dinamica, non query string.
 const ADMIN_DASHBOARD_BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin/leads`
@@ -48,8 +36,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(`${siteUrl}/results/verification-error`);
     }
 
-    // Se e' gia' verificata, evitiamo di rimandare due volte
-    // l'email al proprietario se il cliente clicca il link di nuovo.
     if (!proposal.email_verified) {
 
       await supabase
@@ -61,27 +47,6 @@ export async function GET(req: NextRequest) {
 
       const ownerEmail = process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com";
 
-      // Nomi enhancement dagli ID salvati in confirmed_selection
-      // (valorizzato da /api/request-booking al momento della
-      // richiesta, prima ancora di questa verifica).
-      let enhancementNames: string[] = [];
-
-      try {
-        const allEnhancements = await getEnhancements();
-        const selectedIds = (proposal.confirmed_selection?.enhancementIds || [])
-          .map((id: any) => String(id));
-
-        enhancementNames = allEnhancements
-          .filter((enh: any) => selectedIds.includes(String(enh.id)))
-          .map((enh: any) => enh.title || enh.name || "")
-          .filter(Boolean);
-      } catch (enhErr) {
-        console.error("verify-email: could not resolve enhancement names:", enhErr);
-      }
-
-      // Note interne dal lead — probabilmente vuote a questo punto
-      // del funnel (le scrivi tu dopo, dall'admin), ma le mostriamo
-      // se per qualche motivo sono gia' state compilate.
       let internalNotes = "";
 
       try {
@@ -115,7 +80,8 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug,
-          enhancements: enhancementNames,
+          experienceDetails: proposal.confirmed_selection?.experienceDetails || [],
+          enhancementDetails: proposal.confirmed_selection?.enhancementDetails || [],
           totalPrice: proposal.total_price || 0,
           notes: internalNotes,
           dashboardUrl,

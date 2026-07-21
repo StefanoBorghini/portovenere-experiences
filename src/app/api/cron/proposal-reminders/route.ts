@@ -2,31 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { reminderEmailTemplate } from "@/lib/email/templates";
-import { getEnhancements } from "@/lib/supabase/enhancementRepository";
-
-// =========================================================
-// GET /api/cron/proposal-reminders
-// Chiamata da Vercel Cron ogni 30 minuti (vedi vercel.json).
-//
-// IMPORTANTE: il timer si basa su verification_sent_at, NON su
-// created_at. created_at e' il momento in cui la proposal viene
-// generata dal configuratore — ma la mail di verifica parte solo
-// DOPO, quando il cliente clicca "Request Private Booking" sulla
-// pagina della proposal (vedi /api/request-booking). Se usassimo
-// created_at, manderemmo reminder anche a chi non ha mai ricevuto
-// la prima mail da confermare.
-//
-// Per ogni Proposal con email non verificata E verification_sent_at
-// valorizzato, controlla quante ore sono passate e invia il
-// reminder dovuto (12h -> stage 1, 24h -> stage 2, 36h -> stage 3),
-// uno per proposal per run, senza mai rimandare lo stesso stage due
-// volte grazie al confronto con reminder_stage salvato in DB.
-//
-// Protetta da CRON_SECRET: Vercel Cron manda automaticamente
-// l'header Authorization con questo valore, ma la route resta
-// raggiungibile via URL diretto — senza questo controllo
-// chiunque potrebbe triggerare invii massivi di email a caso.
-// =========================================================
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
 
@@ -68,22 +43,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true, sent: 0 });
     }
 
-    // Nomi enhancement risolti UNA volta per tutto il run, non per
-    // ogni proposal — evita N chiamate identiche alla stessa tabella.
-    let allEnhancements: any[] = [];
-
-    try {
-      allEnhancements = await getEnhancements();
-    } catch (enhErr) {
-      console.error("proposal-reminders: could not load enhancements:", enhErr);
-    }
-
     const now = Date.now();
-
-    // Per ogni proposal calcoliamo lo stage dovuto e, se e'
-    // superiore a quello gia' inviato, mandiamo il reminder.
-    // Promise.allSettled: un fallimento su una proposal (es.
-    // email malformata) non deve bloccare le altre in coda.
 
     const results = await Promise.allSettled(
 
@@ -111,15 +71,6 @@ export async function GET(req: NextRequest) {
         const verifyUrl =
           `${SITE_URL}/api/verify-email?token=${proposal.verification_token}&slug=${proposal.slug}`;
 
-        const selectedEnhancementIds = (
-          proposal.confirmed_selection?.enhancementIds || []
-        ).map((id: any) => String(id));
-
-        const enhancementNames = allEnhancements
-          .filter((enh: any) => selectedEnhancementIds.includes(String(enh.id)))
-          .map((enh: any) => enh.title || enh.name || "")
-          .filter(Boolean);
-
         const summaryData = {
           name: leadData.name || "",
           email: leadData.email || "",
@@ -130,7 +81,8 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug: proposal.slug,
-          enhancements: enhancementNames,
+          experienceDetails: proposal.confirmed_selection?.experienceDetails || [],
+          enhancementDetails: proposal.confirmed_selection?.enhancementDetails || [],
           totalPrice: proposal.total_price || 0,
         };
 

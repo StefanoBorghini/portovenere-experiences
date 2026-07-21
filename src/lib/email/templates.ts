@@ -1,9 +1,17 @@
 // =========================================================
 // Template email — HTML semplice, coerente con il brand.
-// Se vuoi renderli più eleganti in futuro (logo, colori),
-// basta arricchire l'HTML qui dentro: la logica di invio
-// (sendEmail.ts) non cambia.
 // =========================================================
+
+interface ExperienceDetail {
+  title: string;
+  operator?: string;
+  price?: number;
+}
+
+interface EnhancementDetail {
+  title: string;
+  price?: number;
+}
 
 interface ProposalSummary {
   name: string;
@@ -15,9 +23,11 @@ interface ProposalSummary {
   startDate: string;
   endDate: string;
   slug: string;
-  // Opzionali: non tutte le chiamate esistenti li passano ancora
-  // (es. ownerNewProposalTemplate), quindi restano facoltativi
-  // per non rompere le chiamate gia' in produzione.
+  // Preferiti quando presenti: titolo/operatore/prezzo reali invece
+  // della sola macro-categoria scelta nel wizard (data.experiences).
+  experienceDetails?: ExperienceDetail[];
+  enhancementDetails?: EnhancementDetail[];
+  // Fallback legacy — usati solo se i Details sopra non ci sono.
   enhancements?: string[];
   totalPrice?: number;
   notes?: string;
@@ -26,21 +36,9 @@ interface ProposalSummary {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
 
-// Contatti reali — stesso numero gia' usato per il bottone WhatsApp
-// nella pagina proposal (ProposalPage.tsx, whatsappUrl).
 const CONTACT_WHATSAPP = "+39 348 714 0722";
 const CONTACT_WHATSAPP_URL = "https://wa.me/393487140722";
 const CONTACT_EMAIL = "info@portovenere.com";
-
-// =========================================================
-// SICUREZZA — questi dati arrivano dal lead (nome, email,
-// esperienze, ecc.), quindi tecnicamente controllabili da chi
-// compila il form (o da chi chiama le API direttamente, dato
-// che le RLS permettono l'insert pubblico). Senza questo escape,
-// qualcuno potrebbe scrivere HTML/JS vero nel campo "Nome" e
-// vederlo eseguito dentro le email che ricevi tu o il cliente.
-// Va SEMPRE usato prima di inserire un valore utente nell'HTML.
-// =========================================================
 
 function escapeHtml(value: unknown): string {
 
@@ -62,10 +60,32 @@ function formatPrice(value: number): string {
   return `€${Math.round(value).toLocaleString("en-US")}`;
 }
 
-// =========================================================
-// RIGA "Contacts" condivisa — WhatsApp + email, mostrata in
-// fondo alle mail al cliente.
-// =========================================================
+function experienceDetailsList(details: ExperienceDetail[]): string {
+  return details
+    .map((d) => {
+      const opText = d.operator
+        ? ` <span style="color:#999;">(${escapeHtml(d.operator)})</span>`
+        : "";
+      const priceText =
+        typeof d.price === "number" && d.price > 0
+          ? ` — ${formatPrice(d.price)}`
+          : "";
+      return `${escapeHtml(d.title)}${opText}${priceText}`;
+    })
+    .join("<br/>");
+}
+
+function enhancementDetailsList(details: EnhancementDetail[]): string {
+  return details
+    .map((d) => {
+      const priceText =
+        typeof d.price === "number" && d.price > 0
+          ? ` — ${formatPrice(d.price)}`
+          : "";
+      return `${escapeHtml(d.title)}${priceText}`;
+    })
+    .join("<br/>");
+}
 
 function contactsBlock(): string {
   return `
@@ -87,15 +107,28 @@ function contactsBlock(): string {
 }
 
 // =========================================================
-// RIGHE DI RIEPILOGO condivise — experiences/enhancements/
-// guests/budget/dates, + enhancements e totale se disponibili.
+// RIGHE DI RIEPILOGO condivise — preferisce i Details (titolo/
+// operatore/prezzo reali) quando disponibili, altrimenti ripiega
+// sulla lista di macro-categorie del wizard.
 // =========================================================
 
 function summaryTable(data: ProposalSummary): string {
 
+  const experiencesCell =
+    data.experienceDetails && data.experienceDetails.length > 0
+      ? experienceDetailsList(data.experienceDetails)
+      : escapeList(data.experiences) || "—";
+
+  const enhancementsCell =
+    data.enhancementDetails && data.enhancementDetails.length > 0
+      ? enhancementDetailsList(data.enhancementDetails)
+      : data.enhancements && data.enhancements.length > 0
+      ? escapeList(data.enhancements)
+      : "";
+
   const enhancementsRow =
-    data.enhancements && data.enhancements.length > 0
-      ? `<tr><td style="padding: 6px 0; color: #666;">Enhancements</td><td>${escapeList(data.enhancements)}</td></tr>`
+    enhancementsCell !== ""
+      ? `<tr><td style="padding: 6px 0; color: #666; vertical-align: top;">Enhancements</td><td>${enhancementsCell}</td></tr>`
       : "";
 
   const totalRow =
@@ -105,7 +138,7 @@ function summaryTable(data: ProposalSummary): string {
 
   return `
     <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
-      <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666; vertical-align: top;">Experiences</td><td>${experiencesCell}</td></tr>
       <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
       ${enhancementsRow}
       <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
@@ -117,15 +150,7 @@ function summaryTable(data: ProposalSummary): string {
 }
 
 // ---------------------------------------------------------
-// 1. Email al CLIENTE — link di verifica dopo "Request Private Booking"
-//
-// ARRICCHITA: logo, messaggio personale, riepilogo completo
-// (incluse enhancements e totale se disponibili), tempi di
-// risposta, contatti. Il bottone porta sempre allo stesso link
-// di verifica (/api/verify-email) — resta l'unico modo per far
-// scattare email_verified=true — solo il testo e' cambiato per
-// riflettere meglio lo scopo ("vedi la tua richiesta" invece di
-// "conferma la tua email", che suonava piu' tecnico che curato).
+// 1. Email al CLIENTE — link di verifica
 // ---------------------------------------------------------
 
 export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: string) {
@@ -159,7 +184,7 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
       <p>Please confirm your email address to activate your request.</p>
 
       <p style="margin: 32px 0;">
-        <a
+        
           href="${verifyUrl}"
           style="
             background: #111;
@@ -172,7 +197,7 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
             text-transform: uppercase;
           "
         >
-          Confirm my email
+          View my request
         </a>
       </p>
       <p style="color: #666; font-size: 13px;">
@@ -185,19 +210,7 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
 }
 
 // ---------------------------------------------------------
-// 1b. Email al CLIENTE — REMINDER per proposal non confermate
-// (12h / 24h / 36h dopo l'invio della mail di verifica, cioe'
-// da verification_sent_at — non da created_at, perche' quello
-// e' solo il momento in cui la proposal e' stata generata, non
-// il momento in cui il cliente ha chiesto il booking).
-//
-// Riusa lo stesso verifyUrl (stesso token) della mail iniziale,
-// e lo stesso riepilogo arricchito — nessuna nuova verifica da
-// generare, e' solo un promemoria.
-//
-// stage: 1 = 12h, 2 = 24h, 3 = 36h — cambia solo tono/urgenza
-// del testo, il resto del contenuto e' identico alla mail
-// originale cosi' il cliente ritrova lo stesso riepilogo.
+// 1b. Email al CLIENTE — REMINDER
 // ---------------------------------------------------------
 
 const REMINDER_COPY: Record<number, { subject: string; heading: string; intro: string }> = {
@@ -244,7 +257,7 @@ export function reminderEmailTemplate(
       ${summaryTable(data)}
 
       <p style="margin: 32px 0;">
-        <a
+        
           href="${verifyUrl}"
           style="
             background: #111;
@@ -270,9 +283,7 @@ export function reminderEmailTemplate(
 }
 
 // ---------------------------------------------------------
-// 2. Email al PROPRIETARIO (info@portovenere.com) —
-//    non appena una proposal viene generata, indipendentemente
-//    dal fatto che il cliente richieda o no il booking.
+// 2. Email al PROPRIETARIO — nuova proposal generata
 // ---------------------------------------------------------
 
 export function ownerNewProposalTemplate(data: ProposalSummary) {
@@ -298,31 +309,14 @@ export function ownerNewProposalTemplate(data: ProposalSummary) {
 }
 
 // ---------------------------------------------------------
-// 3. Email al PROPRIETARIO — il cliente ha confermato l'email
-//
-// ARRICCHITA: questo e' il primo momento in cui esistono davvero
-// tutti i dati operativi (enhancement scelti, totale stimato,
-// eventuali note) — a differenza di ownerNewProposalTemplate,
-// che parte alla creazione della proposal quando questi dati
-// sono ancora vuoti. Aggiunto anche il link diretto al dashboard
-// admin, oltre a quello alla proposal pubblica.
+// 3. Email al PROPRIETARIO — email confermata (dati completi)
 // ---------------------------------------------------------
 
 export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
 
-  const enhancementsRow =
-    data.enhancements && data.enhancements.length > 0
-      ? `<tr><td style="padding: 6px 0; color: #666;">Enhancements</td><td>${escapeList(data.enhancements)}</td></tr>`
-      : "";
-
-  const totalRow =
-    data.totalPrice && data.totalPrice > 0
-      ? `<tr><td style="padding: 6px 0; color: #666;">Estimated total</td><td><strong>${formatPrice(data.totalPrice)}</strong></td></tr>`
-      : "";
-
   const notesRow =
     data.notes && data.notes.trim() !== ""
-      ? `<tr><td style="padding: 6px 0; color: #666; vertical-align: top;">Notes</td><td>${escapeHtml(data.notes)}</td></tr>`
+      ? `<table style="width:100%; font-size:14px; border-collapse:collapse;"><tr><td style="padding: 6px 0; color: #666; vertical-align: top;">Notes</td><td>${escapeHtml(data.notes)}</td></tr></table>`
       : "";
 
   const dashboardLink =
@@ -342,16 +336,8 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
         email address after requesting a private booking. Here are the full details:
       </p>
 
-      <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
-        <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
-        ${enhancementsRow}
-        <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
-        ${totalRow}
-        ${notesRow}
-      </table>
+      ${summaryTable(data)}
+      ${notesRow}
 
       <p style="margin: 24px 0;">
         <a href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}" style="color: #111;">
@@ -364,9 +350,7 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
 }
 
 // ---------------------------------------------------------
-// 4. Email al PROPRIETARIO — il cliente ha modificato la
-//    proposta DOPO aver gia' confermato l'email la prima volta.
-//    Non serve una nuova verifica: e' gia' un contatto verificato.
+// 4. Email al PROPRIETARIO — modifiche dopo conferma
 // ---------------------------------------------------------
 
 export function ownerProposalModifiedTemplate(data: ProposalSummary) {
@@ -387,8 +371,7 @@ export function ownerProposalModifiedTemplate(data: ProposalSummary) {
 }
 
 // ---------------------------------------------------------
-// 5. Email al CLIENTE — conferma delle modifiche, nessuna
-//    nuova verifica richiesta (l'ha gia' fatta)
+// 5. Email al CLIENTE — modifiche confermate
 // ---------------------------------------------------------
 
 export function clientChangesConfirmedTemplate(data: ProposalSummary) {
@@ -401,7 +384,7 @@ export function clientChangesConfirmedTemplate(data: ProposalSummary) {
         selection, and refreshed your private reservation window.
       </p>
       <p style="margin: 32px 0;">
-        <a
+        
           href="${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}"
           style="
             background: #111;

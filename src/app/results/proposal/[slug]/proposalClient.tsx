@@ -275,19 +275,16 @@ export default function ProposalClient({
             const response = await fetch("/api/request-booking", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-    slug,
-    // L'esperienza principale (featuredExperience) NON fa mai parte di
-    // selectedExperienceIds — quello stato traccia solo le esperienze
-    // EXTRA scelte in IncludedExperiences. Senza aggiungerla qui,
-    // confirmed_selection sul DB non la conterrebbe mai, e la pagina
-    // admin (che risolve la lista esperienze da quegli ID) non la mostra.
-    experienceIds: Array.from(
-        new Set([featuredExperience.id, ...selectedExperienceIds])
-    ),
-    enhancementIds: selectedEnhancements,
-    totalPrice: liveTotal,
-}),
+                body: JSON.stringify({
+                    slug,
+                    experienceIds: Array.from(
+                        new Set([featuredExperience.id, ...selectedExperienceIds])
+                    ),
+                    enhancementIds: selectedEnhancements,
+                    totalPrice: liveTotal,
+                    experienceDetails,
+                    enhancementDetails,
+                }),
             });
 
             const data = await response.json();
@@ -299,12 +296,6 @@ export default function ProposalClient({
 
             trackProposalSent(slug);
 
-            // expires_at e' stato appena allungato di 48h fresche
-            // lato server (vedi request-booking/route.ts) — lo
-            // riflettiamo anche qui, cosi' se il countdown dovesse
-            // ricomparire (es. il cliente modifica la selezione
-            // prima di verificare l'email) parte dal valore corretto,
-            // non da quello ormai vecchio calcolato al primo caricamento.
             if (data.expiresAt) {
                 setCurrentExpiresAt(data.expiresAt);
             }
@@ -317,9 +308,6 @@ export default function ProposalClient({
         }
     }
 
-    // Chiamata quando il cliente modifica la selezione DOPO aver gia'
-    // confermato l'email una volta — niente nuova verifica, solo
-    // salvataggio + notifica + timer allungato.
     async function handleConfirmChanges() {
 
         setBookingState("sending");
@@ -329,13 +317,13 @@ export default function ProposalClient({
             const response = await fetch("/api/confirm-changes", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-    slug,
-    experienceIds: Array.from(
-        new Set([featuredExperience.id, ...selectedExperienceIds])
-    ),
-    enhancementIds: selectedEnhancements,
-}),
+                body: JSON.stringify({
+                    slug,
+                    experienceIds: Array.from(
+                        new Set([featuredExperience.id, ...selectedExperienceIds])
+                    ),
+                    enhancementIds: selectedEnhancements,
+                }),
             });
 
             const data = await response.json();
@@ -346,11 +334,11 @@ export default function ProposalClient({
             }
 
             setConfirmedSelection({
-    experienceIds: Array.from(
-        new Set([featuredExperience.id, ...selectedExperienceIds])
-    ),
-    enhancementIds: selectedEnhancements,
-});
+                experienceIds: Array.from(
+                    new Set([featuredExperience.id, ...selectedExperienceIds])
+                ),
+                enhancementIds: selectedEnhancements,
+            });
 
             trackBookingChangesConfirmed(slug);
 
@@ -363,10 +351,6 @@ export default function ProposalClient({
         }
     }
 
-    // I due bottoni (FloatingPriceBar e ReservationSection) chiamano
-    // sempre la stessa funzione — decidiamo qui, in un solo posto,
-    // se deve trattarsi della primissima richiesta o di una conferma
-    // di modifiche successive.
     const handleAction = hasUnconfirmedChanges
         ? handleConfirmChanges
         : handleRequestBooking;
@@ -378,74 +362,107 @@ export default function ProposalClient({
   const guestCount = Number(lead.guests) || 1;
     const childCount = Number(lead.children) || 0;
 
-    // Data di check-in del cliente: determina quale fascia di
-    // seasonal pricing si applica (se l'esperienza ce l'ha attiva).
     const checkInDate = lead.start_date;
 
-    // Se seasonal_pricing_enabled e il check-in cade in una fascia,
-    // quel prezzo sostituisce interamente il prezzo dell'esperienza
-    // — bypassa sia pricing_type sia i price tiers a scaglioni,
-    // perché è un prezzo fisso sostitutivo per quel periodo.
     const featuredSeasonalPrice = resolveSeasonalPriceOverride(
         featuredExperience,
         checkInDate
     );
 
-   const featuredPrice = featuredSeasonalPrice !== null
-        ? featuredSeasonalPrice
-        : calculatePrice(
-            featuredExperience?.base_price ?? 0,
-            featuredExperience?.pricing_type ?? "fixed",
-            guestCount,
-            childCount,
-            featuredExperience?.child_discount_percentage ?? 0,
-            featuredExperience?.price_tiers ?? [],
-            featuredExperience?.use_guest_tiers === true
-        );
+    // Una singola esperienza/enhancement con un prezzo rotto (es.
+    // base_price null in DB) non deve azzerare l'INTERO totale —
+    // meglio trattare quel singolo elemento come 0 e continuare,
+    // invece di propagare NaN a tutto il resto del calcolo.
+    function safeNumber(value: number): number {
+        return Number.isFinite(value) ? value : 0;
+    }
 
-    const includedExperiencesPrice = includedExperiences
+   const featuredPrice = safeNumber(
+        featuredSeasonalPrice !== null
+            ? featuredSeasonalPrice
+            : calculatePrice(
+                featuredExperience?.base_price ?? 0,
+                featuredExperience?.pricing_type ?? "fixed",
+                guestCount,
+                childCount,
+                featuredExperience?.child_discount_percentage ?? 0,
+                featuredExperience?.price_tiers ?? [],
+                featuredExperience?.use_guest_tiers === true
+            )
+    );
+
+    // Dettaglio per-esperienza EXTRA (oltre alla featured) — titolo,
+    // operatore e prezzo, non solo la macro-categoria del wizard.
+    // Usato sia per il totale che per le mail (cliente e operatore).
+    const includedExperienceDetails = includedExperiences
         .filter((card: any) => selectedExperienceIds.includes(card.id))
-        .reduce((sum: number, card: any) => {
+        .map((card: any) => {
 
             const seasonalPrice = resolveSeasonalPriceOverride(
                 card.experience,
                 checkInDate
             );
 
-            const price = seasonalPrice !== null
-                ? seasonalPrice
-                : calculatePrice(
-                    card.experience?.base_price ?? 0,
-                    card.experience?.pricing_type ?? "fixed",
-                    guestCount,
-                    childCount,
-                    card.experience?.child_discount_percentage ?? 0,
-                    card.experience?.price_tiers ?? [],
-                    card.experience?.use_guest_tiers === true
-                );
+            const price = safeNumber(
+                seasonalPrice !== null
+                    ? seasonalPrice
+                    : calculatePrice(
+                        card.experience?.base_price ?? 0,
+                        card.experience?.pricing_type ?? "fixed",
+                        guestCount,
+                        childCount,
+                        card.experience?.child_discount_percentage ?? 0,
+                        card.experience?.price_tiers ?? [],
+                        card.experience?.use_guest_tiers === true
+                    )
+            );
 
-            return sum + price;
+            return {
+                title: card.experience?.title || card.title || "",
+                operator: card.experience?.operator || card.operator || "",
+                price,
+            };
+        });
 
-        }, 0);
+    const includedExperiencesPrice = includedExperienceDetails.reduce(
+        (sum, d) => sum + d.price,
+        0
+    );
 
-    const enhancementsPrice = enhancements
+    const enhancementDetails = enhancements
         .filter((enh: any) => selectedEnhancements.includes(enh.id))
-        .reduce((sum: number, enh: any) =>
-            sum + calculatePrice(
-                enh.base_price ?? 0,
-                enh.price_type ?? "fixed",
-                guestCount
-            ), 0
-        );
+        .map((enh: any) => ({
+            title: enh.title || "",
+            price: safeNumber(
+                calculatePrice(
+                    enh.base_price ?? 0,
+                    enh.price_type ?? "fixed",
+                    guestCount
+                )
+            ),
+        }));
+
+    const enhancementsPrice = enhancementDetails.reduce(
+        (sum, d) => sum + d.price,
+        0
+    );
 
     const liveTotal = Math.round(
         featuredPrice +
         includedExperiencesPrice +
         enhancementsPrice
     );
-// =====================================================
-    // CONTEGGIO EXPERIENCE LIVE (featured + incluse selezionate)
-    // =====================================================
+
+    // Dettaglio completo esperienze da inviare nelle email — SEMPRE
+    // con la featured in testa, poi le extra selezionate.
+    const experienceDetails = [
+        {
+            title: featuredExperience.title || "",
+            operator: featuredExperience.operator || "",
+            price: featuredPrice,
+        },
+        ...includedExperienceDetails,
+    ];
 
     const experienceCount =
         1 + selectedExperienceIds.length;

@@ -2,24 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { reminderEmailTemplate, verificationEmailTemplate } from "@/lib/email/templates";
-import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 import { randomUUID } from "crypto";
-
-// =========================================================
-// POST /api/admin/send-reminder
-// Chiamata dal bottone nella pagina admin di dettaglio lead.
-//
-// Due casi distinti:
-// - isFirstSend = true: il cliente non ha MAI ricevuto la mail
-//   di verifica (non ha mai cliccato "Request Private Booking").
-//   Generiamo un token nuovo e mandiamo la mail INIZIALE vera e
-//   propria (verificationEmailTemplate), non un "reminder" di
-//   qualcosa mai partito. Da questo momento verification_sent_at
-//   si valorizza e il cron automatico prende il timing da qui.
-// - isFirstSend = false: il cliente ha gia' ricevuto almeno una
-//   mail — mandiamo il prossimo reminder in sequenza (stage
-//   attuale + 1, saturo a 3).
-// =========================================================
 
 export async function POST(req: NextRequest) {
 
@@ -36,29 +19,20 @@ export async function POST(req: NextRequest) {
     const accessToken = authHeader?.replace("Bearer ", "");
 
     if (!accessToken) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { data: userData, error: authError } =
       await supabase.auth.getUser(accessToken);
 
     if (authError || !userData?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { leadId } = await req.json();
 
     if (!leadId) {
-      return NextResponse.json(
-        { success: false, error: "Missing leadId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Missing leadId" }, { status: 400 });
     }
 
     const { data: proposal, error: fetchError } = await supabase
@@ -68,10 +42,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (fetchError || !proposal) {
-      return NextResponse.json(
-        { success: false, error: "No proposal found for this lead" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "No proposal found for this lead" }, { status: 404 });
     }
 
     if (proposal.email_verified) {
@@ -84,10 +55,7 @@ export async function POST(req: NextRequest) {
     const leadData = proposal.proposal_data || {};
 
     if (!leadData.email) {
-      return NextResponse.json(
-        { success: false, error: "No email on file for this lead" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "No email on file for this lead" }, { status: 400 });
     }
 
     const isFirstSend = !proposal.verification_sent_at;
@@ -97,25 +65,8 @@ export async function POST(req: NextRequest) {
       ? null
       : (Math.min((proposal.reminder_stage || 0) + 1, 3) as 1 | 2 | 3);
 
-    let enhancementNames: string[] = [];
-
-    try {
-      const allEnhancements = await getEnhancements();
-      const selectedIds = (proposal.confirmed_selection?.enhancementIds || [])
-        .map((id: any) => String(id));
-
-      enhancementNames = allEnhancements
-        .filter((enh: any) => selectedIds.includes(String(enh.id)))
-        .map((enh: any) => enh.title || enh.name || "")
-        .filter(Boolean);
-    } catch (enhErr) {
-      console.error("send-reminder: could not resolve enhancement names:", enhErr);
-    }
-
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
-
-    const verifyUrl =
-      `${siteUrl}/api/verify-email?token=${token}&slug=${proposal.slug}`;
+    const verifyUrl = `${siteUrl}/api/verify-email?token=${token}&slug=${proposal.slug}`;
 
     const summaryData = {
       name: leadData.name || "",
@@ -127,7 +78,8 @@ export async function POST(req: NextRequest) {
       startDate: leadData.start_date || "",
       endDate: leadData.end_date || "",
       slug: proposal.slug,
-      enhancements: enhancementNames,
+      experienceDetails: proposal.confirmed_selection?.experienceDetails || [],
+      enhancementDetails: proposal.confirmed_selection?.enhancementDetails || [],
       totalPrice: proposal.total_price || 0,
     };
 
@@ -146,10 +98,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!emailResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Email send failed" },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: "Email send failed" }, { status: 500 });
     }
 
     await supabase
@@ -169,9 +118,6 @@ export async function POST(req: NextRequest) {
 
     console.error("send-reminder error:", err);
 
-    return NextResponse.json(
-      { success: false, error: "Unexpected error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Unexpected error" }, { status: 500 });
   }
 }
