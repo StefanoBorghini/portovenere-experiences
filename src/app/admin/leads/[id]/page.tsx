@@ -43,6 +43,11 @@ export default function LeadDetailPage() {
   // confonde con il salvataggio generale del lead (saving).
   const [restartingTimer, setRestartingTimer] = useState(false);
 
+  // Stato separato per il bottone "Send Reminder Now" — stesso
+  // principio del restartingTimer, nessuna interferenza con gli
+  // altri bottoni della pagina.
+  const [sendingReminder, setSendingReminder] = useState(false);
+
   useEffect(() => {
     async function load() {
       if (!supabase) return;
@@ -163,6 +168,68 @@ export default function LeadDetailPage() {
     }
   }
 
+  // =========================================================
+  // SEND REMINDER NOW — forza l'invio del prossimo reminder in
+  // sequenza (stage attuale + 1, saturo a 3) fuori dal timing
+  // automatico del cron 12/24/36h. Chiama direttamente la route
+  // API (non un repository) perche' l'invio email richiede il
+  // server, non puo' essere una semplice chiamata Supabase come
+  // updateLead/deleteLead.
+  // =========================================================
+
+  async function handleSendReminder() {
+    if (!proposal) return;
+
+    const confirmed = window.confirm(
+      `Send a reminder email to ${lead.email} right now?`
+    );
+
+    if (!confirmed) return;
+
+    setSendingReminder(true);
+
+    try {
+
+      if (!supabase) {
+        alert("Supabase not configured");
+        setSendingReminder(false);
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch("/api/admin/send-reminder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+        body: JSON.stringify({ leadId: lead.id }),
+      });
+
+      const data = await response.json();
+
+      setSendingReminder(false);
+
+      if (data.success) {
+        alert(`Reminder sent (stage ${data.stage} of 3).`);
+        setProposal((prev: any) => ({
+          ...prev,
+          reminder_stage: Math.max(prev.reminder_stage || 0, data.stage),
+        }));
+      } else {
+        alert(data.error || "Could not send the reminder — please try again.");
+      }
+
+    } catch (err) {
+      console.error("send-reminder failed:", err);
+      setSendingReminder(false);
+      alert("Could not send the reminder — please try again.");
+    }
+  }
+
   return (
     <div style={{ padding: "30px", maxWidth: "1000px", margin: "0 auto" }}>
       <button
@@ -264,6 +331,21 @@ export default function LeadDetailPage() {
               >
                 {restartingTimer ? "Restarting..." : "⟳ Restart Timer (48h)"}
               </button>
+
+              {/* SEND REMINDER NOW — solo se non ancora confermata
+                  e il cliente ha gia' ricevuto la prima mail (senza
+                  verification_sent_at non c'e' nulla da rimandare) */}
+              {!proposal.email_verified && proposal.verification_sent_at && (
+                <button
+                  onClick={handleSendReminder}
+                  disabled={sendingReminder}
+                  className="text-xs px-3 py-1.5 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+                >
+                  {sendingReminder
+                    ? "Sending..."
+                    : `✉ Send Reminder Now (stage ${Math.min((proposal.reminder_stage || 0) + 1, 3)}/3)`}
+                </button>
+              )}
             </div>
 
             {/* SELECTED EXPERIENCES */}
@@ -298,7 +380,7 @@ export default function LeadDetailPage() {
                 <p className="text-white/40 text-sm mb-2">
                   Selected enhancements
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-2 mb-5">
                   {selectedEnhancements.map((enh) => (
                     <li
                       key={enh.id}
@@ -314,6 +396,22 @@ export default function LeadDetailPage() {
                   ))}
                 </ul>
               </>
+            )}
+
+            {/* TOTAL PRICE — valore gia' calcolato e salvato lato
+                client al momento di "Request Private Booking"
+                (proposal.total_price), niente da ricalcolare qui.
+                Mostrato solo se esiste una selezione confermata,
+                altrimenti sarebbe sempre 0 e fuorviante. */}
+            {(selectedExperiences.length > 0 || selectedEnhancements.length > 0) && (
+              <div className="flex items-center justify-between text-sm bg-white/[0.05] rounded-xl px-4 py-3 mt-2 border border-white/[0.08]">
+                <span className="text-white/70 font-medium">Total price</span>
+                <span className="text-white font-medium">
+                  {proposal.total_price
+                    ? `€${Number(proposal.total_price).toLocaleString("en-US")}`
+                    : "—"}
+                </span>
+              </div>
             )}
           </div>
         )}

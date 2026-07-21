@@ -12,10 +12,9 @@ import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 // dashboard), e reindirizza il cliente a una pagina di conferma.
 // =========================================================
 
-// ATTENZIONE: pattern del link dashboard basato sulla route
-// /admin/leads gia' nota, ma non verificato sul file reale della
-// pagina admin — se il parametro atteso e' diverso da "id", va
-// corretto qui.
+// Pattern confermato dal file reale della pagina admin
+// (app/admin/leads/[id]/page.tsx usa useParams().id): route
+// dinamica, non query string.
 const ADMIN_DASHBOARD_BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin/leads`
@@ -100,7 +99,7 @@ export async function GET(req: NextRequest) {
       }
 
       const dashboardUrl = proposal.lead_id
-        ? `${ADMIN_DASHBOARD_BASE_URL}?id=${proposal.lead_id}`
+        ? `${ADMIN_DASHBOARD_BASE_URL}/${proposal.lead_id}`
         : undefined;
 
       await sendEmail({
