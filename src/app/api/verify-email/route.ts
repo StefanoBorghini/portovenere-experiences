@@ -2,13 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { ownerEmailConfirmedTemplate } from "@/lib/email/templates";
+import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 
 // =========================================================
 // GET /api/verify-email?token=...&slug=...
 // Link cliccato dal cliente nell'email di verifica.
-// Marca la proposal come confermata, notifica il proprietario,
-// e reindirizza il cliente a una pagina di conferma.
+// Marca la proposal come confermata, notifica il proprietario
+// con tutti i dati operativi (enhancement, totale, note, link
+// dashboard), e reindirizza il cliente a una pagina di conferma.
 // =========================================================
+
+// ATTENZIONE: pattern del link dashboard basato sulla route
+// /admin/leads gia' nota, ma non verificato sul file reale della
+// pagina admin — se il parametro atteso e' diverso da "id", va
+// corretto qui.
+const ADMIN_DASHBOARD_BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/admin/leads`
+    : "https://www.portovenere.com/admin/leads";
 
 export async function GET(req: NextRequest) {
 
@@ -51,6 +62,47 @@ export async function GET(req: NextRequest) {
 
       const ownerEmail = process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com";
 
+      // Nomi enhancement dagli ID salvati in confirmed_selection
+      // (valorizzato da /api/request-booking al momento della
+      // richiesta, prima ancora di questa verifica).
+      let enhancementNames: string[] = [];
+
+      try {
+        const allEnhancements = await getEnhancements();
+        const selectedIds = (proposal.confirmed_selection?.enhancementIds || [])
+          .map((id: any) => String(id));
+
+        enhancementNames = allEnhancements
+          .filter((enh: any) => selectedIds.includes(String(enh.id)))
+          .map((enh: any) => enh.title || enh.name || "")
+          .filter(Boolean);
+      } catch (enhErr) {
+        console.error("verify-email: could not resolve enhancement names:", enhErr);
+      }
+
+      // Note interne dal lead — probabilmente vuote a questo punto
+      // del funnel (le scrivi tu dopo, dall'admin), ma le mostriamo
+      // se per qualche motivo sono gia' state compilate.
+      let internalNotes = "";
+
+      try {
+        if (proposal.lead_id) {
+          const { data: leadRow } = await supabase
+            .from("leads")
+            .select("internal_notes")
+            .eq("id", proposal.lead_id)
+            .maybeSingle();
+
+          internalNotes = leadRow?.internal_notes || "";
+        }
+      } catch (leadErr) {
+        console.error("verify-email: could not fetch lead notes:", leadErr);
+      }
+
+      const dashboardUrl = proposal.lead_id
+        ? `${ADMIN_DASHBOARD_BASE_URL}?id=${proposal.lead_id}`
+        : undefined;
+
       await sendEmail({
         to: ownerEmail,
         subject: `Email confirmed — ${leadData.name || "Lead"}`,
@@ -64,6 +116,10 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug,
+          enhancements: enhancementNames,
+          totalPrice: proposal.total_price || 0,
+          notes: internalNotes,
+          dashboardUrl,
         }),
       });
     }
