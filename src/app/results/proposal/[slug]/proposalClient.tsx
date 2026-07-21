@@ -266,7 +266,7 @@ export default function ProposalClient({
             !sameSelection(selectedEnhancements, confirmedSelection.enhancementIds || [])
         );
 
-    async function handleRequestBooking() {
+async function handleRequestBooking() {
 
         setBookingState("sending");
 

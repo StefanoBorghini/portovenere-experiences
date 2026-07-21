@@ -4,15 +4,6 @@ import { sendEmail } from "@/lib/email/sendEmail";
 import { verificationEmailTemplate } from "@/lib/email/templates";
 import { randomUUID } from "crypto";
 
-// =========================================================
-// POST /api/request-booking
-// Chiamata quando il cliente clicca "Request Private Booking"
-// sulla pagina della proposal. Genera un token, lo salva sulla
-// riga Proposal, e invia al cliente (all'email salvata nel DB,
-// non a quella passata dal client) il link di verifica con il
-// resoconto completo della proposta.
-// =========================================================
-
 export async function POST(req: NextRequest) {
 
   try {
@@ -40,11 +31,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Recuperiamo la proposal dal DB — cosi' usiamo i dati REALI
-    // (email compresa) invece di fidarci ciecamente di quello che
-    // manda il client. Senza questo controllo, chiunque conoscesse
-    // uno slug potrebbe far inviare email di verifica a un indirizzo
-    // arbitrario passandolo semplicemente nel body della richiesta.
     const { data: proposal, error: fetchError } = await supabase
       .from("Proposal")
       .select("*")
@@ -69,37 +55,14 @@ export async function POST(req: NextRequest) {
 
     const token = randomUUID();
 
-    // Il countdown sulla pagina SPARISCE non appena questa richiesta
-    // va a buon fine (bookingState diventa "sent") — se non allunghiamo
-    // qui anche la scadenza reale, il cliente vede "Check your inbox"
-    // senza alcuna pressione di tempo, ma la prenotazione potrebbe
-    // comunque scadere in background mentre lui controlla la posta.
-    // Allunghiamo quindi expires_at di 48h fresche da ORA, esattamente
-    // come gia' fa /api/confirm-changes per le modifiche successive —
-    // cosi' countdown nascosto e scadenza reale sono sempre coerenti.
     const newExpiresAt =
       new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
 
-    // Il totale arriva gia' calcolato dal client (liveTotal in
-    // proposalClient.tsx). Protezione contro NaN/valori invalidi:
-    // se anche un solo elemento ha un prezzo rotto (es. base_price
-    // null su un enhancement), il client lo tratta gia' come 0 nel
-    // calcolo — ma qui aggiungiamo comunque una verifica finale
-    // prima di salvare, non ci fidiamo ciecamente del client.
     const safeTotalPrice =
       typeof totalPrice === "number" && Number.isFinite(totalPrice) && totalPrice > 0
         ? Math.round(totalPrice)
         : 0;
 
-    // Salviamo gia' ora la selezione scelta al momento della richiesta —
-    // diventera' il "confirmed_selection" di riferimento una volta che
-    // l'email viene verificata. Se il cliente non verifica mai, questo
-    // dato semplicemente non conta per nulla.
-    //
-    // experienceDetails/enhancementDetails: titolo, operatore e prezzo
-    // gia' risolti lato client — salvati qui cosi' i reminder e la
-    // pagina admin li possono riusare senza dover ricalcolare nulla
-    // lato server (che richiederebbe rifare il match/pricing).
     const { error: updateError } = await supabase
       .from("Proposal")
       .update({
@@ -111,6 +74,9 @@ export async function POST(req: NextRequest) {
         confirmed_selection: {
           experienceIds: experienceIds || [],
           enhancementIds: enhancementIds || [],
+          // Dettagli gia' risolti lato client (titolo/operatore/
+          // prezzo) — salvati qui cosi' reminder e route admin li
+          // possono riusare senza ricalcolare nulla lato server.
           experienceDetails: experienceDetails || [],
           enhancementDetails: enhancementDetails || [],
         },
