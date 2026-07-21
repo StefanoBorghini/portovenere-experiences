@@ -2,14 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { reminderEmailTemplate } from "@/lib/email/templates";
+import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 
 // =========================================================
 // GET /api/cron/proposal-reminders
 // Chiamata da Vercel Cron ogni 30 minuti (vedi vercel.json).
-// Per ogni Proposal con email non verificata, controlla quante
-// ore sono passate da created_at e invia il reminder dovuto
-// (12h -> stage 1, 24h -> stage 2, 36h -> stage 3), uno per
-// proposal per run, senza mai rimandare lo stesso stage due
+//
+// IMPORTANTE: il timer si basa su verification_sent_at, NON su
+// created_at. created_at e' il momento in cui la proposal viene
+// generata dal configuratore — ma la mail di verifica parte solo
+// DOPO, quando il cliente clicca "Request Private Booking" sulla
+// pagina della proposal (vedi /api/request-booking). Se usassimo
+// created_at, manderemmo reminder anche a chi non ha mai ricevuto
+// la prima mail da confermare.
+//
+// Per ogni Proposal con email non verificata E verification_sent_at
+// valorizzato, controlla quante ore sono passate e invia il
+// reminder dovuto (12h -> stage 1, 24h -> stage 2, 36h -> stage 3),
+// uno per proposal per run, senza mai rimandare lo stesso stage due
 // volte grazie al confronto con reminder_stage salvato in DB.
 //
 // Protetta da CRON_SECRET: Vercel Cron manda automaticamente
@@ -38,11 +48,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Supabase not configured" }, { status: 500 });
   }
 
-  // Assegnato a una costante locale subito dopo il check: dentro la
-  // closure di .map() piu' sotto, TypeScript non riesce a "ricordare"
-  // che supabase non e' null solo guardando il controllo qui sopra,
-  // quindi segnala erroneamente "possibly null". Con questa costante
-  // il narrowing resta valido in tutta la funzione.
   const db = supabase;
 
   try {
@@ -51,6 +56,7 @@ export async function GET(req: NextRequest) {
       .from("Proposal")
       .select("*")
       .eq("email_verified", false)
+      .not("verification_sent_at", "is", null)
       .lt("reminder_stage", 3);
 
     if (fetchError) {
@@ -60,6 +66,16 @@ export async function GET(req: NextRequest) {
 
     if (!pendingProposals || pendingProposals.length === 0) {
       return NextResponse.json({ success: true, sent: 0 });
+    }
+
+    // Nomi enhancement risolti UNA volta per tutto il run, non per
+    // ogni proposal — evita N chiamate identiche alla stessa tabella.
+    let allEnhancements: any[] = [];
+
+    try {
+      allEnhancements = await getEnhancements();
+    } catch (enhErr) {
+      console.error("proposal-reminders: could not load enhancements:", enhErr);
     }
 
     const now = Date.now();
@@ -73,14 +89,14 @@ export async function GET(req: NextRequest) {
 
       pendingProposals.map(async (proposal) => {
 
-        const hoursSinceCreation =
-          (now - new Date(proposal.created_at).getTime()) / (1000 * 60 * 60);
+        const hoursSincePending =
+          (now - new Date(proposal.verification_sent_at).getTime()) / (1000 * 60 * 60);
 
         let dueStage = 0;
 
-        if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[3]) dueStage = 3;
-        else if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[2]) dueStage = 2;
-        else if (hoursSinceCreation >= REMINDER_THRESHOLDS_HOURS[1]) dueStage = 1;
+        if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[3]) dueStage = 3;
+        else if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[2]) dueStage = 2;
+        else if (hoursSincePending >= REMINDER_THRESHOLDS_HOURS[1]) dueStage = 1;
 
         if (dueStage === 0 || dueStage <= proposal.reminder_stage) {
           return { slug: proposal.slug, skipped: true };
@@ -95,6 +111,15 @@ export async function GET(req: NextRequest) {
         const verifyUrl =
           `${SITE_URL}/api/verify-email?token=${proposal.verification_token}&slug=${proposal.slug}`;
 
+        const selectedEnhancementIds = (
+          proposal.confirmed_selection?.enhancementIds || []
+        ).map((id: any) => String(id));
+
+        const enhancementNames = allEnhancements
+          .filter((enh: any) => selectedEnhancementIds.includes(String(enh.id)))
+          .map((enh: any) => enh.title || enh.name || "")
+          .filter(Boolean);
+
         const summaryData = {
           name: leadData.name || "",
           email: leadData.email || "",
@@ -105,6 +130,8 @@ export async function GET(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug: proposal.slug,
+          enhancements: enhancementNames,
+          totalPrice: proposal.total_price || 0,
         };
 
         const emailResult = await sendEmail({

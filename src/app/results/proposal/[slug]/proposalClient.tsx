@@ -279,6 +279,13 @@ export default function ProposalClient({
                     slug,
                     experienceIds: selectedExperienceIds,
                     enhancementIds: selectedEnhancements,
+                    // Aggiunto: il totale live calcolato qui sotto (liveTotal),
+                    // cosi' la mail di conferma puo' mostrare un importo stimato
+                    // reale invece di restare sempre a 0. Il server non ricalcola
+                    // il prezzo (richiederebbe duplicare tutta la logica di
+                    // pricing lato API) — si fida di questo valore solo per la
+                    // mail, non per transazioni economiche vere e proprie.
+                    totalPrice: liveTotal,
                 }),
             });
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { verificationEmailTemplate } from "@/lib/email/templates";
+import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 import { randomUUID } from "crypto";
 
 // =========================================================
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { slug, experienceIds, enhancementIds } = await req.json();
+    const { slug, experienceIds, enhancementIds, totalPrice } = await req.json();
 
     if (!slug) {
       return NextResponse.json(
@@ -77,6 +78,9 @@ export async function POST(req: NextRequest) {
     // diventera' il "confirmed_selection" di riferimento una volta che
     // l'email viene verificata. Se il cliente non verifica mai, questo
     // dato semplicemente non conta per nulla.
+    const safeTotalPrice =
+      typeof totalPrice === "number" && totalPrice > 0 ? Math.round(totalPrice) : 0;
+
     const { error: updateError } = await supabase
       .from("Proposal")
       .update({
@@ -84,6 +88,7 @@ export async function POST(req: NextRequest) {
         verification_sent_at: new Date().toISOString(),
         booking_requested_at: new Date().toISOString(),
         expires_at: newExpiresAt,
+        total_price: safeTotalPrice,
         confirmed_selection: {
           experienceIds: experienceIds || [],
           enhancementIds: enhancementIds || [],
@@ -97,6 +102,25 @@ export async function POST(req: NextRequest) {
         { success: false, error: "Could not save verification token" },
         { status: 500 }
       );
+    }
+
+    // Risolviamo i NOMI degli enhancement selezionati — il body
+    // arriva solo con gli ID, che nella mail sarebbero inutili
+    // per il cliente. Se questa lookup fallisce per qualsiasi
+    // motivo, la mail parte comunque (solo senza quella riga)
+    // invece di bloccare l'intero invio.
+    let enhancementNames: string[] = [];
+
+    try {
+      const allEnhancements = await getEnhancements();
+      const selectedIds = (enhancementIds || []).map((id: any) => String(id));
+
+      enhancementNames = allEnhancements
+        .filter((enh: any) => selectedIds.includes(String(enh.id)))
+        .map((enh: any) => enh.title || enh.name || "")
+        .filter(Boolean);
+    } catch (enhErr) {
+      console.error("request-booking: could not resolve enhancement names:", enhErr);
     }
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
@@ -118,6 +142,8 @@ export async function POST(req: NextRequest) {
           startDate: leadData.start_date || "",
           endDate: leadData.end_date || "",
           slug,
+          enhancements: enhancementNames,
+          totalPrice: safeTotalPrice,
         },
         verifyUrl
       ),

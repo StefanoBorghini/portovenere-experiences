@@ -15,9 +15,20 @@ interface ProposalSummary {
   startDate: string;
   endDate: string;
   slug: string;
+  // Opzionali: non tutte le chiamate esistenti li passano ancora
+  // (es. ownerNewProposalTemplate), quindi restano facoltativi
+  // per non rompere le chiamate gia' in produzione.
+  enhancements?: string[];
+  totalPrice?: number;
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.portovenere.com";
+
+// Contatti reali — stesso numero gia' usato per il bottone WhatsApp
+// nella pagina proposal (ProposalPage.tsx, whatsappUrl).
+const CONTACT_WHATSAPP = "+39 348 714 0722";
+const CONTACT_WHATSAPP_URL = "https://wa.me/393487140722";
+const CONTACT_EMAIL = "info@portovenere.com";
 
 // =========================================================
 // SICUREZZA — questi dati arrivano dal lead (nome, email,
@@ -45,30 +56,105 @@ function escapeList(values: string[]): string {
   return values.map(escapeHtml).join(", ");
 }
 
+function formatPrice(value: number): string {
+  return `€${Math.round(value).toLocaleString("en-US")}`;
+}
+
+// =========================================================
+// RIGA "Contacts" condivisa — WhatsApp + email, mostrata in
+// fondo alle mail al cliente.
+// =========================================================
+
+function contactsBlock(): string {
+  return `
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #eee;">
+      <p style="color: #666; font-size: 13px; margin: 0 0 8px;">
+        Questions? Reach us directly:
+      </p>
+      <p style="font-size: 13px; margin: 0;">
+        <a href="${CONTACT_WHATSAPP_URL}" style="color: #111; text-decoration: none;">
+          WhatsApp: ${CONTACT_WHATSAPP}
+        </a>
+        &nbsp;·&nbsp;
+        <a href="mailto:${CONTACT_EMAIL}" style="color: #111; text-decoration: none;">
+          ${CONTACT_EMAIL}
+        </a>
+      </p>
+    </div>
+  `;
+}
+
+// =========================================================
+// RIGHE DI RIEPILOGO condivise — experiences/enhancements/
+// guests/budget/dates, + enhancements e totale se disponibili.
+// =========================================================
+
+function summaryTable(data: ProposalSummary): string {
+
+  const enhancementsRow =
+    data.enhancements && data.enhancements.length > 0
+      ? `<tr><td style="padding: 6px 0; color: #666;">Enhancements</td><td>${escapeList(data.enhancements)}</td></tr>`
+      : "";
+
+  const totalRow =
+    data.totalPrice && data.totalPrice > 0
+      ? `<tr><td style="padding: 6px 0; color: #666;">Estimated total</td><td><strong>${formatPrice(data.totalPrice)}</strong></td></tr>`
+      : "";
+
+  return `
+    <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
+      <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
+      ${enhancementsRow}
+      <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
+      ${totalRow}
+    </table>
+  `;
+}
+
 // ---------------------------------------------------------
 // 1. Email al CLIENTE — link di verifica dopo "Request Private Booking"
+//
+// ARRICCHITA: logo, messaggio personale, riepilogo completo
+// (incluse enhancements e totale se disponibili), tempi di
+// risposta, contatti. Il bottone porta sempre allo stesso link
+// di verifica (/api/verify-email) — resta l'unico modo per far
+// scattare email_verified=true — solo il testo e' cambiato per
+// riflettere meglio lo scopo ("vedi la tua richiesta" invece di
+// "conferma la tua email", che suonava piu' tecnico che curato).
 // ---------------------------------------------------------
 
 export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: string) {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
-      <h2 style="font-weight: 300;">Confirm your booking request</h2>
+
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img
+          src="${SITE_URL}/logo-white.png"
+          alt="Portovenere Experiences"
+          style="height: 36px; filter: invert(1);"
+        />
+      </div>
+
+      <h2 style="font-weight: 300;">Thank you for crafting your experience</h2>
       <p>Hi ${escapeHtml(data.name) || "there"},</p>
       <p>
-        Thanks for requesting your private Riviera experience with
-        Portovenere Experiences. Here's a summary of the proposal you're
-        confirming:
+        Thank you for putting together your private Riviera experience with
+        Portovenere Experiences. We've received your request and we're
+        already looking forward to making it happen. Here's a summary of
+        what you selected:
       </p>
 
-      <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
-        <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
-      </table>
+      ${summaryTable(data)}
 
-      <p>Please confirm your email address to proceed with your booking request.</p>
+      <p style="color: #666; font-size: 13px;">
+        We typically respond within 24 hours with availability and final
+        details.
+      </p>
+
+      <p>Please confirm your email address to activate your request.</p>
 
       <p style="margin: 32px 0;">
         <a
@@ -84,21 +170,28 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
             text-transform: uppercase;
           "
         >
-          Confirm my email
+          View my request
         </a>
       </p>
       <p style="color: #666; font-size: 13px;">
         If you didn't request this, you can safely ignore this email.
       </p>
+
+      ${contactsBlock()}
     </div>
   `;
 }
 
 // ---------------------------------------------------------
 // 1b. Email al CLIENTE — REMINDER per proposal non confermate
-// (12h / 24h / 36h dopo la creazione). Riusa lo stesso
-// verifyUrl (stesso token) della mail iniziale — nessuna
-// nuova verifica da generare, e' solo un promemoria.
+// (12h / 24h / 36h dopo l'invio della mail di verifica, cioe'
+// da verification_sent_at — non da created_at, perche' quello
+// e' solo il momento in cui la proposal e' stata generata, non
+// il momento in cui il cliente ha chiesto il booking).
+//
+// Riusa lo stesso verifyUrl (stesso token) della mail iniziale,
+// e lo stesso riepilogo arricchito — nessuna nuova verifica da
+// generare, e' solo un promemoria.
 //
 // stage: 1 = 12h, 2 = 24h, 3 = 36h — cambia solo tono/urgenza
 // del testo, il resto del contenuto e' identico alla mail
@@ -109,12 +202,12 @@ const REMINDER_COPY: Record<number, { subject: string; heading: string; intro: s
   1: {
     subject: "Your Riviera proposal is waiting for you",
     heading: "Your booking request is still pending",
-    intro: "We noticed you haven't confirmed your email yet. Your proposal is still saved and ready — here's a quick reminder of what you put together:",
+    intro: "We noticed you haven't confirmed your email yet. Your request is still saved and ready — here's a quick reminder of what you put together:",
   },
   2: {
     subject: "Reminder: confirm your Riviera booking request",
-    heading: "Still there? Your proposal is waiting",
-    intro: "Just a gentle nudge — your private Riviera proposal hasn't been confirmed yet. Take a moment to review it and confirm:",
+    heading: "Still there? Your request is waiting",
+    intro: "Just a gentle nudge — your private Riviera request hasn't been confirmed yet. Take a moment to review it and confirm:",
   },
   3: {
     subject: "Last reminder: your Riviera proposal request",
@@ -133,17 +226,20 @@ export function reminderEmailTemplate(
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
+
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img
+          src="${SITE_URL}/logo-white.png"
+          alt="Portovenere Experiences"
+          style="height: 36px; filter: invert(1);"
+        />
+      </div>
+
       <h2 style="font-weight: 300;">${copy.heading}</h2>
       <p>Hi ${escapeHtml(data.name) || "there"},</p>
       <p>${copy.intro}</p>
 
-      <table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
-        <tr><td style="padding: 6px 0; color: #666;">Experiences</td><td>${escapeList(data.experiences) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
-        <tr><td style="padding: 6px 0; color: #666;">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
-      </table>
+      ${summaryTable(data)}
 
       <p style="margin: 32px 0;">
         <a
@@ -159,12 +255,14 @@ export function reminderEmailTemplate(
             text-transform: uppercase;
           "
         >
-          Confirm my email
+          View my request
         </a>
       </p>
       <p style="color: #666; font-size: 13px;">
         If you didn't request this, you can safely ignore this email.
       </p>
+
+      ${contactsBlock()}
     </div>
   `;
 }
