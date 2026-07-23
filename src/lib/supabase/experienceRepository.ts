@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
-import { syncExperienceTranslations } from "@/lib/translations/translateExperience";
 
 export async function deleteExperience(id: string) {
 
@@ -988,13 +987,14 @@ export async function updateExperience(
 
   // =====================================================
   // LARA TRANSLATE — solo se questo salvataggio ha toccato
-  // uno dei campi traducibili (title/short_description/
-  // description). Rileggiamo la riga fresca da Supabase
-  // invece di fidarci di "updates" perche' potrebbe essere
-  // un salvataggio parziale (es. solo "active"). Il tutto e'
-  // avvolto in Promise.allSettled — awaited per non farlo
-  // tagliare dal runtime serverless, ma un fallimento di Lara
-  // non deve mai far risultare fallito il salvataggio.
+  // uno dei campi traducibili. Chiamata via fetch alla API
+  // route /api/translate-experience: quella gira SEMPRE lato
+  // server (Vercel Function), a differenza di questa funzione
+  // che essendo importata da una pagina "use client" esegue nel
+  // browser — dove le chiavi Lara e il modulo crypto di Node
+  // non sono disponibili. Awaited dentro Promise.allSettled:
+  // un fallimento qui non deve mai far risultare fallito il
+  // salvataggio dell'esperienza.
   // =====================================================
 
   const translatableFieldsChanged =
@@ -1004,19 +1004,13 @@ export async function updateExperience(
 
   if (translatableFieldsChanged) {
 
-    const { data: freshRow } =
-      await supabase
-        .from("experience_content")
-        .select("title, short_description, description")
-        .eq("id", id)
-        .single();
-
-    if (freshRow) {
-
-      await Promise.allSettled([
-        syncExperienceTranslations(id, freshRow),
-      ]);
-    }
+    await Promise.allSettled([
+      fetch("/api/translate-experience", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ experienceId: id }),
+      }),
+    ]);
   }
 
   return {

@@ -13,7 +13,7 @@
  */
 
 import crypto from "crypto";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase/adminClient";
 import {
   translateFields,
   SUPPORTED_TARGET_LOCALES,
