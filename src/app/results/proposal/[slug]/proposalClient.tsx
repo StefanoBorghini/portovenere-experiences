@@ -101,12 +101,18 @@ export default function ProposalClient({
     }
 
     // =====================================================
-    // FIX: se il cliente ha GIA' confermato una selezione in
-    // precedenza (initialConfirmedSelection non nullo), lo stato
-    // iniziale deve rispecchiarla — altrimenti al reload la pagina
-    // mostra tutto deselezionato, il sistema rileva una differenza
-    // rispetto a quanto salvato, e propone "Confirm Changes" anche
-    // se il cliente non ha toccato nulla.
+    // FIX BUG "3 Experiences invece di 2": selectedExperienceIds
+    // deve contenere SOLO le esperienze extra (quelle gestite da
+    // IncludedExperiences), MAI la featured — perche' experienceCount
+    // piu' sotto fa sempre "1 + selectedExperienceIds.length",
+    // assumendo che quell'1 sia gia' la featured.
+    //
+    // Il problema: /api/request-booking ora salva anche l'ID della
+    // featured dentro confirmed_selection.experienceIds (serve per
+    // farla comparire nella pagina admin). Quando la pagina si
+    // ricarica con initialConfirmedSelection dal server, se non
+    // filtriamo quell'ID qui, finisce di nuovo dentro
+    // selectedExperienceIds e viene contata due volte.
     // =====================================================
 
     const [
@@ -118,48 +124,30 @@ export default function ProposalClient({
             : []
     );
 
-    // Se sono suggerimenti (categoria singola), partono deselezionati.
-    // Se sono experience delle categorie che l'utente ha scelto,
-    // partono già incluse, come prima — MA solo se non esiste già
-    // una selezione confermata da rispettare.
     const [
         selectedExperienceIds,
         setSelectedExperienceIds
 
     ] = useState<string[]>(
         initialConfirmedSelection?.experienceIds
-            ? initialConfirmedSelection.experienceIds
+            ? initialConfirmedSelection.experienceIds.filter(
+                  (id) => id !== featuredExperience.id
+              )
             : includedExperiencesPreSelected
                 ? includedExperiences.map((card: any) => card.id)
                 : []
     );
 
-    // =====================================================
-    // STATO CONDIVISO DELLA RICHIESTA DI BOOKING
-    // Sia FloatingPriceBar che ReservationSection leggono e
-    // innescano questo stesso stato — cliccare l'uno o l'altro
-    // fa la stessa cosa, e nessuno dei due permette un doppio invio.
-    // =====================================================
-
     const [bookingState, setBookingState] = useState<
         "idle" | "sending" | "sent" | "error"
     >(alreadyVerified ? "sent" : "idle");
 
-    // Se la pagina carica con alreadyVerified=true, significa che
-    // il cliente e' appena arrivato dal link di conferma email —
-    // e' il momento in cui la "conferma booking" avviene davvero
-    // dal punto di vista del funnel.
     useEffect(() => {
         if (alreadyVerified) {
             trackBookingConfirmed(slug);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    // =====================================================
-    // SCROLL DEPTH — soglie 25/50/75/100%, ognuna una sola
-    // volta per visita sulla proposal.
-    // =====================================================
 
     const firedScrollThresholdsRef =
         useRef<Set<25 | 50 | 75 | 100>>(new Set());
@@ -198,20 +186,6 @@ export default function ProposalClient({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // =====================================================
-    // HEARTBEAT — tempo ATTIVO speso sulla pagina, non tempo
-    // dall'apertura alla chiusura del tab. "Attivo" = tab
-    // visibile E finestra a fuoco: se il cliente passa ad
-    // un'altra scheda o app, il conteggio si ferma, e riparte
-    // solo quando torna davvero a guardare la proposal.
-    //
-    // Ogni 15 secondi ATTIVI accumulati (non di orologio)
-    // mandiamo un evento con il totale cumulativo fino a quel
-    // momento — cosi' in GA4 si vede facilmente "quanti minuti
-    // di lettura reale" per fascia, senza il rumore di tab
-    // dimenticate aperte in background per ore.
-    // =====================================================
-
     useEffect(() => {
 
         let activeSecondsTotal = 0;
@@ -245,121 +219,26 @@ export default function ProposalClient({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Ultima selezione confermata (dal server) — usata per capire
-    // se il cliente ha cambiato qualcosa DOPO aver gia' confermato.
     const [confirmedSelection, setConfirmedSelection] =
         useState<ConfirmedSelection | null>(initialConfirmedSelection);
 
-    // Il timer che vedi in pagina — parte come quello del server,
-    // ma si aggiorna con un nuovo valore ogni volta che le modifiche
-    // vengono confermate (48h fresche dal momento della conferma).
     const [currentExpiresAt, setCurrentExpiresAt] = useState(expiresAt);
 
-    // Ci sono modifiche non ancora confermate SOLO se: la richiesta
-    // e' gia' stata confermata almeno una volta, E la selezione attuale
-    // e' diversa da quella salvata l'ultima volta.
     const hasUnconfirmedChanges =
         bookingState === "sent" &&
         confirmedSelection !== null &&
         (
-            !sameSelection(selectedExperienceIds, confirmedSelection.experienceIds || []) ||
+            !sameSelection(selectedExperienceIds, (confirmedSelection.experienceIds || []).filter(
+                (id) => id !== featuredExperience.id
+            )) ||
             !sameSelection(selectedEnhancements, confirmedSelection.enhancementIds || [])
         );
-
-async function handleRequestBooking() {
-
-        setBookingState("sending");
-
-        try {
-
-            const response = await fetch("/api/request-booking", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    experienceIds: Array.from(
-                        new Set([featuredExperience.id, ...selectedExperienceIds])
-                    ),
-                    enhancementIds: selectedEnhancements,
-                    totalPrice: liveTotal,
-                    experienceDetails,
-                    enhancementDetails,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                setBookingState("error");
-                return;
-            }
-
-            trackProposalSent(slug);
-
-            if (data.expiresAt) {
-                setCurrentExpiresAt(data.expiresAt);
-            }
-
-            setBookingState("sent");
-
-        } catch (err) {
-            console.error("request-booking failed:", err);
-            setBookingState("error");
-        }
-    }
-
-    async function handleConfirmChanges() {
-
-        setBookingState("sending");
-
-        try {
-
-            const response = await fetch("/api/confirm-changes", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    slug,
-                    experienceIds: Array.from(
-                        new Set([featuredExperience.id, ...selectedExperienceIds])
-                    ),
-                    enhancementIds: selectedEnhancements,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                setBookingState("error");
-                return;
-            }
-
-            setConfirmedSelection({
-                experienceIds: Array.from(
-                    new Set([featuredExperience.id, ...selectedExperienceIds])
-                ),
-                enhancementIds: selectedEnhancements,
-            });
-
-            trackBookingChangesConfirmed(slug);
-
-            setCurrentExpiresAt(data.expiresAt);
-            setBookingState("sent");
-
-        } catch (err) {
-            console.error("confirm-changes failed:", err);
-            setBookingState("error");
-        }
-    }
-
-    const handleAction = hasUnconfirmedChanges
-        ? handleConfirmChanges
-        : handleRequestBooking;
 
     // =====================================================
     // PREZZO LIVE
     // =====================================================
 
-  const guestCount = Number(lead.guests) || 1;
+    const guestCount = Number(lead.guests) || 1;
     const childCount = Number(lead.children) || 0;
 
     const checkInDate = lead.start_date;
@@ -371,13 +250,12 @@ async function handleRequestBooking() {
 
     // Una singola esperienza/enhancement con un prezzo rotto (es.
     // base_price null in DB) non deve azzerare l'INTERO totale —
-    // meglio trattare quel singolo elemento come 0 e continuare,
-    // invece di propagare NaN a tutto il resto del calcolo.
+    // trattiamo quel singolo elemento come 0 e continuiamo.
     function safeNumber(value: number): number {
         return Number.isFinite(value) ? value : 0;
     }
 
-   const featuredPrice = safeNumber(
+    const featuredPrice = safeNumber(
         featuredSeasonalPrice !== null
             ? featuredSeasonalPrice
             : calculatePrice(
@@ -393,7 +271,6 @@ async function handleRequestBooking() {
 
     // Dettaglio per-esperienza EXTRA (oltre alla featured) — titolo,
     // operatore e prezzo, non solo la macro-categoria del wizard.
-    // Usato sia per il totale che per le mail (cliente e operatore).
     const includedExperienceDetails = includedExperiences
         .filter((card: any) => selectedExperienceIds.includes(card.id))
         .map((card: any) => {
@@ -453,8 +330,9 @@ async function handleRequestBooking() {
         enhancementsPrice
     );
 
-    // Dettaglio completo esperienze da inviare nelle email — SEMPRE
-    // con la featured in testa, poi le extra selezionate.
+    // Dettaglio completo esperienze — SEMPRE con la featured in
+    // testa, poi le extra selezionate. Questo e' l'array che finisce
+    // nelle mail (cliente e operatore) E nell'admin.
     const experienceDetails = [
         {
             title: featuredExperience.title || "",
@@ -464,11 +342,120 @@ async function handleRequestBooking() {
         ...includedExperienceDetails,
     ];
 
+    // =====================================================
+    // CONTEGGIO EXPERIENCE LIVE — il "+1" e' SEMPRE la featured,
+    // mai duplicata: selectedExperienceIds contiene solo le extra
+    // grazie al filtro applicato sopra in ogni punto in cui viene
+    // idratato o confrontato.
+    // =====================================================
+
     const experienceCount =
         1 + selectedExperienceIds.length;
 
     const priceLabel =
         `${experienceCount} Experience${experienceCount !== 1 ? "s" : ""} Included`;
+
+    async function handleRequestBooking() {
+
+        setBookingState("sending");
+
+        try {
+
+            const response = await fetch("/api/request-booking", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    slug,
+                    // L'esperienza principale (featuredExperience) NON fa mai
+                    // parte di selectedExperienceIds — quello stato traccia
+                    // solo le esperienze EXTRA scelte in IncludedExperiences.
+                    // La aggiungiamo qui SOLO nel payload inviato al server
+                    // (per farla comparire in admin/mail), MAI nello stato
+                    // React locale — altrimenti si ripresenta il bug del
+                    // doppio conteggio.
+                    experienceIds: Array.from(
+                        new Set([featuredExperience.id, ...selectedExperienceIds])
+                    ),
+                    enhancementIds: selectedEnhancements,
+                    totalPrice: liveTotal,
+                    experienceDetails,
+                    enhancementDetails,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                setBookingState("error");
+                return;
+            }
+
+            trackProposalSent(slug);
+
+            if (data.expiresAt) {
+                setCurrentExpiresAt(data.expiresAt);
+            }
+
+            setBookingState("sent");
+
+        } catch (err) {
+            console.error("request-booking failed:", err);
+            setBookingState("error");
+        }
+    }
+
+    async function handleConfirmChanges() {
+
+        setBookingState("sending");
+
+        try {
+
+            const response = await fetch("/api/confirm-changes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    slug,
+                    experienceIds: Array.from(
+                        new Set([featuredExperience.id, ...selectedExperienceIds])
+                    ),
+                    enhancementIds: selectedEnhancements,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                setBookingState("error");
+                return;
+            }
+
+            // NOTA: confirmedSelection (stato locale) mantiene l'ID della
+            // featured, perche' viene confrontato con hasUnconfirmedChanges
+            // che ora filtra la featured da entrambi i lati prima di
+            // confrontare — vedi sopra. Qui salviamo esattamente cio' che
+            // e' stato inviato al server, per coerenza totale.
+            setConfirmedSelection({
+                experienceIds: Array.from(
+                    new Set([featuredExperience.id, ...selectedExperienceIds])
+                ),
+                enhancementIds: selectedEnhancements,
+            });
+
+            trackBookingChangesConfirmed(slug);
+
+            setCurrentExpiresAt(data.expiresAt);
+            setBookingState("sent");
+
+        } catch (err) {
+            console.error("confirm-changes failed:", err);
+            setBookingState("error");
+        }
+    }
+
+    const handleAction = hasUnconfirmedChanges
+        ? handleConfirmChanges
+        : handleRequestBooking;
+
     return (
 
 <main
@@ -548,7 +535,11 @@ async function handleRequestBooking() {
             isMultiDayTrip={isMultiDayTrip}
             guests={guestCount}
             children={childCount}
-            initialSelectedIds={initialConfirmedSelection?.experienceIds}
+            initialSelectedIds={
+                initialConfirmedSelection?.experienceIds?.filter(
+                    (id) => id !== featuredExperience.id
+                )
+            }
         />
     </SectionViewTracker>
 
