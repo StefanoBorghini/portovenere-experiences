@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
+import { syncExperienceTranslations } from "@/lib/translations/translateExperience";
 
 export async function deleteExperience(id: string) {
 
@@ -983,6 +984,39 @@ export async function updateExperience(
       success: false,
       error,
     };
+  }
+
+  // =====================================================
+  // LARA TRANSLATE — solo se questo salvataggio ha toccato
+  // uno dei campi traducibili (title/short_description/
+  // description). Rileggiamo la riga fresca da Supabase
+  // invece di fidarci di "updates" perche' potrebbe essere
+  // un salvataggio parziale (es. solo "active"). Il tutto e'
+  // avvolto in Promise.allSettled — awaited per non farlo
+  // tagliare dal runtime serverless, ma un fallimento di Lara
+  // non deve mai far risultare fallito il salvataggio.
+  // =====================================================
+
+  const translatableFieldsChanged =
+    "title" in updates ||
+    "short_description" in updates ||
+    "description" in updates;
+
+  if (translatableFieldsChanged) {
+
+    const { data: freshRow } =
+      await supabase
+        .from("experience_content")
+        .select("title, short_description, description")
+        .eq("id", id)
+        .single();
+
+    if (freshRow) {
+
+      await Promise.allSettled([
+        syncExperienceTranslations(id, freshRow),
+      ]);
+    }
   }
 
   return {
