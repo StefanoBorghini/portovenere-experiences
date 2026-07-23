@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { supabase } from "@/lib/supabase";
 import {
@@ -41,32 +42,9 @@ const STEP_IDS = [
 
 type StepId = typeof STEP_IDS[number];
 
-const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
-  experiences: {
-    label: "Select up to 3 Experiences",
-    title: "What kind of experience are you dreaming of?",
-  },
-  moods: {
-    label: "Select up to 3 Atmospheres",
-    title: "Choose the vibe that inspires you.",
-  },
-  guests: {
-    label: "Adults & Children",
-    title: "Who's joining the adventure?",
-  },
-  dates: {
-    label: "Travel Dates",
-    title: "When are you planning to travel?",
-  },
-  budget: {
-    label: "Estimated Investment",
-    title: "What is your preferred budget range?",
-  },
-  contact: {
-    label: "Your Details",
-    title: "One last step before we craft your proposal.",
-  },
-};
+// NOTA: label/title dei singoli step ora arrivano da next-intl
+// (namespace "configurator.steps.<stepId>"), non piu' da un oggetto
+// statico qui — vedi stepLabel/stepTitle dentro il componente.
 
 // =========================================================
 // SLIDE ANIMATION VARIANTS
@@ -94,13 +72,16 @@ const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
 const INTRO_STEP = -1;
 
 // =========================================================
-// IMMAGINI E TESTI — hardcoded per ora, come richiesto.
-// Quando arriverà il CMS, questi tre oggetti diventeranno
+// IMMAGINI — hardcoded per ora, come richiesto. Le CHIAVI qui
+// ("Sea Escape", "Aerial Escape", ecc.) restano in inglese e NON
+// vanno tradotte: sono usate come valori reali per matching con
+// generateProposal.ts, incompatibleExperiences, e salvate cosi'
+// nel lead/proposal su Supabase. Solo il testo mostrato a schermo
+// (via next-intl piu' sotto) cambia lingua, mai questi valori.
+//
+// Quando arriverà il CMS, questi due oggetti diventeranno
 // la fonte dinamica (stessa struttura, dati da Supabase invece
 // che da qui) — il resto del codice non cambia.
-//
-// Path reali già impostati (public/images/... e public/hero-config.jpg).
-// Se sposti o rinomini i file, aggiorna solo qui sotto.
 // =========================================================
 
 const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
@@ -130,25 +111,38 @@ const MOOD_IMAGES: Record<string, string> = {
 };
 
 // =========================================================
-// FASCIA ORARIA PREFERITA — nuovo parametro (richiesta LPG Italia).
-// Valore salvato su leads.preferred_time, uno dei quattro definiti
-// dalla specifica: morning | afternoon | sunset | full_day.
+// FASCIA ORARIA PREFERITA — "value" resta il valore canonico
+// salvato su leads.preferred_time (morning | afternoon | sunset |
+// full_day), MAI tradotto. Il testo mostrato ("Morning", ecc.)
+// ora arriva da next-intl, chiave configurator.dates.<value>.
 // =========================================================
 
 const TIME_SLOTS: {
   value: string;
-  label: string;
   icon: typeof Sunrise;
 }[] = [
-  { value: "morning", label: "Morning", icon: Sunrise },
-  { value: "afternoon", label: "Afternoon", icon: Sun },
-  { value: "sunset", label: "Sunset", icon: Sunset },
-  { value: "full_day", label: "Full Day", icon: Clock },
+  { value: "morning", icon: Sunrise },
+  { value: "afternoon", icon: Sun },
+  { value: "sunset", icon: Sunset },
+  { value: "full_day", icon: Clock },
+];
+
+// =========================================================
+// BUDGET — "range" resta il valore canonico confrontato in
+// generateProposal.ts (es. budget === "€500 - €1000"), MAI
+// tradotto. "key" serve solo per la label tradotta via next-intl.
+// =========================================================
+
+const BUDGET_TIERS: { key: string; range: string }[] = [
+  { key: "essential", range: "€500 - €1000" },
+  { key: "signature", range: "€1000 - €3000" },
+  { key: "luxury", range: "€3000+" },
 ];
 
 export default function CraftYourExperience() {
 
   const router = useRouter();
+  const t = useTranslations("configurator");
 
   // =======================================================
   // WIZARD NAVIGATION STATE
@@ -455,7 +449,7 @@ export default function CraftYourExperience() {
         );
 
         if (hasConflict) {
-          setSelectionWarning("These experiences cannot be combined");
+          setSelectionWarning(t("selection.warningConflict"));
           return prev;
         }
       }
@@ -477,8 +471,8 @@ export default function CraftYourExperience() {
       if (currentValues.length >= max) {
         setSelectionWarning(
           field === "experiences"
-            ? "Maximum 3 experiences allowed"
-            : "Maximum 3 atmospheres selections allowed"
+            ? t("selection.warningMaxExperiences")
+            : t("selection.warningMaxMoods")
         );
         return prev;
       }
@@ -777,7 +771,7 @@ export default function CraftYourExperience() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                {formData.experiences.length}/3 selected
+                {t("selection.experiencesSelected", { count: formData.experiences.length })}
               </p>
             </div>
 
@@ -820,7 +814,9 @@ export default function CraftYourExperience() {
                         )}
                       </div>
 
-                      {/* LABEL — ancorata in basso a sinistra */}
+                      {/* LABEL — ancorata in basso a sinistra. Valore ("item")
+                          resta in inglese di proposito, vedi nota su
+                          EXPERIENCE_DETAILS piu' sopra. */}
                       <div className="absolute bottom-0 left-0 p-3">
                         <p className="text-white text-sm font-medium text-left">
                           {item}
@@ -843,7 +839,7 @@ export default function CraftYourExperience() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
-                {formData.moods.length}/3 selected
+                {t("selection.moodsSelected", { count: formData.moods.length })}
               </p>
             </div>
 
@@ -900,7 +896,7 @@ export default function CraftYourExperience() {
           <div>
 
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
-              Adults
+              {t("guests.adultsLabel")}
             </p>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -925,7 +921,7 @@ export default function CraftYourExperience() {
                       guestCount === item ? "text-black/50" : "text-zinc-500"
                     }`}
                   >
-                    Adults
+                    {t("guests.adultsLabel")}
                   </span>
                 </button>
               ))}
@@ -949,7 +945,7 @@ export default function CraftYourExperience() {
                     showMoreGuests ? "text-black/50" : "text-zinc-500"
                   }`}
                 >
-                  Adults
+                  {t("guests.adultsLabel")}
                 </span>
               </button>
             </div>
@@ -959,14 +955,14 @@ export default function CraftYourExperience() {
                 showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
               }`}
             >
-              <p className="text-zinc-500 mb-2 text-xs">Exact number of adults</p>
+              <p className="text-zinc-500 mb-2 text-xs">{t("guests.exactNumberLabel")}</p>
               <input
                 type="number"
                 min={9}
                 max={40}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder="Enter exact number"
+                placeholder={t("guests.exactNumberPlaceholder")}
                 value={guestCount || ""}
                 onChange={(e) => {
                   setGuestCount(Number(e.target.value));
@@ -978,17 +974,17 @@ export default function CraftYourExperience() {
 
             {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
-              Children 0-8
+              {t("guests.childrenLabel")}
             </p>
 
             <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
 
               <span className="text-zinc-400 text-sm">
                 {formData.children === 0
-                  ? "No children"
+                  ? t("guests.noChildren")
                   : formData.children === 1
-                  ? "1 child"
-                  : `${formData.children} children`}
+                  ? t("guests.oneChild")
+                  : t("guests.childrenCount", { count: formData.children })}
               </span>
 
               <div className="flex items-center gap-4">
@@ -1055,7 +1051,7 @@ export default function CraftYourExperience() {
             <div className="flex justify-between mb-3">
               <div>
                 <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
-                  Check-in
+                  {t("dates.checkIn")}
                 </p>
                 <p className="text-white text-sm">
                   {formData.startDate
@@ -1065,7 +1061,7 @@ export default function CraftYourExperience() {
               </div>
               <div className="text-right">
                 <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
-                  Check-out
+                  {t("dates.checkOut")}
                 </p>
                 <p className="text-white text-sm">
                   {formData.endDate
@@ -1162,7 +1158,7 @@ export default function CraftYourExperience() {
             </div>
 
             <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
-              Tap a date, or drag across dates to select a range.
+              {t("dates.dragHint")}
             </p>
 
             {/* ===================================================
@@ -1176,7 +1172,7 @@ export default function CraftYourExperience() {
             <div className="mt-3 md:mt-6">
 
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2 md:mb-3">
-                Preferred Time Slot
+                {t("dates.preferredTimeSlot")}
               </p>
 
               <div className="grid grid-cols-2 gap-2 md:gap-2.5">
@@ -1202,7 +1198,7 @@ export default function CraftYourExperience() {
                         strokeWidth={1.5}
                       />
                       <span className="block text-[11px] md:text-xs">
-                        {slot.label}
+                        {t(`dates.${slot.value}`)}
                       </span>
                     </button>
                   );
@@ -1218,11 +1214,7 @@ export default function CraftYourExperience() {
       case "budget":
         return (
           <div className="grid gap-4">
-            {[
-              { label: "Essential", range: "€500 - €1000" },
-              { label: "Signature", range: "€1000 - €3000" },
-              { label: "Luxury", range: "€3000+" },
-            ].map(({ label, range }) => (
+            {BUDGET_TIERS.map(({ key, range }) => (
               <button
                 type="button"
                 key={range}
@@ -1233,7 +1225,7 @@ export default function CraftYourExperience() {
                     : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                <span className="block text-lg font-light">{label}</span>
+                <span className="block text-lg font-light">{t(`budget.${key}`)}</span>
                 <span
                   className={`block text-sm mt-1 ${
                     formData.budget === range ? "text-black/60" : "text-zinc-500"
@@ -1260,11 +1252,11 @@ export default function CraftYourExperience() {
 
             <div>
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
-                Your Name
+                {t("contact.nameLabel")}
               </p>
               <input
                 type="text"
-                placeholder="Enter your full name"
+                placeholder={t("contact.namePlaceholder")}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
@@ -1273,11 +1265,11 @@ export default function CraftYourExperience() {
 
             <div>
               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
-                Email Address
+                {t("contact.emailLabel")}
               </p>
               <input
                 type="email"
-                placeholder="Enter your email"
+                placeholder={t("contact.emailPlaceholder")}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
@@ -1294,10 +1286,9 @@ export default function CraftYourExperience() {
                 className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
               />
               <p className="text-sm text-zinc-400 leading-relaxed">
-                I accept the{" "}
-                <a {...termsAnchorProps}>Terms &amp; Conditions</a>{" "}
-                and understand that reservation deposits may be required to
-                secure curated experiences.
+                {t("contact.termsPrefix")}{" "}
+                <a {...termsAnchorProps}>{t("contact.termsLink")}</a>{" "}
+                {t("contact.termsSuffix")}
               </p>
             </div>
 
@@ -1371,12 +1362,11 @@ export default function CraftYourExperience() {
             </p>
 
             <h1 className="text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8 max-w-sm md:max-w-lg">
-              Craft Your Mediterranean Escape
+              {t("intro.title")}
             </h1>
 
             <p className="text-zinc-300 text-sm md:text-base leading-relaxed mb-10 md:mb-12 max-w-sm md:max-w-md">
-              Answer a few questions to receive a curated proposal tailored to
-              your ideal Riviera experience.
+              {t("intro.subtitle")}
             </p>
 
             <button
@@ -1398,16 +1388,16 @@ export default function CraftYourExperience() {
                 duration-500
               "
             >
-              Get Started
+              {t("intro.cta")}
             </button>
 
             <p className="text-white-500 text-xs mt-4 flex items-center gap-1.5">
               <span>⏱</span>
-              Takes less than 2 minutes
+              {t("intro.duration")}
             </p>
 
             <p className="text-white-700 text-[10px] uppercase tracking-[0.3em] mt-10">
-              Powered by Ductavia
+              {t("poweredBy")}
             </p>
 
           </div>
@@ -1455,7 +1445,7 @@ export default function CraftYourExperience() {
         />
 
         <p className="uppercase tracking-[0.35em] text-xs text-zinc-500">
-          Crafting your proposal...
+          {t("loading")}
         </p>
 
       </main>
@@ -1467,6 +1457,9 @@ export default function CraftYourExperience() {
   // =======================================================
 
   const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+
+  const stepLabel = stepId ? t(`steps.${stepId}.label`) : "";
+  const stepTitle = stepId ? t(`steps.${stepId}.title`) : "";
 
   return (
     <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col">
@@ -1498,11 +1491,11 @@ export default function CraftYourExperience() {
         </div>
 
         <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
-          {STEP_LABELS[stepId as StepId].label}
+          {stepLabel}
         </p>
 
         <h1 className="text-xl md:text-4xl font-light leading-tight">
-          {STEP_LABELS[stepId as StepId].title}
+          {stepTitle}
         </h1>
 
       </div>
@@ -1566,7 +1559,7 @@ export default function CraftYourExperience() {
               duration-500
             "
           >
-            Back
+            {t("nav.back")}
           </button>
 
           <button
@@ -1589,7 +1582,7 @@ export default function CraftYourExperience() {
               }
             `}
           >
-            {stepId === "contact" ? "Generate Private Proposal" : "Next"}
+            {stepId === "contact" ? t("nav.generateProposal") : t("nav.next")}
           </button>
 
         </div>
@@ -1598,4 +1591,4 @@ export default function CraftYourExperience() {
 
     </main>
   );
-} 
+}
