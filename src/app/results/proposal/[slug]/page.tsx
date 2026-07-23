@@ -15,6 +15,7 @@ import {
 import {
   getFullExperiences,
 } from "@/lib/supabase/experienceRepository";
+import { getCurrentLocale } from "@/i18n/locale";
 
 // =========================================================
 // TYPES
@@ -155,8 +156,10 @@ const resolvedSearchParams =
   // GENERATE PROPOSAL
   // =======================================================
 
+  const locale = await getCurrentLocale();
+
   const dynamicExperiences =
-  await getFullExperiences();
+  await getFullExperiences(locale);
 
   const dynamicEnhancements =
   await getEnhancements();

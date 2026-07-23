@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
@@ -8,8 +9,10 @@ import MicrosoftClarity from "../components/analytics/MicrosoftClarity";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { getCurrentLocale } from "../i18n/locale";
+import { DEFAULT_LOCALE, type Locale } from "../i18n/localeShared";
 import LocaleSync from "../components/i18n/LocaleSync";
 import LanguageSwitcher from "../components/i18n/LanguageSwitcher";
+import enMessages from "../messages/en.json";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,10 +65,24 @@ export default async function RootLayout({
   // getMessages() legge da i18n/request.ts, che internamente
   // chiama la stessa getCurrentLocale(), quindi locale e
   // messages sono sempre coerenti tra loro.
+  //
+  // ECCEZIONE: /admin non va mai tradotto. E' un pannello ad
+  // uso interno, non contenuto rivolto ai visitatori — resta
+  // sempre in inglese, senza switcher e senza il refresh di
+  // LocaleSync. Il pathname arriva dall'header che il middleware
+  // imposta apposta (i Server Component non lo ricevono come prop).
   // =====================================================
 
-  const locale = await getCurrentLocale();
-  const messages = await getMessages();
+  const headerList = await headers();
+  const pathname = headerList.get("x-pathname") ?? "";
+  const isAdmin = pathname.startsWith("/admin");
+
+  const locale: Locale = isAdmin ? DEFAULT_LOCALE : await getCurrentLocale();
+  // Per /admin non passiamo da getMessages() (che risolve il locale da
+  // se' tramite getCurrentLocale() / i18n/request.ts, ignorando l'isAdmin
+  // qui sopra): forziamo direttamente il bundle inglese cosi' locale e
+  // messages restano coerenti anche quando la cookie "locale" e' "it".
+  const messages = isAdmin ? enMessages : await getMessages();
 
   return (
     <html
@@ -87,20 +104,23 @@ export default async function RootLayout({
 
         <NextIntlClientProvider locale={locale} messages={messages}>
 
-          {/* Corregge il locale se l'header Accept-Language letto
-              dal server differisce dal navigator.language reale del
-              browser — invisibile, nessun redirect, solo un refresh
-              se serve. Non renderizza nulla di suo. */}
-          <LocaleSync serverLocale={locale} />
+          {!isAdmin && (
+            <>
+              {/* Corregge il locale se l'header Accept-Language letto
+                  dal server differisce dal navigator.language reale del
+                  browser — invisibile, nessun redirect, solo un refresh
+                  se serve. Non renderizza nulla di suo. */}
+              <LocaleSync serverLocale={locale} />
 
-          {/* Switch manuale EN/IT — montato qui cosi' compare su
-              tutte le pagine senza dover toccare gli header di
-              landing/configuratore/proposal uno per uno. Posizione
-              fissa in alto a destra; spostalo/restylizzalo quando
-              integriamo il resto dell'i18n nelle singole pagine. */}
-          <div className="fixed top-4 right-4 z-[100]">
-            <LanguageSwitcher currentLocale={locale} />
-          </div>
+              {/* Switch manuale EN/IT — montato qui cosi' compare su
+                  tutte le pagine pubbliche senza dover toccare gli
+                  header di landing/configuratore/proposal uno per uno.
+                  Mai su /admin (vedi isAdmin sopra). */}
+              <div className="fixed top-4 right-4 z-[100]">
+                <LanguageSwitcher currentLocale={locale} />
+              </div>
+            </>
+          )}
 
           {children}
 

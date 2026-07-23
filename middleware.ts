@@ -39,6 +39,16 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
+  // Espone il pathname al root layout via header, cosi' i Server
+  // Component (che non ricevono il pathname come prop) possono
+  // escludere /admin dalla i18n senza duplicare questa logica —
+  // vedi src/app/layout.tsx.
+  function next() {
+    const response = NextResponse.next();
+    response.headers.set("x-pathname", path);
+    return response;
+  }
+
   // ===== GATE ADMIN =====
 
   if (path.startsWith("/admin") && path !== "/admin-gate") {
@@ -47,7 +57,7 @@ export function middleware(request: NextRequest) {
     const expectedValue = `${ADMIN_GATE_USER}:${ADMIN_GATE_PASS}`;
 
     if (authCookie?.value === expectedValue) {
-      return NextResponse.next();
+      return next();
     }
 
     const loginUrl = new URL("/admin-gate", request.url);
@@ -62,7 +72,7 @@ export function middleware(request: NextRequest) {
     protectedRoutes[path as keyof typeof protectedRoutes];
 
   if (!credentials) {
-    return NextResponse.next();
+    return next();
   }
 
   if (new Date() > new Date(credentials.expiresAt)) {
@@ -78,7 +88,7 @@ export function middleware(request: NextRequest) {
     authCookie?.value ===
     `${credentials.username}:${credentials.password}`
   ) {
-    return NextResponse.next();
+    return next();
   }
 
   const loginUrl = new URL("/private-access", request.url);

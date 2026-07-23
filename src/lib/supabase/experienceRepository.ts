@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
+import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
 
 export async function deleteExperience(id: string) {
 
@@ -817,7 +818,28 @@ export async function deleteExperienceHeroTitle(
 
 }
 
-export async function getFullExperiences() {
+// Contenuto tradotto da Lara per i campi principali dell'esperienza
+// (title, short_description, description). Chiamata SOLO dal frontend
+// pubblico (proposal page) con il locale del visitatore — l'admin
+// continua a passare "en" (default) e vede sempre l'originale inglese,
+// mai la traduzione.
+export async function getExperienceContentTranslations(locale: string) {
+  if (!supabase || locale === "en") return [];
+
+  const { data, error } = await supabase
+    .from("experience_content_translations")
+    .select("experience_id, title, short_description, description, translation_status")
+    .eq("locale", locale);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getFullExperiences(locale: string = "en") {
 
 const experiences = await getExperiences();
 const scoring = await getExperienceScoring();
@@ -837,6 +859,9 @@ const seasonalPricing =
 
 const heroTitles =
   await getExperienceHeroTitles();
+
+const contentTranslations =
+  await getExperienceContentTranslations(locale);
 
 
   return experiences.map((experience) => {
@@ -905,9 +930,22 @@ const featuredImage =
   experienceGallery.find(
     (g) => g.featured
   )?.image_url;
+
+const experienceTranslation = contentTranslations.find(
+  (t) => t.experience_id === experience.id
+);
+
+const localizedExperience = getLocalizedExperience(
+  experience,
+  experienceTranslation,
+  ["title", "short_description", "description"]
+);
+
   return {
 
   ...experience,
+
+  ...localizedExperience,
 
   incompatible_experiences:
     experience.incompatible_experiences ?? [],
