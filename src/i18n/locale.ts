@@ -1,44 +1,31 @@
 /**
- * Locale detection — single source of truth
+ * Locale detection — SERVER ONLY (usa next/headers)
  * =====================================================================
- * Used by BOTH:
- *  - next-intl (static UI text: buttons, labels, wizard steps)
- *  - the Lara-translated CMS content lookups (experience_content_translations)
+ * Non importare questo file da un Client Component — usa invece
+ * localeShared.ts per i tipi/costanti condivisibili (SUPPORTED_LOCALES,
+ * Locale, DEFAULT_LOCALE, LOCALE_COOKIE_NAME, detectLocaleFromHeader).
  *
- * Keeping this in one small file means the whole site — static copy
- * AND database content — always agrees on which language to show.
+ * Usato da: i18n/request.ts (next-intl) e dalla Lara-translated CMS
+ * content lookup, sempre in contesto server (RSC, route handler).
  * =====================================================================
  */
 
 import { cookies, headers } from "next/headers";
+import {
+  SUPPORTED_LOCALES,
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  detectLocaleFromHeader,
+  type Locale,
+} from "./localeShared";
 
-export const SUPPORTED_LOCALES = ["en", "it"] as const;
-export type Locale = (typeof SUPPORTED_LOCALES)[number];
-
-export const DEFAULT_LOCALE: Locale = "en";
-
-export const LOCALE_COOKIE_NAME = "locale";
-
-/**
- * Parses an Accept-Language header (e.g. "it-IT,it;q=0.9,en;q=0.8")
- * and returns the first supported locale found, or the default.
- */
-export function detectLocaleFromHeader(
-  acceptLanguage: string | null | undefined
-): Locale {
-  if (!acceptLanguage) return DEFAULT_LOCALE;
-
-  // "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7" -> ["it-IT", "it", "en-US", "en"]
-  const candidates = acceptLanguage
-    .split(",")
-    .map((part) => part.split(";")[0].trim().split("-")[0].toLowerCase());
-
-  const match = candidates.find((c) =>
-    SUPPORTED_LOCALES.includes(c as Locale)
-  );
-
-  return (match as Locale) ?? DEFAULT_LOCALE;
-}
+export {
+  SUPPORTED_LOCALES,
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  detectLocaleFromHeader,
+  type Locale,
+};
 
 /**
  * Server-only helper: resolves the current locale the same way for

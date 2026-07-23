@@ -18,7 +18,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { SUPPORTED_LOCALES, LOCALE_COOKIE_NAME, DEFAULT_LOCALE, type Locale } from "@/i18n/locale";
+import { SUPPORTED_LOCALES, LOCALE_COOKIE_NAME, DEFAULT_LOCALE, type Locale } from "@/i18n/localeShared";
 
 function readCookie(name: string): string | null {
   const match = document.cookie

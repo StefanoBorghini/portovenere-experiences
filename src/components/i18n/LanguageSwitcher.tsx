@@ -10,7 +10,7 @@
  */
 
 import { useRouter } from "next/navigation";
-import { LOCALE_COOKIE_NAME, type Locale } from "@/i18n/locale";
+import { LOCALE_COOKIE_NAME, type Locale } from "@/i18n/localeShared";
 
 const LABELS: Record<Locale, string> = {
   en: "EN",
