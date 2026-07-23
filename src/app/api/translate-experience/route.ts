@@ -13,7 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase/adminClient";
+import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
 import { syncExperienceTranslations } from "@/lib/translations/translateExperience";
 
 export async function POST(request: NextRequest) {
@@ -28,6 +28,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     const { data: freshRow, error } = await supabaseAdmin
       .from("experience_content")

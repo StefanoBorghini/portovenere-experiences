@@ -2,18 +2,25 @@
  * Experience translation orchestrator
  * =====================================================================
  * Wires the generic Lara service (lara.ts) to the specific shape of
- * `experience_content`. Called ONLY from the admin write path
- * (create/update an experience) — never from a page render, so the
- * site never pays a translation call on visitor traffic.
+ * `experience_content`. Called ONLY from the server-side API route
+ * /api/translate-experience — never directly from client code, and
+ * never from a page render, so the site never pays a translation
+ * call on visitor traffic.
  *
  * Sections and facts follow the exact same pattern (syncSection /
  * syncFact below) — kept as separate small functions so each can be
  * called independently from wherever sections/facts are saved.
+ *
+ * getSupabaseAdmin() e' chiamato dentro ogni funzione che lo usa,
+ * MAI a livello di modulo — altrimenti verrebbe eseguito al semplice
+ * caricamento del file (anche durante la fase di build "collecting
+ * page data" di Next.js), rompendo il build se gli env var non sono
+ * ancora visibili in quella fase.
  * =====================================================================
  */
 
 import crypto from "crypto";
-import { supabaseAdmin as supabase } from "@/lib/supabase/adminClient";
+import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
 import {
   translateFields,
   SUPPORTED_TARGET_LOCALES,
@@ -39,8 +46,7 @@ export interface ExperienceEnglishFields {
   description: string | null | undefined;
   // Firma indice esplicita — senza questa, TS non considera il tipo
   // assegnabile a Record<string, ...> anche se ogni proprietà nota
-  // e' gia' compatibile. E' il fix richiesto dall'errore TS, non
-  // legato a exactOptionalPropertyTypes come pensavo inizialmente.
+  // e' gia' compatibile.
   [key: string]: string | null | undefined;
 }
 
@@ -53,7 +59,6 @@ export async function syncExperienceTranslations(
   experienceId: string,
   en: ExperienceEnglishFields
 ): Promise<void> {
-  if (!supabase) return;
 
   const sourceHash = hashFields(en);
 
@@ -70,7 +75,8 @@ async function syncExperienceLocale(
   locale: TargetLocale,
   sourceHash: string
 ): Promise<void> {
-  if (!supabase) return;
+
+  const supabase = getSupabaseAdmin();
 
   const { data: existing } = await supabase
     .from("experience_content_translations")
@@ -147,13 +153,14 @@ export async function syncSectionTranslations(
     [key: string]: string | null | undefined;
   }
 ): Promise<void> {
-  if (!supabase) return;
+
+  const supabase = getSupabaseAdmin();
 
   const sourceHash = hashFields(en);
 
   await Promise.all(
     SUPPORTED_TARGET_LOCALES.map(async (locale) => {
-      const { data: existing } = await supabase!
+      const { data: existing } = await supabase
         .from("experience_sections_translations")
         .select("source_hash, translation_status")
         .eq("section_id", sectionId)
@@ -167,7 +174,7 @@ export async function syncSectionTranslations(
       const result = await translateFields(en, locale);
 
       if (!result.ok) {
-        const { error: upsertError } = await supabase!.from("experience_sections_translations").upsert(
+        const { error: upsertError } = await supabase.from("experience_sections_translations").upsert(
           {
             section_id: sectionId,
             locale,
@@ -190,7 +197,7 @@ export async function syncSectionTranslations(
         return;
       }
 
-      const { error: upsertError } = await supabase!.from("experience_sections_translations").upsert(
+      const { error: upsertError } = await supabase.from("experience_sections_translations").upsert(
         {
           section_id: sectionId,
           locale,
@@ -225,13 +232,14 @@ export async function syncFactTranslations(
     [key: string]: string | null | undefined;
   }
 ): Promise<void> {
-  if (!supabase) return;
+
+  const supabase = getSupabaseAdmin();
 
   const sourceHash = hashFields(en);
 
   await Promise.all(
     SUPPORTED_TARGET_LOCALES.map(async (locale) => {
-      const { data: existing } = await supabase!
+      const { data: existing } = await supabase
         .from("experience_facts_translations")
         .select("source_hash, translation_status")
         .eq("fact_id", factId)
@@ -245,7 +253,7 @@ export async function syncFactTranslations(
       const result = await translateFields(en, locale);
 
       if (!result.ok) {
-        const { error: upsertError } = await supabase!.from("experience_facts_translations").upsert(
+        const { error: upsertError } = await supabase.from("experience_facts_translations").upsert(
           {
             fact_id: factId,
             locale,
@@ -268,7 +276,7 @@ export async function syncFactTranslations(
         return;
       }
 
-      const { error: upsertError } = await supabase!.from("experience_facts_translations").upsert(
+      const { error: upsertError } = await supabase.from("experience_facts_translations").upsert(
         {
           fact_id: factId,
           locale,
