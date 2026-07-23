@@ -90,7 +90,7 @@ async function syncExperienceLocale(
     // Record the failure but do NOT touch title/short_description/
     // description columns — if a previous good translation exists it
     // stays live; otherwise the frontend falls back to English.
-    await supabase.from("experience_content_translations").upsert(
+    const { error: upsertError } = await supabase.from("experience_content_translations").upsert(
       {
         experience_id: experienceId,
         locale,
@@ -100,6 +100,12 @@ async function syncExperienceLocale(
       },
       { onConflict: "experience_id,locale" }
     );
+    if (upsertError) {
+      console.error(
+        `[translateExperience] upsert (failed-status) error for ${experienceId}/${locale}:`,
+        upsertError
+      );
+    }
     console.error(
       `[translateExperience] failed for ${experienceId}/${locale}:`,
       result.error
@@ -107,7 +113,7 @@ async function syncExperienceLocale(
     return;
   }
 
-  await supabase.from("experience_content_translations").upsert(
+  const { error: upsertError } = await supabase.from("experience_content_translations").upsert(
     {
       experience_id: experienceId,
       locale,
@@ -121,6 +127,13 @@ async function syncExperienceLocale(
     },
     { onConflict: "experience_id,locale" }
   );
+
+  if (upsertError) {
+    console.error(
+      `[translateExperience] upsert (ok-status) error for ${experienceId}/${locale}:`,
+      upsertError
+    );
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -154,7 +167,7 @@ export async function syncSectionTranslations(
       const result = await translateFields(en, locale);
 
       if (!result.ok) {
-        await supabase!.from("experience_sections_translations").upsert(
+        const { error: upsertError } = await supabase!.from("experience_sections_translations").upsert(
           {
             section_id: sectionId,
             locale,
@@ -164,6 +177,12 @@ export async function syncSectionTranslations(
           },
           { onConflict: "section_id,locale" }
         );
+        if (upsertError) {
+          console.error(
+            `[translateExperience] section upsert (failed-status) error for ${sectionId}/${locale}:`,
+            upsertError
+          );
+        }
         console.error(
           `[translateExperience] section failed for ${sectionId}/${locale}:`,
           result.error
@@ -171,7 +190,7 @@ export async function syncSectionTranslations(
         return;
       }
 
-      await supabase!.from("experience_sections_translations").upsert(
+      const { error: upsertError } = await supabase!.from("experience_sections_translations").upsert(
         {
           section_id: sectionId,
           locale,
@@ -184,6 +203,13 @@ export async function syncSectionTranslations(
         },
         { onConflict: "section_id,locale" }
       );
+
+      if (upsertError) {
+        console.error(
+          `[translateExperience] section upsert (ok-status) error for ${sectionId}/${locale}:`,
+          upsertError
+        );
+      }
     })
   );
 }
@@ -219,7 +245,7 @@ export async function syncFactTranslations(
       const result = await translateFields(en, locale);
 
       if (!result.ok) {
-        await supabase!.from("experience_facts_translations").upsert(
+        const { error: upsertError } = await supabase!.from("experience_facts_translations").upsert(
           {
             fact_id: factId,
             locale,
@@ -229,6 +255,12 @@ export async function syncFactTranslations(
           },
           { onConflict: "fact_id,locale" }
         );
+        if (upsertError) {
+          console.error(
+            `[translateExperience] fact upsert (failed-status) error for ${factId}/${locale}:`,
+            upsertError
+          );
+        }
         console.error(
           `[translateExperience] fact failed for ${factId}/${locale}:`,
           result.error
@@ -236,7 +268,7 @@ export async function syncFactTranslations(
         return;
       }
 
-      await supabase!.from("experience_facts_translations").upsert(
+      const { error: upsertError } = await supabase!.from("experience_facts_translations").upsert(
         {
           fact_id: factId,
           locale,
@@ -249,6 +281,13 @@ export async function syncFactTranslations(
         },
         { onConflict: "fact_id,locale" }
       );
+
+      if (upsertError) {
+        console.error(
+          `[translateExperience] fact upsert (ok-status) error for ${factId}/${locale}:`,
+          upsertError
+        );
+      }
     })
   );
 }
