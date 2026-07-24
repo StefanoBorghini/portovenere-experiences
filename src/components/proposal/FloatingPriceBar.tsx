@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 type BookingState = "idle" | "sending" | "sent" | "error";
@@ -45,6 +46,9 @@ export default function FloatingPriceBar({
 
 }: FloatingPriceBarProps) {
 
+  const t = useTranslations("proposal");
+  const tc = useTranslations("common");
+
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -64,12 +68,12 @@ export default function FloatingPriceBar({
   const isDone = bookingState === "sent" && !hasUnconfirmedChanges;
 
   const actionLabel = isDone
-    ? "Request Sent ✓"
+    ? t("floatingBar.requestSent")
     : isBusy
-    ? "Sending..."
+    ? t("floatingBar.sending")
     : hasUnconfirmedChanges
-    ? "Confirm Changes"
-    : "Reserve Now";
+    ? t("floatingBar.confirmChanges")
+    : tc("reserveNow");
 
   const showArrow = !isDone && !isBusy;
 
@@ -84,10 +88,10 @@ export default function FloatingPriceBar({
 
     isDone
       ? (alreadyVerified
-          ? `Thank you, ${leadName || "there"} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.`
-          : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`)
+          ? t("floatingBar.thankYouVerified", { name: leadName || t("floatingBar.someone") })
+          : t("floatingBar.checkInbox", { email: leadEmail || "" }))
       : bookingState === "error"
-      ? "Something went wrong — please try again, or contact us directly."
+      ? t("floatingBar.genericError")
       : null;
 
   return (
@@ -210,7 +214,7 @@ export default function FloatingPriceBar({
             pt-4
             pb-2.5
           ">
-            {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
+            {experienceCount === 1 ? t("floatingBar.experienceSingular", { count: experienceCount }) : t("floatingBar.experiencePlural", { count: experienceCount })}
           </span>
 
           {/* RIGA PRINCIPALE — prezzo (+ conteggio su desktop) a
@@ -251,7 +255,7 @@ export default function FloatingPriceBar({
                 text-white/45
                 whitespace-nowrap
               ">
-                {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
+                {experienceCount === 1 ? t("floatingBar.experienceSingular", { count: experienceCount }) : t("floatingBar.experiencePlural", { count: experienceCount })}
               </span>
 
               <span className="

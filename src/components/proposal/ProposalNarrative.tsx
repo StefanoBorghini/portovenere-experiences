@@ -14,9 +14,7 @@ import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
-import {
-  proposalConfig,
-} from "@/config/proposalConfig";
+import { useTranslations } from "next-intl";
 
 interface ProposalNarrativeProps {
   title?: string;
@@ -29,6 +27,8 @@ export default function ProposalNarrative({
   summary,
   paragraph,
 }: ProposalNarrativeProps) {
+
+  const t = useTranslations("proposal");
 
   return (
 
@@ -119,7 +119,7 @@ export default function ProposalNarrative({
             mb-10
           "
         >
-          {proposalConfig.narrative.label}
+          {t("narrative.label")}
         </p>
 
         {/* TITLE */}
@@ -141,7 +141,7 @@ export default function ProposalNarrative({
             mb-16
           "
         >
-{title ?? proposalConfig.narrative.title}         
+{title ?? t("narrative.title")}
 
         </h2>
 
@@ -176,7 +176,7 @@ export default function ProposalNarrative({
     mx-auto
   "
 >
-  {paragraph ?? proposalConfig.narrative.description}
+  {paragraph ?? t("narrative.description")}
 </p>
 
       </motion.div>

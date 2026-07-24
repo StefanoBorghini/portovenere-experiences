@@ -22,9 +22,7 @@ import {
   fadeReveal,
 } from "@/lib/motion/fadeReveal";
 
-import {
-  proposalConfig,
-} from "@/config/proposalConfig";
+import { useTranslations } from "next-intl";
 
 import {
   trackEnhancementAdded,
@@ -71,7 +69,7 @@ export default function ProposalEnhancements({
 
 }: ProposalEnhancementsProps){
 
-  
+  const t = useTranslations("proposal");
 
     function toggleEnhancement(
         id: number
@@ -132,16 +130,8 @@ export default function ProposalEnhancements({
 >
 
   <SectionHeader
-    label={
-    proposalConfig
-      .enhancements
-      .label
-  }
-  title={
-    proposalConfig
-      .enhancements
-      .title
-  }
+    label={t("enhancements.label")}
+    title={t("enhancements.title")}
   />
 
 </motion.div>
@@ -173,13 +163,16 @@ const total = calculatePrice(
 
 );
 
-const price = formatPrice(
+const priceResult = formatPrice(
 
     total,
 
     enhancement.price_type
 
 );
+
+const priceLabel = priceResult.labelKey ? t(`featured.${priceResult.labelKey}`) : "";
+const priceValue = priceResult.valueKey ? t(`featured.${priceResult.valueKey}`) : priceResult.value;
 
                             return (
 
@@ -277,11 +270,11 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
 
                                         </p>
 
-{(price.label || price.value) && (
+{(priceLabel || priceValue) && (
 
   <div className="mb-8">
 
-    {price.label && (
+    {priceLabel && (
 
       <p
         className="
@@ -292,12 +285,12 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
           mb-2
         "
       >
-        {price.label}
+        {priceLabel}
       </p>
 
     )}
 
-    {price.value && (
+    {priceValue && (
 
       <p
         className="
@@ -307,7 +300,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
           text-white
         "
       >
-        {price.value}
+        {priceValue}
       </p>
 
     )}

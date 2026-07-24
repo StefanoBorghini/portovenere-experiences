@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { useState, useEffect } from "react";
 import Section
 from "@/components/layout/Section";
@@ -62,6 +63,8 @@ export default function IncludedExperiences({
   initialSelectedIds,
 
 }: IncludedExperiencesProps) {
+
+  const t = useTranslations("proposal");
 
   const [
   selectedExperiences,
@@ -222,13 +225,13 @@ return (
           <SectionHeader
             label={
               preSelected && !isMultiDayTrip
-                ? "Included Experiences"
-                : "You Might Also Like"
+                ? t("includedExperiences.labelPreselected")
+                : t("includedExperiences.labelSuggested")
             }
             title={
               preSelected && !isMultiDayTrip
-                ? "Curated Riviera Moments"
-                : "Complete Your Escape"
+                ? t("includedExperiences.titlePreselected")
+                : t("includedExperiences.titleSuggested")
             }
           />
 

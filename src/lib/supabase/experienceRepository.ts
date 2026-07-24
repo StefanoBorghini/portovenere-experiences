@@ -2,6 +2,19 @@ import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
 import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
 
+// Innesca la sincronizzazione Lara Translate per una section o un fact
+// appena salvati — via fetch a /api/translate-experience, che gira
+// SEMPRE lato server (qui invece siamo lato client, come spiegato in
+// updateExperience() piu' sotto). Fire-and-forget: un fallimento qui
+// non deve mai far risultare fallito il salvataggio di section/fact.
+function triggerTranslate(body: { sectionId: string } | { factId: string }) {
+  fetch("/api/translate-experience", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch((err) => console.error("[triggerTranslate] failed:", err));
+}
+
 export async function deleteExperience(id: string) {
 
   if (!supabase)
@@ -839,6 +852,41 @@ export async function getExperienceContentTranslations(locale: string) {
   return data;
 }
 
+// Stesso pattern di getExperienceContentTranslations, ma per le righe
+// di experience_sections_translations / experience_facts_translations
+// (chiave per riga: section_id / fact_id, non experience_id).
+export async function getExperienceSectionsTranslations(locale: string) {
+  if (!supabase || locale === "en") return [];
+
+  const { data, error } = await supabase
+    .from("experience_sections_translations")
+    .select("section_id, title, description, translation_status")
+    .eq("locale", locale);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getExperienceFactsTranslations(locale: string) {
+  if (!supabase || locale === "en") return [];
+
+  const { data, error } = await supabase
+    .from("experience_facts_translations")
+    .select("fact_id, label, value, translation_status")
+    .eq("locale", locale);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
+}
+
 export async function getFullExperiences(locale: string = "en") {
 
 const experiences = await getExperiences();
@@ -863,25 +911,47 @@ const heroTitles =
 const contentTranslations =
   await getExperienceContentTranslations(locale);
 
+const sectionsTranslations =
+  await getExperienceSectionsTranslations(locale);
+
+const factsTranslations =
+  await getExperienceFactsTranslations(locale);
+
 
   return experiences.map((experience) => {
 
     const experienceFacts =
-  facts.filter(
-    fact =>
-      fact.experience_id ===
-      experience.id
-  );
+  facts
+    .filter(
+      fact =>
+        fact.experience_id ===
+        experience.id
+    )
+    .map((fact) =>
+      getLocalizedExperience(
+        fact,
+        factsTranslations.find((t) => t.fact_id === fact.id),
+        ["label", "value"]
+      )
+    );
 
 
 
 
     const experienceSections =
-  sections.filter(
-    section =>
-      section.experience_id ===
-      experience.id
-  );
+  sections
+    .filter(
+      section =>
+        section.experience_id ===
+        experience.id
+    )
+    .map((section) =>
+      getLocalizedExperience(
+        section,
+        sectionsTranslations.find((t) => t.section_id === section.id),
+        ["title", "description"]
+      )
+    );
 
     const experiencePriceTiers =
   priceTiers
@@ -1419,6 +1489,8 @@ export async function createExperienceFact(fact: any) {
 
   }
 
+  triggerTranslate({ factId: fact.id });
+
   return {
     success: true,
   };
@@ -1450,6 +1522,10 @@ export async function updateExperienceFact(
       error,
     };
 
+  }
+
+  if ("label" in updates || "value" in updates) {
+    triggerTranslate({ factId: id });
   }
 
   return{
@@ -1546,6 +1622,8 @@ export async function createExperienceSection(section: any) {
 
   }
 
+  triggerTranslate({ sectionId: section.id });
+
   return {
     success: true,
   };
@@ -1577,6 +1655,10 @@ export async function updateExperienceSection(
       error,
     };
 
+  }
+
+  if ("title" in updates || "description" in updates) {
+    triggerTranslate({ sectionId: id });
   }
 
   return{

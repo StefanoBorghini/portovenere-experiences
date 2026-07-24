@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import FloatingPriceBar from "@/components/proposal/FloatingPriceBar";
 import ProposalHero from "@/components/proposal/ProposalHero";
 import ProposalNarrative from "@/components/proposal/ProposalNarrative";
@@ -85,6 +86,8 @@ export default function ProposalClient({
 
 }:Props){
 
+    const t = useTranslations("proposal");
+
     // =====================================================
     // SAFETY GUARD
     // =====================================================
@@ -93,8 +96,7 @@ export default function ProposalClient({
         return (
             <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
                 <p className="text-zinc-400 text-lg text-center max-w-xl">
-                    We couldn't load this proposal correctly.
-                    Please contact us directly.
+                    {t("errorFallback")}
                 </p>
             </main>
         );

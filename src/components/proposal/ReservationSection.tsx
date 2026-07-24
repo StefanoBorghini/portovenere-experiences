@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 
-import { proposalConfig }
-from "@/config/proposalConfig";
+import { useTranslations } from "next-intl";
 
 import Section
 from "@/components/layout/Section";
@@ -43,6 +42,9 @@ export default function ReservationSection({
   onRequestBooking,
   hasUnconfirmedChanges = false,
 }: ReservationSectionProps) {
+
+  const t = useTranslations("proposal");
+  const tc = useTranslations("common");
 
   return (
 
@@ -147,7 +149,7 @@ export default function ReservationSection({
                   text-zinc-600
                   mb-8
                 ">
-                  Private Reservation
+                  {t("reservation.label")}
                 </p>
 
                 <p className="
@@ -156,7 +158,7 @@ export default function ReservationSection({
                   font-light
                   text-emerald-300/80
                 ">
-                  Booking Confirmed
+                  {t("reservation.bookingConfirmed")}
                 </p>
 
               </div>
@@ -183,7 +185,7 @@ export default function ReservationSection({
               mb-10
             "
           >
-            {proposalConfig.reservation.label}
+            {t("reservation.label")}
           </p>
 
           {/* TITLE */}
@@ -207,7 +209,7 @@ export default function ReservationSection({
             "
           >
 
-            {proposalConfig.reservation.title}
+            {t("reservation.title")}
 
           </h2>
 
@@ -233,11 +235,7 @@ export default function ReservationSection({
             "
           >
 
-            {
-              closingParagraph ||
-
-              "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity."
-            }
+            {closingParagraph || t("reservation.description")}
 
           </p>
 
@@ -276,7 +274,7 @@ export default function ReservationSection({
                 duration-500
               "
             >
-              {proposalConfig.cta.secondaryLabel}
+              {tc("speakWithTeam")}
             </a>
 
           </div>

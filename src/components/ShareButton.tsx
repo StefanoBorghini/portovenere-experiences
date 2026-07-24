@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface ShareButtonProps {
   slug: string;
 }
 
 export default function ShareButton({ slug }: ShareButtonProps) {
+
+  const t = useTranslations("proposal");
 
   const [copied, setCopied] = useState(false);
 
@@ -19,8 +22,8 @@ export default function ShareButton({ slug }: ShareButtonProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Your Riviera Experience Proposal",
-          text: "Here's your curated private Riviera experience.",
+          title: t("shareButton.shareTitle"),
+          text: t("shareButton.shareText"),
           url,
         });
       } catch {
@@ -46,7 +49,7 @@ export default function ShareButton({ slug }: ShareButtonProps) {
       onClick={handleShare}
       className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-[1.02] transition-all duration-500"
     >
-      {copied ? "Link copied!" : "Share Proposal"}
+      {copied ? t("shareButton.copied") : t("shareButton.share")}
     </button>
   );
 }

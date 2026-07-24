@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   proposalConfig,
 } from "@/config/proposalConfig";
@@ -40,6 +41,8 @@ export default function ProposalHero({
 
 }: ProposalHeroProps) {
 
+  const t = useTranslations("proposal");
+
   // Stessa formula di buildProposalSummary.ts, cosi' hero e
   // paragrafo narrativo dicono sempre la stessa cosa — "12
   // adults" oppure "12 adults and 2 children", mai bambini
@@ -51,11 +54,21 @@ export default function ProposalHero({
   const childrenCount =
     Number(children) || 0;
 
+  const adultsText =
+    adults === 1
+      ? t("hero.oneAdult", { count: adults })
+      : t("hero.adultsCount", { count: adults });
+
+  const childrenText =
+    childrenCount === 1
+      ? t("hero.oneChild", { count: childrenCount })
+      : t("hero.childrenCount", { count: childrenCount });
+
   const guestSentence =
 
     childrenCount > 0
-      ? `${adults} adult${adults > 1 ? "s" : ""} and ${childrenCount} child${childrenCount > 1 ? "ren" : ""}`
-      : `${adults} adult${adults > 1 ? "s" : ""}`;
+      ? t("hero.guestsWithChildren", { adults: adultsText, children: childrenText })
+      : adultsText;
 
   return (
 
@@ -195,7 +208,7 @@ md:mb-10
           text-center
           mb-6
         ">
-          {proposalConfig.hero.label}
+          {t("hero.label")}
         </p>
 
         {/* TITLE */}
@@ -237,9 +250,7 @@ mx-auto
 md:max-w-2xl
 ">
 
-          Tailored for {guestSentence} across curated Riviera experiences,
-          cinematic atmosphere and
-          Mediterranean moments.
+          {t("hero.subtitle", { guestSentence })}
 
         </p>
 
@@ -253,7 +264,7 @@ md:max-w-2xl
               behavior: "smooth",
             });
           }}
-          aria-label="Scroll to explore"
+          aria-label={t("hero.scrollCue")}
           className="
             mt-12
             flex

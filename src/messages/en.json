@@ -3,7 +3,73 @@
     "reserveNow": "Reserve Now",
     "speakWithTeam": "Speak With Our Team"
   },
-  "landing": {},
+  "landing": {
+    "hero": {
+      "eyebrow": "Curated Luxury Experiences — Italian Riviera",
+      "title": "Craft Your Perfect Experience",
+      "subtitle": "Private yacht escapes, cinematic sunsets and curated experiences on the hidden side of the Italian Riviera.",
+      "ctaPrimary": "Craft Your Experience",
+      "ctaSecondary": "How it Works",
+      "trustLimited": "Limited Summer Availability",
+      "trustPrivateAccess": "Private Access",
+      "trustCollaborations": "Selected Collaborations",
+      "trustStorytelling": "Luxury Storytelling"
+    },
+    "authority": {
+      "item1": "Private Productions",
+      "item2": "Mediterranean Lifestyle",
+      "item3": "Luxury Experiences",
+      "item4": "Italian Riviera",
+      "item5": "Selected Guests Only"
+    },
+    "howItWorks": {
+      "eyebrow": "How It Works",
+      "title": "Build your perfect Mediterranean escape",
+      "step1": {
+        "badge": "Step 01",
+        "eyebrow": "Your Vision",
+        "title": "Tell us your vision",
+        "description": "Share your travel dates, group size and the kind of atmosphere you're looking for. Every journey starts with your idea.",
+        "cta": "Start Your Request"
+      },
+      "step2": {
+        "badge": "Step 02",
+        "eyebrow": "Our Curation",
+        "title": "We curate everything",
+        "description": "We personally select the finest experiences, trusted local partners and hidden places to create a proposal tailored exclusively to you.",
+        "cta": "Discover Our Process"
+      },
+      "step3": {
+        "badge": "Step 03",
+        "eyebrow": "Your Proposal",
+        "title": "Receive Your Private Proposal",
+        "description": "In less than a minute, discover a curated proposal tailored to your vision, complete with experiences, pricing and optional enhancements.",
+        "cta": "Start Planning"
+      }
+    },
+    "manifesto": {
+      "eyebrow": "The Experience",
+      "title": "The Italian Riviera you imagined still exists.",
+      "description": "We curate private Mediterranean experiences designed around atmosphere, storytelling, intimacy and authentic human connection."
+    },
+    "scarcity": {
+      "eyebrow": "Limited Availability",
+      "title": "Small private groups. Selected experiences only.",
+      "description": "Every production is intentionally limited to preserve exclusivity, atmosphere and emotional impact."
+    },
+    "finalCta": {
+      "eyebrow": "Ready When You Are",
+      "title": "Your Private Riviera Awaits",
+      "description": "Answer a few questions about your dates, your group and the mood you're after — receive a tailored proposal in minutes, complete with pricing and hand-picked experiences.",
+      "cta": "Craft Your Experience"
+    },
+    "footer": {
+      "craftLink": "Craft Your Experience",
+      "terms": "Terms & Conditions",
+      "privacy": "Privacy Policy",
+      "poweredBy": "Powered by Ductavia"
+    }
+  },
   "configurator": {
     "intro": {
       "title": "Craft Your Mediterranean Escape",
@@ -85,5 +151,73 @@
     "loading": "Crafting your proposal...",
     "poweredBy": "Powered by Ductavia"
   },
-  "proposal": {}
+  "proposal": {
+    "errorFallback": "We couldn't load this proposal correctly. Please contact us directly.",
+    "hero": {
+      "label": "Private Riviera Proposal",
+      "subtitle": "Tailored for {guestSentence} across curated Riviera experiences, cinematic atmosphere and Mediterranean moments.",
+      "oneAdult": "{count} adult",
+      "adultsCount": "{count} adults",
+      "oneChild": "{count} child",
+      "childrenCount": "{count} children",
+      "guestsWithChildren": "{adults} and {children}",
+      "scrollCue": "Scroll to explore"
+    },
+    "narrative": {
+      "label": "Mediterranean Luxury",
+      "title": "Designed Around Your Riviera Escape",
+      "description": "Every proposal is curated around atmosphere, pace, scenery and personal preferences, creating a private Mediterranean experience designed exclusively for you."
+    },
+    "featured": {
+      "label": "Featured Experience",
+      "showMore": "Show more  +",
+      "showLess": "Show less  −",
+      "showAll": "Show all  +",
+      "whatsIncluded": "What's included  +",
+      "hideWhatsIncluded": "Hide what's included  −",
+      "priceLabel": "Price",
+      "perPerson": "Per Person",
+      "included": "Included",
+      "onRequest": "On Request"
+    },
+    "includedExperiences": {
+      "labelPreselected": "Included Experiences",
+      "labelSuggested": "You Might Also Like",
+      "titlePreselected": "Curated Riviera Moments",
+      "titleSuggested": "Complete Your Escape",
+      "notCompatible": "Not compatible",
+      "add": "Add"
+    },
+    "enhancements": {
+      "label": "Optional Enhancements",
+      "title": "Enhance Your Riviera Escape"
+    },
+    "gallery": {
+      "label": "Experience Gallery",
+      "title": "Moments from the Riviera"
+    },
+    "reservation": {
+      "label": "Private Reservation",
+      "title": "Your Riviera Experience Awaits",
+      "description": "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity.",
+      "bookingConfirmed": "Booking Confirmed"
+    },
+    "floatingBar": {
+      "requestSent": "Request Sent ✓",
+      "sending": "Sending...",
+      "confirmChanges": "Confirm Changes",
+      "experienceSingular": "{count} Experience",
+      "experiencePlural": "{count} Experiences",
+      "thankYouVerified": "Thank you, {name} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.",
+      "checkInbox": "Check your inbox — we've sent a confirmation link to {email}. Click it to complete your booking request.",
+      "genericError": "Something went wrong — please try again, or contact us directly.",
+      "someone": "there"
+    },
+    "shareButton": {
+      "share": "Share Proposal",
+      "copied": "Link copied!",
+      "shareTitle": "Your Riviera Experience Proposal",
+      "shareText": "Here's your curated private Riviera experience."
+    }
+  }
 }

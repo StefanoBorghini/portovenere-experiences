@@ -1,8 +1,13 @@
+// labelKey/valueKey puntano a chiavi sotto il namespace next-intl
+// "proposal.featured" (perPerson/included/onRequest/priceLabel) — i
+// chiamanti (componenti, con accesso a useTranslations) risolvono il
+// testo effettivo, dato che questa funzione pura non puo' usare hook.
 export function formatPrice(
   amount?: number | null,
   type?: string
 ): {
-  label: string;
+  labelKey: "perPerson" | "priceLabel" | "";
+  valueKey: "included" | "onRequest" | "";
   value: string;
 } {
 
@@ -11,29 +16,33 @@ export function formatPrice(
     case "per_person":
 
       return {
-        label: "Per Person",
+        labelKey: "perPerson",
+        valueKey: "",
         value: amount != null ? `€${amount}` : "",
       };
 
     case "included":
 
       return {
-        label: "",
-        value: "Included",
+        labelKey: "",
+        valueKey: "included",
+        value: "",
       };
 
     case "on_request":
 
       return {
-        label: "",
-        value: "On Request",
+        labelKey: "",
+        valueKey: "onRequest",
+        value: "",
       };
 
     case "fixed":
     default:
 
       return {
-        label: amount != null ? "Price" : "",
+        labelKey: amount != null ? "priceLabel" : "",
+        valueKey: "",
         value: amount != null ? `€${amount}` : "",
       };
 

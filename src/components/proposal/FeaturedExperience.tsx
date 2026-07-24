@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ExperienceFact } from "@/types/experience";
 import Section
@@ -86,9 +87,12 @@ export default function FeaturedExperience({
 
 }: FeaturedExperienceProps) {
 
+  const t = useTranslations("proposal");
+
   const price = useGuestTiers
     ? {
-        label: "Price",
+        labelKey: "priceLabel" as const,
+        valueKey: "" as const,
         value: `€${calculatePrice(
           basePrice,
           priceType,
@@ -100,6 +104,9 @@ export default function FeaturedExperience({
         )}`,
       }
     : formatPrice(basePrice, priceType);
+
+  const priceLabel = price.labelKey ? t(`featured.${price.labelKey}`) : "";
+  const priceValue = price.valueKey ? t(`featured.${price.valueKey}`) : price.value;
 
   // =====================================================
   // SHOW MORE / SHOW ALL — stesso pattern gia' usato in
@@ -198,7 +205,7 @@ export default function FeaturedExperience({
                 "
               >
 
-                Featured Experience
+                {t("featured.label")}
 
               </p>
 
@@ -284,17 +291,17 @@ export default function FeaturedExperience({
                   "
                 >
                   {showFullDescription
-                    ? "Show less  −"
-                    : "Show more  +"}
+                    ? t("featured.showLess")
+                    : t("featured.showMore")}
                 </button>
 
               )}
 
-              {(price.label || price.value) && (
+              {(priceLabel || priceValue) && (
 
                 <div className="mb-16 mt-10">
 
-                  {price.label && (
+                  {priceLabel && (
 
                     <p
                       className="
@@ -305,12 +312,12 @@ export default function FeaturedExperience({
                         mb-4
                       "
                     >
-                      {price.label}
+                      {priceLabel}
                     </p>
 
                   )}
 
-                  {price.value && (
+                  {priceValue && (
 
                     <p
                       className="
@@ -320,7 +327,7 @@ export default function FeaturedExperience({
                       leading-none
                       "
                     >
-                      {price.value}
+                      {priceValue}
                     </p>
 
                   )}
@@ -375,8 +382,8 @@ export default function FeaturedExperience({
                 >
 
                   {showAllFacts
-                    ? "Show less  −"
-                    : "Show all  +"}
+                    ? t("featured.showLess")
+                    : t("featured.showAll")}
 
                 </div>
 
@@ -414,8 +421,8 @@ export default function FeaturedExperience({
                   >
 
                     {showAllIncluded
-                      ? "Hide what's included  −"
-                      : "What's included  +"}
+                      ? t("featured.hideWhatsIncluded")
+                      : t("featured.whatsIncluded")}
 
                   </div>
 

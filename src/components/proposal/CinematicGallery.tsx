@@ -26,9 +26,7 @@ import {
   useEffect,
 } from "react";
 
-import {
-  proposalConfig,
-} from "@/config/proposalConfig";
+import { useTranslations } from "next-intl";
 
 interface CinematicGalleryProps {
 
@@ -43,11 +41,16 @@ export default function CinematicGallery({
 
   images,
 
-  label = proposalConfig.gallery.label,
+  label,
 
-  title = proposalConfig.gallery.title,
+  title,
 
 }: CinematicGalleryProps) {
+
+  const t = useTranslations("proposal");
+
+  const resolvedLabel = label ?? t("gallery.label");
+  const resolvedTitle = title ?? t("gallery.title");
 
   const containerRef =
     useRef<HTMLDivElement>(null);
@@ -345,8 +348,8 @@ export default function CinematicGallery({
   >
 
     <SectionHeader
-      label={label}
-      title={title}
+      label={resolvedLabel}
+      title={resolvedTitle}
     />
 
   </motion.div>

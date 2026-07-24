@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ProposalExperienceCard } from "@/types/proposal";
 import ExperienceFacts from "@/components/experience/experienceFacts";
@@ -46,6 +47,8 @@ export default function ExperienceCard({
 
 }: Props) {
 
+  const t = useTranslations("proposal");
+
   const [showIncluded, setShowIncluded] =
     useState(false);
 
@@ -57,7 +60,8 @@ export default function ExperienceCard({
 
   const price = useGuestTiers
     ? {
-        label: "",
+        labelKey: "" as const,
+        valueKey: "" as const,
         value: `€${calculatePrice(
           experience.experience.base_price,
           experience.experience.pricing_type,
@@ -72,6 +76,8 @@ export default function ExperienceCard({
         experience.experience.base_price,
         experience.experience.pricing_type
       );
+
+  const priceValue = price.valueKey ? t(`featured.${price.valueKey}`) : price.value;
 
   return (
 
@@ -239,7 +245,7 @@ ${
       tracking-[-0.03em]
     "
   >
-    {price.value}
+    {priceValue}
     {!useGuestTiers &&
       experience.experience.pricing_type === "per_person" && (
         <span
@@ -253,7 +259,7 @@ ${
             font-normal
           "
         >
-          Per Person
+          {t("featured.perPerson")}
         </span>
       )}
   </p>
@@ -312,8 +318,8 @@ ${
         >
 
           {showIncluded
-            ? "Hide what's included  −"
-            : "What's included  +"}
+            ? t("featured.hideWhatsIncluded")
+            : t("featured.whatsIncluded")}
 
         </div>
 
@@ -376,10 +382,10 @@ ${
 `}
     >
   {isDisabled
-    ? "Not compatible"
+    ? t("includedExperiences.notCompatible")
     : isSelected
-      ? "Included"
-      : "Add"}
+      ? t("featured.included")
+      : t("includedExperiences.add")}
 </div>
 
 </div>
