@@ -3,27 +3,21 @@
  * Same URL for every visitor; the locale comes from getCurrentLocale()
  * (cookie -> Accept-Language fallback), not from the path.
  *
- * Import statici invece di import(`../messages/${locale}.json`):
- * Turbopack non riesce a risolvere il pattern dinamico con template
- * string. Con soli due locale, un semplice switch e' piu' robusto —
- * aggiungere una lingua richiede solo una riga in piu' qui.
+ * I messaggi arrivano da Supabase (site_copy / site_copy_translations),
+ * tradotti da Lara — non da file JSON committati. src/messages/*.json
+ * restano nel repo solo come seed storico per src/scripts/seed-site-copy.mjs,
+ * non sono piu' letti a runtime. Vedi src/lib/translations/siteCopy.ts.
  */
 
 import { getRequestConfig } from "next-intl/server";
 import { getCurrentLocale } from "./locale";
-import enMessages from "../messages/en.json";
-import itMessages from "../messages/it.json";
-
-const MESSAGES = {
-  en: enMessages,
-  it: itMessages,
-} as const;
+import { getSiteCopyMessages } from "@/lib/translations/siteCopy";
 
 export default getRequestConfig(async () => {
   const locale = await getCurrentLocale();
 
   return {
     locale,
-    messages: MESSAGES[locale] ?? MESSAGES.en,
+    messages: await getSiteCopyMessages(locale),
   };
 });

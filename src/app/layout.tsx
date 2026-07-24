@@ -12,7 +12,6 @@ import { getCurrentLocale } from "../i18n/locale";
 import { DEFAULT_LOCALE, type Locale } from "../i18n/localeShared";
 import LocaleSync from "../components/i18n/LocaleSync";
 import LanguageSwitcher from "../components/i18n/LanguageSwitcher";
-import enMessages from "../messages/en.json";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,9 +79,9 @@ export default async function RootLayout({
   const locale: Locale = isAdmin ? DEFAULT_LOCALE : await getCurrentLocale();
   // Per /admin non passiamo da getMessages() (che risolve il locale da
   // se' tramite getCurrentLocale() / i18n/request.ts, ignorando l'isAdmin
-  // qui sopra): forziamo direttamente il bundle inglese cosi' locale e
-  // messages restano coerenti anche quando la cookie "locale" e' "it".
-  const messages = isAdmin ? enMessages : await getMessages();
+  // qui sopra). L'admin non consuma mai useTranslations(), quindi un
+  // oggetto vuoto basta — evita anche una query a Supabase inutile.
+  const messages = isAdmin ? {} : await getMessages();
 
   return (
     <html

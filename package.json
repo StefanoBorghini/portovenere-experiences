@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prebuild": "node src/scripts/translate-messages.mjs"
+    "seed:site-copy": "node src/scripts/seed-site-copy.mjs"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.10",
