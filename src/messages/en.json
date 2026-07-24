@@ -110,6 +110,18 @@
       "warningMaxExperiences": "Maximum 3 experiences allowed",
       "warningMaxMoods": "Maximum 3 atmospheres selections allowed"
     },
+    "experienceNames": {
+      "seaEscape": "Sea Escape",
+      "aerialEscape": "Aerial Escape",
+      "gourmetEscape": "Gourmet Escape",
+      "wildEscape": "Wild Escape"
+    },
+    "moodNames": {
+      "romantic": "Romantic",
+      "cinematic": "Cinematic",
+      "authentic": "Authentic",
+      "adventure": "Adventure"
+    },
     "guests": {
       "adultsLabel": "Adults",
       "childrenLabel": "Children 0-8",

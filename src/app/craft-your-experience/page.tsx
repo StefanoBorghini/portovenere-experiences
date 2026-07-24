@@ -103,6 +103,25 @@ const MOOD_IMAGES: Record<string, string> = {
   Adventure: "/images/adventure.jpg",
 };
 
+// I valori sopra (chiavi di EXPERIENCE_DETAILS/MOOD_IMAGES, formData.experiences/
+// moods, incompatibleExperiences) restano identificatori interni in inglese —
+// usati per il matching con generateProposal/experienceCompatibility e salvati
+// cosi' su Supabase. Le label mostrate all'utente passano invece da qui,
+// cosi' vengono tradotte come il resto del wizard.
+const EXPERIENCE_NAME_KEYS: Record<string, string> = {
+  "Sea Escape": "seaEscape",
+  "Aerial Escape": "aerialEscape",
+  "Gourmet Escape": "gourmetEscape",
+  "Wild Escape": "wildEscape",
+};
+
+const MOOD_NAME_KEYS: Record<string, string> = {
+  Romantic: "romantic",
+  Cinematic: "cinematic",
+  Authentic: "authentic",
+  Adventure: "adventure",
+};
+
 // =========================================================
 // FASCIA ORARIA PREFERITA — nuovo parametro (richiesta LPG Italia).
 // Valore salvato su leads.preferred_time, uno dei quattro definiti
@@ -761,6 +780,7 @@ export default function CraftYourExperience() {
 
                   const details = EXPERIENCE_DETAILS[item];
                   const isSelected = formData.experiences.includes(item);
+                  const label = t(`experienceNames.${EXPERIENCE_NAME_KEYS[item]}`);
 
                   return (
                     <button
@@ -773,7 +793,7 @@ export default function CraftYourExperience() {
                     >
                       <Image
                         src={details.image}
-                        alt={item}
+                        alt={label}
                         fill
                         sizes="50vw"
                         className="object-cover"
@@ -797,7 +817,7 @@ export default function CraftYourExperience() {
                       {/* LABEL — ancorata in basso a sinistra */}
                       <div className="absolute bottom-0 left-0 p-3">
                         <p className="text-white text-sm font-medium text-left">
-                          {item}
+                          {label}
                         </p>
                       </div>
                     </button>
@@ -825,6 +845,7 @@ export default function CraftYourExperience() {
               {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
 
                 const isSelected = formData.moods.includes(item);
+                const label = t(`moodNames.${MOOD_NAME_KEYS[item]}`);
 
                 return (
                   <button
@@ -837,7 +858,7 @@ export default function CraftYourExperience() {
                   >
                     <Image
                       src={MOOD_IMAGES[item]}
-                      alt={item}
+                      alt={label}
                       fill
                       sizes="50vw"
                       className="object-cover"
@@ -856,7 +877,7 @@ export default function CraftYourExperience() {
                     </div>
 
                     <div className="absolute bottom-0 left-0 p-3">
-                      <p className="text-white text-sm font-medium text-left">{item}</p>
+                      <p className="text-white text-sm font-medium text-left">{label}</p>
                     </div>
                   </button>
                 );
