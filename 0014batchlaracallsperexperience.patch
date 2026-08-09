@@ -1,0 +1,285 @@
+From cddce9adc24267190bb8b1402e269444532304bf Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:24:39 +0000
+Subject: [PATCH] perf: batch sections/facts into one Lara call per experience
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Root cause of "it's translating but takes too long": syncFactTranslations
+and syncSectionTranslations each make one Lara API call per row. An
+experience with 7 facts and 2 sections meant ~9 separate network
+round-trips just for that one experience, on top of the content call —
+network latency, not translation compute, was most of the wall-clock
+time.
+
+syncFullExperienceTranslations now calls two new batch helpers
+(syncSectionsBatch, syncFactsBatch) that translate all of an
+experience's sections (or facts) in a single Lara call per locale,
+built as one combined field map (title_0/description_0/title_1/...),
+then split the result back per row for the upsert. Rows whose hash
+already matches an "ok" translation are excluded from the batch, same
+skip logic as before, just checked in one bulk query instead of one
+per row.
+
+This drops each experience from up to ~10 Lara calls to 3 (content,
+sections, facts), so the route's cross-experience concurrency in
+/api/translate-proposal-experiences goes from 2 to 4 — cumulative load
+stays well under the level that caused rate-limit failures, while
+finishing several times faster.
+
+The single-row syncSectionTranslations/syncFactTranslations functions
+are unchanged and still used as-is by the admin single-item route
+(/api/translate-experience), where translating one row at a time is
+already correct.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   |  15 +-
+ src/lib/translations/translateExperience.ts   | 192 ++++++++++++++++--
+ 2 files changed, 185 insertions(+), 22 deletions(-)
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index e0c4ef7..be0f5d4 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -125,15 +125,12 @@ export async function POST(request: NextRequest) {
+       if (experience?.id) experienceIds.add(experience.id);
+     }
+ 
+-    // 2 esperienze alla volta: del tutto sequenziale (com'era prima)
+-    // rischiava di superare il maxDuration della funzione quando la
+-    // proposal aveva piu' esperienze da tradurre (osservato: solo la
+-    // prima completata per intero, le altre a meta' o niente). Ogni
+-    // esperienza usa gia' concorrenza 3 al suo interno per sections/
+-    // facts (vedi syncFullExperienceTranslations), quindi 2 in parallelo
+-    // qui restano cumulativamente ben sotto la soglia che causava
+-    // fallimenti per rate limiting con tutto insieme.
+-    await mapWithConcurrency(Array.from(experienceIds), 2, async (id) => {
++    // Ogni esperienza ora costa solo 3 chiamate Lara (content, sections
++    // in blocco, facts in blocco — vedi syncFullExperienceTranslations),
++    // non piu' una per fact/section: possiamo permetterci piu' esperienze
++    // in parallelo qui e restare comunque ben sotto la soglia che causava
++    // fallimenti per rate limiting quando tutto girava insieme.
++    await mapWithConcurrency(Array.from(experienceIds), 4, async (id) => {
+       try {
+         await syncFullExperienceTranslations(id);
+       } catch (err) {
+diff --git a/src/lib/translations/translateExperience.ts b/src/lib/translations/translateExperience.ts
+index fd027ea..fd16067 100644
+--- a/src/lib/translations/translateExperience.ts
++++ b/src/lib/translations/translateExperience.ts
+@@ -21,7 +21,6 @@
+ 
+ import crypto from "crypto";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+-import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ import {
+   translateFields,
+   SUPPORTED_TARGET_LOCALES,
+@@ -183,22 +182,189 @@ export async function syncFullExperienceTranslations(
+     .select("id, label, value")
+     .eq("experience_id", experienceId);
+ 
+-  // Concorrenza limitata (3 alla volta), non Promise.all e non un ciclo
+-  // sequenziale puro: tutto insieme causava fallimenti per rate limiting
+-  // su Lara (osservato: title/description tradotti, facts quasi mai —
+-  // proprio i piu' numerosi); tutto sequenziale invece, con piu'
+-  // esperienze da tradurre nella stessa richiesta, rischiava di superare
+-  // il timeout della funzione serverless prima di finire (osservato:
+-  // solo la prima esperienza completata per intero, le altre a meta' o
+-  // per niente). 3 alla volta e' il compromesso.
++  // Una sola chiamata Lara per TUTTE le sections dell'esperienza, e una
++  // sola per TUTTI i facts (syncSectionsBatch/syncFactsBatch sotto),
++  // invece di una chiamata per riga: con 5-7 facts per esperienza il
++  // giro per riga moltiplicava inutilmente la latenza di rete, il vero
++  // costo di tempo (non il calcolo della traduzione in se'). Restano
++  // chiamate separate solo per non mischiare content/sections/facts in
++  // un'unica richiesta enorme.
+   await syncExperienceTranslations(experienceId, experience);
++  await syncSectionsBatch(sections ?? []);
++  await syncFactsBatch(facts ?? []);
++}
++
++async function syncSectionsBatch(
++  sections: { id: string; title: string | null; description: string | null }[]
++): Promise<void> {
++
++  if (sections.length === 0) return;
++
++  const supabase = getSupabaseAdmin();
++
++  await Promise.all(
++    SUPPORTED_TARGET_LOCALES.map(async (locale) => {
++
++      const { data: existingRows } = await supabase
++        .from("experience_sections_translations")
++        .select("section_id, source_hash, translation_status")
++        .eq("locale", locale)
++        .in("section_id", sections.map((s) => s.id));
++
++      const existingByFk = new Map(
++        (existingRows ?? []).map((row) => [row.section_id, row])
++      );
++
++      const toTranslate = sections.filter((section) => {
++        const hash = hashFields({
++          title: section.title,
++          description: section.description,
++        });
++        const existing = existingByFk.get(section.id);
++        return !(existing?.source_hash === hash && existing.translation_status === "ok");
++      });
++
++      if (toTranslate.length === 0) return;
++
++      const fields: Record<string, string> = {};
++      toTranslate.forEach((section, i) => {
++        if (section.title) fields[`title_${i}`] = section.title;
++        if (section.description) fields[`description_${i}`] = section.description;
++      });
++
++      const result = await translateFields(fields, locale);
++
++      if (!result.ok) {
++        console.error(
++          `[translateExperience] sections batch failed for locale ${locale}:`,
++          result.error
++        );
++      }
++
++      const rows = toTranslate.map((section, i) => {
++
++        const sourceHash = hashFields({
++          title: section.title,
++          description: section.description,
++        });
++
++        if (!result.ok) {
++          return {
++            section_id: section.id,
++            locale,
++            translation_status: "failed",
++            source_hash: sourceHash,
++            updated_at: new Date().toISOString(),
++          };
++        }
+ 
+-  await mapWithConcurrency(sections ?? [], 3, (section) =>
+-    syncSectionTranslations(section.id, section)
++        return {
++          section_id: section.id,
++          locale,
++          title: result.translations[`title_${i}`] ?? null,
++          description: result.translations[`description_${i}`] ?? null,
++          translation_status: "ok",
++          source_hash: sourceHash,
++          translated_at: new Date().toISOString(),
++          updated_at: new Date().toISOString(),
++        };
++      });
++
++      const { error: upsertError } = await supabase
++        .from("experience_sections_translations")
++        .upsert(rows, { onConflict: "section_id,locale" });
++
++      if (upsertError) {
++        console.error(
++          `[translateExperience] sections batch upsert error for locale ${locale}:`,
++          upsertError
++        );
++      }
++    })
+   );
++}
++
++async function syncFactsBatch(
++  facts: { id: string; label: string | null; value: string | null }[]
++): Promise<void> {
++
++  if (facts.length === 0) return;
++
++  const supabase = getSupabaseAdmin();
++
++  await Promise.all(
++    SUPPORTED_TARGET_LOCALES.map(async (locale) => {
++
++      const { data: existingRows } = await supabase
++        .from("experience_facts_translations")
++        .select("fact_id, source_hash, translation_status")
++        .eq("locale", locale)
++        .in("fact_id", facts.map((f) => f.id));
++
++      const existingByFk = new Map(
++        (existingRows ?? []).map((row) => [row.fact_id, row])
++      );
++
++      const toTranslate = facts.filter((fact) => {
++        const hash = hashFields({ label: fact.label, value: fact.value });
++        const existing = existingByFk.get(fact.id);
++        return !(existing?.source_hash === hash && existing.translation_status === "ok");
++      });
++
++      if (toTranslate.length === 0) return;
++
++      const fields: Record<string, string> = {};
++      toTranslate.forEach((fact, i) => {
++        if (fact.label) fields[`label_${i}`] = fact.label;
++        if (fact.value) fields[`value_${i}`] = fact.value;
++      });
++
++      const result = await translateFields(fields, locale);
++
++      if (!result.ok) {
++        console.error(
++          `[translateExperience] facts batch failed for locale ${locale}:`,
++          result.error
++        );
++      }
++
++      const rows = toTranslate.map((fact, i) => {
++
++        const sourceHash = hashFields({ label: fact.label, value: fact.value });
++
++        if (!result.ok) {
++          return {
++            fact_id: fact.id,
++            locale,
++            translation_status: "failed",
++            source_hash: sourceHash,
++            updated_at: new Date().toISOString(),
++          };
++        }
+ 
+-  await mapWithConcurrency(facts ?? [], 3, (fact) =>
+-    syncFactTranslations(fact.id, fact)
++        return {
++          fact_id: fact.id,
++          locale,
++          label: result.translations[`label_${i}`] ?? null,
++          value: result.translations[`value_${i}`] ?? null,
++          translation_status: "ok",
++          source_hash: sourceHash,
++          translated_at: new Date().toISOString(),
++          updated_at: new Date().toISOString(),
++        };
++      });
++
++      const { error: upsertError } = await supabase
++        .from("experience_facts_translations")
++        .upsert(rows, { onConflict: "fact_id,locale" });
++
++      if (upsertError) {
++        console.error(
++          `[translateExperience] facts batch upsert error for locale ${locale}:`,
++          upsertError
++        );
++      }
++    })
+   );
+ }
+ 
+-- 
+2.43.0
+

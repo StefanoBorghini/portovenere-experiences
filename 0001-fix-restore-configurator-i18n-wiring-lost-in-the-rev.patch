@@ -1,0 +1,842 @@
+From 1bc565dcda32e75de6344f754bcfbfbf62726ccd Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 18:36:13 +0000
+Subject: [PATCH 1/7] fix: restore configurator i18n wiring lost in the "revert
+ to previous working version" commit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+f569796 swapped in an older version of craft-your-experience/page.tsx
+that predated the next-intl integration, silently removing all t()
+calls and the useTranslations import. Re-applied translations using
+the same configurator.* message keys already in en.json/it.json
+(steps, selection warnings, guests, dates, budget, contact, intro,
+nav, loading, poweredBy) — no new keys needed, no other logic touched.
+
+Also removes translationsfix.patch, a stray file accidentally
+committed to the repo instead of being applied as a patch.
+---
+ src/app/craft-your-experience/page.tsx | 122 +++----
+ translationsfix.patch                  | 449 -------------------------
+ 2 files changed, 47 insertions(+), 524 deletions(-)
+ delete mode 100644 translationsfix.patch
+
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index 8067252..d2f965a 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import Turnstile from "react-turnstile";
++import { useTranslations } from "next-intl";
+ import { useState, useEffect, useRef } from "react";
+ import { useRouter } from "next/navigation";
+ import Image from "next/image";
+@@ -41,33 +42,6 @@ const STEP_IDS = [
+ 
+ type StepId = typeof STEP_IDS[number];
+ 
+-const STEP_LABELS: Record<StepId, { label: string; title: string }> = {
+-  experiences: {
+-    label: "Select up to 3 Experiences",
+-    title: "What kind of experience are you dreaming of?",
+-  },
+-  moods: {
+-    label: "Select up to 3 Atmospheres",
+-    title: "Choose the vibe that inspires you.",
+-  },
+-  guests: {
+-    label: "Adults & Children",
+-    title: "Who's joining the adventure?",
+-  },
+-  dates: {
+-    label: "Travel Dates",
+-    title: "When are you planning to travel?",
+-  },
+-  budget: {
+-    label: "Estimated Investment",
+-    title: "What is your preferred budget range?",
+-  },
+-  contact: {
+-    label: "Your Details",
+-    title: "One last step before we craft your proposal.",
+-  },
+-};
+-
+ // =========================================================
+ // SLIDE ANIMATION VARIANTS
+ // =========================================================
+@@ -137,17 +111,17 @@ const MOOD_IMAGES: Record<string, string> = {
+ 
+ const TIME_SLOTS: {
+   value: string;
+-  label: string;
+   icon: typeof Sunrise;
+ }[] = [
+-  { value: "morning", label: "Morning", icon: Sunrise },
+-  { value: "afternoon", label: "Afternoon", icon: Sun },
+-  { value: "sunset", label: "Sunset", icon: Sunset },
+-  { value: "full_day", label: "Full Day", icon: Clock },
++  { value: "morning", icon: Sunrise },
++  { value: "afternoon", icon: Sun },
++  { value: "sunset", icon: Sunset },
++  { value: "full_day", icon: Clock },
+ ];
+ 
+ export default function CraftYourExperience() {
+ 
++  const t = useTranslations("configurator");
+   const router = useRouter();
+ 
+   // =======================================================
+@@ -455,7 +429,7 @@ export default function CraftYourExperience() {
+         );
+ 
+         if (hasConflict) {
+-          setSelectionWarning("These experiences cannot be combined");
++          setSelectionWarning(t("selection.warningConflict"));
+           return prev;
+         }
+       }
+@@ -477,8 +451,8 @@ export default function CraftYourExperience() {
+       if (currentValues.length >= max) {
+         setSelectionWarning(
+           field === "experiences"
+-            ? "Maximum 3 experiences allowed"
+-            : "Maximum 3 atmospheres selections allowed"
++            ? t("selection.warningMaxExperiences")
++            : t("selection.warningMaxMoods")
+         );
+         return prev;
+       }
+@@ -777,7 +751,7 @@ export default function CraftYourExperience() {
+           <div>
+             <div className="flex items-center justify-between mb-4">
+               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+-                {formData.experiences.length}/3 selected
++                {t("selection.experiencesSelected", { count: formData.experiences.length })}
+               </p>
+             </div>
+ 
+@@ -843,7 +817,7 @@ export default function CraftYourExperience() {
+           <div>
+             <div className="flex items-center justify-between mb-4">
+               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+-                {formData.moods.length}/3 selected
++                {t("selection.moodsSelected", { count: formData.moods.length })}
+               </p>
+             </div>
+ 
+@@ -900,7 +874,7 @@ export default function CraftYourExperience() {
+           <div>
+ 
+             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
+-              Adults
++              {t("guests.adultsLabel")}
+             </p>
+ 
+             <div className="grid grid-cols-2 gap-2.5">
+@@ -925,7 +899,7 @@ export default function CraftYourExperience() {
+                       guestCount === item ? "text-black/50" : "text-zinc-500"
+                     }`}
+                   >
+-                    Adults
++                    {t("guests.adultsLabel")}
+                   </span>
+                 </button>
+               ))}
+@@ -949,7 +923,7 @@ export default function CraftYourExperience() {
+                     showMoreGuests ? "text-black/50" : "text-zinc-500"
+                   }`}
+                 >
+-                  Adults
++                  {t("guests.adultsLabel")}
+                 </span>
+               </button>
+             </div>
+@@ -959,14 +933,14 @@ export default function CraftYourExperience() {
+                 showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
+               }`}
+             >
+-              <p className="text-zinc-500 mb-2 text-xs">Exact number of adults</p>
++              <p className="text-zinc-500 mb-2 text-xs">{t("guests.exactNumberLabel")}</p>
+               <input
+                 type="number"
+                 min={9}
+                 max={40}
+                 inputMode="numeric"
+                 pattern="[0-9]*"
+-                placeholder="Enter exact number"
++                placeholder={t("guests.exactNumberPlaceholder")}
+                 value={guestCount || ""}
+                 onChange={(e) => {
+                   setGuestCount(Number(e.target.value));
+@@ -978,17 +952,17 @@ export default function CraftYourExperience() {
+ 
+             {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
+             <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
+-              Children 0-8
++              {t("guests.childrenLabel")}
+             </p>
+ 
+             <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
+ 
+               <span className="text-zinc-400 text-sm">
+                 {formData.children === 0
+-                  ? "No children"
++                  ? t("guests.noChildren")
+                   : formData.children === 1
+-                  ? "1 child"
+-                  : `${formData.children} children`}
++                  ? t("guests.oneChild")
++                  : t("guests.childrenCount", { count: formData.children })}
+               </span>
+ 
+               <div className="flex items-center gap-4">
+@@ -1055,7 +1029,7 @@ export default function CraftYourExperience() {
+             <div className="flex justify-between mb-3">
+               <div>
+                 <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+-                  Check-in
++                  {t("dates.checkIn")}
+                 </p>
+                 <p className="text-white text-sm">
+                   {formData.startDate
+@@ -1065,7 +1039,7 @@ export default function CraftYourExperience() {
+               </div>
+               <div className="text-right">
+                 <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+-                  Check-out
++                  {t("dates.checkOut")}
+                 </p>
+                 <p className="text-white text-sm">
+                   {formData.endDate
+@@ -1162,7 +1136,7 @@ export default function CraftYourExperience() {
+             </div>
+ 
+             <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
+-              Tap a date, or drag across dates to select a range.
++              {t("dates.dragHint")}
+             </p>
+ 
+             {/* ===================================================
+@@ -1176,7 +1150,7 @@ export default function CraftYourExperience() {
+             <div className="mt-3 md:mt-6">
+ 
+               <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2 md:mb-3">
+-                Preferred Time Slot
++                {t("dates.preferredTimeSlot")}
+               </p>
+ 
+               <div className="grid grid-cols-2 gap-2 md:gap-2.5">
+@@ -1202,7 +1176,7 @@ export default function CraftYourExperience() {
+                         strokeWidth={1.5}
+                       />
+                       <span className="block text-[11px] md:text-xs">
+-                        {slot.label}
++                        {t(`dates.${slot.value}`)}
+                       </span>
+                     </button>
+                   );
+@@ -1219,10 +1193,10 @@ export default function CraftYourExperience() {
+         return (
+           <div className="grid gap-4">
+             {[
+-              { label: "Essential", range: "€500 - €1000" },
+-              { label: "Signature", range: "€1000 - €3000" },
+-              { label: "Luxury", range: "€3000+" },
+-            ].map(({ label, range }) => (
++              { key: "essential" as const, range: "€500 - €1000" },
++              { key: "signature" as const, range: "€1000 - €3000" },
++              { key: "luxury" as const, range: "€3000+" },
++            ].map(({ key, range }) => (
+               <button
+                 type="button"
+                 key={range}
+@@ -1233,7 +1207,7 @@ export default function CraftYourExperience() {
+                     : "border-white/10 bg-white/5 hover:border-white/40"
+                 }`}
+               >
+-                <span className="block text-lg font-light">{label}</span>
++                <span className="block text-lg font-light">{t(`budget.${key}`)}</span>
+                 <span
+                   className={`block text-sm mt-1 ${
+                     formData.budget === range ? "text-black/60" : "text-zinc-500"
+@@ -1260,11 +1234,11 @@ export default function CraftYourExperience() {
+ 
+             <div>
+               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+-                Your Name
++                {t("contact.nameLabel")}
+               </p>
+               <input
+                 type="text"
+-                placeholder="Enter your full name"
++                placeholder={t("contact.namePlaceholder")}
+                 value={formData.name}
+                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                 className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+@@ -1273,11 +1247,11 @@ export default function CraftYourExperience() {
+ 
+             <div>
+               <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+-                Email Address
++                {t("contact.emailLabel")}
+               </p>
+               <input
+                 type="email"
+-                placeholder="Enter your email"
++                placeholder={t("contact.emailPlaceholder")}
+                 value={formData.email}
+                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                 className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+@@ -1294,10 +1268,9 @@ export default function CraftYourExperience() {
+                 className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
+               />
+               <p className="text-sm text-zinc-400 leading-relaxed">
+-                I accept the{" "}
+-                <a {...termsAnchorProps}>Terms &amp; Conditions</a>{" "}
+-                and understand that reservation deposits may be required to
+-                secure curated experiences.
++                {t("contact.termsPrefix")}{" "}
++                <a {...termsAnchorProps}>{t("contact.termsLink")}</a>{" "}
++                {t("contact.termsSuffix")}
+               </p>
+             </div>
+ 
+@@ -1371,12 +1344,11 @@ export default function CraftYourExperience() {
+             </p>
+ 
+             <h1 className="text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8 max-w-sm md:max-w-lg">
+-              Craft Your Mediterranean Escape
++              {t("intro.title")}
+             </h1>
+ 
+             <p className="text-zinc-300 text-sm md:text-base leading-relaxed mb-10 md:mb-12 max-w-sm md:max-w-md">
+-              Answer a few questions to receive a curated proposal tailored to
+-              your ideal Riviera experience.
++              {t("intro.subtitle")}
+             </p>
+ 
+             <button
+@@ -1398,16 +1370,16 @@ export default function CraftYourExperience() {
+                 duration-500
+               "
+             >
+-              Get Started
++              {t("intro.cta")}
+             </button>
+ 
+             <p className="text-white-500 text-xs mt-4 flex items-center gap-1.5">
+               <span>⏱</span>
+-              Takes less than 2 minutes
++              {t("intro.duration")}
+             </p>
+ 
+             <p className="text-white-700 text-[10px] uppercase tracking-[0.3em] mt-10">
+-              Powered by Ductavia
++              {t("poweredBy")}
+             </p>
+ 
+           </div>
+@@ -1455,7 +1427,7 @@ export default function CraftYourExperience() {
+         />
+ 
+         <p className="uppercase tracking-[0.35em] text-xs text-zinc-500">
+-          Crafting your proposal...
++          {t("loading")}
+         </p>
+ 
+       </main>
+@@ -1498,11 +1470,11 @@ export default function CraftYourExperience() {
+         </div>
+ 
+         <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+-          {STEP_LABELS[stepId as StepId].label}
++          {t(`steps.${stepId}.label`)}
+         </p>
+ 
+         <h1 className="text-xl md:text-4xl font-light leading-tight">
+-          {STEP_LABELS[stepId as StepId].title}
++          {t(`steps.${stepId}.title`)}
+         </h1>
+ 
+       </div>
+@@ -1566,7 +1538,7 @@ export default function CraftYourExperience() {
+               duration-500
+             "
+           >
+-            Back
++            {t("nav.back")}
+           </button>
+ 
+           <button
+@@ -1589,7 +1561,7 @@ export default function CraftYourExperience() {
+               }
+             `}
+           >
+-            {stepId === "contact" ? "Generate Private Proposal" : "Next"}
++            {stepId === "contact" ? t("nav.generateProposal") : t("nav.next")}
+           </button>
+ 
+         </div>
+diff --git a/translationsfix.patch b/translationsfix.patch
+deleted file mode 100644
+index 00c3567..0000000
+--- a/translationsfix.patch
++++ /dev/null
+@@ -1,449 +0,0 @@
+-From 0d240f7f61b78d4246154ac5704d7e96ae9524bd Mon Sep 17 00:00:00 2001
+-From: Claude <noreply@anthropic.com>
+-Date: Thu, 23 Jul 2026 19:11:11 +0000
+-Subject: [PATCH] fix: repair configurator i18n, exclude admin from
+- translation, wire Lara CMS translations to frontend
+-
+-- Restore the configurator EN/IT message keys wiped by a recent rollback
+-  on main (both locales had gone empty, breaking /craft-your-experience
+-  in every language, not just Italian).
+-- Root layout now skips the locale cookie sync and language switcher for
+-  /admin and forces English there, via a pathname header set in
+-  middleware.ts. Admin is an internal tool and should never be localized.
+-- getFullExperiences() now accepts an optional locale and, for non-English
+-  locales, overlays the Lara-translated title/short_description/description
+-  from experience_content_translations (via getLocalizedField, previously
+-  unused dead code). The public proposal page passes the visitor's locale
+-  so Italian visitors actually see the translated CMS copy instead of
+-  always falling back to English.
+----
+- middleware.ts                            | 16 ++++-
+- src/app/layout.tsx                       | 52 ++++++++++-----
+- src/app/results/proposal/[slug]/page.tsx |  5 +-
+- src/lib/supabase/experienceRepository.ts | 40 +++++++++++-
+- src/messages/en.json                     | 82 +++++++++++++++++++++++-
+- src/messages/it.json                     | 82 +++++++++++++++++++++++-
+- 6 files changed, 254 insertions(+), 23 deletions(-)
+-
+-diff --git a/middleware.ts b/middleware.ts
+-index ae15478..249cdba 100644
+---- a/middleware.ts
+-+++ b/middleware.ts
+-@@ -39,6 +39,16 @@ export function middleware(request: NextRequest) {
+- 
+-   const path = request.nextUrl.pathname;
+- 
+-+  // Espone il pathname al root layout via header, cosi' i Server
+-+  // Component (che non ricevono il pathname come prop) possono
+-+  // escludere /admin dalla i18n senza duplicare questa logica —
+-+  // vedi src/app/layout.tsx.
+-+  function next() {
+-+    const response = NextResponse.next();
+-+    response.headers.set("x-pathname", path);
+-+    return response;
+-+  }
+-+
+-   // ===== GATE ADMIN =====
+- 
+-   if (path.startsWith("/admin") && path !== "/admin-gate") {
+-@@ -47,7 +57,7 @@ export function middleware(request: NextRequest) {
+-     const expectedValue = `${ADMIN_GATE_USER}:${ADMIN_GATE_PASS}`;
+- 
+-     if (authCookie?.value === expectedValue) {
+--      return NextResponse.next();
+-+      return next();
+-     }
+- 
+-     const loginUrl = new URL("/admin-gate", request.url);
+-@@ -62,7 +72,7 @@ export function middleware(request: NextRequest) {
+-     protectedRoutes[path as keyof typeof protectedRoutes];
+- 
+-   if (!credentials) {
+--    return NextResponse.next();
+-+    return next();
+-   }
+- 
+-   if (new Date() > new Date(credentials.expiresAt)) {
+-@@ -78,7 +88,7 @@ export function middleware(request: NextRequest) {
+-     authCookie?.value ===
+-     `${credentials.username}:${credentials.password}`
+-   ) {
+--    return NextResponse.next();
+-+    return next();
+-   }
+- 
+-   const loginUrl = new URL("/private-access", request.url);
+-diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+-index 8c96f8a..e8d5fa3 100644
+---- a/src/app/layout.tsx
+-+++ b/src/app/layout.tsx
+-@@ -1,4 +1,5 @@
+- import type { Metadata } from "next";
+-+import { headers } from "next/headers";
+- import { Geist, Geist_Mono } from "next/font/google";
+- import "./globals.css";
+- import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
+-@@ -8,8 +9,10 @@ import MicrosoftClarity from "../components/analytics/MicrosoftClarity";
+- import { NextIntlClientProvider } from "next-intl";
+- import { getMessages } from "next-intl/server";
+- import { getCurrentLocale } from "../i18n/locale";
+-+import { DEFAULT_LOCALE, type Locale } from "../i18n/localeShared";
+- import LocaleSync from "../components/i18n/LocaleSync";
+- import LanguageSwitcher from "../components/i18n/LanguageSwitcher";
+-+import enMessages from "../messages/en.json";
+- 
+- const geistSans = Geist({
+-   variable: "--font-geist-sans",
+-@@ -62,10 +65,24 @@ export default async function RootLayout({
+-   // getMessages() legge da i18n/request.ts, che internamente
+-   // chiama la stessa getCurrentLocale(), quindi locale e
+-   // messages sono sempre coerenti tra loro.
+-+  //
+-+  // ECCEZIONE: /admin non va mai tradotto. E' un pannello ad
+-+  // uso interno, non contenuto rivolto ai visitatori — resta
+-+  // sempre in inglese, senza switcher e senza il refresh di
+-+  // LocaleSync. Il pathname arriva dall'header che il middleware
+-+  // imposta apposta (i Server Component non lo ricevono come prop).
+-   // =====================================================
+- 
+--  const locale = await getCurrentLocale();
+--  const messages = await getMessages();
+-+  const headerList = await headers();
+-+  const pathname = headerList.get("x-pathname") ?? "";
+-+  const isAdmin = pathname.startsWith("/admin");
+-+
+-+  const locale: Locale = isAdmin ? DEFAULT_LOCALE : await getCurrentLocale();
+-+  // Per /admin non passiamo da getMessages() (che risolve il locale da
+-+  // se' tramite getCurrentLocale() / i18n/request.ts, ignorando l'isAdmin
+-+  // qui sopra): forziamo direttamente il bundle inglese cosi' locale e
+-+  // messages restano coerenti anche quando la cookie "locale" e' "it".
+-+  const messages = isAdmin ? enMessages : await getMessages();
+- 
+-   return (
+-     <html
+-@@ -87,20 +104,23 @@ export default async function RootLayout({
+- 
+-         <NextIntlClientProvider locale={locale} messages={messages}>
+- 
+--          {/* Corregge il locale se l'header Accept-Language letto
+--              dal server differisce dal navigator.language reale del
+--              browser — invisibile, nessun redirect, solo un refresh
+--              se serve. Non renderizza nulla di suo. */}
+--          <LocaleSync serverLocale={locale} />
+--
+--          {/* Switch manuale EN/IT — montato qui cosi' compare su
+--              tutte le pagine senza dover toccare gli header di
+--              landing/configuratore/proposal uno per uno. Posizione
+--              fissa in alto a destra; spostalo/restylizzalo quando
+--              integriamo il resto dell'i18n nelle singole pagine. */}
+--          <div className="fixed top-4 right-4 z-[100]">
+--            <LanguageSwitcher currentLocale={locale} />
+--          </div>
+-+          {!isAdmin && (
+-+            <>
+-+              {/* Corregge il locale se l'header Accept-Language letto
+-+                  dal server differisce dal navigator.language reale del
+-+                  browser — invisibile, nessun redirect, solo un refresh
+-+                  se serve. Non renderizza nulla di suo. */}
+-+              <LocaleSync serverLocale={locale} />
+-+
+-+              {/* Switch manuale EN/IT — montato qui cosi' compare su
+-+                  tutte le pagine pubbliche senza dover toccare gli
+-+                  header di landing/configuratore/proposal uno per uno.
+-+                  Mai su /admin (vedi isAdmin sopra). */}
+-+              <div className="fixed top-4 right-4 z-[100]">
+-+                <LanguageSwitcher currentLocale={locale} />
+-+              </div>
+-+            </>
+-+          )}
+- 
+-           {children}
+- 
+-diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+-index 45fa214..e0147d0 100644
+---- a/src/app/results/proposal/[slug]/page.tsx
+-+++ b/src/app/results/proposal/[slug]/page.tsx
+-@@ -15,6 +15,7 @@ import {
+- import {
+-   getFullExperiences,
+- } from "@/lib/supabase/experienceRepository";
+-+import { getCurrentLocale } from "@/i18n/locale";
+- 
+- // =========================================================
+- // TYPES
+-@@ -155,8 +156,10 @@ const resolvedSearchParams =
+-   // GENERATE PROPOSAL
+-   // =======================================================
+- 
+-+  const locale = await getCurrentLocale();
+-+
+-   const dynamicExperiences =
+--  await getFullExperiences();
+-+  await getFullExperiences(locale);
+- 
+-   const dynamicEnhancements =
+-   await getEnhancements();
+-diff --git a/src/lib/supabase/experienceRepository.ts b/src/lib/supabase/experienceRepository.ts
+-index aaffe09..e01d45f 100644
+---- a/src/lib/supabase/experienceRepository.ts
+-+++ b/src/lib/supabase/experienceRepository.ts
+-@@ -1,5 +1,6 @@
+- import { supabase } from "@/lib/supabase";
+- import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
+-+import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
+- 
+- export async function deleteExperience(id: string) {
+- 
+-@@ -817,7 +818,28 @@ export async function deleteExperienceHeroTitle(
+- 
+- }
+- 
+--export async function getFullExperiences() {
+-+// Contenuto tradotto da Lara per i campi principali dell'esperienza
+-+// (title, short_description, description). Chiamata SOLO dal frontend
+-+// pubblico (proposal page) con il locale del visitatore — l'admin
+-+// continua a passare "en" (default) e vede sempre l'originale inglese,
+-+// mai la traduzione.
+-+export async function getExperienceContentTranslations(locale: string) {
+-+  if (!supabase || locale === "en") return [];
+-+
+-+  const { data, error } = await supabase
+-+    .from("experience_content_translations")
+-+    .select("experience_id, title, short_description, description, translation_status")
+-+    .eq("locale", locale);
+-+
+-+  if (error) {
+-+    console.error(error);
+-+    return [];
+-+  }
+-+
+-+  return data;
+-+}
+-+
+-+export async function getFullExperiences(locale: string = "en") {
+- 
+- const experiences = await getExperiences();
+- const scoring = await getExperienceScoring();
+-@@ -838,6 +860,9 @@ const seasonalPricing =
+- const heroTitles =
+-   await getExperienceHeroTitles();
+- 
+-+const contentTranslations =
+-+  await getExperienceContentTranslations(locale);
+-+
+- 
+-   return experiences.map((experience) => {
+- 
+-@@ -905,10 +930,23 @@ const featuredImage =
+-   experienceGallery.find(
+-     (g) => g.featured
+-   )?.image_url;
+-+
+-+const experienceTranslation = contentTranslations.find(
+-+  (t) => t.experience_id === experience.id
+-+);
+-+
+-+const localizedExperience = getLocalizedExperience(
+-+  experience,
+-+  experienceTranslation,
+-+  ["title", "short_description", "description"]
+-+);
+-+
+-   return {
+- 
+-   ...experience,
+- 
+-+  ...localizedExperience,
+-+
+-   incompatible_experiences:
+-     experience.incompatible_experiences ?? [],
+- 
+-diff --git a/src/messages/en.json b/src/messages/en.json
+-index 4b2d6f2..9733f1e 100644
+---- a/src/messages/en.json
+-+++ b/src/messages/en.json
+-@@ -4,6 +4,86 @@
+-     "speakWithTeam": "Speak With Our Team"
+-   },
+-   "landing": {},
+--  "configurator": {},
+-+  "configurator": {
+-+    "intro": {
+-+      "title": "Craft Your Mediterranean Escape",
+-+      "subtitle": "Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.",
+-+      "cta": "Get Started",
+-+      "duration": "Takes less than 2 minutes"
+-+    },
+-+    "steps": {
+-+      "experiences": {
+-+        "label": "Select up to 3 Experiences",
+-+        "title": "What kind of experience are you dreaming of?"
+-+      },
+-+      "moods": {
+-+        "label": "Select up to 3 Atmospheres",
+-+        "title": "Choose the vibe that inspires you."
+-+      },
+-+      "guests": {
+-+        "label": "Adults & Children",
+-+        "title": "Who's joining the adventure?"
+-+      },
+-+      "dates": {
+-+        "label": "Travel Dates",
+-+        "title": "When are you planning to travel?"
+-+      },
+-+      "budget": {
+-+        "label": "Estimated Investment",
+-+        "title": "What is your preferred budget range?"
+-+      },
+-+      "contact": {
+-+        "label": "Your Details",
+-+        "title": "One last step before we craft your proposal."
+-+      }
+-+    },
+-+    "selection": {
+-+      "experiencesSelected": "{count}/3 selected",
+-+      "moodsSelected": "{count}/3 selected",
+-+      "warningConflict": "These experiences cannot be combined",
+-+      "warningMaxExperiences": "Maximum 3 experiences allowed",
+-+      "warningMaxMoods": "Maximum 3 atmospheres selections allowed"
+-+    },
+-+    "guests": {
+-+      "adultsLabel": "Adults",
+-+      "childrenLabel": "Children 0-8",
+-+      "exactNumberLabel": "Exact number of adults",
+-+      "exactNumberPlaceholder": "Enter exact number",
+-+      "noChildren": "No children",
+-+      "oneChild": "1 child",
+-+      "childrenCount": "{count} children"
+-+    },
+-+    "dates": {
+-+      "checkIn": "Check-in",
+-+      "checkOut": "Check-out",
+-+      "dragHint": "Tap a date, or drag across dates to select a range.",
+-+      "preferredTimeSlot": "Preferred Time Slot",
+-+      "morning": "Morning",
+-+      "afternoon": "Afternoon",
+-+      "sunset": "Sunset",
+-+      "full_day": "Full Day"
+-+    },
+-+    "budget": {
+-+      "essential": "Essential",
+-+      "signature": "Signature",
+-+      "luxury": "Luxury"
+-+    },
+-+    "contact": {
+-+      "nameLabel": "Your Name",
+-+      "namePlaceholder": "Enter your full name",
+-+      "emailLabel": "Email Address",
+-+      "emailPlaceholder": "Enter your email",
+-+      "termsPrefix": "I accept the",
+-+      "termsLink": "Terms & Conditions",
+-+      "termsSuffix": "and understand that reservation deposits may be required to secure curated experiences."
+-+    },
+-+    "nav": {
+-+      "back": "Back",
+-+      "next": "Next",
+-+      "generateProposal": "Generate Private Proposal"
+-+    },
+-+    "loading": "Crafting your proposal...",
+-+    "poweredBy": "Powered by Ductavia"
+-+  },
+-   "proposal": {}
+- }
+-\ No newline at end of file
+-diff --git a/src/messages/it.json b/src/messages/it.json
+-index 04bcdab..9b9bb44 100644
+---- a/src/messages/it.json
+-+++ b/src/messages/it.json
+-@@ -4,6 +4,86 @@
+-     "speakWithTeam": "Parla con il Nostro Team"
+-   },
+-   "landing": {},
+--  "configurator": {},
+-+  "configurator": {
+-+    "intro": {
+-+      "title": "Crea la Tua Fuga nel Mediterraneo",
+-+      "subtitle": "Rispondi a poche domande per ricevere una proposta su misura, pensata per la tua esperienza ideale in Riviera.",
+-+      "cta": "Inizia Ora",
+-+      "duration": "Richiede meno di 2 minuti"
+-+    },
+-+    "steps": {
+-+      "experiences": {
+-+        "label": "Seleziona fino a 3 Esperienze",
+-+        "title": "Che tipo di esperienza stai sognando?"
+-+      },
+-+      "moods": {
+-+        "label": "Seleziona fino a 3 Atmosfere",
+-+        "title": "Scegli l'atmosfera che ti ispira."
+-+      },
+-+      "guests": {
+-+        "label": "Adulti e Bambini",
+-+        "title": "Chi si unisce all'avventura?"
+-+      },
+-+      "dates": {
+-+        "label": "Date del Viaggio",
+-+        "title": "Quando pensi di viaggiare?"
+-+      },
+-+      "budget": {
+-+        "label": "Investimento Stimato",
+-+        "title": "Qual è la tua fascia di budget preferita?"
+-+      },
+-+      "contact": {
+-+        "label": "I Tuoi Dati",
+-+        "title": "Un ultimo passo prima di creare la tua proposta."
+-+      }
+-+    },
+-+    "selection": {
+-+      "experiencesSelected": "{count}/3 selezionate",
+-+      "moodsSelected": "{count}/3 selezionate",
+-+      "warningConflict": "Queste esperienze non possono essere combinate",
+-+      "warningMaxExperiences": "Massimo 3 esperienze consentite",
+-+      "warningMaxMoods": "Massimo 3 atmosfere selezionabili"
+-+    },
+-+    "guests": {
+-+      "adultsLabel": "Adulti",
+-+      "childrenLabel": "Bambini 0-8",
+-+      "exactNumberLabel": "Numero esatto di adulti",
+-+      "exactNumberPlaceholder": "Inserisci il numero esatto",
+-+      "noChildren": "Nessun bambino",
+-+      "oneChild": "1 bambino",
+-+      "childrenCount": "{count} bambini"
+-+    },
+-+    "dates": {
+-+      "checkIn": "Check-in",
+-+      "checkOut": "Check-out",
+-+      "dragHint": "Tocca una data, oppure trascina tra le date per selezionare un intervallo.",
+-+      "preferredTimeSlot": "Fascia Oraria Preferita",
+-+      "morning": "Mattina",
+-+      "afternoon": "Pomeriggio",
+-+      "sunset": "Tramonto",
+-+      "full_day": "Giornata Intera"
+-+    },
+-+    "budget": {
+-+      "essential": "Essential",
+-+      "signature": "Signature",
+-+      "luxury": "Luxury"
+-+    },
+-+    "contact": {
+-+      "nameLabel": "Il Tuo Nome",
+-+      "namePlaceholder": "Inserisci il tuo nome completo",
+-+      "emailLabel": "Indirizzo Email",
+-+      "emailPlaceholder": "Inserisci la tua email",
+-+      "termsPrefix": "Accetto i",
+-+      "termsLink": "Termini e Condizioni",
+-+      "termsSuffix": "e comprendo che potrebbe essere richiesto un acconto per garantire le esperienze su misura."
+-+    },
+-+    "nav": {
+-+      "back": "Indietro",
+-+      "next": "Avanti",
+-+      "generateProposal": "Genera Proposta Privata"
+-+    },
+-+    "loading": "Stiamo creando la tua proposta...",
+-+    "poweredBy": "Powered by Ductavia"
+-+  },
+-   "proposal": {}
+- }
+-\ No newline at end of file
+--- 
+-2.43.0
+-
+-- 
+2.43.0
+

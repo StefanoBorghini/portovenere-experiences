@@ -1,0 +1,54 @@
+aggiungere immagini dinamiche in base all’esperienza
+creare una vera cover PDF stile brochure luxury
+aggiungere itinerary timeline
+aggiungere “included / not included”
+creare proposal shareable con slug elegante
+aggiungere logo SVG premium
+generare PDF automatico server-side in futuro
+
+
+
+
+
+COSA FANNO
+Romantic
+couple
+golden hour
+intimacy
+private dinner
+
+Relaxed
+slow pacing
+soft itinerary
+calm waters
+lounge atmosphere
+
+Adventure
+active
+exploration
+dynamic activities
+snorkeling / trekking
+
+Authentic
+local culture
+wine
+villages
+traditional experiences
+
+Cinematic
+dramatic visuals
+iconic locations
+storytelling
+photography driven
+
+
+Private Sailing
+Luxury Yachting
+Underwater Adventure
+Countryside Escape
+Gourmet Escape
+Outdoor Adventure
+
+
+
+portovenere-experiences-li3iyvaqe-stefano-borghini-s-projects.vercel.apps

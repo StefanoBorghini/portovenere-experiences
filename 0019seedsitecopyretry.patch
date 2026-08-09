@@ -1,0 +1,78 @@
+From 3bfe273f6d3e028d9df8ba5b2b54348204cf8936 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:58:50 +0000
+Subject: [PATCH] fix: retry seed-site-copy on Lara rate-limit errors
+
+seed-site-copy.mjs is a standalone script that can't import lara.ts's
+translateFields() (TS, not loadable from plain node), so it never
+benefited from the rate-limit throttle/retry added there. Confirmed on
+the new proposal.introTitles/closingParagraphs keys: they populated in
+site_copy but stayed in English (translation attempt failed and was
+never retried) after being added to en.json and re-seeded.
+
+Adds the same retry-with-backoff (up to 4 attempts) on 429/quota
+errors directly in this script.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/scripts/seed-site-copy.mjs | 36 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/src/scripts/seed-site-copy.mjs b/src/scripts/seed-site-copy.mjs
+index 8b8b4d8..8516f3e 100644
+--- a/src/scripts/seed-site-copy.mjs
++++ b/src/scripts/seed-site-copy.mjs
+@@ -64,6 +64,39 @@ function hashText(text) {
+   return crypto.createHash("sha256").update(text).digest("hex");
+ }
+ 
++function sleep(ms) {
++  return new Promise((resolve) => setTimeout(resolve, ms));
++}
++
++function isRateLimitError(err) {
++  return (
++    err?.statusCode === 429 ||
++    (typeof err?.message === "string" && err.message.includes("quota"))
++  );
++}
++
++// Lara ha un rate-limit al secondo separato dalla quota mensile
++// (confermato dal supporto Lara) — un batch tradotto subito dopo
++// un altro (es. rilanciando lo script piu' volte, o in parallelo a
++// una proposal generata sul sito) puo' sbatterci contro anche se la
++// quota mensile ha ancora ampio margine. Ritenta con backoff invece
++// di arrendersi al primo 429.
++async function translateWithRetry(translator, values, source, target, options) {
++  const MAX_ATTEMPTS = 4;
++  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
++    try {
++      return await translator.translate(values, source, target, options);
++    } catch (err) {
++      if (isRateLimitError(err) && attempt < MAX_ATTEMPTS) {
++        console.error(`[seed-site-copy] rate limit hit (tentativo ${attempt}/${MAX_ATTEMPTS}), ritento...`);
++        await sleep(1500 * attempt);
++        continue;
++      }
++      throw err;
++    }
++  }
++}
++
+ async function main() {
+ 
+   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+@@ -166,7 +199,8 @@ async function main() {
+ 
+       try {
+ 
+-        const res = await translator.translate(
++        const res = await translateWithRetry(
++          translator,
+           values,
+           LOCALE_TO_LARA.en,
+           LOCALE_TO_LARA[locale] ?? locale,
+-- 
+2.43.0
+

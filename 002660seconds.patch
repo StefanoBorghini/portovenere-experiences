@@ -1,0 +1,27 @@
+From 236fc565783111fbaa967de1b649fb14f9a043b5 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 26 Jul 2026 17:21:43 +0000
+Subject: [PATCH] copy: change configurator intro duration to 60 seconds
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/messages/en.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/messages/en.json b/src/messages/en.json
+index 22dfba1..e704c0d 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -75,7 +75,7 @@
+       "title": "Craft Your Mediterranean Escape",
+       "subtitle": "Answer a few questions to receive a curated proposal tailored to your ideal Riviera experience.",
+       "cta": "Get Started",
+-      "duration": "Takes less than 2 minutes"
++      "duration": "Takes less than 60 seconds"
+     },
+     "steps": {
+       "experiences": {
+-- 
+2.43.0
+

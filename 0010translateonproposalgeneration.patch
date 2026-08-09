@@ -1,0 +1,247 @@
+From a7da4da111f073794cf048a14fafcc731e0902e4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 12:11:13 +0000
+Subject: [PATCH] feat: translate only the experiences an actual proposal
+ selects
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Per feedback: the site_copy/backfill approach eagerly translates the
+whole catalog, burning Lara quota on experiences no proposal has ever
+selected. Landing + configurator (site_copy) stay eager since that's
+fixed, small UI text — but experience content (title/description,
+sections, facts) is per-experience marketing copy that should only be
+translated for what a given proposal actually shows.
+
+- translateExperience.ts: syncFullExperienceTranslations(experienceId)
+  re-fetches an experience's content + all its sections/facts and syncs
+  all three via the existing per-row sync functions (no duplicated
+  logic).
+- New /api/translate-proposal-experiences route: given a leadId, reruns
+  the same generateProposal() matching used by the results page to find
+  the featured experience + suggested add-ons, then translates only
+  those.
+- craft-your-experience/page.tsx: fires this request (fire-and-forget,
+  same pattern as notify-new-proposal) right after a proposal is saved,
+  so translation happens in the background at generation time instead
+  of via a manual bulk backfill.
+
+The one-time catalog backfill script stays in the repo as an optional
+tool, but this makes it unnecessary for normal operation going forward.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   | 115 ++++++++++++++++++
+ src/app/craft-your-experience/page.tsx        |  11 ++
+ src/lib/translations/translateExperience.ts   |  49 ++++++++
+ 3 files changed, 175 insertions(+)
+ create mode 100644 src/app/api/translate-proposal-experiences/route.ts
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+new file mode 100644
+index 0000000..7007bfc
+--- /dev/null
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -0,0 +1,115 @@
++/**
++ * POST /api/translate-proposal-experiences
++ * =====================================================================
++ * Chiamata fire-and-forget da craft-your-experience subito dopo aver
++ * salvato il lead (stesso pattern di /api/notify-new-proposal) — NON
++ * blocca mai la generazione della proposal, un suo fallimento non deve
++ * mai impedire al cliente di vedere la proposal (semplicemente restera'
++ * in inglese finche' non viene ritentata).
++ *
++ * A differenza del backfill one-shot (src/scripts/backfill-experience-
++ * translations.mjs, che traduce l'intero catalogo), qui rifacciamo lo
++ * stesso matching di generateProposal() per capire ESATTAMENTE quali
++ * esperienze finiranno mostrate in QUESTA proposal (la featured + i
++ * suggested add-ons) e traduciamo solo quelle — niente quota Lara
++ * sprecata su esperienze che nessuna proposal ha ancora selezionato.
++ *
++ * Body: { leadId }
++ * =====================================================================
++ */
++
++import { NextRequest, NextResponse } from "next/server";
++import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { getFullExperiences } from "@/lib/supabase/experienceRepository";
++import { generateProposal } from "@/lib/generateProposal";
++import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
++
++export async function POST(request: NextRequest) {
++
++  try {
++
++    const { leadId } = await request.json();
++
++    if (!leadId) {
++      return NextResponse.json(
++        { success: false, error: "leadId is required" },
++        { status: 400 }
++      );
++    }
++
++    const supabaseAdmin = getSupabaseAdmin();
++
++    const { data: lead, error: leadError } = await supabaseAdmin
++      .from("leads")
++      .select(
++        "experiences, moods, budget, guests, children, traveling_with_children, start_date, end_date"
++      )
++      .eq("id", leadId)
++      .single();
++
++    if (leadError || !lead) {
++      console.error(
++        `[api/translate-proposal-experiences] could not load lead ${leadId}:`,
++        leadError
++      );
++      return NextResponse.json(
++        { success: false, error: "Lead not found" },
++        { status: 404 }
++      );
++    }
++
++    // Stesso calcolo di tripDays di results/proposal/[slug]/page.tsx.
++    const tripDays =
++      lead.start_date && lead.end_date
++        ? Math.max(
++            1,
++            Math.round(
++              (new Date(lead.end_date).getTime() -
++                new Date(lead.start_date).getTime()) /
++                (1000 * 60 * 60 * 24)
++            ) + 1
++          )
++        : undefined;
++
++    // Locale "en" qui non conta ai fini del matching (i campi usati da
++    // generateProposal — budget_*, guest_*, ecc. — non sono localizzati),
++    // ci serve solo per ottenere gli id delle esperienze coinvolte.
++    const allExperiences = await getFullExperiences("en");
++
++    const generatedProposal = generateProposal({
++      experiencesSelected: lead.experiences || [],
++      moodsSelected: lead.moods || [],
++      budget: lead.budget,
++      guests: lead.guests,
++      children: lead.children,
++      travelingWithChildren: lead.traveling_with_children || false,
++      tripDays,
++      allExperiences,
++    });
++
++    const experienceIds = new Set<string>();
++
++    if (generatedProposal.featuredExperience?.id) {
++      experienceIds.add(generatedProposal.featuredExperience.id);
++    }
++
++    for (const addOn of generatedProposal.suggestedAddOns ?? []) {
++      if (addOn?.id) experienceIds.add(addOn.id);
++    }
++
++    await Promise.allSettled(
++      Array.from(experienceIds).map((id) => syncFullExperienceTranslations(id))
++    );
++
++    return NextResponse.json({ success: true, translated: Array.from(experienceIds) });
++
++  } catch (err) {
++
++    console.error("[api/translate-proposal-experiences] unexpected error:", err);
++
++    return NextResponse.json(
++      { success: false, error: "Unexpected error" },
++      { status: 500 }
++    );
++  }
++}
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index ddba769..ea4e821 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -746,6 +746,17 @@ export default function CraftYourExperience() {
+         body: JSON.stringify({ slug: proposalData.slug }),
+       }).catch((err) => console.error("notify-new-proposal failed:", err));
+ 
++      // TRADUZIONE ESPERIENZE — solo quelle che finiranno davvero in
++      // QUESTA proposal (la route rifa' lo stesso matching di
++      // generateProposal), non l'intero catalogo. Fire-and-forget:
++      // se fallisce la proposal resta comunque visibile, solo in
++      // inglese finche' non viene ritentata.
++      fetch("/api/translate-proposal-experiences", {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++        body: JSON.stringify({ leadId }),
++      }).catch((err) => console.error("translate-proposal-experiences failed:", err));
++
+       // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+       // la pagina, l'overlay di caricamento resta visibile fino alla
+       // navigazione, poi il componente si smonta comunque.
+diff --git a/src/lib/translations/translateExperience.ts b/src/lib/translations/translateExperience.ts
+index 9c5c992..8967b31 100644
+--- a/src/lib/translations/translateExperience.ts
++++ b/src/lib/translations/translateExperience.ts
+@@ -142,6 +142,55 @@ async function syncExperienceLocale(
+   }
+ }
+ 
++/**
++ * Traduce un'esperienza intera (titolo/descrizioni + tutte le sue
++ * sections + tutti i suoi facts) rileggendo i dati freschi dalle
++ * tabelle base. Pensata per essere chiamata on-demand nel momento in
++ * cui una proposal viene generata (solo per l'esperienza scelta e i
++ * suggested add-ons), invece di un backfill che traduce l'intero
++ * catalogo — cosi' si traduce solo cio' che finisce davvero
++ * visualizzato in una proposal, non tutto il catalogo a prescindere.
++ * Non lancia mai: ogni sync interno gestisce gia' i propri errori.
++ */
++export async function syncFullExperienceTranslations(
++  experienceId: string
++): Promise<void> {
++
++  const supabase = getSupabaseAdmin();
++
++  const { data: experience, error: experienceError } = await supabase
++    .from("experience_content")
++    .select("title, short_description, description")
++    .eq("id", experienceId)
++    .single();
++
++  if (experienceError || !experience) {
++    console.error(
++      `[translateExperience] syncFullExperienceTranslations: could not load experience ${experienceId}:`,
++      experienceError
++    );
++    return;
++  }
++
++  const { data: sections } = await supabase
++    .from("experience_sections")
++    .select("id, title, description")
++    .eq("experience_id", experienceId);
++
++  const { data: facts } = await supabase
++    .from("experience_facts")
++    .select("id, label, value")
++    .eq("experience_id", experienceId);
++
++  await Promise.all([
++    syncExperienceTranslations(experienceId, experience),
++    ...(sections ?? []).map((section) =>
++      syncSectionTranslations(section.id, section)
++    ),
++    ...(facts ?? []).map((fact) => syncFactTranslations(fact.id, fact)),
++  ]);
++}
++
+ // ---------------------------------------------------------------------
+ // Sections (rich text blocks) — same pattern, one row per section
+ // ---------------------------------------------------------------------
+-- 
+2.43.0
+

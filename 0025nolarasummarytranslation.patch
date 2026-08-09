@@ -1,0 +1,698 @@
+From 07e8ef7296f95adeb503e3a321953a3ed1a39719 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 26 Jul 2026 17:02:39 +0000
+Subject: [PATCH] perf: stop translating the proposal summary sentence via Lara
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Per feedback: the per-proposal Lara call for the "Created exclusively
+for..." summary was both costing money on every single proposal AND
+producing wrong results — the BRAND_INSTRUCTIONS given to Lara
+explicitly say to preserve proper nouns/brand names, so capitalized
+category names like "Aerial Escape"/"Wild Escape" embedded in the
+sentence were being read as product names and left untranslated no
+matter how many times a proposal was regenerated.
+
+The sentence has a fixed English skeleton with a handful of dynamic
+slots (guest count, dates, time-of-day, category names, mood names) —
+none of which need per-proposal translation:
+
+- buildProposalSummary.ts now takes a next-intl `t` + `locale` and
+  composes the sentence from pieces translated ONCE: the template
+  itself and the 4 time-of-day phrases (new proposal.summary.* keys in
+  en.json, via site_copy — same mechanism as introTitles/
+  closingParagraphs), the guest-count phrasing (reused from the
+  existing proposal.hero.* keys), and the category/mood names (reused
+  from configurator.experienceNames/moodNames — extracted the shared
+  key maps into experienceMoodNameKeys.ts so the wizard and the summary
+  builder don't duplicate them).
+- Date formatting is now locale-aware via toLocaleDateString(locale),
+  so "August" becomes "agosto" for free through Intl — no translation
+  needed at all.
+- sentenceBuilder() (joins the category/mood name lists) takes a
+  locale and picks " and "/" e " instead of always "and" — a single
+  common word, not worth a Lara round-trip.
+- Deleted moodDescriptions.ts/experienceDescriptions.ts: dead code —
+  their lowercase/snake_case keys never matched the actual Title Case
+  values stored on leads.experiences/moods, so the lookup always fell
+  through to the raw value anyway.
+- Removed the per-proposal Lara call + Proposal.proposal_data.summary_it
+  storage from /api/translate-proposal-experiences and page.tsx — no
+  longer needed, the summary is correctly localized synchronously with
+  zero Lara cost.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   |  62 +-------
+ src/app/craft-your-experience/page.tsx        |  21 +--
+ src/app/results/proposal/[slug]/page.tsx      |  32 ++--
+ src/lib/experienceMoodNameKeys.ts             |  21 +++
+ .../proposal-engine/buildProposalSummary.ts   | 138 +++++++++++-------
+ src/lib/proposal-engine/buildRendererData.ts  |   6 +-
+ .../summary/experienceDescriptions.ts         |  30 ----
+ .../summary/moodDescriptions.ts               |  30 ----
+ .../summary/sentenceBuilder.ts                |  15 +-
+ src/messages/en.json                          |  12 ++
+ 10 files changed, 158 insertions(+), 209 deletions(-)
+ create mode 100644 src/lib/experienceMoodNameKeys.ts
+ delete mode 100644 src/lib/proposal-engine/summary/experienceDescriptions.ts
+ delete mode 100644 src/lib/proposal-engine/summary/moodDescriptions.ts
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index 0cf0774..88c4256 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -26,10 +26,8 @@ import { getFullExperiences } from "@/lib/supabase/experienceRepository";
+ import { getEnhancements } from "@/lib/supabase/enhancementRepository";
+ import { generateProposal } from "@/lib/generateProposal";
+ import { buildRendererData } from "@/lib/proposal-engine/buildRendererData";
+-import { buildProposalSummary } from "@/lib/proposal-engine/buildProposalSummary";
+ import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
+ import { syncAllEnhancementTranslations } from "@/lib/translations/translateEnhancement";
+-import { translateFields } from "@/lib/translations/lara";
+ import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ 
+ // Tradurre content+sections+facts per piu' esperienze (la featured + i
+@@ -45,7 +43,7 @@ export async function POST(request: NextRequest) {
+ 
+   try {
+ 
+-    const { leadId, slug } = await request.json();
++    const { leadId } = await request.json();
+ 
+     if (!leadId) {
+       return NextResponse.json(
+@@ -155,59 +153,11 @@ export async function POST(request: NextRequest) {
+       console.error("[api/translate-proposal-experiences] enhancement translation failed:", err);
+     }
+ 
+-    // RIEPILOGO DINAMICO — a differenza del titolo/chiusura (5+4
+-    // varianti fisse, spostate su site_copy: vedi
+-    // proposal.introTitles/closingParagraphs), questa frase e' unica
+-    // per ogni proposal (ospiti/date/esperienze/mood incollati dentro),
+-    // quindi va tradotta qui, una volta, e salvata — non ricalcolata e
+-    // ritradotta ad ogni visita della pagina.
+-    if (slug) {
+-
+-      try {
+-
+-        const englishSummary = buildProposalSummary(lead, generatedProposal);
+-
+-        const result = await translateFields({ summary: englishSummary }, "it");
+-
+-        if (result.ok && result.translations.summary) {
+-
+-          const { data: proposalRow } = await supabaseAdmin
+-            .from("Proposal")
+-            .select("proposal_data")
+-            .eq("slug", slug)
+-            .single();
+-
+-          if (proposalRow) {
+-
+-            const { error: updateError } = await supabaseAdmin
+-              .from("Proposal")
+-              .update({
+-                proposal_data: {
+-                  ...proposalRow.proposal_data,
+-                  summary_it: result.translations.summary,
+-                },
+-              })
+-              .eq("slug", slug);
+-
+-            if (updateError) {
+-              console.error(
+-                `[api/translate-proposal-experiences] proposal_data update failed for ${slug}:`,
+-                updateError
+-              );
+-            }
+-          }
+-
+-        } else {
+-          console.error(
+-            `[api/translate-proposal-experiences] summary translation failed for ${slug}:`,
+-            result.error
+-          );
+-        }
+-
+-      } catch (err) {
+-        console.error(`[api/translate-proposal-experiences] summary translation error for ${slug}:`, err);
+-      }
+-    }
++    // Il riepilogo dinamico ("Created exclusively for...") NON passa
++    // piu' da qui: e' composto a partire da pezzi gia' tradotti una
++    // tantum (template + fascia oraria via site_copy, nomi categorie/
++    // mood riusati dal configuratore) invece che da una chiamata Lara
++    // per ogni proposal — vedi buildProposalSummary.ts.
+ 
+     return NextResponse.json({ success: true, translated: Array.from(experienceIds) });
+ 
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index f062bad..a602509 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -9,6 +9,7 @@ import { motion, AnimatePresence, PanInfo } from "framer-motion";
+ import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
+ 
+ import { supabase } from "@/lib/supabase";
++import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/experienceMoodNameKeys";
+ import {
+   trackEvent,
+   trackConfiguratorStart,
+@@ -106,21 +107,9 @@ const MOOD_IMAGES: Record<string, string> = {
+ // I valori sopra (chiavi di EXPERIENCE_DETAILS/MOOD_IMAGES, formData.experiences/
+ // moods, incompatibleExperiences) restano identificatori interni in inglese —
+ // usati per il matching con generateProposal/experienceCompatibility e salvati
+-// cosi' su Supabase. Le label mostrate all'utente passano invece da qui,
+-// cosi' vengono tradotte come il resto del wizard.
+-const EXPERIENCE_NAME_KEYS: Record<string, string> = {
+-  "Sea Escape": "seaEscape",
+-  "Aerial Escape": "aerialEscape",
+-  "Gourmet Escape": "gourmetEscape",
+-  "Wild Escape": "wildEscape",
+-};
+-
+-const MOOD_NAME_KEYS: Record<string, string> = {
+-  Romantic: "romantic",
+-  Cinematic: "cinematic",
+-  Authentic: "authentic",
+-  Adventure: "adventure",
+-};
++// cosi' su Supabase. Le label mostrate all'utente passano invece dalle mappe
++// condivise sotto (riusate anche dal riepilogo dinamico della proposal), cosi'
++// vengono tradotte come il resto del wizard.
+ 
+ // =========================================================
+ // FASCIA ORARIA PREFERITA — nuovo parametro (richiesta LPG Italia).
+@@ -754,7 +743,7 @@ export default function CraftYourExperience() {
+       fetch("/api/translate-proposal-experiences", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+-        body: JSON.stringify({ leadId, slug: proposalData.slug }),
++        body: JSON.stringify({ leadId }),
+       }).catch((err) => console.error("translate-proposal-experiences failed:", err));
+ 
+       // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index 335563a..d122774 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -55,8 +55,10 @@ export default async function ProposalPage({
+ 
+   // Chiamata qui, prima di ogni return anticipato (validation/no-match/
+   // expired compresi), cosi' e' disponibile in tutti i rami — non solo
+-  // nel percorso "felice" piu' sotto.
+-  const proposalT = await getTranslations("proposal");
++  // nel percorso "felice" piu' sotto. Senza namespace: serve per
++  // raggiungere sia "proposal.*" che "configurator.*" (buildProposalSummary
++  // riusa le traduzioni di categorie/mood del configuratore).
++  const t = await getTranslations();
+ 
+   // =======================================================
+   // VALIDATION
+@@ -209,7 +211,7 @@ const generatedProposal =
+     includedExperiencesPreSelected,
+     isMultiDayTrip,
+     finalPrice,
+-    proposalSummary: englishProposalSummary,
++    proposalSummary,
+   } = buildRendererData({
+ 
+     generatedProposal,
+@@ -218,17 +220,11 @@ const generatedProposal =
+ 
+     enhancements:
+     dynamicEnhancements,
+-  });
+ 
+-  // Il riepilogo tradotto viene calcolato e salvato una volta sola al
+-  // momento della generazione (vedi /api/translate-proposal-experiences),
+-  // non ricalcolato/ritradotto ad ogni visita — se non e' ancora pronto
+-  // (traduzione in corso in background, o locale inglese) si mostra la
+-  // versione inglese come fallback, mai un vuoto.
+-  const proposalSummary =
+-    locale !== "en" && lead.summary_it
+-      ? lead.summary_it
+-      : englishProposalSummary;
++    t,
++
++    locale,
++  });
+ 
+   // =======================================================
+   // DYNAMIC CONTENT
+@@ -251,12 +247,12 @@ const generatedProposal =
+  // testo dinamico): peschiamo per indice invece di usare la stringa
+  // inglese di generateProposal, che resta solo come fallback per il
+  // caso "nessuna esperienza trovata" (indice non disponibile).
+- // (proposalT dichiarato in cima alla funzione, disponibile qui.)
++ // (t dichiarato in cima alla funzione, disponibile qui.)
+ 
+  const dynamicIntroTitle =
+ 
+   generatedProposal.dynamicIntroTitleIndex !== undefined
+-    ? proposalT(`introTitles.${generatedProposal.dynamicIntroTitleIndex}`)
++    ? t(`proposal.introTitles.${generatedProposal.dynamicIntroTitleIndex}`)
+     : generatedProposal.dynamicIntroTitle ||
+       "Curated Riviera Experience";
+ 
+@@ -266,7 +262,7 @@ const generatedProposal =
+   const dynamicClosingParagraph =
+ 
+   generatedProposal.dynamicClosingParagraphIndex !== undefined
+-    ? proposalT(`closingParagraphs.${generatedProposal.dynamicClosingParagraphIndex}`)
++    ? t(`proposal.closingParagraphs.${generatedProposal.dynamicClosingParagraphIndex}`)
+     : generatedProposal.dynamicClosingParagraph ||
+ 
+   "We look forward to welcoming you into your private Riviera experience.";
+@@ -314,7 +310,7 @@ if (!featuredExperience) {
+           "
+         >
+ 
+-          {proposalT("reservation.label")}
++          {t("proposal.reservation.label")}
+ 
+         </p>
+ 
+@@ -429,7 +425,7 @@ if (!featuredExperience) {
+             "
+           >
+ 
+-            {proposalT("reservation.label")}
++            {t("proposal.reservation.label")}
+ 
+           </p>
+ 
+diff --git a/src/lib/experienceMoodNameKeys.ts b/src/lib/experienceMoodNameKeys.ts
+new file mode 100644
+index 0000000..6d33c2f
+--- /dev/null
++++ b/src/lib/experienceMoodNameKeys.ts
+@@ -0,0 +1,21 @@
++/**
++ * Le 4 macro categorie esperienza e i 4 mood sono un vocabolario fisso
++ * e piccolo — condiviso tra il wizard (craft-your-experience) e il
++ * riepilogo dinamico della proposal (buildProposalSummary), entrambi
++ * i quali devono mostrare l'etichetta tradotta invece del valore
++ * inglese salvato su formData/lead (che resta l'identificatore
++ * interno, usato per il matching in generateProposal ecc.).
++ */
++export const EXPERIENCE_NAME_KEYS: Record<string, string> = {
++  "Sea Escape": "seaEscape",
++  "Aerial Escape": "aerialEscape",
++  "Gourmet Escape": "gourmetEscape",
++  "Wild Escape": "wildEscape",
++};
++
++export const MOOD_NAME_KEYS: Record<string, string> = {
++  Romantic: "romantic",
++  Cinematic: "cinematic",
++  Authentic: "authentic",
++  Adventure: "adventure",
++};
+diff --git a/src/lib/proposal-engine/buildProposalSummary.ts b/src/lib/proposal-engine/buildProposalSummary.ts
+index 35a19b7..f752d3c 100644
+--- a/src/lib/proposal-engine/buildProposalSummary.ts
++++ b/src/lib/proposal-engine/buildProposalSummary.ts
+@@ -1,30 +1,18 @@
+-import { MOOD_DESCRIPTIONS } from "./summary/moodDescriptions";
+-import { EXPERIENCE_DESCRIPTIONS } from "./summary/experienceDescriptions";
+ import { sentenceBuilder } from "./summary/sentenceBuilder";
+-
+-// =====================================================
+-// FASCIA ORARIA — stessa convenzione di preferredTime in
+-// generateProposal.ts ("morning" | "afternoon" | "sunset" |
+-// "full_day"), tradotta in una frase leggibile.
+-// =====================================================
+-
+-const TIME_SLOT_PHRASES: Record<string, string> = {
+-  morning: "the morning",
+-  afternoon: "the afternoon",
+-  sunset: "sunset",
+-  full_day: "a full day",
+-};
++import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/experienceMoodNameKeys";
+ 
+ // =====================================================
+ // DATE — formatta start_date/end_date in un'unica frase
+ // leggibile, gestendo i tre casi: stesso giorno, stesso mese,
+ // mesi/anni diversi. Nessun'assunzione su formato di input:
+-// accetta sia stringhe ISO che oggetti Date.
++// accetta sia stringhe ISO che oggetti Date. Locale-aware —
++// "August" diventa "agosto" gratis via Intl, senza Lara.
+ // =====================================================
+ 
+ function formatDateRange(
+   startDate: string | Date | null | undefined,
+-  endDate: string | Date | null | undefined
++  endDate: string | Date | null | undefined,
++  dateLocale: string
+ ): string | null {
+ 
+   if (!startDate) return null;
+@@ -43,7 +31,7 @@ function formatDateRange(
+ 
+   if (sameDay) {
+ 
+-    return start.toLocaleDateString("en-US", {
++    return start.toLocaleDateString(dateLocale, {
+       month: "long",
+       day: "numeric",
+       year: "numeric",
+@@ -57,14 +45,14 @@ function formatDateRange(
+   if (sameMonth) {
+ 
+     const monthName =
+-      start.toLocaleDateString("en-US", { month: "long" });
++      start.toLocaleDateString(dateLocale, { month: "long" });
+ 
+     return `${monthName} ${start.getDate()}–${end.getDate()}, ${start.getFullYear()}`;
+   }
+ 
+   // Mesi (o anni) diversi — data completa su entrambi gli estremi.
+   const startLabel =
+-    start.toLocaleDateString("en-US", {
++    start.toLocaleDateString(dateLocale, {
+       month: "long",
+       day: "numeric",
+       year:
+@@ -74,7 +62,7 @@ function formatDateRange(
+     });
+ 
+   const endLabel =
+-    end.toLocaleDateString("en-US", {
++    end.toLocaleDateString(dateLocale, {
+       month: "long",
+       day: "numeric",
+       year: "numeric",
+@@ -83,9 +71,29 @@ function formatDateRange(
+   return `${startLabel} – ${endLabel}`;
+ }
+ 
++const DATE_LOCALES: Record<string, string> = {
++  en: "en-US",
++  it: "it-IT",
++};
++
++type TFunction = (key: string, values?: Record<string, string | number>) => string;
++
++/**
++ * Compone il riepilogo dinamico della proposal SENZA passare da Lara:
++ * il template della frase e le 4 varianti di fascia oraria sono
++ * tradotti UNA VOLTA tramite site_copy (vedi messages/en.json,
++ * namespace proposal.summary), e i nomi di categorie/mood riusano le
++ * stesse traduzioni gia' fatte per il configuratore
++ * (configurator.experienceNames/moodNames) — l'unica cosa che cambia
++ * da proposal a proposal sono i valori dinamici (ospiti, date,
++ * QUALI categorie/mood), non le parole stesse, quindi non serve
++ * (e sarebbe uno spreco) tradurre l'intera frase ad ogni generazione.
++ */
+ export function buildProposalSummary(
+   lead: any,
+-  proposal: any
++  proposal: any,
++  t: TFunction,
++  locale: string = "en"
+ ) {
+ 
+   const adults =
+@@ -94,36 +102,43 @@ export function buildProposalSummary(
+   const children =
+     Number(lead.children) || 0;
+ 
+-  // "12 adults" oppure "12 adults and 2 children" — niente
+-  // bambini menzionati affatto se non ce ne sono.
++  // "12 adults" oppure "12 adults and 2 children" — niente bambini
++  // menzionati affatto se non ce ne sono. Le singole parole (adult/
++  // adults/child/children/"and") sono le stesse gia' tradotte per
++  // l'hero della proposal (proposal.hero.*).
++  const adultsPhrase =
++    adults > 1
++      ? t("proposal.hero.adultsCount", { count: adults })
++      : t("proposal.hero.oneAdult", { count: adults });
++
+   const guestSentence =
+     children > 0
+-      ? `${adults} adult${adults > 1 ? "s" : ""} and ${children} child${children > 1 ? "ren" : ""}`
+-      : `${adults} adult${adults > 1 ? "s" : ""}`;
++      ? t("proposal.hero.guestsWithChildren", {
++          adults: adultsPhrase,
++          children:
++            children > 1
++              ? t("proposal.hero.childrenCount", { count: children })
++              : t("proposal.hero.oneChild", { count: children }),
++        })
++      : adultsPhrase;
+ 
+   const moods =
+-
+-    (lead.moods || [])
+-
+-      .map(
+-        (m: string) =>
+-          MOOD_DESCRIPTIONS[m] || m
+-      );
++    (lead.moods || []).map((m: string) => {
++      const key = MOOD_NAME_KEYS[m];
++      return key ? t(`configurator.moodNames.${key}`) : m;
++    });
+ 
+   const experiences =
+-
+-    (lead.experiences || [])
+-
+-      .map(
+-        (e: string) =>
+-          EXPERIENCE_DESCRIPTIONS[e] || e
+-      );
++    (lead.experiences || []).map((e: string) => {
++      const key = EXPERIENCE_NAME_KEYS[e];
++      return key ? t(`configurator.experienceNames.${key}`) : e;
++    });
+ 
+   const moodSentence =
+-    sentenceBuilder(moods);
++    sentenceBuilder(moods, locale);
+ 
+   const experienceSentence =
+-    sentenceBuilder(experiences);
++    sentenceBuilder(experiences, locale);
+ 
+   // =====================================================
+   // DATE + FASCIA ORARIA — entrambe opzionali, compaiono solo
+@@ -133,31 +148,44 @@ export function buildProposalSummary(
+   // =====================================================
+ 
+   const dateRangeLabel =
+-    formatDateRange(lead.start_date, lead.end_date);
++    formatDateRange(
++      lead.start_date,
++      lead.end_date,
++      DATE_LOCALES[locale] ?? DATE_LOCALES.en
++    );
+ 
+-  const timeSlotLabel =
++  const timeSlotPhrase =
+     lead.preferred_time
+-      ? TIME_SLOT_PHRASES[lead.preferred_time] || null
++      ? t(`proposal.summary.timeSlotPhrase.${lead.preferred_time}`)
+       : null;
+ 
+   let dateClause = "";
+ 
+-  if (dateRangeLabel && timeSlotLabel) {
++  if (dateRangeLabel && timeSlotPhrase) {
+ 
+-    dateClause =
+-      ` for ${dateRangeLabel}, in ${timeSlotLabel}`;
++    dateClause = t("proposal.summary.dateClauseWithTime", {
++      dateRange: dateRangeLabel,
++      timeSlotPhrase,
++    });
+ 
+   } else if (dateRangeLabel) {
+ 
+-    dateClause =
+-      ` for ${dateRangeLabel}`;
++    dateClause = t("proposal.summary.dateClauseDateOnly", {
++      dateRange: dateRangeLabel,
++    });
+ 
+-  } else if (timeSlotLabel) {
++  } else if (timeSlotPhrase) {
+ 
+-    dateClause =
+-      `, in ${timeSlotLabel}`;
++    dateClause = t("proposal.summary.dateClauseTimeOnly", {
++      timeSlotPhrase,
++    });
+   }
+ 
+-  return `Created exclusively for ${guestSentence}${dateClause}, this proposal has been crafted around ${experienceSentence}. Every experience has been carefully selected to reflect ${moodSentence}, creating a Riviera journey that feels entirely personal.`;
++  return t("proposal.summary.template", {
++    guestSentence,
++    dateClause,
++    experienceSentence,
++    moodSentence,
++  });
+ 
+-}
+\ No newline at end of file
++}
+diff --git a/src/lib/proposal-engine/buildRendererData.ts b/src/lib/proposal-engine/buildRendererData.ts
+index 783445f..a71ad1c 100644
+--- a/src/lib/proposal-engine/buildRendererData.ts
++++ b/src/lib/proposal-engine/buildRendererData.ts
+@@ -58,6 +58,8 @@ export function buildRendererData({
+   generatedProposal,
+   lead,
+   enhancements,
++  t,
++  locale,
+ }: any) {
+ 
+   // ===================================================
+@@ -231,7 +233,9 @@ export function buildRendererData({
+   const proposalSummary =
+     buildProposalSummary(
+       lead,
+-      generatedProposal
++      generatedProposal,
++      t,
++      locale
+     );
+ 
+   return {
+diff --git a/src/lib/proposal-engine/summary/experienceDescriptions.ts b/src/lib/proposal-engine/summary/experienceDescriptions.ts
+deleted file mode 100644
+index cf0ecfb..0000000
+--- a/src/lib/proposal-engine/summary/experienceDescriptions.ts
++++ /dev/null
+@@ -1,30 +0,0 @@
+-export const EXPERIENCE_DESCRIPTIONS: Record<string, string> = {
+-
+-  boat:
+-    "private days at sea",
+-
+-  sailing:
+-    "sailing along hidden coves",
+-
+-  sea_escape:
+-    "exclusive coastal escapes",
+-
+-  gourmet_escape:
+-    "authentic Riviera flavours",
+-
+-  wine:
+-    "local wine discoveries",
+-
+-  chef:
+-    "private dining experiences",
+-
+-  hiking:
+-    "panoramic coastal trails",
+-
+-  village:
+-    "timeless Ligurian villages",
+-
+-  photography:
+-    "cinematic scenery",
+-
+-};
+\ No newline at end of file
+diff --git a/src/lib/proposal-engine/summary/moodDescriptions.ts b/src/lib/proposal-engine/summary/moodDescriptions.ts
+deleted file mode 100644
+index 68cf3ec..0000000
+--- a/src/lib/proposal-engine/summary/moodDescriptions.ts
++++ /dev/null
+@@ -1,30 +0,0 @@
+-export const MOOD_DESCRIPTIONS: Record<string, string> = {
+-
+-  romantic:
+-    "intimate moments",
+-
+-  relax:
+-    "a slow Mediterranean rhythm",
+-
+-  authentic:
+-    "genuine local culture",
+-
+-  luxury:
+-    "elegant coastal living",
+-
+-  adventure:
+-    "moments of exploration",
+-
+-  family:
+-    "quality time together",
+-
+-  wellness:
+-    "peaceful wellbeing",
+-
+-  food:
+-    "local culinary traditions",
+-
+-  wine:
+-    "the flavours of the Riviera",
+-
+-};
+\ No newline at end of file
+diff --git a/src/lib/proposal-engine/summary/sentenceBuilder.ts b/src/lib/proposal-engine/summary/sentenceBuilder.ts
+index deceaee..2778854 100644
+--- a/src/lib/proposal-engine/summary/sentenceBuilder.ts
++++ b/src/lib/proposal-engine/summary/sentenceBuilder.ts
+@@ -1,4 +1,13 @@
+-export function sentenceBuilder(items: string[]) {
++// Congiunzione "and"/"e" — un'unica parola comune, non serve passare
++// da Lara per questa: hardcoded per le locale supportate.
++const AND_BY_LOCALE: Record<string, string> = {
++  en: " and ",
++  it: " e ",
++};
++
++export function sentenceBuilder(items: string[], locale: string = "en") {
++
++  const and = AND_BY_LOCALE[locale] ?? AND_BY_LOCALE.en;
+ 
+   if (items.length === 0)
+     return "";
+@@ -7,8 +16,8 @@ export function sentenceBuilder(items: string[]) {
+     return items[0];
+ 
+   if (items.length === 2)
+-    return `${items[0]} and ${items[1]}`;
++    return `${items[0]}${and}${items[1]}`;
+ 
+-  return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
++  return `${items.slice(0, -1).join(", ")}${and}${items.at(-1)}`;
+ 
+ }
+\ No newline at end of file
+diff --git a/src/messages/en.json b/src/messages/en.json
+index d39fcfc..22dfba1 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -165,6 +165,18 @@
+   },
+   "proposal": {
+     "errorFallback": "We couldn't load this proposal correctly. Please contact us directly.",
++    "summary": {
++      "template": "Created exclusively for {guestSentence}{dateClause}, this proposal has been crafted around {experienceSentence}. Every experience has been carefully selected to reflect {moodSentence}, creating a Riviera journey that feels entirely personal.",
++      "dateClauseWithTime": " for {dateRange}, {timeSlotPhrase}",
++      "dateClauseDateOnly": " for {dateRange}",
++      "dateClauseTimeOnly": ", {timeSlotPhrase}",
++      "timeSlotPhrase": {
++        "morning": "in the morning",
++        "afternoon": "in the afternoon",
++        "sunset": "at sunset",
++        "full_day": "for a full day"
++      }
++    },
+     "introTitles": {
+       "0": "Every Detail Curated Around Your Desired Atmosphere",
+       "1": "A Proposal Designed Around Your Vision of the Riviera",
+-- 
+2.43.0
+

@@ -1,0 +1,175 @@
+From fc5f38cb9e59b288e07119b069d6a9ce4c46da1e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:06:58 +0000
+Subject: [PATCH] fix: bound Lara call concurrency instead of fully serial,
+ raise maxDuration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Live test showed a new failure mode after making everything sequential
+(previous commit): translating a proposal with a featured experience
+plus 3 suggested add-ons completed the first experience in full
+(content+sections+facts) but left the rest partially or entirely
+untranslated — the exact signature of the serverless function hitting
+its execution timeout partway through, not a Lara error.
+
+- New mapWithConcurrency() helper: runs a bounded number of calls at
+  once instead of Promise.all (everything, which triggered Lara rate
+  limiting) or a sequential loop (safe but too slow once several
+  experiences each have several facts/sections).
+- syncFullExperienceTranslations: sections and facts within one
+  experience now run 3 at a time.
+- /api/translate-proposal-experiences: experiences now run 2 at a time,
+  and maxDuration is raised to 60s so there's enough runway even when a
+  proposal pulls in several experiences worth of content.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   | 28 +++++++++++-----
+ src/lib/concurrencyLimit.ts                   | 32 +++++++++++++++++++
+ src/lib/translations/translateExperience.ts   | 27 +++++++++-------
+ 3 files changed, 67 insertions(+), 20 deletions(-)
+ create mode 100644 src/lib/concurrencyLimit.ts
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index af44056..5eebc48 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -23,6 +23,16 @@ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+ import { getFullExperiences } from "@/lib/supabase/experienceRepository";
+ import { generateProposal } from "@/lib/generateProposal";
+ import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
++import { mapWithConcurrency } from "@/lib/concurrencyLimit";
++
++// Tradurre content+sections+facts per piu' esperienze (la featured + i
++// suggested add-ons) puo' richiedere piu' del limite di default di una
++// funzione serverless Vercel (10s su Hobby) — osservato
++// direttamente: la prima esperienza processata finiva tradotta per
++// intero, le successive sempre meno, l'ultima per niente, esattamente
++// il pattern di un timeout a meta' esecuzione. Alza il limite al
++// massimo permesso dal piano.
++export const maxDuration = 60;
+ 
+ export async function POST(request: NextRequest) {
+ 
+@@ -97,19 +107,21 @@ export async function POST(request: NextRequest) {
+       if (addOn?.id) experienceIds.add(addOn.id);
+     }
+ 
+-    // Sequenziale tra le esperienze, non in parallelo: ognuna gia'
+-    // traduce sequenzialmente content/sections/facts al suo interno
+-    // (vedi syncFullExperienceTranslations) proprio per evitare troppe
+-    // chiamate Lara concorrenti — farle poi in parallelo tra piu'
+-    // esperienze vanificherebbe quella scelta. Gira in background,
+-    // qualche secondo in piu' non ha costo per l'utente.
+-    for (const id of experienceIds) {
++    // 2 esperienze alla volta: del tutto sequenziale (com'era prima)
++    // rischiava di superare il maxDuration della funzione quando la
++    // proposal aveva piu' esperienze da tradurre (osservato: solo la
++    // prima completata per intero, le altre a meta' o niente). Ogni
++    // esperienza usa gia' concorrenza 3 al suo interno per sections/
++    // facts (vedi syncFullExperienceTranslations), quindi 2 in parallelo
++    // qui restano cumulativamente ben sotto la soglia che causava
++    // fallimenti per rate limiting con tutto insieme.
++    await mapWithConcurrency(Array.from(experienceIds), 2, async (id) => {
+       try {
+         await syncFullExperienceTranslations(id);
+       } catch (err) {
+         console.error(`[api/translate-proposal-experiences] failed for ${id}:`, err);
+       }
+-    }
++    });
+ 
+     return NextResponse.json({ success: true, translated: Array.from(experienceIds) });
+ 
+diff --git a/src/lib/concurrencyLimit.ts b/src/lib/concurrencyLimit.ts
+new file mode 100644
+index 0000000..e93d7ab
+--- /dev/null
++++ b/src/lib/concurrencyLimit.ts
+@@ -0,0 +1,32 @@
++/**
++ * mapWithConcurrency — esegue fn su ogni item con al massimo `limit`
++ * chiamate in volo contemporaneamente. Via di mezzo tra Promise.all
++ * (tutto insieme, rischia rate limiting su API esterne come Lara) e un
++ * ciclo sequenziale puro (affidabile ma lento, rischia di far scadere
++ * il timeout di una funzione serverless quando gli item sono tanti).
++ */
++export async function mapWithConcurrency<T, R>(
++  items: T[],
++  limit: number,
++  fn: (item: T) => Promise<R>
++): Promise<R[]> {
++
++  const results: R[] = new Array(items.length);
++  let nextIndex = 0;
++
++  async function worker() {
++    while (nextIndex < items.length) {
++      const index = nextIndex++;
++      results[index] = await fn(items[index]);
++    }
++  }
++
++  const workers = Array.from(
++    { length: Math.min(limit, items.length) },
++    () => worker()
++  );
++
++  await Promise.all(workers);
++
++  return results;
++}
+diff --git a/src/lib/translations/translateExperience.ts b/src/lib/translations/translateExperience.ts
+index e6ccafb..fd027ea 100644
+--- a/src/lib/translations/translateExperience.ts
++++ b/src/lib/translations/translateExperience.ts
+@@ -21,6 +21,7 @@
+ 
+ import crypto from "crypto";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ import {
+   translateFields,
+   SUPPORTED_TARGET_LOCALES,
+@@ -182,21 +183,23 @@ export async function syncFullExperienceTranslations(
+     .select("id, label, value")
+     .eq("experience_id", experienceId);
+ 
+-  // Sequenziale, non Promise.all: un'esperienza con molti facts/sections
+-  // lanciava altrettante chiamate Lara in parallelo, e quelle in eccesso
+-  // fallivano per rate limiting (osservato: title/description tradotti
+-  // correttamente, facts quasi sempre no — proprio i piu' numerosi).
+-  // Gira in background (fire-and-forget), quindi qualche secondo in
+-  // piu' non ha alcun costo percepito dall'utente.
++  // Concorrenza limitata (3 alla volta), non Promise.all e non un ciclo
++  // sequenziale puro: tutto insieme causava fallimenti per rate limiting
++  // su Lara (osservato: title/description tradotti, facts quasi mai —
++  // proprio i piu' numerosi); tutto sequenziale invece, con piu'
++  // esperienze da tradurre nella stessa richiesta, rischiava di superare
++  // il timeout della funzione serverless prima di finire (osservato:
++  // solo la prima esperienza completata per intero, le altre a meta' o
++  // per niente). 3 alla volta e' il compromesso.
+   await syncExperienceTranslations(experienceId, experience);
+ 
+-  for (const section of sections ?? []) {
+-    await syncSectionTranslations(section.id, section);
+-  }
++  await mapWithConcurrency(sections ?? [], 3, (section) =>
++    syncSectionTranslations(section.id, section)
++  );
+ 
+-  for (const fact of facts ?? []) {
+-    await syncFactTranslations(fact.id, fact);
+-  }
++  await mapWithConcurrency(facts ?? [], 3, (fact) =>
++    syncFactTranslations(fact.id, fact)
++  );
+ }
+ 
+ // ---------------------------------------------------------------------
+-- 
+2.43.0
+

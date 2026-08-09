@@ -1,0 +1,47 @@
+
+MacroEsperienza                         Atmosfera                                                      Guests          Budget                                        score
+--Esperienza                            Moods      
+
+SEA ESCAPE                           
+--DINO                                  ROMANTIC(4) AUTHENTIC(3) ADVENTURE(2) CINEMATIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000                   
+--APHRODITE                             AUTHENTIC(4) ROMANTIC(3) ADVENTURE(3) CINEMATIC(2)             3-4 5-7 8+      €500 - €1000 €1000 - €3000
+--VELAMICA                              ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             8+              €1000 - €3000 €3000+
+--VELAGIOVANE                           ADVENTURE(4) AUTHENTIC(3) CINEMATIC(2) ROMANTIC(1)             8+              €1000 - €3000 €3000+
+ 
+AERIAL ESCAPE
+--AIRPLANE                              CINEMATIC(4) AUTHENTIC(3) ADVENTURE(2) ROMANTIC(1)             2 3-4 5-7       €500 - €1000 €1000 - €3000 
+--MONGOLFIERA                           ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 
+
+GOURMET ESCAPE
+--PRENOTAZIONE RISTORANTE               ROMANTIC(4) AUTHENTIC(3) CINEMATIC(2) ADVENTURE(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+--ON BOARD FOOD & WINE EXPERIENCES      ADVENTURE(4) AUTHENTIC(3) ROMANTIC(2) CINEMATIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000
+  
+WILD ESCAPE
+--TREKKING                              AUTHENTIC(4) ADVENTURE(3) CINEMATIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--SNORKELING                            ADVENTURE(4) CINEMATIC(3) AUTHENTIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--MERMAIDING                            ROMANTIC(4) ADVENTURE(3) CINEMATIC(2) AUTHENTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+--HORSES                                ADVENTURE(4) AUTHENTIC(3) CINEMATIC(2) ROMANTIC(1)             2 3-4 5-7 8+    €500 - €1000 €1000 - €3000 €3000+
+
+
+
+
+
+dynamic copywriting
+
+(hero text, subtitles, narrative sections)
+
+optional experiences section
+
+(“Enhance your escape”)
+
+dynamic pricing engine
+AI narrative generator
+
+
+countdown cinematico animato;
+proposal expired page luxury;
+experience cards editoriali;
+AI narrative contextual;
+PDF premium export;
+soft-delete automatico;
+operator CMS.

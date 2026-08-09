@@ -1,0 +1,249 @@
+From e9b1f96030cf5eac8874eb4994a599c1be2e4a2f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Thu, 30 Jul 2026 15:59:31 +0000
+Subject: [PATCH] feat: add "Translate now" button to the admin experience
+ editor
+
+Lets you sync an experience's translations (content, sections, facts,
+hero titles) with one click right after creating or editing it,
+instead of waiting for it to appear in a real proposal or having to
+run the backfill script from a terminal. Reuses the same idempotent,
+hash-based sync already used by the on-demand pipeline and the
+backfill script, so re-clicking it (or running the backfill
+afterwards) never re-translates unchanged rows.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../experiences/[id]/components/Header.tsx    | 88 ++++++++++++++++++-
+ src/app/admin/experiences/[id]/page.tsx       |  2 +
+ .../api/admin/translate-experience/route.ts   | 72 +++++++++++++++
+ 3 files changed, 159 insertions(+), 3 deletions(-)
+ create mode 100644 src/app/api/admin/translate-experience/route.ts
+
+diff --git a/src/app/admin/experiences/[id]/components/Header.tsx b/src/app/admin/experiences/[id]/components/Header.tsx
+index d6dd2ee..9c8f637 100644
+--- a/src/app/admin/experiences/[id]/components/Header.tsx
++++ b/src/app/admin/experiences/[id]/components/Header.tsx
+@@ -1,3 +1,8 @@
++"use client";
++
++import { useState } from "react";
++import { supabase } from "@/lib/supabase";
++
+ interface HeaderProps {
+ 
+   title: string;
+@@ -8,9 +13,11 @@ interface HeaderProps {
+ 
+   active: boolean;
+ 
++  experienceId: string;
++
+   onLogout: () => void;
+ 
+- 
++
+ 
+ }
+ 
+@@ -24,12 +31,60 @@ export default function Header({
+ 
+   active,
+ 
++  experienceId,
++
+   onLogout,
+ 
+ 
+ 
+ }: HeaderProps) {
+ 
++  // =========================================================
++  // TRADUCI ORA — sincronizza subito content+sections+facts+hero
++  // titles su Lara per QUESTA esperienza, senza aspettare che
++  // compaia in una proposal reale o dover lanciare lo script di
++  // backfill da terminale. Idempotente per hash: rilanciarlo non
++  // ritraduce (ne costa quota su) contenuto gia' tradotto e
++  // invariato — stessa garanzia del backfill.
++  // =========================================================
++
++  const [translateStatus, setTranslateStatus] =
++    useState<"idle" | "loading" | "done" | "error">("idle");
++
++  async function handleTranslateNow() {
++
++    if (!supabase) return;
++
++    setTranslateStatus("loading");
++
++    try {
++
++      const {
++        data: { session },
++      } = await supabase.auth.getSession();
++
++      const response = await fetch("/api/admin/translate-experience", {
++        method: "POST",
++        headers: {
++          "Content-Type": "application/json",
++          Authorization: `Bearer ${session?.access_token || ""}`,
++        },
++        body: JSON.stringify({ experienceId }),
++      });
++
++      const data = await response.json();
++
++      setTranslateStatus(data.success ? "done" : "error");
++
++    } catch (err) {
++
++      console.error("translate-experience failed:", err);
++      setTranslateStatus("error");
++    }
++
++    setTimeout(() => setTranslateStatus("idle"), 3000);
++  }
++
+   return (
+ 
+     <header
+@@ -168,6 +223,35 @@ export default function Header({
+           "
+         >
+ 
++          <button
++
++            onClick={handleTranslateNow}
++
++            disabled={translateStatus === "loading"}
++
++            className="
++              px-5
++              py-3
++              rounded-xl
++              border
++              border-white/10
++              hover:bg-white/5
++              transition-all
++              disabled:opacity-50
++              disabled:cursor-not-allowed
++            "
++          >
++
++            {translateStatus === "loading"
++              ? "Translating…"
++              : translateStatus === "done"
++              ? "Translated ✓"
++              : translateStatus === "error"
++              ? "Failed — retry"
++              : "Translate now"}
++
++          </button>
++
+           <button
+ 
+             onClick={onLogout}
+@@ -187,8 +271,6 @@ export default function Header({
+ 
+           </button>
+ 
+-    
+-
+         </div>
+ 
+       </div>
+diff --git a/src/app/admin/experiences/[id]/page.tsx b/src/app/admin/experiences/[id]/page.tsx
+index 622e71c..269d72a 100644
+--- a/src/app/admin/experiences/[id]/page.tsx
++++ b/src/app/admin/experiences/[id]/page.tsx
+@@ -142,6 +142,8 @@ setExperience(found);
+ 
+   active={experience.active}
+ 
++  experienceId={experience.id}
++
+   onLogout={async () => {
+ 
+     if (!supabase) return;
+diff --git a/src/app/api/admin/translate-experience/route.ts b/src/app/api/admin/translate-experience/route.ts
+new file mode 100644
+index 0000000..aff9e14
+--- /dev/null
++++ b/src/app/api/admin/translate-experience/route.ts
+@@ -0,0 +1,72 @@
++import { NextRequest, NextResponse } from "next/server";
++import { supabase } from "@/lib/supabase";
++import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
++
++// =========================================================
++// POST /api/admin/translate-experience
++// Bottone "Traduci ora" nella scheda esperienza in admin —
++// stessa identica sincronizzazione (content + sections + facts
++// + hero titles) usata dal backfill e dalla traduzione on-demand
++// quando l'esperienza compare in una proposal, ma innescabile a
++// mano subito dopo aver creato/modificato un'esperienza, senza
++// aspettare la prima proposal reale o dover aprire un terminale.
++//
++// syncFullExperienceTranslations e' gia' idempotente per hash:
++// le righe gia' tradotte e invariate vengono saltate, quindi
++// richiamarla piu' volte (o dopo il backfill) non spreca mai
++// quota Lara su contenuto che non e' cambiato.
++// =========================================================
++
++// Fino a 4 chiamate Lara in sequenza (content, sections batch, facts
++// batch, hero titles batch) piu' eventuali retry per rate limiting —
++// stesso margine di /api/translate-proposal-experiences.
++export const maxDuration = 60;
++
++export async function POST(req: NextRequest) {
++
++  try {
++
++    if (!supabase) {
++      return NextResponse.json(
++        { success: false, error: "Supabase not configured" },
++        { status: 500 }
++      );
++    }
++
++    const authHeader = req.headers.get("authorization");
++    const accessToken = authHeader?.replace("Bearer ", "");
++
++    if (!accessToken) {
++      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
++    }
++
++    const { data: userData, error: authError } =
++      await supabase.auth.getUser(accessToken);
++
++    if (authError || !userData?.user) {
++      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
++    }
++
++    const { experienceId } = await req.json();
++
++    if (!experienceId) {
++      return NextResponse.json(
++        { success: false, error: "Missing experienceId" },
++        { status: 400 }
++      );
++    }
++
++    await syncFullExperienceTranslations(experienceId);
++
++    return NextResponse.json({ success: true });
++
++  } catch (err) {
++
++    console.error("admin/translate-experience error:", err);
++
++    return NextResponse.json(
++      { success: false, error: "Unexpected error" },
++      { status: 500 }
++    );
++  }
++}
+-- 
+2.43.0
+

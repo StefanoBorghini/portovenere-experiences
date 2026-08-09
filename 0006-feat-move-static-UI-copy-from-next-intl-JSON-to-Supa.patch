@@ -1,0 +1,924 @@
+From 09ec201c3554aa5262018a4f4f58695fed27af9d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 18:36:14 +0000
+Subject: [PATCH 6/7] feat: move static UI copy from next-intl JSON to Supabase
+ + Lara
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Per explicit request: the static text across landing/configurator/
+proposal (already wired to useTranslations() in earlier commits) was
+being served from committed en.json/it.json message files. Now it's
+Supabase-backed, same pattern as experience_content_translations:
+
+- New tables site_copy (key, en_text) / site_copy_translations
+  (key, locale, text, translation_status) — SQL to run once in
+  Supabase is in supabase-migrations/2026_site_copy.sql.
+- src/lib/translations/siteCopy.ts: getSiteCopyMessages(locale) reads
+  both tables and reconstructs the same nested message shape next-intl
+  already expects (landing/configurator/proposal/common namespaces),
+  so every existing useTranslations("...")/t("key") call site in the
+  components is unchanged — only the data source moved.
+- src/scripts/seed-site-copy.mjs: one-time migration script. Flattens
+  the current en.json, upserts it into site_copy, and calls Lara
+  directly to populate site_copy_translations for "it". Idempotent —
+  safe to re-run, only retranslates keys whose English text changed.
+- /api/translate-site-copy: manual re-sync endpoint for a single key
+  (or "*" for all) after editing en_text directly in the Supabase
+  table — there's no admin UI for this by design.
+- Root layout no longer imports en.json for /admin; passes {} since
+  admin never calls useTranslations() anyway.
+- Retired the old prebuild step (translate-messages.mjs, which
+  generated it.json at build time) and it.json itself — both
+  superseded by the DB-backed pipeline above. en.json stays only as
+  the one-time seed source for seed-site-copy.mjs.
+
+Requires manual action: run supabase-migrations/2026_site_copy.sql in
+the Supabase SQL editor, then `npm run seed:site-copy` once with
+NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / LARA_ACCESS_KEY_ID
+/ LARA_ACCESS_KEY_SECRET set, before this will show any translated (or
+even English) text — site_copy starts out empty.
+---
+ package.json                             |   2 +-
+ src/app/api/translate-site-copy/route.ts |  84 +++++++++
+ src/app/layout.tsx                       |   7 +-
+ src/i18n/request.ts                      |  18 +-
+ src/lib/translations/siteCopy.ts         | 161 ++++++++++++++++++
+ src/messages/it.json                     |  89 ----------
+ src/scripts/seed-site-copy.mjs           | 207 +++++++++++++++++++++++
+ src/scripts/translate-messages.mjs       | 156 -----------------
+ supabase-migrations/2026_site_copy.sql   |  52 ++++++
+ 9 files changed, 514 insertions(+), 262 deletions(-)
+ create mode 100644 src/app/api/translate-site-copy/route.ts
+ create mode 100644 src/lib/translations/siteCopy.ts
+ delete mode 100644 src/messages/it.json
+ create mode 100644 src/scripts/seed-site-copy.mjs
+ delete mode 100644 src/scripts/translate-messages.mjs
+ create mode 100644 supabase-migrations/2026_site_copy.sql
+
+diff --git a/package.json b/package.json
+index b4c988b..bf6efe8 100644
+--- a/package.json
++++ b/package.json
+@@ -7,7 +7,7 @@
+     "build": "next build",
+     "start": "next start",
+     "lint": "eslint",
+-    "prebuild": "node src/scripts/translate-messages.mjs"
++    "seed:site-copy": "node src/scripts/seed-site-copy.mjs"
+   },
+   "dependencies": {
+     "@next/third-parties": "^16.2.10",
+diff --git a/src/app/api/translate-site-copy/route.ts b/src/app/api/translate-site-copy/route.ts
+new file mode 100644
+index 0000000..7adcb4b
+--- /dev/null
++++ b/src/app/api/translate-site-copy/route.ts
+@@ -0,0 +1,84 @@
++/**
++ * POST /api/translate-site-copy
++ * =====================================================================
++ * Ri-sincronizza la traduzione Lara per UNA chiave di site_copy — utile
++ * se modifichi en_text direttamente nella tabella Supabase (non c'e' un
++ * pannello admin che lo faccia scattare in automatico). Gira sempre
++ * lato server, stesso motivo di /api/translate-experience.
++ *
++ * Uso manuale, es.:
++ *   curl -X POST https://<dominio>/api/translate-site-copy \
++ *     -H "Content-Type: application/json" \
++ *     -d '{"key": "landing.hero.title"}'
++ *
++ * Body: { key } oppure { key: "*" } per ritradurre TUTTE le chiavi
++ * (utile dopo una modifica massiva fatta direttamente in tabella).
++ * =====================================================================
++ */
++
++import { NextRequest, NextResponse } from "next/server";
++import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { syncSiteCopyTranslation } from "@/lib/translations/siteCopy";
++
++export async function POST(request: NextRequest) {
++
++  try {
++
++    const { key } = await request.json();
++
++    if (!key) {
++      return NextResponse.json(
++        { success: false, error: "key is required" },
++        { status: 400 }
++      );
++    }
++
++    const supabaseAdmin = getSupabaseAdmin();
++
++    if (key === "*") {
++
++      const { data: rows, error } = await supabaseAdmin
++        .from("site_copy")
++        .select("key, en_text");
++
++      if (error || !rows) {
++        return NextResponse.json(
++          { success: false, error: "Could not load site_copy" },
++          { status: 500 }
++        );
++      }
++
++      await Promise.all(
++        rows.map((row) => syncSiteCopyTranslation(row.key, row.en_text))
++      );
++
++      return NextResponse.json({ success: true, count: rows.length });
++    }
++
++    const { data: row, error } = await supabaseAdmin
++      .from("site_copy")
++      .select("en_text")
++      .eq("key", key)
++      .single();
++
++    if (error || !row) {
++      return NextResponse.json(
++        { success: false, error: "Key not found in site_copy" },
++        { status: 404 }
++      );
++    }
++
++    await syncSiteCopyTranslation(key, row.en_text);
++
++    return NextResponse.json({ success: true });
++
++  } catch (err) {
++
++    console.error("[api/translate-site-copy] unexpected error:", err);
++
++    return NextResponse.json(
++      { success: false, error: "Unexpected error" },
++      { status: 500 }
++    );
++  }
++}
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index e8d5fa3..c40cb58 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -12,7 +12,6 @@ import { getCurrentLocale } from "../i18n/locale";
+ import { DEFAULT_LOCALE, type Locale } from "../i18n/localeShared";
+ import LocaleSync from "../components/i18n/LocaleSync";
+ import LanguageSwitcher from "../components/i18n/LanguageSwitcher";
+-import enMessages from "../messages/en.json";
+ 
+ const geistSans = Geist({
+   variable: "--font-geist-sans",
+@@ -80,9 +79,9 @@ export default async function RootLayout({
+   const locale: Locale = isAdmin ? DEFAULT_LOCALE : await getCurrentLocale();
+   // Per /admin non passiamo da getMessages() (che risolve il locale da
+   // se' tramite getCurrentLocale() / i18n/request.ts, ignorando l'isAdmin
+-  // qui sopra): forziamo direttamente il bundle inglese cosi' locale e
+-  // messages restano coerenti anche quando la cookie "locale" e' "it".
+-  const messages = isAdmin ? enMessages : await getMessages();
++  // qui sopra). L'admin non consuma mai useTranslations(), quindi un
++  // oggetto vuoto basta — evita anche una query a Supabase inutile.
++  const messages = isAdmin ? {} : await getMessages();
+ 
+   return (
+     <html
+diff --git a/src/i18n/request.ts b/src/i18n/request.ts
+index b35e31d..b4ccf61 100644
+--- a/src/i18n/request.ts
++++ b/src/i18n/request.ts
+@@ -3,27 +3,21 @@
+  * Same URL for every visitor; the locale comes from getCurrentLocale()
+  * (cookie -> Accept-Language fallback), not from the path.
+  *
+- * Import statici invece di import(`../messages/${locale}.json`):
+- * Turbopack non riesce a risolvere il pattern dinamico con template
+- * string. Con soli due locale, un semplice switch e' piu' robusto —
+- * aggiungere una lingua richiede solo una riga in piu' qui.
++ * I messaggi arrivano da Supabase (site_copy / site_copy_translations),
++ * tradotti da Lara — non da file JSON committati. src/messages/*.json
++ * restano nel repo solo come seed storico per src/scripts/seed-site-copy.mjs,
++ * non sono piu' letti a runtime. Vedi src/lib/translations/siteCopy.ts.
+  */
+ 
+ import { getRequestConfig } from "next-intl/server";
+ import { getCurrentLocale } from "./locale";
+-import enMessages from "../messages/en.json";
+-import itMessages from "../messages/it.json";
+-
+-const MESSAGES = {
+-  en: enMessages,
+-  it: itMessages,
+-} as const;
++import { getSiteCopyMessages } from "@/lib/translations/siteCopy";
+ 
+ export default getRequestConfig(async () => {
+   const locale = await getCurrentLocale();
+ 
+   return {
+     locale,
+-    messages: MESSAGES[locale] ?? MESSAGES.en,
++    messages: await getSiteCopyMessages(locale),
+   };
+ });
+\ No newline at end of file
+diff --git a/src/lib/translations/siteCopy.ts b/src/lib/translations/siteCopy.ts
+new file mode 100644
+index 0000000..2305783
+--- /dev/null
++++ b/src/lib/translations/siteCopy.ts
+@@ -0,0 +1,161 @@
++/**
++ * Site copy — testo statico del sito (landing, configuratore, proposal,
++ * stringhe comuni) come contenuto Supabase tradotto da Lara, invece che
++ * come file next-intl committati (src/messages/en.json / it.json).
++ * =====================================================================
++ * Stesso schema e stessa filosofia di experience_content_translations:
++ * una riga inglese (site_copy) + una riga di traduzione per locale
++ * (site_copy_translations) con translation_status, cosi' una
++ * traduzione fallita o vuota non viene mai mostrata — si torna
++ * all'inglese.
++ *
++ * getSiteCopyMessages() e' l'unico punto che il resto del sito usa per
++ * leggere: ricostruisce lo stesso oggetto nidificato che prima veniva
++ * da en.json/it.json (namespace "landing"/"configurator"/"proposal"/
++ * "common"), cosi' i componenti che gia' chiamano useTranslations("...")
++ * / t("chiave") non cambiano — cambia solo da dove arriva il dato.
++ * =====================================================================
++ */
++
++import { supabase } from "@/lib/supabase";
++import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { translateFields, SUPPORTED_TARGET_LOCALES, TargetLocale } from "./lara";
++import crypto from "crypto";
++
++function setPath(obj: Record<string, any>, dottedKey: string, value: string) {
++  const parts = dottedKey.split(".");
++  let node = obj;
++  for (let i = 0; i < parts.length - 1; i++) {
++    const part = parts[i];
++    if (typeof node[part] !== "object" || node[part] === null) {
++      node[part] = {};
++    }
++    node = node[part];
++  }
++  node[parts[parts.length - 1]] = value;
++}
++
++/**
++ * Legge tutte le righe di site_copy (+ le traduzioni per `locale`, se
++ * diverso da "en") e ricostruisce l'oggetto nidificato dei messaggi.
++ * Chiamata SOLO server-side (RSC), con la chiave anon pubblica — le
++ * tabelle sono leggibili pubblicamente via RLS (testo di marketing,
++ * non dati riservati), stesso trattamento di experience_content.
++ */
++export async function getSiteCopyMessages(
++  locale: string
++): Promise<Record<string, any>> {
++
++  if (!supabase) return {};
++
++  const { data: enRows, error: enError } = await supabase
++    .from("site_copy")
++    .select("key, en_text");
++
++  if (enError || !enRows) {
++    console.error("[siteCopy] failed to load site_copy:", enError);
++    return {};
++  }
++
++  let translationsByKey = new Map<string, { text: string | null; translation_status: string }>();
++
++  if (locale !== "en") {
++
++    const { data: trRows, error: trError } = await supabase
++      .from("site_copy_translations")
++      .select("key, text, translation_status")
++      .eq("locale", locale);
++
++    if (trError) {
++      console.error("[siteCopy] failed to load site_copy_translations:", trError);
++    } else if (trRows) {
++      translationsByKey = new Map(trRows.map((row) => [row.key, row]));
++    }
++  }
++
++  const messages: Record<string, any> = {};
++
++  for (const row of enRows) {
++
++    const translation = translationsByKey.get(row.key);
++
++    const value =
++      translation?.translation_status === "ok" &&
++      typeof translation.text === "string" &&
++      translation.text.trim().length > 0
++        ? translation.text
++        : row.en_text;
++
++    setPath(messages, row.key, value);
++  }
++
++  return messages;
++}
++
++// Deterministic hash — stesso pattern di translateExperience.ts, per
++// saltare la ritraduzione quando il testo inglese non e' cambiato.
++function hashText(text: string): string {
++  return crypto.createHash("sha256").update(text).digest("hex");
++}
++
++/**
++ * (Ri)traduce una singola chiave di site_copy per tutti i locale
++ * supportati. Chiamata dallo script di seed una tantum, e disponibile
++ * per una ri-sincronizzazione manuale (via /api/translate-site-copy)
++ * se il testo inglese viene modificato direttamente nella tabella —
++ * non c'e' un pannello admin che la triggeri automaticamente.
++ */
++export async function syncSiteCopyTranslation(
++  key: string,
++  enText: string
++): Promise<void> {
++
++  const supabaseAdmin = getSupabaseAdmin();
++  const sourceHash = hashText(enText);
++
++  await Promise.all(
++    SUPPORTED_TARGET_LOCALES.map(async (locale: TargetLocale) => {
++
++      const { data: existing } = await supabaseAdmin
++        .from("site_copy_translations")
++        .select("source_hash, translation_status")
++        .eq("key", key)
++        .eq("locale", locale)
++        .maybeSingle();
++
++      if (existing?.source_hash === sourceHash && existing.translation_status === "ok") {
++        return;
++      }
++
++      const result = await translateFields({ text: enText }, locale);
++
++      if (!result.ok) {
++        await supabaseAdmin.from("site_copy_translations").upsert(
++          {
++            key,
++            locale,
++            translation_status: "failed",
++            source_hash: sourceHash,
++            updated_at: new Date().toISOString(),
++          },
++          { onConflict: "key,locale" }
++        );
++        console.error(`[siteCopy] translation failed for ${key}/${locale}:`, result.error);
++        return;
++      }
++
++      await supabaseAdmin.from("site_copy_translations").upsert(
++        {
++          key,
++          locale,
++          text: result.translations.text ?? null,
++          translation_status: "ok",
++          source_hash: sourceHash,
++          translated_at: new Date().toISOString(),
++          updated_at: new Date().toISOString(),
++        },
++        { onConflict: "key,locale" }
++      );
++    })
++  );
++}
+diff --git a/src/messages/it.json b/src/messages/it.json
+deleted file mode 100644
+index fa14b7a..0000000
+--- a/src/messages/it.json
++++ /dev/null
+@@ -1,89 +0,0 @@
+-{
+-  "common": {
+-    "reserveNow": "Prenota Ora",
+-    "speakWithTeam": "Parla con il Nostro Team"
+-  },
+-  "landing": {},
+-  "configurator": {
+-    "intro": {
+-      "title": "Crea la Tua Fuga nel Mediterraneo",
+-      "subtitle": "Rispondi a poche domande per ricevere una proposta su misura, pensata per la tua esperienza ideale in Riviera.",
+-      "cta": "Inizia Ora",
+-      "duration": "Richiede meno di 2 minuti"
+-    },
+-    "steps": {
+-      "experiences": {
+-        "label": "Seleziona fino a 3 Esperienze",
+-        "title": "Che tipo di esperienza stai sognando?"
+-      },
+-      "moods": {
+-        "label": "Seleziona fino a 3 Atmosfere",
+-        "title": "Scegli l'atmosfera che ti ispira."
+-      },
+-      "guests": {
+-        "label": "Adulti e Bambini",
+-        "title": "Chi si unisce all'avventura?"
+-      },
+-      "dates": {
+-        "label": "Date del Viaggio",
+-        "title": "Quando pensi di viaggiare?"
+-      },
+-      "budget": {
+-        "label": "Investimento Stimato",
+-        "title": "Qual è la tua fascia di budget preferita?"
+-      },
+-      "contact": {
+-        "label": "I Tuoi Dati",
+-        "title": "Un ultimo passo prima di creare la tua proposta."
+-      }
+-    },
+-    "selection": {
+-      "experiencesSelected": "{count}/3 selezionate",
+-      "moodsSelected": "{count}/3 selezionate",
+-      "warningConflict": "Queste esperienze non possono essere combinate",
+-      "warningMaxExperiences": "Massimo 3 esperienze consentite",
+-      "warningMaxMoods": "Massimo 3 atmosfere selezionabili"
+-    },
+-    "guests": {
+-      "adultsLabel": "Adulti",
+-      "childrenLabel": "Bambini 0-8",
+-      "exactNumberLabel": "Numero esatto di adulti",
+-      "exactNumberPlaceholder": "Inserisci il numero esatto",
+-      "noChildren": "Nessun bambino",
+-      "oneChild": "1 bambino",
+-      "childrenCount": "{count} bambini"
+-    },
+-    "dates": {
+-      "checkIn": "Check-in",
+-      "checkOut": "Check-out",
+-      "dragHint": "Tocca una data, oppure trascina tra le date per selezionare un intervallo.",
+-      "preferredTimeSlot": "Fascia Oraria Preferita",
+-      "morning": "Mattina",
+-      "afternoon": "Pomeriggio",
+-      "sunset": "Tramonto",
+-      "full_day": "Giornata Intera"
+-    },
+-    "budget": {
+-      "essential": "Essential",
+-      "signature": "Signature",
+-      "luxury": "Luxury"
+-    },
+-    "contact": {
+-      "nameLabel": "Il Tuo Nome",
+-      "namePlaceholder": "Inserisci il tuo nome completo",
+-      "emailLabel": "Indirizzo Email",
+-      "emailPlaceholder": "Inserisci la tua email",
+-      "termsPrefix": "Accetto i",
+-      "termsLink": "Termini e Condizioni",
+-      "termsSuffix": "e comprendo che potrebbe essere richiesto un acconto per garantire le esperienze su misura."
+-    },
+-    "nav": {
+-      "back": "Indietro",
+-      "next": "Avanti",
+-      "generateProposal": "Genera Proposta Privata"
+-    },
+-    "loading": "Stiamo creando la tua proposta...",
+-    "poweredBy": "Powered by Ductavia"
+-  },
+-  "proposal": {}
+-}
+diff --git a/src/scripts/seed-site-copy.mjs b/src/scripts/seed-site-copy.mjs
+new file mode 100644
+index 0000000..87f11af
+--- /dev/null
++++ b/src/scripts/seed-site-copy.mjs
+@@ -0,0 +1,207 @@
++#!/usr/bin/env node
++/**
++ * Migrazione UNA TANTUM: da src/messages/en.json (next-intl) alle
++ * tabelle Supabase site_copy / site_copy_translations.
++ * =====================================================================
++ * Dopo aver eseguito la migrazione SQL in supabase-migrations/2026_site_copy.sql,
++ * lancia questo script UNA VOLTA per popolare le tabelle: prende ogni
++ * chiave/valore di en.json (namespace "landing", "configurator",
++ * "proposal", "common"), la inserisce in site_copy, poi chiama Lara
++ * Translate per popolare site_copy_translations (locale "it").
++ *
++ * Da questo momento in poi il sito legge da queste tabelle (vedi
++ * src/lib/translations/siteCopy.ts) — src/messages/*.json restano nel
++ * repo solo come riferimento storico, non sono piu' usati a runtime.
++ *
++ * Uso:
++ *   NEXT_PUBLIC_SUPABASE_URL=... \
++ *   SUPABASE_SERVICE_ROLE_KEY=... \
++ *   LARA_ACCESS_KEY_ID=... \
++ *   LARA_ACCESS_KEY_SECRET=... \
++ *   node src/scripts/seed-site-copy.mjs
++ *
++ * Idempotente: rilanciarlo aggiorna solo le chiavi il cui testo
++ * inglese e' cambiato dall'ultima esecuzione (stesso source_hash usato
++ * dal resto della pipeline Lara).
++ * =====================================================================
++ */
++
++import { readFileSync } from "fs";
++import { fileURLToPath } from "url";
++import path from "path";
++import crypto from "crypto";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const EN_MESSAGES_PATH = path.join(__dirname, "..", "messages", "en.json");
++
++const TARGET_LOCALES = ["it"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++
++const LOCALE_TO_LARA = {
++  en: "en-US",
++  it: "it-IT",
++};
++
++const BRAND_INSTRUCTIONS = [
++  "This is UI copy (buttons, form labels, step titles, headings) for a luxury travel experience platform on the Italian Riviera (Golfo dei Poeti / Cinque Terre).",
++  "Write in a premium, natural tone aimed at affluent international travelers — keep it concise, this is interface text, not long-form marketing copy.",
++  "Preserve any {placeholders} (e.g. {count}, {name}) exactly as written — they are interpolated at runtime, never translate or alter their contents.",
++];
++
++function flatten(obj, prefix = "") {
++  const out = {};
++  for (const [key, value] of Object.entries(obj)) {
++    const fullKey = prefix ? `${prefix}.${key}` : key;
++    if (value && typeof value === "object" && !Array.isArray(value)) {
++      Object.assign(out, flatten(value, fullKey));
++    } else if (typeof value === "string") {
++      out[fullKey] = value;
++    }
++  }
++  return out;
++}
++
++function hashText(text) {
++  return crypto.createHash("sha256").update(text).digest("hex");
++}
++
++async function main() {
++
++  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
++  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
++  const laraKeyId = process.env.LARA_ACCESS_KEY_ID;
++  const laraKeySecret = process.env.LARA_ACCESS_KEY_SECRET;
++
++  if (!supabaseUrl || !supabaseServiceKey) {
++    console.error(
++      "[seed-site-copy] NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY mancanti — interrotto."
++    );
++    process.exit(1);
++  }
++
++  if (!laraKeyId || !laraKeySecret) {
++    console.error(
++      "[seed-site-copy] LARA_ACCESS_KEY_ID / LARA_ACCESS_KEY_SECRET mancanti — interrotto."
++    );
++    process.exit(1);
++  }
++
++  const { createClient } = await import("@supabase/supabase-js");
++  const { Credentials, Translator } = await import("@translated/lara");
++
++  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
++    auth: { autoRefreshToken: false, persistSession: false },
++  });
++
++  const translator = new Translator(new Credentials(laraKeyId, laraKeySecret));
++
++  const en = JSON.parse(readFileSync(EN_MESSAGES_PATH, "utf-8"));
++  const flatEn = flatten(en);
++  const keys = Object.keys(flatEn);
++
++  console.log(`[seed-site-copy] ${keys.length} chiavi trovate in en.json`);
++
++  // ---------------------------------------------------------
++  // 1. UPSERT site_copy (testo inglese)
++  // ---------------------------------------------------------
++
++  const siteCopyRows = keys.map((key) => ({
++    key,
++    en_text: flatEn[key],
++    updated_at: new Date().toISOString(),
++  }));
++
++  const { error: upsertError } = await supabase
++    .from("site_copy")
++    .upsert(siteCopyRows, { onConflict: "key" });
++
++  if (upsertError) {
++    console.error("[seed-site-copy] upsert site_copy failed:", upsertError);
++    process.exit(1);
++  }
++
++  console.log(`[seed-site-copy] site_copy popolata (${siteCopyRows.length} righe)`);
++
++  // ---------------------------------------------------------
++  // 2. TRADUZIONE — solo le chiavi il cui hash e' cambiato
++  //    (o che non hanno ancora una riga "ok" per quel locale)
++  // ---------------------------------------------------------
++
++  for (const locale of TARGET_LOCALES) {
++
++    const { data: existingRows, error: fetchError } = await supabase
++      .from("site_copy_translations")
++      .select("key, source_hash, translation_status")
++      .eq("locale", locale);
++
++    if (fetchError) {
++      console.error(`[seed-site-copy] fetch existing translations failed for ${locale}:`, fetchError);
++      continue;
++    }
++
++    const existingByKey = new Map(existingRows.map((row) => [row.key, row]));
++
++    const toTranslate = keys.filter((key) => {
++      const enText = flatEn[key];
++      const hash = hashText(enText);
++      const existing = existingByKey.get(key);
++      return !(existing?.source_hash === hash && existing.translation_status === "ok");
++    });
++
++    if (toTranslate.length === 0) {
++      console.log(`[seed-site-copy] ${locale}: nulla da tradurre, tutto gia' aggiornato.`);
++      continue;
++    }
++
++    console.log(`[seed-site-copy] ${locale}: traduco ${toTranslate.length} chiave/i via Lara...`);
++
++    const values = toTranslate.map((key) => flatEn[key]);
++
++    try {
++
++      const res = await translator.translate(
++        values,
++        LOCALE_TO_LARA.en,
++        LOCALE_TO_LARA[locale] ?? locale,
++        {
++          style: "creative",
++          instructions: BRAND_INSTRUCTIONS,
++          contentType: "text/plain",
++        }
++      );
++
++      const translatedValues = Array.isArray(res.translation)
++        ? res.translation
++        : [res.translation];
++
++      const translationRows = toTranslate.map((key, i) => ({
++        key,
++        locale,
++        text: translatedValues[i] ?? flatEn[key],
++        translation_status: "ok",
++        source_hash: hashText(flatEn[key]),
++        translated_at: new Date().toISOString(),
++        updated_at: new Date().toISOString(),
++      }));
++
++      const { error: trUpsertError } = await supabase
++        .from("site_copy_translations")
++        .upsert(translationRows, { onConflict: "key,locale" });
++
++      if (trUpsertError) {
++        console.error(`[seed-site-copy] upsert translations failed for ${locale}:`, trUpsertError);
++      } else {
++        console.log(`[seed-site-copy] ${locale}: ${translationRows.length} traduzioni salvate.`);
++      }
++
++    } catch (err) {
++      console.error(`[seed-site-copy] Lara call failed for ${locale}:`, err);
++    }
++  }
++
++  console.log("[seed-site-copy] completato.");
++}
++
++main().catch((err) => {
++  console.error("[seed-site-copy] errore inatteso:", err);
++  process.exit(1);
++});
+diff --git a/src/scripts/translate-messages.mjs b/src/scripts/translate-messages.mjs
+deleted file mode 100644
+index 9fda8a8..0000000
+--- a/src/scripts/translate-messages.mjs
++++ /dev/null
+@@ -1,156 +0,0 @@
+-#!/usr/bin/env node
+-/**
+- * Backfill automatico dei messaggi next-intl via Lara Translate
+- * =====================================================================
+- * Confronta src/messages/en.json con src/messages/<locale>.json per
+- * ogni locale target e traduce SOLO le chiavi mancanti nel file di
+- * destinazione. Le traduzioni gia' presenti (generate da Lara in un
+- * run precedente, o scritte a mano) non vengono mai toccate — quindi
+- * rilanciare questo script ad ogni build (e' il prebuild in
+- * package.json) non costa nulla quando non c'e' nulla di nuovo da
+- * tradurre, e le chiavi nuove aggiunte a en.json vengono tradotte
+- * automaticamente al build successivo, senza intervento manuale.
+- *
+- * Non deve MAI far fallire la build: se le chiavi Lara non sono
+- * configurate, o la chiamata fallisce, logga e lascia il file di
+- * destinazione esattamente com'era.
+- * =====================================================================
+- */
+-
+-import { readFileSync, writeFileSync, existsSync } from "fs";
+-import { fileURLToPath } from "url";
+-import path from "path";
+-
+-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+-const MESSAGES_DIR = path.join(__dirname, "..", "messages");
+-
+-const SOURCE_LOCALE = "en";
+-
+-// Tenere in sync con SUPPORTED_TARGET_LOCALES in src/lib/translations/lara.ts
+-const TARGET_LOCALES = ["it"];
+-
+-const LOCALE_TO_LARA = {
+-  en: "en-US",
+-  it: "it-IT",
+-};
+-
+-const BRAND_INSTRUCTIONS = [
+-  "This is UI copy (buttons, form labels, step titles) for a luxury travel experience platform on the Italian Riviera (Golfo dei Poeti / Cinque Terre).",
+-  "Write in a premium, natural tone aimed at affluent international travelers — keep it concise, this is interface text, not long-form marketing copy.",
+-  "Preserve any {placeholders} (e.g. {count}) exactly as written — they are interpolated at runtime, never translate or alter their contents.",
+-];
+-
+-function flatten(obj, prefix = "") {
+-  const out = {};
+-  for (const [key, value] of Object.entries(obj)) {
+-    const fullKey = prefix ? `${prefix}.${key}` : key;
+-    if (value && typeof value === "object" && !Array.isArray(value)) {
+-      Object.assign(out, flatten(value, fullKey));
+-    } else {
+-      out[fullKey] = value;
+-    }
+-  }
+-  return out;
+-}
+-
+-function setPath(obj, dottedKey, value) {
+-  const parts = dottedKey.split(".");
+-  let node = obj;
+-  for (let i = 0; i < parts.length - 1; i++) {
+-    const part = parts[i];
+-    if (typeof node[part] !== "object" || node[part] === null) {
+-      node[part] = {};
+-    }
+-    node = node[part];
+-  }
+-  node[parts[parts.length - 1]] = value;
+-}
+-
+-async function translateMissing(missing, targetLocale) {
+-  const accessKeyId = process.env.LARA_ACCESS_KEY_ID;
+-  const accessKeySecret = process.env.LARA_ACCESS_KEY_SECRET;
+-
+-  if (!accessKeyId || !accessKeySecret) {
+-    console.warn(
+-      "[translate-messages] LARA_ACCESS_KEY_ID/LARA_ACCESS_KEY_SECRET non impostate — salto la traduzione automatica, le chiavi mancanti restano tali."
+-    );
+-    return {};
+-  }
+-
+-  const { Credentials, Translator } = await import("@translated/lara");
+-  const translator = new Translator(new Credentials(accessKeyId, accessKeySecret));
+-
+-  const keys = Object.keys(missing);
+-  const values = keys.map((k) => missing[k]);
+-
+-  try {
+-    const res = await translator.translate(
+-      values,
+-      LOCALE_TO_LARA[SOURCE_LOCALE],
+-      LOCALE_TO_LARA[targetLocale] ?? targetLocale,
+-      {
+-        style: "creative",
+-        instructions: BRAND_INSTRUCTIONS,
+-        contentType: "text/plain",
+-      }
+-    );
+-
+-    const translatedValues = Array.isArray(res.translation)
+-      ? res.translation
+-      : [res.translation];
+-
+-    const result = {};
+-    keys.forEach((key, i) => {
+-      result[key] = translatedValues[i] ?? missing[key];
+-    });
+-    return result;
+-  } catch (err) {
+-    console.error(`[translate-messages] chiamata Lara fallita per ${targetLocale}:`, err);
+-    return {};
+-  }
+-}
+-
+-async function run() {
+-  const enPath = path.join(MESSAGES_DIR, `${SOURCE_LOCALE}.json`);
+-  const en = JSON.parse(readFileSync(enPath, "utf-8"));
+-  const flatEn = flatten(en);
+-
+-  for (const targetLocale of TARGET_LOCALES) {
+-    const targetPath = path.join(MESSAGES_DIR, `${targetLocale}.json`);
+-    const target = existsSync(targetPath)
+-      ? JSON.parse(readFileSync(targetPath, "utf-8"))
+-      : {};
+-    const flatTarget = flatten(target);
+-
+-    const missing = {};
+-    for (const [key, value] of Object.entries(flatEn)) {
+-      if (typeof value !== "string" || value.trim().length === 0) continue;
+-
+-      const existing = flatTarget[key];
+-      if (typeof existing !== "string" || existing.trim().length === 0) {
+-        missing[key] = value;
+-      }
+-    }
+-
+-    if (Object.keys(missing).length === 0) {
+-      console.log(`[translate-messages] ${targetLocale}: nessuna chiave mancante, salto la chiamata a Lara.`);
+-      continue;
+-    }
+-
+-    console.log(
+-      `[translate-messages] ${targetLocale}: traduco ${Object.keys(missing).length} chiave/i mancante/i via Lara...`
+-    );
+-
+-    const translated = await translateMissing(missing, targetLocale);
+-
+-    for (const [key, value] of Object.entries(translated)) {
+-      setPath(target, key, value);
+-    }
+-
+-    writeFileSync(targetPath, JSON.stringify(target, null, 2) + "\n", "utf-8");
+-  }
+-}
+-
+-run().catch((err) => {
+-  console.error("[translate-messages] errore inatteso, la build continua comunque:", err);
+-});
+diff --git a/supabase-migrations/2026_site_copy.sql b/supabase-migrations/2026_site_copy.sql
+new file mode 100644
+index 0000000..e424ed7
+--- /dev/null
++++ b/supabase-migrations/2026_site_copy.sql
+@@ -0,0 +1,52 @@
++-- =====================================================================
++-- site_copy / site_copy_translations
++-- =====================================================================
++-- Sostituisce i file next-intl (src/messages/en.json / it.json) come
++-- fonte di verita' per TUTTO il testo statico del sito (landing,
++-- configuratore, proposal, stringhe comuni) — stesso identico schema e
++-- filosofia gia' usati per experience_content_translations: una riga
++-- inglese + una riga di traduzione per locale, con translation_status
++-- per non mostrare mai una traduzione fallita/vuota.
++--
++-- Da eseguire UNA VOLTA nel SQL editor di Supabase. Dopo questo, il
++-- sito legge questi testi da qui invece che da un file JSON committato.
++-- =====================================================================
++
++create table if not exists site_copy (
++  key text primary key,
++  en_text text not null,
++  updated_at timestamptz not null default now()
++);
++
++create table if not exists site_copy_translations (
++  key text not null references site_copy(key) on delete cascade,
++  locale text not null,
++  text text,
++  translation_status text not null default 'pending'
++    check (translation_status in ('pending', 'ok', 'failed')),
++  source_hash text,
++  translated_at timestamptz,
++  updated_at timestamptz not null default now(),
++  primary key (key, locale)
++);
++
++-- Lettura pubblica: e' testo di marketing/interfaccia, non dati
++-- riservati — stesso trattamento di experience_content_translations,
++-- che il sito gia' legge con la chiave anon pubblica.
++alter table site_copy enable row level security;
++alter table site_copy_translations enable row level security;
++
++drop policy if exists "public read site_copy" on site_copy;
++create policy "public read site_copy"
++  on site_copy for select
++  using (true);
++
++drop policy if exists "public read site_copy_translations" on site_copy_translations;
++create policy "public read site_copy_translations"
++  on site_copy_translations for select
++  using (true);
++
++-- Nessuna policy di INSERT/UPDATE/DELETE per il ruolo anon/authenticated:
++-- le uniche scritture arrivano dallo script di seed e dalla route
++-- /api/translate-site-copy, entrambi lato server con la service role
++-- key (che bypassa comunque RLS, come per experience_content_translations).
+-- 
+2.43.0
+

@@ -1,0 +1,1610 @@
+"use client";
+
+import Turnstile from "react-turnstile";
+import { useTranslations, useLocale } from "next-intl";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
+import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
+
+import { supabase } from "@/lib/supabase";
+import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/experienceMoodNameKeys";
+import {
+  trackEvent,
+  trackConfiguratorStart,
+  trackConfiguratorLoaded,
+  trackStepEntered,
+  trackStepBack,
+  trackStepTimeSpent,
+  trackStepAbandoned,
+  trackExperienceSelected,
+  trackExperienceRemoved,
+  trackMoodSelected,
+  trackMoodRemoved,
+  trackBudgetChanged,
+  trackGuestChanged,
+  trackDateSelected,
+  trackProposalGenerated,
+} from "@/lib/analytics/gtag";
+
+// Stessa mappa di buildProposalSummary.ts — mese/anno formattati
+// via Intl devono seguire la lingua del sito, non restare in inglese
+// fisso ("August" invece di "agosto").
+const DATE_LOCALES: Record<string, string> = {
+  en: "en-US",
+  it: "it-IT",
+};
+
+// =========================================================
+// STEP DEFINITIONS
+// =========================================================
+
+const STEP_IDS = [
+  "experiences",
+  "moods",
+  "guests",
+  "dates",
+  "budget",
+  "contact",
+] as const;
+
+type StepId = typeof STEP_IDS[number];
+
+// =========================================================
+// SLIDE ANIMATION VARIANTS
+// =========================================================
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 80 : -80,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -80 : 80,
+    opacity: 0,
+  }),
+};
+
+const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
+
+// currentStep === INTRO_STEP significa "schermata di benvenuto",
+// non fa parte del conteggio degli step del wizard.
+const INTRO_STEP = -1;
+
+// =========================================================
+// IMMAGINI E TESTI — hardcoded per ora, come richiesto.
+// Quando arriverà il CMS, questi tre oggetti diventeranno
+// la fonte dinamica (stessa struttura, dati da Supabase invece
+// che da qui) — il resto del codice non cambia.
+//
+// Path reali già impostati (public/images/... e public/hero-config.jpg).
+// Se sposti o rinomini i file, aggiorna solo qui sotto.
+// =========================================================
+
+const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
+  "Sea Escape": {
+    image: "/images/sailing/dino/cinematic.webp",
+    description: "Private sailing and sunset cruises along the Riviera coast.",
+  },
+  "Aerial Escape": {
+    image: "/images/flying/para.webp",
+    description: "See the coast from above with unforgettable views.",
+  },
+  "Gourmet Escape": {
+    image: "/images/dining/ristorante/romantic.jpg",
+    description: "Savor exceptional flavors in unique locations.",
+  },
+  "Wild Escape": {
+    image: "/images/wild/underwater/mermaiding/cinematic.jpg",
+    description: "Reconnect with nature and hidden places.",
+  },
+};
+
+const MOOD_IMAGES: Record<string, string> = {
+  Romantic: "/images/romantic.jpg",
+  Cinematic: "/images/cinematic.jpg",
+  Authentic: "/images/authentic.jpg",
+  Adventure: "/images/adventure.jpg",
+};
+
+// I valori sopra (chiavi di EXPERIENCE_DETAILS/MOOD_IMAGES, formData.experiences/
+// moods, incompatibleExperiences) restano identificatori interni in inglese —
+// usati per il matching con generateProposal/experienceCompatibility e salvati
+// cosi' su Supabase. Le label mostrate all'utente passano invece dalle mappe
+// condivise sotto (riusate anche dal riepilogo dinamico della proposal), cosi'
+// vengono tradotte come il resto del wizard.
+
+// =========================================================
+// FASCIA ORARIA PREFERITA — nuovo parametro (richiesta LPG Italia).
+// Valore salvato su leads.preferred_time, uno dei quattro definiti
+// dalla specifica: morning | afternoon | sunset | full_day.
+// =========================================================
+
+const TIME_SLOTS: {
+  value: string;
+  icon: typeof Sunrise;
+}[] = [
+  { value: "morning", icon: Sunrise },
+  { value: "afternoon", icon: Sun },
+  { value: "sunset", icon: Sunset },
+  { value: "full_day", icon: Clock },
+];
+
+export default function CraftYourExperience() {
+
+  const t = useTranslations("configurator");
+  const locale = useLocale();
+  const dateLocale = DATE_LOCALES[locale] ?? "en-US";
+  const router = useRouter();
+
+  // =======================================================
+  // WIZARD NAVIGATION STATE
+  // =======================================================
+
+  const [currentStep, setCurrentStep] = useState<number>(INTRO_STEP);
+  const [direction, setDirection] = useState(0);
+  const [selectionWarning, setSelectionWarning] = useState("");
+
+  const totalSteps = STEP_IDS.length;
+  const isIntro = currentStep === INTRO_STEP;
+  const stepId = !isIntro ? STEP_IDS[currentStep] : null;
+
+  // =======================================================
+  // TRACKING — pagina caricata (una volta sola al mount)
+  // =======================================================
+
+  useEffect(() => {
+    trackConfiguratorLoaded();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // =======================================================
+  // TRACKING — tempo speso per step + abbandono
+  //
+  // stepEnteredAtRef tiene il timestamp di ingresso nello step
+  // corrente. Ogni volta che si cambia step (avanti o indietro)
+  // calcoliamo quanto tempo e' stato speso in quello precedente.
+  // Il listener beforeunload copre il caso "chiude la scheda a
+  // meta' wizard" — un vero abbandono, non solo un passo indietro.
+  // =======================================================
+
+  const stepEnteredAtRef = useRef<number>(Date.now());
+
+  useEffect(() => {
+
+    // Ogni volta che stepId cambia, quello che vediamo qui e' gia'
+    // il NUOVO step — quindi resettiamo il timestamp di ingresso e,
+    // se non siamo sulla intro, mandiamo lo step_entered.
+    stepEnteredAtRef.current = Date.now();
+
+    if (!isIntro && stepId) {
+      trackStepEntered(stepId, currentStep);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
+  useEffect(() => {
+
+    function handleBeforeUnload() {
+
+      // Abbandono reale solo se siamo dentro al wizard (non intro,
+      // non gia' inviato) — su "contact" con submit in corso non
+      // vogliamo contare come abbandono un invio riuscito, ma dato
+      // che il browser sta comunque per lasciare la pagina in quel
+      // caso specifico (redirect), il rischio di un doppio conteggio
+      // e' trascurabile rispetto al valore del dato.
+
+      if (isIntro || !stepId) return;
+
+      const secondsSpent =
+        (Date.now() - stepEnteredAtRef.current) / 1000;
+
+      trackStepAbandoned(stepId, secondsSpent);
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIntro, stepId]);
+
+  // =======================================================
+  // FORM STATE
+  // =======================================================
+
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [guestCount, setGuestCount] = useState<number | null>(null);
+  const [showMoreGuests, setShowMoreGuests] = useState(false);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+
+    experiences: [] as string[],
+    moods: [] as string[],
+
+    guests: "",
+    budget: "",
+    children: 0,
+
+    startDate: "",
+    endDate: "",
+
+    // Fascia oraria preferita — ora OBBLIGATORIA: il Next dello
+    // step "dates" resta disabilitato finche' non viene scelta,
+    // vedi isStepValid("dates") piu' sotto.
+    preferredTime: "",
+
+    travelingWithChildren: false,
+
+    termsAccepted: false,
+  });
+
+  const minimumBookingDate = new Date();
+  minimumBookingDate.setDate(minimumBookingDate.getDate() + 14);
+
+  // =======================================================
+  // INLINE CALENDAR — drag-to-select date range
+  // =======================================================
+
+  function toISODate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  const minBookingIso = toISODate(minimumBookingDate);
+  const todayIso = toISODate(new Date());
+
+  const [viewYear, setViewYear] = useState(minimumBookingDate.getFullYear());
+  const [viewMonth, setViewMonth] = useState(minimumBookingDate.getMonth());
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
+
+  // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
+  // scivola leggermente oltre il bordo): un listener globale garantisce
+  // che il drag si chiuda comunque.
+  useEffect(() => {
+    function handlePointerUp() {
+      setIsDragging(false);
+    }
+    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointercancel", handlePointerUp);
+    return () => {
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
+    };
+  }, []);
+
+  function buildCalendarCells(year: number, month: number) {
+
+    const firstOfMonth = new Date(year, month, 1);
+    const startWeekday = firstOfMonth.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    const cells: { date: Date; outside: boolean }[] = [];
+
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      cells.push({
+        date: new Date(year, month - 1, daysInPrevMonth - i),
+        outside: true,
+      });
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ date: new Date(year, month, d), outside: false });
+    }
+
+    while (cells.length < 42) {
+      const last = cells[cells.length - 1].date;
+      const next = new Date(last);
+      next.setDate(next.getDate() + 1);
+      cells.push({ date: next, outside: true });
+    }
+
+    return cells;
+  }
+
+  function startDateDrag(iso: string) {
+
+    if (iso < minBookingIso) return;
+
+    setIsDragging(true);
+    setDragAnchorIso(iso);
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: iso,
+      endDate: iso,
+    }));
+  }
+
+  function extendDateDrag(iso: string) {
+
+    if (!isDragging || !dragAnchorIso) return;
+    if (iso < minBookingIso) return;
+
+    const [start, end] =
+      iso < dragAnchorIso ? [iso, dragAnchorIso] : [dragAnchorIso, iso];
+
+    setFormData((prev) => ({
+      ...prev,
+      startDate: start,
+      endDate: end,
+    }));
+  }
+
+  function handleCalendarPointerMove(e: React.PointerEvent) {
+
+    if (!isDragging) return;
+
+    const target = document.elementFromPoint(
+      e.clientX,
+      e.clientY
+    ) as HTMLElement | null;
+
+    const iso = target?.closest("[data-iso]")?.getAttribute("data-iso");
+
+    if (iso) extendDateDrag(iso);
+  }
+
+  function goPrevMonth() {
+
+    const isAtMinMonth =
+      viewYear === minimumBookingDate.getFullYear() &&
+      viewMonth === minimumBookingDate.getMonth();
+
+    if (isAtMinMonth) return;
+
+    setViewMonth((m) => {
+      if (m === 0) {
+        setViewYear((y) => y - 1);
+        return 11;
+      }
+      return m - 1;
+    });
+  }
+
+  function goNextMonth() {
+    setViewMonth((m) => {
+      if (m === 11) {
+        setViewYear((y) => y + 1);
+        return 0;
+      }
+      return m + 1;
+    });
+  }
+
+  function formatDisplayDate(iso: string) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(dateLocale, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  const incompatibleExperiences: Record<string, string[]> = {
+    "Sea Escape": ["Aerial Escape"],
+    "Aerial Escape": ["Sea Escape"],
+  };
+
+  // =======================================================
+  // SELECT HANDLERS
+  // =======================================================
+
+  const handleSelect = (field: string, value: string) => {
+
+    if (field === "budget") {
+      trackBudgetChanged(value);
+    }
+
+    if (field === "preferredTime") {
+      trackEvent({
+        action: "preferred_time_selected",
+        category: "configurator",
+        label: value,
+      });
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleMultiSelect = (
+    field: "experiences" | "moods",
+    value: string,
+    max: number
+  ) => {
+
+    setSelectionWarning("");
+
+    setFormData((prev) => {
+
+      const currentValues = prev[field];
+      const alreadySelected = currentValues.includes(value);
+
+      if (field === "experiences" && !alreadySelected) {
+
+        const hasConflict = currentValues.some(
+          (selected) => incompatibleExperiences[selected]?.includes(value)
+        );
+
+        if (hasConflict) {
+          setSelectionWarning(t("selection.warningConflict"));
+          return prev;
+        }
+      }
+
+      if (alreadySelected) {
+
+        if (field === "experiences") {
+          trackExperienceRemoved(value);
+        } else {
+          trackMoodRemoved(value);
+        }
+
+        return {
+          ...prev,
+          [field]: currentValues.filter((item) => item !== value),
+        };
+      }
+
+      if (currentValues.length >= max) {
+        setSelectionWarning(
+          field === "experiences"
+            ? t("selection.warningMaxExperiences")
+            : t("selection.warningMaxMoods")
+        );
+        return prev;
+      }
+
+      if (field === "experiences") {
+        trackExperienceSelected(value);
+      } else {
+        trackMoodSelected(value);
+      }
+
+      return {
+        ...prev,
+        [field]: [...currentValues, value],
+      };
+    });
+  };
+
+  // =======================================================
+  // PER-STEP VALIDATION
+  // =======================================================
+
+  function isStepValid(step: StepId): boolean {
+
+    switch (step) {
+
+      case "experiences":
+        return formData.experiences.length > 0;
+
+      case "moods":
+        return formData.moods.length > 0;
+
+      case "guests":
+        return formData.guests !== "";
+
+      case "dates":
+        // Ora richiede ANCHE la fascia oraria, non solo le date:
+        // il Next resta disabilitato finche' l'utente non seleziona
+        // una delle 4 opzioni (Mattina/Pomeriggio/Tramonto/Giornata
+        // intera), oltre al range di date come prima.
+        return (
+          formData.startDate !== "" &&
+          formData.endDate !== "" &&
+          formData.preferredTime !== ""
+        );
+
+      case "budget":
+        return formData.budget !== "";
+
+      case "contact":
+        return (
+          formData.name.trim() !== "" &&
+          /\S+@\S+\.\S+/.test(formData.email) &&
+          formData.termsAccepted &&
+          captchaToken !== ""
+        );
+
+      default:
+        return true;
+    }
+  }
+
+  const currentStepValid = isIntro ? true : isStepValid(stepId as StepId);
+
+  // =======================================================
+  // NAVIGATION
+  // =======================================================
+
+  function startWizard() {
+    trackConfiguratorStart();
+    setDirection(1);
+    setCurrentStep(0);
+  }
+
+  function goNext() {
+
+    if (isIntro) {
+      startWizard();
+      return;
+    }
+
+    if (!currentStepValid) return;
+
+    // Tempo speso nello step che stiamo per lasciare, e — per lo
+    // step "dates" — il commit della data scelta (qui, non ad ogni
+    // trascinamento del calendario, altrimenti sarebbe rumorosissimo).
+    const secondsSpent =
+      (Date.now() - stepEnteredAtRef.current) / 1000;
+
+    if (stepId) {
+      trackStepTimeSpent(stepId, secondsSpent);
+    }
+
+    if (stepId === "dates") {
+      trackDateSelected(formData.startDate, formData.endDate);
+    }
+
+    if (stepId === "guests") {
+      trackGuestChanged(formData.guests);
+    }
+
+    if (stepId === "contact") {
+      handleSubmit();
+      return;
+    }
+
+    setDirection(1);
+    setCurrentStep((s) => Math.min(s + 1, totalSteps - 1));
+  }
+
+  function goBack() {
+
+    if (isIntro) return;
+
+    const secondsSpent =
+      (Date.now() - stepEnteredAtRef.current) / 1000;
+
+    if (stepId) {
+      trackStepTimeSpent(stepId, secondsSpent);
+      trackStepBack(stepId, currentStep);
+    }
+
+    setDirection(-1);
+
+    // Da step 0 si torna alla schermata di benvenuto
+    setCurrentStep((s) => Math.max(s - 1, INTRO_STEP));
+  }
+
+  function handleDragEnd(_event: any, info: PanInfo) {
+
+    if (isIntro) return;
+
+    const swipeThreshold = 80;
+
+    if (info.offset.x < -swipeThreshold) {
+      goNext();
+    } else if (info.offset.x > swipeThreshold) {
+      goBack();
+    }
+  }
+
+  // =======================================================
+  // SUBMIT
+  // =======================================================
+
+  const handleSubmit = async () => {
+
+    if (!isStepValid("contact")) return;
+
+    setIsSubmitting(true);
+
+    try {
+
+      if (!supabase) {
+        console.error("Supabase not configured");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const verifyResponse = await fetch("/api/verify-turnstile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaToken }),
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyData.success) {
+        setCaptchaToken("");
+        alert("Captcha verification failed");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // SAVE LEAD — generiamo noi l'id, cosi' non serve rileggere la riga
+      // subito dopo (niente .select(): la tabella leads non e' leggibile
+      // pubblicamente via RLS, di proposito).
+
+      const leadId = crypto.randomUUID();
+
+      const { error: leadError } = await supabase
+        .from("leads")
+        .insert([
+          {
+            id: leadId,
+            name: formData.name,
+            email: formData.email,
+            experiences: formData.experiences,
+            moods: formData.moods,
+            guests: formData.guests,
+            budget: formData.budget,
+            start_date: formData.startDate,
+            end_date: formData.endDate,
+            // Fascia oraria preferita — ora sempre valorizzata,
+            // essendo diventata obbligatoria nello step dates.
+            preferred_time: formData.preferredTime || null,
+            traveling_with_children: formData.travelingWithChildren,
+            children: formData.children,
+          },
+        ]);
+
+      if (leadError) {
+        console.error("Lead error:", JSON.stringify(leadError, null, 2));
+        setIsSubmitting(false);
+        return;
+      }
+
+      // SLUG — il suffisso finale e' casuale (non progressivo): risolve
+      // le collisioni se la stessa persona invia piu' richieste, ma senza
+      // renderlo indovinabile incrementando un numero. Uno slug prevedibile
+      // vanificherebbe le policy RLS di "Proposal" (che permettono lettura
+      // a chiunque conosca lo slug) — chiunque potrebbe leggere le proposal
+      // di altre persone semplicemente provando numeri in sequenza.
+
+      const primaryExperience = formData.experiences[0]
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      const safeName = formData.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      const uniqueSuffix = crypto.randomUUID().split("-")[0];
+
+      const slug = `${safeName}-${primaryExperience}-${uniqueSuffix}`;
+
+      // SAVE PROPOSAL
+
+      const { data: proposalData, error: proposalError } = await supabase
+        .from("Proposal")
+        .insert([
+          {
+            lead_id: leadId,
+            slug,
+            expires_at: new Date(
+              Date.now() + 48 * 60 * 60 * 1000
+            ).toISOString(),
+            proposal_data: {
+              name: formData.name,
+              email: formData.email,
+              experiences: formData.experiences,
+              moods: formData.moods,
+              guests: formData.guests,
+              children: formData.children,
+              budget: formData.budget,
+              start_date: formData.startDate,
+              end_date: formData.endDate,
+              preferred_time: formData.preferredTime || null,
+              traveling_with_children: formData.travelingWithChildren,
+            },
+            total_price: 0,
+          },
+        ])
+        .select()
+        .single();
+
+      if (proposalError || !proposalData) {
+        console.error("Proposal error:", JSON.stringify(proposalError, null, 2));
+        setIsSubmitting(false);
+        return;
+      }
+
+      trackProposalGenerated(proposalData.slug);
+
+      // NOTIFICA AL PROPRIETARIO — non appena la proposal è generata,
+      // indipendentemente dal fatto che il cliente richieda o no il booking.
+      // Fire-and-forget: se questa email fallisce non deve bloccare l'utente.
+      fetch("/api/notify-new-proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: proposalData.slug }),
+      }).catch((err) => console.error("notify-new-proposal failed:", err));
+
+      // TRADUZIONE ESPERIENZE — solo quelle che finiranno davvero in
+      // QUESTA proposal (la route rifa' lo stesso matching di
+      // generateProposal), non l'intero catalogo. Fire-and-forget:
+      // se fallisce la proposal resta comunque visibile, solo in
+      // inglese finche' non viene ritentata.
+      fetch("/api/translate-proposal-experiences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId }),
+      }).catch((err) => console.error("translate-proposal-experiences failed:", err));
+
+      // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+      // la pagina, l'overlay di caricamento resta visibile fino alla
+      // navigazione, poi il componente si smonta comunque.
+      router.push(`/results/proposal/${proposalData.slug}`);
+
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      setIsSubmitting(false);
+    }
+  };
+
+  // =======================================================
+  // STEP CONTENT
+  // =======================================================
+
+  function renderStep() {
+
+    switch (stepId) {
+
+      case "experiences":
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                {t("selection.experiencesSelected", { count: formData.experiences.length })}
+              </p>
+            </div>
+
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
+              {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
+                (item) => {
+
+                  const details = EXPERIENCE_DETAILS[item];
+                  const isSelected = formData.experiences.includes(item);
+                  const label = t(`experienceNames.${EXPERIENCE_NAME_KEYS[item]}`);
+
+                  return (
+                    <button
+                      type="button"
+                      key={item}
+                      onClick={() => handleMultiSelect("experiences", item, 3)}
+                      className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                        isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      <Image
+                        src={details.image}
+                        alt={label}
+                        fill
+                        sizes="50vw"
+                        className="object-cover"
+                        priority
+                      />
+
+                      {/* Gradiente più marcato in basso, cosi' la foto "respira" sopra */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+
+                      {/* SELECTION RING */}
+                      <div
+                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-black" />
+                        )}
+                      </div>
+
+                      {/* LABEL — ancorata in basso a sinistra */}
+                      <div className="absolute bottom-0 left-0 p-3">
+                        <p className="text-white text-sm font-medium text-left">
+                          {label}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                }
+              )}
+            </div>
+
+            {selectionWarning && (
+              <p className="text-amber-400 text-sm mt-4">{selectionWarning}</p>
+            )}
+          </div>
+        );
+
+      case "moods":
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm">
+                {t("selection.moodsSelected", { count: formData.moods.length })}
+              </p>
+            </div>
+
+            <div className="-mx-6 grid grid-cols-2 gap-2.5">
+              {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
+
+                const isSelected = formData.moods.includes(item);
+                const label = t(`moodNames.${MOOD_NAME_KEYS[item]}`);
+
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    onClick={() => handleMultiSelect("moods", item, 3)}
+                    className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
+                      isSelected ? "border-white" : "border-white/10 hover:border-white/30"
+                    }`}
+                  >
+                    <Image
+                      src={MOOD_IMAGES[item]}
+                      alt={label}
+                      fill
+                      sizes="50vw"
+                      className="object-cover"
+                    />
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+
+                    <div
+                      className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected ? "border-[#d6c6a5] bg-[#d6c6a5]" : "border-white/60"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-black" />
+                      )}
+                    </div>
+
+                    <div className="absolute bottom-0 left-0 p-3">
+                      <p className="text-white text-sm font-medium text-left">{label}</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {selectionWarning && (
+              <p className="text-amber-400 text-sm mt-4">{selectionWarning}</p>
+            )}
+          </div>
+        );
+
+      case "guests":
+        return (
+          <div>
+
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
+              {t("guests.adultsLabel")}
+            </p>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {[2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  onClick={() => {
+                    setGuestCount(item);
+                    setShowMoreGuests(false);
+                    setFormData({ ...formData, guests: String(item) });
+                  }}
+                  className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
+                    guestCount === item
+                      ? "border-white bg-white text-black"
+                      : "border-white/10 bg-white/5 hover:border-white/40"
+                  }`}
+                >
+                  <span className="block text-base leading-tight">{item}</span>
+                  <span
+                    className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
+                      guestCount === item ? "text-black/50" : "text-zinc-500"
+                    }`}
+                  >
+                    {t("guests.adultsLabel")}
+                  </span>
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setGuestCount(null);
+                  setShowMoreGuests(true);
+                  setFormData({ ...formData, guests: "" });
+                }}
+                className={`rounded-2xl border px-4 py-3 text-center transition-all duration-500 ease-out ${
+                  showMoreGuests
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                <span className="block text-base leading-tight">9+</span>
+                <span
+                  className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
+                    showMoreGuests ? "text-black/50" : "text-zinc-500"
+                  }`}
+                >
+                  {t("guests.adultsLabel")}
+                </span>
+              </button>
+            </div>
+
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-out ${
+                showMoreGuests ? "max-h-32 opacity-100 mt-3" : "max-h-0 opacity-0"
+              }`}
+            >
+              <p className="text-zinc-500 mb-2 text-xs">{t("guests.exactNumberLabel")}</p>
+              <input
+                type="number"
+                min={9}
+                max={40}
+                inputMode="numeric"
+                pattern="[0-9]*"
+                placeholder={t("guests.exactNumberPlaceholder")}
+                value={guestCount || ""}
+                onChange={(e) => {
+                  setGuestCount(Number(e.target.value));
+                  setFormData({ ...formData, guests: e.target.value });
+                }}
+                className="w-full rounded-2xl border border-white/10 bg-white/5 px-6 py-3 outline-none transition-all duration-500 focus:border-white/40"
+              />
+            </div>
+
+            {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
+              {t("guests.childrenLabel")}
+            </p>
+
+            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
+
+              <span className="text-zinc-400 text-sm">
+                {formData.children === 0
+                  ? t("guests.noChildren")
+                  : formData.children === 1
+                  ? t("guests.oneChild")
+                  : t("guests.childrenCount", { count: formData.children })}
+              </span>
+
+              <div className="flex items-center gap-4">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.max(0, formData.children - 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  −
+                </button>
+
+                <span className="text-lg font-light w-6 text-center tabular-nums">
+                  {formData.children}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.min(10, formData.children + 1);
+                    setFormData({
+                      ...formData,
+                      children: value,
+                      travelingWithChildren: value > 0,
+                    });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        );
+
+      case "dates": {
+
+        const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString(
+          dateLocale,
+          { month: "long", year: "numeric" }
+        );
+
+        const cells = buildCalendarCells(viewYear, viewMonth);
+        const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+
+        const isPrevDisabled =
+          viewYear === minimumBookingDate.getFullYear() &&
+          viewMonth === minimumBookingDate.getMonth();
+
+        return (
+          <div>
+
+            {/* CHECK-IN / CHECK-OUT SUMMARY */}
+            <div className="flex justify-between mb-3">
+              <div>
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+                  {t("dates.checkIn")}
+                </p>
+                <p className="text-white text-sm">
+                  {formData.startDate
+                    ? formatDisplayDate(formData.startDate)
+                    : "—"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-zinc-500 text-[10px] uppercase tracking-wide mb-0.5">
+                  {t("dates.checkOut")}
+                </p>
+                <p className="text-white text-sm">
+                  {formData.endDate
+                    ? formatDisplayDate(formData.endDate)
+                    : "—"}
+                </p>
+              </div>
+            </div>
+
+            {/* MONTH NAVIGATION */}
+            <div className="flex items-center justify-between mb-2">
+
+              <button
+                type="button"
+                onClick={goPrevMonth}
+                disabled={isPrevDisabled}
+                className="px-3 py-0.5 text-base disabled:opacity-20 opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8249;
+              </button>
+
+              <p className="uppercase tracking-[0.2em] text-xs text-zinc-400">
+                {monthLabel}
+              </p>
+
+              <button
+                type="button"
+                onClick={goNextMonth}
+                className="px-3 py-0.5 text-base opacity-70 hover:opacity-100 transition-opacity"
+              >
+                &#8250;
+              </button>
+
+            </div>
+
+            {/* WEEKDAY HEADER */}
+            <div className="grid grid-cols-7 mb-0.5">
+              {weekdayLabels.map((label, index) => (
+                <div
+                  key={index}
+                  className="h-4 md:h-5 flex items-center justify-center text-[10px] text-zinc-500"
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            {/* CALENDAR GRID — tap-and-drag per selezionare l'intervallo */}
+            <div
+              className="grid grid-cols-7 select-none"
+              style={{ touchAction: "none" }}
+              onPointerMove={handleCalendarPointerMove}
+            >
+              {cells.map((cell) => {
+
+                const iso = toISODate(cell.date);
+                const disabled = iso < minBookingIso;
+                const isStart = iso === formData.startDate;
+                const isEnd = iso === formData.endDate;
+                const inRange =
+                  formData.startDate !== "" &&
+                  formData.endDate !== "" &&
+                  iso > formData.startDate &&
+                  iso < formData.endDate;
+                const isToday = iso === todayIso;
+
+                return (
+                  <div
+                    key={iso}
+                    data-iso={iso}
+                    onPointerDown={() => {
+                      if (!disabled) startDateDrag(iso);
+                    }}
+                    className={`
+                      h-8 md:h-9 flex items-center justify-center relative
+                      ${inRange ? "bg-[#d6c6a5]/20" : ""}
+                      ${isStart && !isEnd ? "rounded-l-full" : ""}
+                      ${isEnd && !isStart ? "rounded-r-full" : ""}
+                    `}
+                  >
+                    <span
+                      className={`
+                        w-7 h-7 flex items-center justify-center rounded-full text-xs transition-colors
+                        ${disabled ? "text-white/15" : cell.outside ? "text-white/25" : "text-white"}
+                        ${isStart || isEnd ? "bg-[#d6c6a5] text-black font-medium" : ""}
+                        ${isToday && !isStart && !isEnd ? "ring-1 ring-white/30" : ""}
+                      `}
+                    >
+                      {cell.date.getDate()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
+              {t("dates.dragHint")}
+            </p>
+
+            {/* ===================================================
+                FASCIA ORARIA PREFERITA — ORA OBBLIGATORIA. Nessun
+                asterisco o testo "required" aggiunto per non rompere
+                lo stile minimale del resto del wizard: la validazione
+                silenziosa (Next disabilitato finche' non si sceglie)
+                e' coerente con come funzionano gia' guests/budget.
+                =================================================== */}
+
+            <div className="mt-3 md:mt-6">
+
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2 md:mb-3">
+                {t("dates.preferredTimeSlot")}
+              </p>
+
+              <div className="grid grid-cols-2 gap-2 md:gap-2.5">
+                {TIME_SLOTS.map((slot) => {
+
+                  const isSelected = formData.preferredTime === slot.value;
+                  const Icon = slot.icon;
+
+                  return (
+                    <button
+                      type="button"
+                      key={slot.value}
+                      onClick={() => handleSelect("preferredTime", slot.value)}
+                      className={`border rounded-2xl px-3 py-2.5 md:px-4 md:py-3 text-center transition-all duration-500 ease-out ${
+                        isSelected
+                          ? "border-white bg-white text-black"
+                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      }`}
+                    >
+                      <Icon
+                        className="mx-auto mb-1 md:mb-1.5"
+                        size={18}
+                        strokeWidth={1.5}
+                      />
+                      <span className="block text-[11px] md:text-xs">
+                        {t(`dates.${slot.value}`)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+            </div>
+
+          </div>
+        );
+      }
+
+      case "budget":
+        return (
+          <div className="grid gap-4">
+            {[
+              { key: "essential" as const, range: "€500 - €1000" },
+              { key: "signature" as const, range: "€1000 - €3000" },
+              { key: "luxury" as const, range: "€3000+" },
+            ].map(({ key, range }) => (
+              <button
+                type="button"
+                key={range}
+                onClick={() => handleSelect("budget", range)}
+                className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
+                  formData.budget === range
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                <span className="block text-lg font-light">{t(`budget.${key}`)}</span>
+                <span
+                  className={`block text-sm mt-1 ${
+                    formData.budget === range ? "text-black/60" : "text-zinc-500"
+                  }`}
+                >
+                  {range}
+                </span>
+              </button>
+            ))}
+          </div>
+        );
+
+      case "contact": {
+
+        const termsAnchorProps = {
+          href: TERMS_URL,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          className: "underline",
+        };
+
+        return (
+          <div className="space-y-6">
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                {t("contact.nameLabel")}
+              </p>
+              <input
+                type="text"
+                placeholder={t("contact.namePlaceholder")}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div>
+              <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+                {t("contact.emailLabel")}
+              </p>
+              <input
+                type="email"
+                placeholder={t("contact.emailPlaceholder")}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition"
+              />
+            </div>
+
+            <div className="flex items-start gap-3 pt-2">
+              <input
+                type="checkbox"
+                checked={formData.termsAccepted}
+                onChange={(e) =>
+                  setFormData({ ...formData, termsAccepted: e.target.checked })
+                }
+                className="mt-1 h-5 w-5 accent-black cursor-pointer shrink-0"
+              />
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                {t("contact.termsPrefix")}{" "}
+                <a {...termsAnchorProps}>{t("contact.termsLink")}</a>{" "}
+                {t("contact.termsSuffix")}
+              </p>
+            </div>
+
+            <div className="flex justify-center pt-1">
+              <Turnstile
+                sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onVerify={(token) => setCaptchaToken(token)}
+              />
+            </div>
+
+          </div>
+        );
+      }
+
+      default:
+        return null;
+    }
+  }
+
+  // =======================================================
+  // INTRO SCREEN
+  // =======================================================
+
+  if (isIntro) {
+
+    return (
+      <main
+        className="
+          h-dvh
+          w-full
+          bg-[#0C0C0C]
+          text-white
+          relative
+          overflow-hidden
+        "
+        style={{
+          backgroundImage: "url('/hero-config.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+
+        {/* OVERLAY — se l'immagine non è ancora impostata resta semplicemente nero */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        <div
+          className="
+            relative
+            z-10
+            h-full
+            w-full
+            flex
+            flex-col
+            items-center
+            justify-center
+            text-center
+            px-8
+          "
+        >
+
+          <div className="w-full max-w-xl mx-auto flex flex-col items-center">
+
+            <img
+              src="/logo-white.png"
+              alt="Portovenere Experiences"
+              className="h-14 md:h-20 mb-8 md:mb-10 opacity-90"
+            />
+
+            <p className="uppercase tracking-[0.35em] text-[#d6c6a5] text-xs md:text-sm mb-6 md:mb-8">
+              Private Experience Curation
+            </p>
+
+            <h1 className="text-4xl md:text-6xl font-light leading-[1.1] mb-6 md:mb-8 max-w-sm md:max-w-lg">
+              {t("intro.title")}
+            </h1>
+
+            <p className="text-zinc-300 text-sm md:text-base leading-relaxed mb-10 md:mb-12 max-w-sm md:max-w-md">
+              {t("intro.subtitle")}
+            </p>
+
+            <button
+              type="button"
+              onClick={startWizard}
+              className="
+                w-full
+                max-w-sm
+                md:max-w-xs
+                rounded-full
+                py-5
+                uppercase
+                tracking-[0.25em]
+                text-xs
+                bg-[#d6c6a5]
+                text-black
+                hover:scale-[1.02]
+                transition-all
+                duration-500
+              "
+            >
+              {t("intro.cta")}
+            </button>
+
+            <p className="text-white-500 text-xs mt-4 flex items-center gap-1.5">
+              <span>⏱</span>
+              {t("intro.duration")}
+            </p>
+
+            <p className="text-white-700 text-[10px] uppercase tracking-[0.3em] mt-10">
+              {t("poweredBy")}
+            </p>
+
+          </div>
+
+        </div>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // LOADING SCREEN — durante la generazione della proposal
+  // =======================================================
+
+  if (isSubmitting) {
+
+    return (
+      <main
+        className="
+          h-dvh
+          w-full
+          bg-[#0C0C0C]
+          text-white
+          flex
+          flex-col
+          items-center
+          justify-center
+          gap-8
+          px-8
+          text-center
+        "
+      >
+
+        <motion.img
+          src="/logo-white.png"
+          alt="Portovenere Experiences"
+          className="h-14 w-auto"
+          animate={{
+            opacity: [0.35, 1, 0.35],
+            scale: [0.94, 1, 0.94],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+
+        <p className="uppercase tracking-[0.35em] text-xs text-zinc-500 max-w-xs">
+          {t("loading")}
+        </p>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // WIZARD RENDER
+  // =======================================================
+
+  const progressPercent = ((currentStep + 1) / totalSteps) * 100;
+
+  return (
+    <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col">
+
+      {/* HEADER: back + progress + counter — compatto, altezza fissa */}
+      <div className="px-6 pt-4 pb-2 md:pt-6 md:pb-3 max-w-xl w-full mx-auto shrink-0">
+
+        <div className="flex items-center gap-4 mb-2 md:mb-4">
+
+          <button
+            type="button"
+            onClick={goBack}
+            className="text-2xl opacity-70 hover:opacity-100 transition-opacity"
+          >
+            &#8592;
+          </button>
+
+          <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#d6c6a5] transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          <p className="text-xs text-zinc-500 tabular-nums">
+            {currentStep + 1} / {totalSteps}
+          </p>
+
+        </div>
+
+        <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+          {t(`steps.${stepId}.label`)}
+        </p>
+
+        <h1 className="text-xl md:text-4xl font-light leading-tight">
+          {t(`steps.${stepId}.title`)}
+        </h1>
+
+      </div>
+
+      <div
+        className="
+          flex-1
+          min-h-0
+          flex
+          flex-col
+          justify-between
+          gap-3
+          md:gap-6
+          overflow-y-auto
+          pt-4
+          pb-4
+          md:pb-6
+          px-6
+          max-w-xl
+          w-full
+          mx-auto
+        "
+      >
+
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentStep}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            drag={stepId !== "dates" ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.6}
+            onDragEnd={handleDragEnd}
+          >
+            {renderStep()}
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex gap-4 shrink-0">
+
+          <button
+            type="button"
+            onClick={goBack}
+            className="
+              w-1/3
+              rounded-full
+              px-2
+              py-3.5
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              border
+              border-white/20
+              text-white/70
+              hover:border-white/40
+              hover:text-white
+              transition-all
+              duration-500
+            "
+          >
+            {t("nav.back")}
+          </button>
+
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!currentStepValid}
+            className={`
+              w-2/3
+              rounded-full
+              px-4
+              py-3.5
+              uppercase
+              tracking-[0.2em]
+              text-[11px]
+              leading-snug
+              text-center
+              transition-all
+              duration-500
+              ${
+                currentStepValid
+                  ? "bg-white text-black hover:scale-[1.02]"
+                  : "bg-white/10 text-white/30 cursor-not-allowed"
+              }
+            `}
+          >
+            {stepId === "contact" ? t("nav.generateProposal") : t("nav.next")}
+          </button>
+
+        </div>
+
+      </div>
+
+    </main>
+  );
+} 

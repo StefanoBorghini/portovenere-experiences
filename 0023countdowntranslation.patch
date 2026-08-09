@@ -1,0 +1,174 @@
+From 81074f7d9e8effe745c5b1e1fde5c5bcd695d7d6 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 26 Jul 2026 14:35:43 +0000
+Subject: [PATCH] fix: translate countdown "Private Reservation" label and
+ subtext
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The countdown component (the big timer + "Private Reservation" label
+shown on every proposal) had its own hardcoded English strings,
+completely bypassing next-intl — confirmed on a live proposal, "Private
+Reservation" and its subtext stayed in English even after everything
+else on the page was translated correctly.
+
+- Countdown.tsx now uses useTranslations("proposal") for the label
+  (reuses the existing reservation.label key already used elsewhere on
+  the page) and two new keys (reservation.countdownDescription,
+  reservation.redirecting) for its specific subtext/redirect message.
+- Found two more hardcoded "Private Reservation" instances in the
+  proposal page's no-match and expired states, and one in
+  booking-confirmed/page.tsx — wired all three to the same key via
+  getTranslations("proposal") (moved to the top of the proposal page's
+  component so it's available before the early returns).
+- proposalConfig.ts also has a "Private Reservation" string, but
+  confirmed it's dead code (never read by ProposalHero, the only
+  component that imports proposalConfig) — left alone.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/app/results/booking-confirmed/page.tsx |  5 ++++-
+ src/app/results/proposal/[slug]/page.tsx   | 11 ++++++++---
+ src/components/countdown.tsx               | 11 ++++++-----
+ src/messages/en.json                       |  4 +++-
+ 4 files changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/src/app/results/booking-confirmed/page.tsx b/src/app/results/booking-confirmed/page.tsx
+index 72a6ce5..726e4b5 100644
+--- a/src/app/results/booking-confirmed/page.tsx
++++ b/src/app/results/booking-confirmed/page.tsx
+@@ -1,3 +1,5 @@
++import { getTranslations } from "next-intl/server";
++
+ export default async function BookingConfirmedPage({
+   searchParams,
+ }: {
+@@ -6,13 +8,14 @@ export default async function BookingConfirmedPage({
+ 
+   const resolvedSearchParams = await searchParams;
+   const slug = resolvedSearchParams?.slug;
++  const proposalT = await getTranslations("proposal");
+ 
+   return (
+     <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+       <div className="text-center max-w-2xl">
+ 
+         <p className="uppercase tracking-[0.4em] text-zinc-600 text-xs mb-8">
+-          Private Reservation
++          {proposalT("reservation.label")}
+         </p>
+ 
+         <h1 className="text-4xl md:text-7xl font-light leading-[0.95] tracking-[-0.04em] mb-10">
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index fb51544..335563a 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -53,6 +53,11 @@ export default async function ProposalPage({
+   const { slug } =
+     await params;
+ 
++  // Chiamata qui, prima di ogni return anticipato (validation/no-match/
++  // expired compresi), cosi' e' disponibile in tutti i rami — non solo
++  // nel percorso "felice" piu' sotto.
++  const proposalT = await getTranslations("proposal");
++
+   // =======================================================
+   // VALIDATION
+   // =======================================================
+@@ -246,7 +251,7 @@ const generatedProposal =
+  // testo dinamico): peschiamo per indice invece di usare la stringa
+  // inglese di generateProposal, che resta solo come fallback per il
+  // caso "nessuna esperienza trovata" (indice non disponibile).
+- const proposalT = await getTranslations("proposal");
++ // (proposalT dichiarato in cima alla funzione, disponibile qui.)
+ 
+  const dynamicIntroTitle =
+ 
+@@ -309,7 +314,7 @@ if (!featuredExperience) {
+           "
+         >
+ 
+-          Private Reservation
++          {proposalT("reservation.label")}
+ 
+         </p>
+ 
+@@ -424,7 +429,7 @@ if (!featuredExperience) {
+             "
+           >
+ 
+-            Private Reservation
++            {proposalT("reservation.label")}
+ 
+           </p>
+ 
+diff --git a/src/components/countdown.tsx b/src/components/countdown.tsx
+index 69154d3..61efa3a 100644
+--- a/src/components/countdown.tsx
++++ b/src/components/countdown.tsx
+@@ -4,6 +4,7 @@ import {
+   useEffect,
+   useState,
+ } from "react";
++import { useTranslations } from "next-intl";
+ 
+ interface CountdownProps {
+ 
+@@ -25,6 +26,8 @@ export default function Countdown({
+   const [hoursLeft, setHoursLeft] =
+     useState(48);
+ 
++  const t = useTranslations("proposal");
++
+   useEffect(() => {
+ 
+     // Riferimento al timeout di redirect: deve essere ripulito
+@@ -182,7 +185,7 @@ export default function Countdown({
+         text-zinc-600
+         mb-8
+       ">
+-        Private Reservation
++        {t("reservation.label")}
+       </p>
+ 
+       {/* TIMER */}
+@@ -240,9 +243,7 @@ export default function Countdown({
+           leading-8
+         ">
+ 
+-          Your curated proposal
+-          remains privately reserved
+-          for a limited time.
++          {t("reservation.countdownDescription")}
+ 
+         </p>
+ 
+@@ -258,7 +259,7 @@ export default function Countdown({
+           text-sm
+           animate-pulse
+         ">
+-          Redirecting...
++          {t("reservation.redirecting")}
+         </p>
+ 
+       )}
+diff --git a/src/messages/en.json b/src/messages/en.json
+index 39a5acf..d39fcfc 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -225,7 +225,9 @@
+       "label": "Private Reservation",
+       "title": "Your Riviera Experience Awaits",
+       "description": "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity.",
+-      "bookingConfirmed": "Booking Confirmed"
++      "bookingConfirmed": "Booking Confirmed",
++      "countdownDescription": "Your curated proposal remains privately reserved for a limited time.",
++      "redirecting": "Redirecting..."
+     },
+     "floatingBar": {
+       "requestSent": "Request Sent ✓",
+-- 
+2.43.0
+

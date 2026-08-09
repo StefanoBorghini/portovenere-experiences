@@ -1,0 +1,343 @@
+From cc567115b12873f742abefd4379f13465df8123b Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:41:46 +0000
+Subject: [PATCH 2/3] feat: translate enhancement catalog (Boutique Stays,
+ Private Transfer, ...)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+enhancement_content (title/description/button texts) had zero
+translation wiring — confirmed on a live proposal, all three
+enhancements always rendered in English regardless of locale.
+
+- New migration: enhancement_content_translations table, same
+  shape/RLS policy as experience_content_translations.
+- translateEnhancement.ts: syncAllEnhancementTranslations() batches the
+  whole catalog into one Lara call per locale (it's a handful of rows,
+  not a large catalog like experiences — no need for the on-demand
+  per-proposal targeting used there), skipping rows whose hash already
+  has an "ok" translation.
+- getEnhancements(locale) now merges in the translated row the same way
+  getFullExperiences() does for experiences, via the existing
+  getLocalizedExperience() helper (reused as-is, it's generic).
+- Wired into /api/translate-proposal-experiences: runs alongside the
+  experience translations on every proposal generation. Since the
+  catalog rarely changes, this costs one real Lara call the first time
+  and is then a no-op (hash match) on every subsequent proposal, so no
+  separate backfill script or admin-save hook was needed for this.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   |  15 ++
+ src/app/results/proposal/[slug]/page.tsx      |   2 +-
+ src/lib/supabase/enhancementRepository.ts     |  24 +++-
+ src/lib/translations/translateEnhancement.ts  | 131 ++++++++++++++++++
+ src/lib/translations/translateExperience.ts   |   4 +-
+ .../2026_enhancement_translations.sql         |  43 ++++++
+ 6 files changed, 215 insertions(+), 4 deletions(-)
+ create mode 100644 src/lib/translations/translateEnhancement.ts
+ create mode 100644 supabase-migrations/2026_enhancement_translations.sql
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index f7aa41d..0cf0774 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -23,10 +23,12 @@
+ import { NextRequest, NextResponse } from "next/server";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+ import { getFullExperiences } from "@/lib/supabase/experienceRepository";
++import { getEnhancements } from "@/lib/supabase/enhancementRepository";
+ import { generateProposal } from "@/lib/generateProposal";
+ import { buildRendererData } from "@/lib/proposal-engine/buildRendererData";
+ import { buildProposalSummary } from "@/lib/proposal-engine/buildProposalSummary";
+ import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
++import { syncAllEnhancementTranslations } from "@/lib/translations/translateEnhancement";
+ import { translateFields } from "@/lib/translations/lara";
+ import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ 
+@@ -140,6 +142,19 @@ export async function POST(request: NextRequest) {
+       }
+     });
+ 
++    // ENHANCEMENT ("Boutique Stays", "Private Transfer", ecc.) — catalogo
++    // piccolo e stabile (poche righe), non ha bisogno del meccanismo
++    // on-demand per-esperienza: una sola chiamata Lara per tutto il
++    // catalogo, e syncAllEnhancementTranslations salta da sola quelli
++    // gia' tradotti e invariati — dopo la prima proposal generata questo
++    // costa ~0 quota finche' qualcuno non modifica un enhancement in admin.
++    try {
++      const allEnhancements = await getEnhancements();
++      await syncAllEnhancementTranslations(allEnhancements);
++    } catch (err) {
++      console.error("[api/translate-proposal-experiences] enhancement translation failed:", err);
++    }
++
+     // RIEPILOGO DINAMICO — a differenza del titolo/chiusura (5+4
+     // varianti fisse, spostate su site_copy: vedi
+     // proposal.introTitles/closingParagraphs), questa frase e' unica
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index 0b36510..fb51544 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -163,7 +163,7 @@ const resolvedSearchParams =
+   await getFullExperiences(locale);
+ 
+   const dynamicEnhancements =
+-  await getEnhancements();
++  await getEnhancements(locale);
+ 
+ 
+ const generatedProposal =
+diff --git a/src/lib/supabase/enhancementRepository.ts b/src/lib/supabase/enhancementRepository.ts
+index 43a956e..6d475e7 100644
+--- a/src/lib/supabase/enhancementRepository.ts
++++ b/src/lib/supabase/enhancementRepository.ts
+@@ -1,12 +1,13 @@
+ import { supabase } from "@/lib/supabase";
+ import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
++import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
+ // ======================================================
+ // ENHANCEMENTS
+ // ======================================================
+ 
+ 
+ 
+-export async function getEnhancements() {
++export async function getEnhancements(locale: string = "en") {
+ 
+   if (!supabase) return [];
+ 
+@@ -27,7 +28,26 @@ export async function getEnhancements() {
+ 
+   }
+ 
+-  return data;
++  if (locale === "en" || !data) return data;
++
++  const { data: translations, error: translationsError } =
++    await supabase
++      .from("enhancement_content_translations")
++      .select("*")
++      .eq("locale", locale);
++
++  if (translationsError) {
++    console.error(translationsError);
++    return data;
++  }
++
++  return data.map((enhancement) =>
++    getLocalizedExperience(
++      enhancement,
++      translations?.find((t) => t.enhancement_id === enhancement.id),
++      ["title", "description", "unselected_button_text", "selected_button_text"]
++    )
++  );
+ 
+ }
+ 
+diff --git a/src/lib/translations/translateEnhancement.ts b/src/lib/translations/translateEnhancement.ts
+new file mode 100644
+index 0000000..85b7f00
+--- /dev/null
++++ b/src/lib/translations/translateEnhancement.ts
+@@ -0,0 +1,131 @@
++/**
++ * Enhancement translation
++ * =====================================================================
++ * Stesso schema di experience_content_translations, ma per il
++ * catalogo enhancement (enhancement_content) — un manciata di righe
++ * (Boutique Stays, Private Transfer, Drone Pilot, ecc.), stabile nel
++ * tempo. A differenza delle experience, qui non serve un meccanismo
++ * on-demand per-proposal: syncAllEnhancementTranslations() traduce
++ * l'intero catalogo in un colpo solo (una chiamata Lara per locale,
++ * tutti gli enhancement insieme — sono pochi, non serve nemmeno
++ * spezzare in blocchi), pensata per essere richiamata dal backfill e,
++ * in futuro, da un salvataggio in admin.
++ * =====================================================================
++ */
++
++import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { hashFields } from "./translateExperience";
++import { translateFields, SUPPORTED_TARGET_LOCALES } from "./lara";
++
++interface EnhancementRow {
++  id: string;
++  title: string | null;
++  description: string | null;
++  unselected_button_text: string | null;
++  selected_button_text: string | null;
++}
++
++/**
++ * Traduce tutti gli enhancement passati (tipicamente l'intero
++ * catalogo) verso ogni locale supportato, saltando quelli il cui
++ * inglese non e' cambiato dall'ultima traduzione riuscita. Non lancia
++ * mai — un fallimento su un enhancement non blocca gli altri.
++ */
++export async function syncAllEnhancementTranslations(
++  enhancements: EnhancementRow[]
++): Promise<void> {
++
++  if (enhancements.length === 0) return;
++
++  const supabase = getSupabaseAdmin();
++
++  await Promise.all(
++    SUPPORTED_TARGET_LOCALES.map(async (locale) => {
++
++      const { data: existingRows } = await supabase
++        .from("enhancement_content_translations")
++        .select("enhancement_id, source_hash, translation_status")
++        .eq("locale", locale)
++        .in("enhancement_id", enhancements.map((e) => e.id));
++
++      const existingByFk = new Map(
++        (existingRows ?? []).map((row) => [row.enhancement_id, row])
++      );
++
++      const fieldNames = [
++        "title",
++        "description",
++        "unselected_button_text",
++        "selected_button_text",
++      ] as const;
++
++      const toTranslate = enhancements.filter((enhancement) => {
++        const hash = hashFields(
++          Object.fromEntries(fieldNames.map((f) => [f, enhancement[f]]))
++        );
++        const existing = existingByFk.get(enhancement.id);
++        return !(existing?.source_hash === hash && existing.translation_status === "ok");
++      });
++
++      if (toTranslate.length === 0) return;
++
++      const fields: Record<string, string> = {};
++      toTranslate.forEach((enhancement, i) => {
++        fieldNames.forEach((fieldName) => {
++          const value = enhancement[fieldName];
++          if (value) fields[`${fieldName}_${i}`] = value;
++        });
++      });
++
++      const result = await translateFields(fields, locale);
++
++      if (!result.ok) {
++        console.error(
++          `[translateEnhancement] batch failed for locale ${locale}:`,
++          result.error
++        );
++      }
++
++      const rows = toTranslate.map((enhancement, i) => {
++
++        const sourceHash = hashFields(
++          Object.fromEntries(fieldNames.map((f) => [f, enhancement[f]]))
++        );
++
++        if (!result.ok) {
++          return {
++            enhancement_id: enhancement.id,
++            locale,
++            translation_status: "failed",
++            source_hash: sourceHash,
++            updated_at: new Date().toISOString(),
++          };
++        }
++
++        return {
++          enhancement_id: enhancement.id,
++          locale,
++          title: result.translations[`title_${i}`] ?? null,
++          description: result.translations[`description_${i}`] ?? null,
++          unselected_button_text: result.translations[`unselected_button_text_${i}`] ?? null,
++          selected_button_text: result.translations[`selected_button_text_${i}`] ?? null,
++          translation_status: "ok",
++          source_hash: sourceHash,
++          translated_at: new Date().toISOString(),
++          updated_at: new Date().toISOString(),
++        };
++      });
++
++      const { error: upsertError } = await supabase
++        .from("enhancement_content_translations")
++        .upsert(rows, { onConflict: "enhancement_id,locale" });
++
++      if (upsertError) {
++        console.error(
++          `[translateEnhancement] batch upsert error for locale ${locale}:`,
++          upsertError
++        );
++      }
++    })
++  );
++}
+diff --git a/src/lib/translations/translateExperience.ts b/src/lib/translations/translateExperience.ts
+index fd16067..83725be 100644
+--- a/src/lib/translations/translateExperience.ts
++++ b/src/lib/translations/translateExperience.ts
+@@ -29,7 +29,9 @@ import {
+ 
+ // Deterministic hash of the English fields, used to skip re-translating
+ // content that hasn't actually changed since the last successful run.
+-function hashFields(fields: Record<string, string | undefined | null>): string {
++// Esportata: riusata anche da translateEnhancement.ts, stessa identica
++// logica di skip-se-invariato.
++export function hashFields(fields: Record<string, string | undefined | null>): string {
+   const normalized = Object.entries(fields)
+     .sort(([a], [b]) => a.localeCompare(b))
+     .map(([k, v]) => `${k}:${v ?? ""}`)
+diff --git a/supabase-migrations/2026_enhancement_translations.sql b/supabase-migrations/2026_enhancement_translations.sql
+new file mode 100644
+index 0000000..06e0616
+--- /dev/null
++++ b/supabase-migrations/2026_enhancement_translations.sql
+@@ -0,0 +1,43 @@
++-- =====================================================================
++-- enhancement_content_translations
++-- =====================================================================
++-- Stesso schema/filosofia di experience_content_translations: una riga
++-- di traduzione per locale, con translation_status per non mostrare
++-- mai una traduzione fallita/vuota (fallback automatico all'inglese).
++--
++-- Il catalogo enhancement e' piccolo e stabile (poche righe, cambiano
++-- raramente) — a differenza delle experience, qui non serve un
++-- meccanismo on-demand per-proposal: si traduce una volta con lo
++-- script di backfill, e via via che vengono editate in admin.
++--
++-- Da eseguire UNA VOLTA nel SQL editor di Supabase.
++-- =====================================================================
++
++create table if not exists enhancement_content_translations (
++  enhancement_id uuid not null references enhancement_content(id) on delete cascade,
++  locale text not null,
++  title text,
++  description text,
++  unselected_button_text text,
++  selected_button_text text,
++  translation_status text not null default 'pending'
++    check (translation_status in ('pending', 'ok', 'failed')),
++  source_hash text,
++  translated_at timestamptz,
++  updated_at timestamptz not null default now(),
++  primary key (enhancement_id, locale)
++);
++
++-- Lettura pubblica: e' testo di marketing/interfaccia, non dati
++-- riservati — stesso trattamento di experience_content_translations,
++-- che il sito gia' legge con la chiave anon pubblica.
++alter table enhancement_content_translations enable row level security;
++
++drop policy if exists "public read enhancement_content_translations" on enhancement_content_translations;
++create policy "public read enhancement_content_translations"
++  on enhancement_content_translations for select
++  using (true);
++
++-- Nessuna policy di INSERT/UPDATE/DELETE per anon/authenticated: le
++-- uniche scritture arrivano dallo script di backfill e dalla sync
++-- lato server con la service role key (bypassa comunque RLS).
+-- 
+2.43.0
+

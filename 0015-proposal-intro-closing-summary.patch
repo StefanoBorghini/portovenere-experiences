@@ -1,0 +1,309 @@
+From 705417b2d73fcffc4de8150199e2fc4dc97d2a79 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:38:47 +0000
+Subject: [PATCH 1/3] feat: translate proposal intro/closing text and
+ per-proposal summary
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Three more untranslated regions found on the proposal page:
+
+1. The H2 above the summary and the closing line before "Speak to our
+   team" (introTitles/closingParagraphs) were picked at random from
+   fixed English arrays in proposalCopy.ts, never wired to next-intl.
+   Moved into site_copy (proposal.introTitles.0-4 /
+   closingParagraphs.0-3) — only 9 fixed strings, translated once via
+   the existing seed:site-copy pipeline, zero per-proposal Lara cost.
+   generateProposal() now also returns the picked index so
+   page.tsx can resolve it through getTranslations("proposal") instead
+   of the raw English string (kept as fallback for the no-match case).
+
+2. The dynamic summary paragraph ("Created exclusively for X adults
+   for [dates], this proposal has been crafted around [experiences]...")
+   is genuinely unique per proposal (buildProposalSummary.ts interpolates
+   guest count/dates/experiences/moods into an English template) — not a
+   fixed set, so it can't be pre-seeded like the arrays above. Translated
+   on-demand in /api/translate-proposal-experiences at generation time
+   (same "translate once, not per view" principle as the experience
+   content) and stored in Proposal.proposal_data.summary_it, which
+   page.tsx now prefers over recomputing+retranslating the English
+   version on every visit.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   | 60 ++++++++++++++++++-
+ src/app/craft-your-experience/page.tsx        |  2 +-
+ src/app/results/proposal/[slug]/page.tsx      | 31 ++++++++--
+ src/lib/generateProposal.ts                   | 32 +++++-----
+ src/messages/en.json                          | 13 ++++
+ 5 files changed, 116 insertions(+), 22 deletions(-)
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index be0f5d4..f7aa41d 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -25,7 +25,9 @@ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+ import { getFullExperiences } from "@/lib/supabase/experienceRepository";
+ import { generateProposal } from "@/lib/generateProposal";
+ import { buildRendererData } from "@/lib/proposal-engine/buildRendererData";
++import { buildProposalSummary } from "@/lib/proposal-engine/buildProposalSummary";
+ import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
++import { translateFields } from "@/lib/translations/lara";
+ import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ 
+ // Tradurre content+sections+facts per piu' esperienze (la featured + i
+@@ -41,7 +43,7 @@ export async function POST(request: NextRequest) {
+ 
+   try {
+ 
+-    const { leadId } = await request.json();
++    const { leadId, slug } = await request.json();
+ 
+     if (!leadId) {
+       return NextResponse.json(
+@@ -55,7 +57,7 @@ export async function POST(request: NextRequest) {
+     const { data: lead, error: leadError } = await supabaseAdmin
+       .from("leads")
+       .select(
+-        "experiences, moods, budget, guests, children, traveling_with_children, start_date, end_date"
++        "experiences, moods, budget, guests, children, traveling_with_children, start_date, end_date, preferred_time"
+       )
+       .eq("id", leadId)
+       .single();
+@@ -138,6 +140,60 @@ export async function POST(request: NextRequest) {
+       }
+     });
+ 
++    // RIEPILOGO DINAMICO — a differenza del titolo/chiusura (5+4
++    // varianti fisse, spostate su site_copy: vedi
++    // proposal.introTitles/closingParagraphs), questa frase e' unica
++    // per ogni proposal (ospiti/date/esperienze/mood incollati dentro),
++    // quindi va tradotta qui, una volta, e salvata — non ricalcolata e
++    // ritradotta ad ogni visita della pagina.
++    if (slug) {
++
++      try {
++
++        const englishSummary = buildProposalSummary(lead, generatedProposal);
++
++        const result = await translateFields({ summary: englishSummary }, "it");
++
++        if (result.ok && result.translations.summary) {
++
++          const { data: proposalRow } = await supabaseAdmin
++            .from("Proposal")
++            .select("proposal_data")
++            .eq("slug", slug)
++            .single();
++
++          if (proposalRow) {
++
++            const { error: updateError } = await supabaseAdmin
++              .from("Proposal")
++              .update({
++                proposal_data: {
++                  ...proposalRow.proposal_data,
++                  summary_it: result.translations.summary,
++                },
++              })
++              .eq("slug", slug);
++
++            if (updateError) {
++              console.error(
++                `[api/translate-proposal-experiences] proposal_data update failed for ${slug}:`,
++                updateError
++              );
++            }
++          }
++
++        } else {
++          console.error(
++            `[api/translate-proposal-experiences] summary translation failed for ${slug}:`,
++            result.error
++          );
++        }
++
++      } catch (err) {
++        console.error(`[api/translate-proposal-experiences] summary translation error for ${slug}:`, err);
++      }
++    }
++
+     return NextResponse.json({ success: true, translated: Array.from(experienceIds) });
+ 
+   } catch (err) {
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index ea4e821..f062bad 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -754,7 +754,7 @@ export default function CraftYourExperience() {
+       fetch("/api/translate-proposal-experiences", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+-        body: JSON.stringify({ leadId }),
++        body: JSON.stringify({ leadId, slug: proposalData.slug }),
+       }).catch((err) => console.error("translate-proposal-experiences failed:", err));
+ 
+       // Non serve piu' setIsSubmitting(false) qui: stiamo per lasciare
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index e0147d0..0b36510 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -16,6 +16,7 @@ import {
+   getFullExperiences,
+ } from "@/lib/supabase/experienceRepository";
+ import { getCurrentLocale } from "@/i18n/locale";
++import { getTranslations } from "next-intl/server";
+ 
+ // =========================================================
+ // TYPES
+@@ -203,7 +204,7 @@ const generatedProposal =
+     includedExperiencesPreSelected,
+     isMultiDayTrip,
+     finalPrice,
+-    proposalSummary,
++    proposalSummary: englishProposalSummary,
+   } = buildRendererData({
+ 
+     generatedProposal,
+@@ -214,6 +215,16 @@ const generatedProposal =
+     dynamicEnhancements,
+   });
+ 
++  // Il riepilogo tradotto viene calcolato e salvato una volta sola al
++  // momento della generazione (vedi /api/translate-proposal-experiences),
++  // non ricalcolato/ritradotto ad ogni visita — se non e' ancora pronto
++  // (traduzione in corso in background, o locale inglese) si mostra la
++  // versione inglese come fallback, mai un vuoto.
++  const proposalSummary =
++    locale !== "en" && lead.summary_it
++      ? lead.summary_it
++      : englishProposalSummary;
++
+   // =======================================================
+   // DYNAMIC CONTENT
+   // =======================================================
+@@ -230,18 +241,28 @@ const generatedProposal =
+ 
+   "/images/default-hero.webp";
+ 
+- const dynamicIntroTitle =
++ // introTitles/closingParagraphs vengono da site_copy (tradotti una
++ // volta sola, non per-proposal — sono solo 5+4 varianti fisse, non
++ // testo dinamico): peschiamo per indice invece di usare la stringa
++ // inglese di generateProposal, che resta solo come fallback per il
++ // caso "nessuna esperienza trovata" (indice non disponibile).
++ const proposalT = await getTranslations("proposal");
+ 
+-  generatedProposal.dynamicIntroTitle ||
++ const dynamicIntroTitle =
+ 
+-  "Curated Riviera Experience";
++  generatedProposal.dynamicIntroTitleIndex !== undefined
++    ? proposalT(`introTitles.${generatedProposal.dynamicIntroTitleIndex}`)
++    : generatedProposal.dynamicIntroTitle ||
++      "Curated Riviera Experience";
+ 
+   const dynamicIntroParagraph =
+     generatedProposal.dynamicIntroParagraph;
+ 
+   const dynamicClosingParagraph =
+ 
+-  generatedProposal.dynamicClosingParagraph ||
++  generatedProposal.dynamicClosingParagraphIndex !== undefined
++    ? proposalT(`closingParagraphs.${generatedProposal.dynamicClosingParagraphIndex}`)
++    : generatedProposal.dynamicClosingParagraph ||
+ 
+   "We look forward to welcoming you into your private Riviera experience.";
+ 
+diff --git a/src/lib/generateProposal.ts b/src/lib/generateProposal.ts
+index 6915898..adf186b 100644
+--- a/src/lib/generateProposal.ts
++++ b/src/lib/generateProposal.ts
+@@ -654,14 +654,17 @@ const heroTitle =
+ 
+ 
+ 
+-const dynamicIntroTitle =
++// Indice, non solo la stringa risolta: il chiamante server-side
++// (results/proposal/[slug]/page.tsx) lo usa per pescare la versione
++// tradotta da site_copy (proposal.introTitles.<indice>) invece del
++// testo inglese fisso qui sotto, che resta solo come fallback per chi
++// non passa dal next-intl (es. contenuto delle email di notifica).
+ 
+-  introTitles[
+-    Math.floor(
+-      Math.random() *
+-      introTitles.length
+-    )
+-  ];
++const dynamicIntroTitleIndex =
++  Math.floor(Math.random() * introTitles.length);
++
++const dynamicIntroTitle =
++  introTitles[dynamicIntroTitleIndex];
+ 
+ const dynamicIntroParagraph =
+ 
+@@ -676,14 +679,11 @@ const dynamicIntroParagraph =
+ // DYNAMIC CLOSING COPY
+ // =========================================================
+ 
+-const dynamicClosingParagraph =
++const dynamicClosingParagraphIndex =
++  Math.floor(Math.random() * closingParagraphs.length);
+ 
+-  closingParagraphs[
+-    Math.floor(
+-      Math.random() *
+-      closingParagraphs.length
+-    )
+-  ];
++const dynamicClosingParagraph =
++  closingParagraphs[dynamicClosingParagraphIndex];
+   // =========================================================
+   // HERO IMAGE
+   // =========================================================
+@@ -861,10 +861,14 @@ const orderedCategories =
+ 
+     dynamicIntroTitle,
+ 
++    dynamicIntroTitleIndex,
++
+     dynamicIntroParagraph,
+ 
+     dynamicClosingParagraph,
+ 
++    dynamicClosingParagraphIndex,
++
+   featuredExperience: {
+ 
+   ...bestExperience,
+diff --git a/src/messages/en.json b/src/messages/en.json
+index c6bc12e..39a5acf 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -165,6 +165,19 @@
+   },
+   "proposal": {
+     "errorFallback": "We couldn't load this proposal correctly. Please contact us directly.",
++    "introTitles": {
++      "0": "Every Detail Curated Around Your Desired Atmosphere",
++      "1": "A Proposal Designed Around Your Vision of the Riviera",
++      "2": "Crafted Around Your Personal Travel Style",
++      "3": "A Tailored Mediterranean Experience",
++      "4": "Curated Around Your Riviera Atmosphere"
++    },
++    "closingParagraphs": {
++      "0": "To preserve experience quality and private availability, your curated proposal will remain reserved for a limited time.",
++      "1": "Your private Riviera proposal has been temporarily reserved exclusively for you.",
++      "2": "Availability is intentionally limited to maintain a highly curated experience standard.",
++      "3": "Your selected experiences are currently being privately reserved to guarantee the highest level of service and availability."
++    },
+     "hero": {
+       "label": "Private Riviera Proposal",
+       "subtitle": "Tailored for {guestSentence} across curated Riviera experiences, cinematic atmosphere and Mediterranean moments.",
+-- 
+2.43.0
+

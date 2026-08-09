@@ -1,0 +1,120 @@
+From 9957918ba749ebe49446abb02d5e73756bf59af5 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 19:24:13 +0000
+Subject: [PATCH] fix: batch Lara translate calls in seed-site-copy (128-item
+ API limit)
+
+Lara's /translate endpoint rejects batches over 128 texts ("body/q Too
+big"). With 155 site_copy keys the seed script's single translate()
+call always failed. Chunk into batches of 100 and upsert each batch
+as it completes, so a later batch failing doesn't lose earlier progress.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/scripts/seed-site-copy.mjs | 87 +++++++++++++++++++---------------
+ 1 file changed, 48 insertions(+), 39 deletions(-)
+
+diff --git a/src/scripts/seed-site-copy.mjs b/src/scripts/seed-site-copy.mjs
+index 87f11af..8b8b4d8 100644
+--- a/src/scripts/seed-site-copy.mjs
++++ b/src/scripts/seed-site-copy.mjs
+@@ -154,47 +154,56 @@ async function main() {
+ 
+     console.log(`[seed-site-copy] ${locale}: traduco ${toTranslate.length} chiave/i via Lara...`);
+ 
+-    const values = toTranslate.map((key) => flatEn[key]);
+-
+-    try {
+-
+-      const res = await translator.translate(
+-        values,
+-        LOCALE_TO_LARA.en,
+-        LOCALE_TO_LARA[locale] ?? locale,
+-        {
+-          style: "creative",
+-          instructions: BRAND_INSTRUCTIONS,
+-          contentType: "text/plain",
++    // Lara rifiuta batch oltre 128 testi ("body/q Too big") — spezziamo
++    // in blocchi e salviamo ogni blocco appena tradotto, cosi' un errore
++    // su un blocco successivo non perde il lavoro gia' fatto.
++    const BATCH_SIZE = 100;
++
++    for (let start = 0; start < toTranslate.length; start += BATCH_SIZE) {
++
++      const batchKeys = toTranslate.slice(start, start + BATCH_SIZE);
++      const values = batchKeys.map((key) => flatEn[key]);
++
++      try {
++
++        const res = await translator.translate(
++          values,
++          LOCALE_TO_LARA.en,
++          LOCALE_TO_LARA[locale] ?? locale,
++          {
++            style: "creative",
++            instructions: BRAND_INSTRUCTIONS,
++            contentType: "text/plain",
++          }
++        );
++
++        const translatedValues = Array.isArray(res.translation)
++          ? res.translation
++          : [res.translation];
++
++        const translationRows = batchKeys.map((key, i) => ({
++          key,
++          locale,
++          text: translatedValues[i] ?? flatEn[key],
++          translation_status: "ok",
++          source_hash: hashText(flatEn[key]),
++          translated_at: new Date().toISOString(),
++          updated_at: new Date().toISOString(),
++        }));
++
++        const { error: trUpsertError } = await supabase
++          .from("site_copy_translations")
++          .upsert(translationRows, { onConflict: "key,locale" });
++
++        if (trUpsertError) {
++          console.error(`[seed-site-copy] upsert translations failed for ${locale}:`, trUpsertError);
++        } else {
++          console.log(`[seed-site-copy] ${locale}: ${translationRows.length} traduzioni salvate (blocco ${start / BATCH_SIZE + 1}).`);
+         }
+-      );
+-
+-      const translatedValues = Array.isArray(res.translation)
+-        ? res.translation
+-        : [res.translation];
+-
+-      const translationRows = toTranslate.map((key, i) => ({
+-        key,
+-        locale,
+-        text: translatedValues[i] ?? flatEn[key],
+-        translation_status: "ok",
+-        source_hash: hashText(flatEn[key]),
+-        translated_at: new Date().toISOString(),
+-        updated_at: new Date().toISOString(),
+-      }));
+-
+-      const { error: trUpsertError } = await supabase
+-        .from("site_copy_translations")
+-        .upsert(translationRows, { onConflict: "key,locale" });
+-
+-      if (trUpsertError) {
+-        console.error(`[seed-site-copy] upsert translations failed for ${locale}:`, trUpsertError);
+-      } else {
+-        console.log(`[seed-site-copy] ${locale}: ${translationRows.length} traduzioni salvate.`);
+-      }
+ 
+-    } catch (err) {
+-      console.error(`[seed-site-copy] Lara call failed for ${locale}:`, err);
++      } catch (err) {
++        console.error(`[seed-site-copy] Lara call failed for ${locale} (blocco ${start / BATCH_SIZE + 1}):`, err);
++      }
+     }
+   }
+ 
+-- 
+2.43.0
+

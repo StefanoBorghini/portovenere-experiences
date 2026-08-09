@@ -1,0 +1,205 @@
+From 6b62b5d96f6a156b281851dd848781f7019f5092 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:47:57 +0000
+Subject: [PATCH] fix: throttle Lara calls to stay under its per-second rate
+ limit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Confirmed with Lara support: the "exceeded quota" 429 is a momentary
+per-second character rate limit (1,000 chars/sec on Free, 10,000/sec
+on paid plans), completely separate from the monthly character pool —
+explains why it kept firing with the account nowhere near its monthly
+usage. Several batched Lara calls (one per experience/section-group/
+fact-group, run with bounded concurrency) could still burst past that
+per-second ceiling when they landed in the same instant.
+
+translateFields() (the single choke point every Lara call already goes
+through) now:
+- Reserves a character budget from a 1-second sliding window before
+  each real call, queueing execution rather than firing immediately —
+  applies automatically to every caller (experiences, enhancements,
+  hero titles, proposal summary, site_copy seed script).
+- Retries up to 2 more times with backoff specifically on rate-limit-
+  shaped errors (429 / "quota" in the message), since Lara support
+  confirmed this class of error is transient, not a hard stop.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/lib/translations/lara.ts | 149 ++++++++++++++++++++++++++++-------
+ 1 file changed, 120 insertions(+), 29 deletions(-)
+
+diff --git a/src/lib/translations/lara.ts b/src/lib/translations/lara.ts
+index 16fb38b..4fa7b7e 100644
+--- a/src/lib/translations/lara.ts
++++ b/src/lib/translations/lara.ts
+@@ -75,6 +75,67 @@ export interface TranslateFieldsResult {
+   error?: string;
+ }
+ 
++// -----------------------------------------------------------------------
++// RATE LIMITER — Lara enforces a per-second character rate limit on top
++// of (separate from) the monthly quota: 1,000 chars/sec on the Free
++// plan, 10,000/sec on paid plans (confirmed with Lara support — the
++// "exceeded quota" 429 we were hitting was this momentary limit, not
++// the monthly pool, which had plenty of headroom left). Several
++// concurrent batched calls (one per experience/section-group/fact-
++// group) could easily burst past that in the same instant.
++//
++// This reserves a character budget from a 1-second sliding window
++// before every real Lara call, queueing (not rejecting) requests that
++// would exceed it. Conservative budget — comfortably under the Free
++// tier's 1,000/sec — since Lara's own character counting may not match
++// a plain .length sum exactly.
++// -----------------------------------------------------------------------
++
++const RATE_LIMIT_CHARS_PER_SECOND = 700;
++
++let rateLimitWindowStart = Date.now();
++let rateLimitCharsUsed = 0;
++let rateLimitQueue: Promise<void> = Promise.resolve();
++
++function reserveRateLimitBudget(chars: number): Promise<void> {
++  rateLimitQueue = rateLimitQueue.then(async () => {
++
++    const now = Date.now();
++
++    if (now - rateLimitWindowStart >= 1000) {
++      rateLimitWindowStart = now;
++      rateLimitCharsUsed = 0;
++    }
++
++    if (rateLimitCharsUsed + chars > RATE_LIMIT_CHARS_PER_SECOND) {
++
++      const waitMs = 1000 - (now - rateLimitWindowStart);
++
++      if (waitMs > 0) {
++        await new Promise((resolve) => setTimeout(resolve, waitMs));
++      }
++
++      rateLimitWindowStart = Date.now();
++      rateLimitCharsUsed = 0;
++    }
++
++    rateLimitCharsUsed += chars;
++  });
++
++  return rateLimitQueue;
++}
++
++function isRateLimitError(err: unknown): boolean {
++  return (
++    err instanceof Error &&
++    (err.message.includes("quota") || (err as { statusCode?: number }).statusCode === 429)
++  );
++}
++
++function sleep(ms: number): Promise<void> {
++  return new Promise((resolve) => setTimeout(resolve, ms));
++}
++
+ /**
+  * Translates a map of named text fields (e.g. { title, description })
+  * from English to a target locale in a single Lara call, using
+@@ -106,36 +167,66 @@ export async function translateFields(
+   const source = LOCALE_TO_LARA[sourceLocale] ?? sourceLocale;
+   const target = LOCALE_TO_LARA[targetLocale] ?? targetLocale;
+ 
+-  try {
+-    const lara = getLara();
+-
+-    const res = await lara.translate(
+-      entries.map(([, value]) => value),
+-      source,
+-      target,
+-      {
+-        style: "creative",
+-        instructions: BRAND_INSTRUCTIONS,
+-        contentType: "text/plain",
++  const values = entries.map(([, value]) => value);
++  const totalChars = values.reduce((sum, value) => sum + value.length, 0);
++
++  // Fino a 2 ritentativi in piu' (3 tentativi totali): confermato dal
++  // supporto Lara che il 429 "exceeded quota" e' spesso il rate-limit
++  // al secondo, momentaneo — non il tetto mensile — quindi ha senso
++  // ritentare dopo una breve attesa invece di arrendersi subito.
++  const MAX_ATTEMPTS = 3;
++
++  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
++
++    await reserveRateLimitBudget(totalChars);
++
++    try {
++      const lara = getLara();
++
++      const res = await lara.translate(
++        values,
++        source,
++        target,
++        {
++          style: "creative",
++          instructions: BRAND_INSTRUCTIONS,
++          contentType: "text/plain",
++        }
++      );
++
++      const translatedValues = Array.isArray(res.translation)
++        ? (res.translation as string[])
++        : [res.translation as string];
++
++      const translations: Record<string, string> = {};
++      entries.forEach(([key], i) => {
++        translations[key] = translatedValues[i] ?? "";
++      });
++
++      return { ok: true, translations };
++    } catch (err) {
++
++      const isLastAttempt = attempt === MAX_ATTEMPTS;
++
++      if (isRateLimitError(err) && !isLastAttempt) {
++        console.error(
++          `[lara] translateFields hit rate limit (attempt ${attempt}/${MAX_ATTEMPTS}), retrying:`,
++          err
++        );
++        await sleep(1000 * attempt);
++        continue;
+       }
+-    );
+ 
+-    const translatedValues = Array.isArray(res.translation)
+-      ? (res.translation as string[])
+-      : [res.translation as string];
+-
+-    const translations: Record<string, string> = {};
+-    entries.forEach(([key], i) => {
+-      translations[key] = translatedValues[i] ?? "";
+-    });
+-
+-    return { ok: true, translations };
+-  } catch (err) {
+-    console.error("[lara] translateFields failed:", err);
+-    return {
+-      ok: false,
+-      translations: {},
+-      error: err instanceof Error ? err.message : "Unknown Lara error",
+-    };
++      console.error("[lara] translateFields failed:", err);
++      return {
++        ok: false,
++        translations: {},
++        error: err instanceof Error ? err.message : "Unknown Lara error",
++      };
++    }
+   }
++
++  // Irraggiungibile (il loop ritorna sempre dentro try/catch), ma
++  // necessario per soddisfare il tipo di ritorno della funzione.
++  return { ok: false, translations: {}, error: "Unknown Lara error" };
+ }
+\ No newline at end of file
+-- 
+2.43.0
+

@@ -1,0 +1,319 @@
+Quello che stai costruendo non è semplicemente un “form per prenotare esperienze”.
+
+Sta diventando qualcosa di molto più interessante:
+
+Un Luxury Experience Operating System
+
+cioè una piattaforma che:
+
+capisce il profilo emotivo del cliente
+interpreta desideri e stile di viaggio
+combina esperienze compatibili
+genera automaticamente proposte premium
+automatizza lead generation, proposal e conversione
+
+Praticamente un ibrido tra:
+
+concierge di lusso
+configuratore esperienziale
+CRM turistico
+motore di raccomandazione
+proposal engine cinematico
+
+E la cosa forte è che è verticale su Portovenere / Liguria.
+
+Questa verticalità ti dà un vantaggio enorme.
+
+STRUTTURA DEL PROGETTO
+1. EXPERIENCE CONFIGURATOR
+
+L’utente entra e:
+
+seleziona esperienze
+seleziona mood
+inserisce date
+numero ospiti
+budget
+famiglia / bambini
+contatti
+
+Qui NON sta prenotando.
+
+Sta “costruendo un viaggio”.
+
+Ed è molto più emozionale.
+
+2. EXPERIENCE MATCHING ENGINE
+
+Questa è la parte “intelligente”.
+
+Il sistema:
+
+legge mood
+legge budget
+legge numero ospiti
+legge periodo
+legge presenza bambini
+legge combinazioni
+
+e assegna punteggi alle esperienze.
+
+Esempio reale
+INPUT
+
+Experiences:
+
+Sailing
+Gourmet
+Outdoor
+
+Mood:
+
+Romantic
+Relaxed
+
+Guests:
+
+2-5
+
+Budget:
+
+€3000+
+OUTPUT INTERNO
+Experience	Score
+Sunset Sailing	95
+Private Chef Aperitivo	90
+Vineyard Dinner	88
+Hiking	40
+
+Quindi il sistema:
+
+ordina
+filtra
+crea proposta coerente
+3. DYNAMIC PROPOSAL ENGINE
+
+La proposal non è statica.
+
+Si costruisce automaticamente.
+
+Cambiano:
+HERO
+titolo
+sottotitolo
+immagini
+video
+palette
+ITINERARIO
+esperienze suggerite
+timing
+attività
+TONE OF VOICE
+
+Romantic:
+
+elegante
+cinematografico
+
+Adventure:
+
+dinamico
+emozionale
+
+Luxury:
+
+minimal premium
+
+Family:
+
+rassicurante
+4. CINEMATIC PDF GENERATOR
+
+Questa è una killer feature.
+
+Non un PDF normale.
+
+Ma:
+
+quasi una brochure privata
+stile Aman / Belmond / Four Seasons
+
+Con:
+
+immagini full screen
+storytelling
+CTA
+dettagli
+contatti
+branding
+5. LEAD ROUTING SYSTEM
+
+Qui entra il lato business.
+
+Budget basso
+
+→ follow-up automatico
+
+Budget alto
+
+→ WhatsApp diretto
+
+Luxury
+
+→ priorità manuale
+
+Family
+
+→ esperienze family-safe
+
+Gourmet
+
+→ partner restaurants
+
+6. PARTNER ENGINE
+
+In futuro:
+
+ristoranti
+hotel
+skipper
+diving center
+piloti
+guide
+transfer
+
+avranno:
+
+disponibilità
+prezzi
+commissioni
+calendario
+7. AI EXPERIENCE CURATOR
+
+Questa è la versione avanzata.
+
+Il sistema:
+
+interpreta richieste
+genera itinerari
+crea storytelling
+personalizza proposal
+
+Esempio:
+
+“A cinematic romantic escape inspired by the Mediterranean lifestyle.”
+
+8. POSSIBILE EVOLUZIONE FUTURA
+
+Qui il progetto può diventare enorme.
+
+Versione 1
+
+Luxury proposal generator
+
+Versione 2
+
+Booking engine
+
+Versione 3
+
+Partner marketplace
+
+Versione 4
+
+AI travel curator SaaS
+
+LA COSA PIÙ IMPORTANTE
+
+Tu NON stai vendendo:
+
+giri in barca
+snorkeling
+trekking
+
+Tu stai vendendo:
+
+identità emotive di viaggio
+
+cioè:
+
+Romantic Escape
+Authentic Ligurian Journey
+Cinematic Riviera Experience
+Mediterranean Adventure
+Slow Luxury Weekend
+
+Ed è questo che aumenta:
+
+valore percepito
+margine
+conversione
+COME LO STRUTTUREREI TECNICAMENTE
+FRONTEND
+
+Next.js + Tailwind
+
+DATABASE
+
+Supabase
+
+Tabelle:
+
+leads
+proposals
+experiences
+partners
+pricing_rules
+itineraries
+LOGICA
+
+Rule Engine
+
+Se:
+
+romantic + sailing
+→ proposal romantica
+
+Se:
+
+adventure + outdoor
+→ proposal dinamica
+STORAGE
+
+Supabase storage:
+
+immagini
+pdf
+assets
+AUTOMAZIONI
+email
+whatsapp
+CRM
+follow-up
+COSA FAREI ADESSO
+
+Ordine corretto:
+
+STEP 1
+
+Finire form UX
+
+STEP 2
+
+Creare experience engine
+
+STEP 3
+
+Creare proposal dinamiche
+
+STEP 4
+
+PDF cinematici
+
+STEP 5
+
+Backend admin
+
+STEP 6
+
+Partner management

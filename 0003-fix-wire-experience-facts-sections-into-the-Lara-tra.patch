@@ -1,0 +1,305 @@
+From b7170aa62a5b489396ea84afaf9bd1b74f906c53 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 18:36:14 +0000
+Subject: [PATCH 3/7] fix: wire experience facts/sections into the Lara
+ translation pipeline
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+syncSectionTranslations/syncFactTranslations existed but nothing ever
+called them, and getFullExperiences() never read back
+experience_sections_translations/experience_facts_translations — so
+the "facts" (duration, departure point, etc.) and "sections" ("what's
+included", etc.) shown on the featured experience card were always
+English regardless of locale, same root cause already fixed for
+title/description.
+
+- /api/translate-experience now also accepts { sectionId } / { factId }
+  and syncs that row via Lara.
+- experienceRepository.ts triggers that sync from
+  create/updateExperienceSection and create/updateExperienceFact,
+  mirroring the existing updateExperience() pattern.
+- getFullExperiences(locale) now localizes each fact's label/value and
+  each section's title/description via getLocalizedField, same as the
+  top-level experience fields.
+---
+ src/app/api/translate-experience/route.ts |  78 ++++++++++++++---
+ src/lib/supabase/experienceRepository.ts  | 102 +++++++++++++++++++---
+ 2 files changed, 159 insertions(+), 21 deletions(-)
+
+diff --git a/src/app/api/translate-experience/route.ts b/src/app/api/translate-experience/route.ts
+index d4ca1c4..4c41d8d 100644
+--- a/src/app/api/translate-experience/route.ts
++++ b/src/app/api/translate-experience/route.ts
+@@ -1,36 +1,92 @@
+ /**
+  * POST /api/translate-experience
+  * =====================================================================
+- * Unico punto d'ingresso per la sincronizzazione Lara Translate.
+- * Gira SEMPRE come funzione server (Vercel/Node), mai nel browser —
+- * qui process.env.LARA_ACCESS_KEY_ID/SECRET e il modulo "crypto" di
+- * Node funzionano correttamente, a differenza di quando venivano
+- * chiamati direttamente da experienceRepository.ts lato client.
++ * Unico punto d'ingresso per la sincronizzazione Lara Translate — per
++ * l'esperienza stessa (title/short_description/description), per una
++ * section o per un fact. Gira SEMPRE come funzione server (Vercel/Node),
++ * mai nel browser — qui process.env.LARA_ACCESS_KEY_ID/SECRET e il
++ * modulo "crypto" di Node funzionano correttamente, a differenza di
++ * quando venivano chiamati direttamente da experienceRepository.ts
++ * lato client.
+  *
+- * Chiamata da updateExperience() via fetch, con Promise.allSettled:
++ * Chiamata da experienceRepository.ts via fetch, con Promise.allSettled:
+  * un fallimento qui non deve mai far fallire il salvataggio.
++ *
++ * Body: { experienceId } oppure { sectionId } oppure { factId } —
++ * esattamente uno dei tre, distingue quale sync lanciare.
+  * =====================================================================
+  */
+ 
+ import { NextRequest, NextResponse } from "next/server";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+-import { syncExperienceTranslations } from "@/lib/translations/translateExperience";
++import {
++  syncExperienceTranslations,
++  syncSectionTranslations,
++  syncFactTranslations,
++} from "@/lib/translations/translateExperience";
+ 
+ export async function POST(request: NextRequest) {
+ 
+   try {
+ 
+-    const { experienceId } = await request.json();
++    const body = await request.json();
++    const supabaseAdmin = getSupabaseAdmin();
++
++    if (body.sectionId) {
++
++      const { data: freshRow, error } = await supabaseAdmin
++        .from("experience_sections")
++        .select("title, description")
++        .eq("id", body.sectionId)
++        .single();
++
++      if (error || !freshRow) {
++        console.error(
++          `[api/translate-experience] could not load section ${body.sectionId}:`,
++          error
++        );
++        return NextResponse.json(
++          { success: false, error: "Section not found" },
++          { status: 404 }
++        );
++      }
++
++      await syncSectionTranslations(body.sectionId, freshRow);
++      return NextResponse.json({ success: true });
++    }
++
++    if (body.factId) {
++
++      const { data: freshRow, error } = await supabaseAdmin
++        .from("experience_facts")
++        .select("label, value")
++        .eq("id", body.factId)
++        .single();
++
++      if (error || !freshRow) {
++        console.error(
++          `[api/translate-experience] could not load fact ${body.factId}:`,
++          error
++        );
++        return NextResponse.json(
++          { success: false, error: "Fact not found" },
++          { status: 404 }
++        );
++      }
++
++      await syncFactTranslations(body.factId, freshRow);
++      return NextResponse.json({ success: true });
++    }
++
++    const { experienceId } = body;
+ 
+     if (!experienceId) {
+       return NextResponse.json(
+-        { success: false, error: "experienceId is required" },
++        { success: false, error: "experienceId, sectionId, or factId is required" },
+         { status: 400 }
+       );
+     }
+ 
+-    const supabaseAdmin = getSupabaseAdmin();
+-
+     const { data: freshRow, error } = await supabaseAdmin
+       .from("experience_content")
+       .select("title, short_description, description")
+diff --git a/src/lib/supabase/experienceRepository.ts b/src/lib/supabase/experienceRepository.ts
+index e01d45f..f2d5542 100644
+--- a/src/lib/supabase/experienceRepository.ts
++++ b/src/lib/supabase/experienceRepository.ts
+@@ -2,6 +2,19 @@ import { supabase } from "@/lib/supabase";
+ import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
+ import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
+ 
++// Innesca la sincronizzazione Lara Translate per una section o un fact
++// appena salvati — via fetch a /api/translate-experience, che gira
++// SEMPRE lato server (qui invece siamo lato client, come spiegato in
++// updateExperience() piu' sotto). Fire-and-forget: un fallimento qui
++// non deve mai far risultare fallito il salvataggio di section/fact.
++function triggerTranslate(body: { sectionId: string } | { factId: string }) {
++  fetch("/api/translate-experience", {
++    method: "POST",
++    headers: { "Content-Type": "application/json" },
++    body: JSON.stringify(body),
++  }).catch((err) => console.error("[triggerTranslate] failed:", err));
++}
++
+ export async function deleteExperience(id: string) {
+ 
+   if (!supabase)
+@@ -839,6 +852,41 @@ export async function getExperienceContentTranslations(locale: string) {
+   return data;
+ }
+ 
++// Stesso pattern di getExperienceContentTranslations, ma per le righe
++// di experience_sections_translations / experience_facts_translations
++// (chiave per riga: section_id / fact_id, non experience_id).
++export async function getExperienceSectionsTranslations(locale: string) {
++  if (!supabase || locale === "en") return [];
++
++  const { data, error } = await supabase
++    .from("experience_sections_translations")
++    .select("section_id, title, description, translation_status")
++    .eq("locale", locale);
++
++  if (error) {
++    console.error(error);
++    return [];
++  }
++
++  return data;
++}
++
++export async function getExperienceFactsTranslations(locale: string) {
++  if (!supabase || locale === "en") return [];
++
++  const { data, error } = await supabase
++    .from("experience_facts_translations")
++    .select("fact_id, label, value, translation_status")
++    .eq("locale", locale);
++
++  if (error) {
++    console.error(error);
++    return [];
++  }
++
++  return data;
++}
++
+ export async function getFullExperiences(locale: string = "en") {
+ 
+ const experiences = await getExperiences();
+@@ -863,25 +911,47 @@ const heroTitles =
+ const contentTranslations =
+   await getExperienceContentTranslations(locale);
+ 
++const sectionsTranslations =
++  await getExperienceSectionsTranslations(locale);
++
++const factsTranslations =
++  await getExperienceFactsTranslations(locale);
++
+ 
+   return experiences.map((experience) => {
+ 
+     const experienceFacts =
+-  facts.filter(
+-    fact =>
+-      fact.experience_id ===
+-      experience.id
+-  );
++  facts
++    .filter(
++      fact =>
++        fact.experience_id ===
++        experience.id
++    )
++    .map((fact) =>
++      getLocalizedExperience(
++        fact,
++        factsTranslations.find((t) => t.fact_id === fact.id),
++        ["label", "value"]
++      )
++    );
+ 
+ 
+ 
+ 
+     const experienceSections =
+-  sections.filter(
+-    section =>
+-      section.experience_id ===
+-      experience.id
+-  );
++  sections
++    .filter(
++      section =>
++        section.experience_id ===
++        experience.id
++    )
++    .map((section) =>
++      getLocalizedExperience(
++        section,
++        sectionsTranslations.find((t) => t.section_id === section.id),
++        ["title", "description"]
++      )
++    );
+ 
+     const experiencePriceTiers =
+   priceTiers
+@@ -1419,6 +1489,8 @@ export async function createExperienceFact(fact: any) {
+ 
+   }
+ 
++  triggerTranslate({ factId: fact.id });
++
+   return {
+     success: true,
+   };
+@@ -1452,6 +1524,10 @@ export async function updateExperienceFact(
+ 
+   }
+ 
++  if ("label" in updates || "value" in updates) {
++    triggerTranslate({ factId: id });
++  }
++
+   return{
+     success:true,
+   };
+@@ -1546,6 +1622,8 @@ export async function createExperienceSection(section: any) {
+ 
+   }
+ 
++  triggerTranslate({ sectionId: section.id });
++
+   return {
+     success: true,
+   };
+@@ -1579,6 +1657,10 @@ export async function updateExperienceSection(
+ 
+   }
+ 
++  if ("title" in updates || "description" in updates) {
++    triggerTranslate({ sectionId: id });
++  }
++
+   return{
+     success:true,
+   };
+-- 
+2.43.0
+

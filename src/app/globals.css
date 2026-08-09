@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+button,
+a,input
+[role="button"] {
+
+  cursor: pointer;
+}
+@media (prefers-color-scheme: dark) {
+
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f2f3f0;
+  }
+
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@media print {
+
+  body {
+    background: black !important;
+    color: #f2f3f0 !important;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+
+  a {
+  color: black !important;
+  background: #f2f3f0 !important;
+  border: none !important;
+}
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    background: #0C0C0C !important;
+    color: #f2f3f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  button {
+    display: none !important;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  section {
+    page-break-inside: avoid;
+  }
+
+  img {
+    page-break-inside: avoid;
+  }
+
+}
+
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.gallery-drag {
+
+  -webkit-user-drag: none;
+
+  -webkit-user-select: none;
+
+  user-select: none;
+
+  pointer-events: none;
+}

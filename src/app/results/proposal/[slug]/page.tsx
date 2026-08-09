@@ -1,0 +1,553 @@
+import { supabase } from "@/lib/supabase";
+import ProposalClient from "./proposalClient";
+import {
+  getBookableEnhancements,
+} from "@/lib/supabase/enhancementRepository";
+import { generateProposal }
+from "@/lib/generateProposal";
+
+
+
+import {
+  buildRendererData,
+} from "@/lib/proposal-engine/buildRendererData";
+
+import {
+  getBookableExperiences,
+} from "@/lib/supabase/experienceRepository";
+import { getCurrentLocale } from "@/i18n/locale";
+import { getTranslations } from "next-intl/server";
+
+// =========================================================
+// TYPES
+// =========================================================
+
+interface ProposalPageProps {
+
+  params: Promise<{
+    slug: string;
+  }>;
+
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
+}
+
+// =========================================================
+// PAGE
+// =========================================================
+
+export default async function ProposalPage({
+
+  params,
+   searchParams,
+
+}: ProposalPageProps) {
+
+  // =======================================================
+  // PARAMS
+  // =======================================================
+
+
+
+  const { slug } =
+    await params;
+
+  // Chiamata qui, prima di ogni return anticipato (validation/no-match/
+  // expired compresi), cosi' e' disponibile in tutti i rami — non solo
+  // nel percorso "felice" piu' sotto. Senza namespace: serve per
+  // raggiungere sia "proposal.*" che "configurator.*" (buildProposalSummary
+  // riusa le traduzioni di categorie/mood del configuratore).
+  const t = await getTranslations();
+
+  // =======================================================
+  // VALIDATION
+  // =======================================================
+
+  if (
+    !slug ||
+    !supabase
+  ) {
+
+    return (
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
+        Missing proposal ID
+
+      </main>
+    );
+  }
+const resolvedSearchParams =
+    await searchParams;
+  // =======================================================
+  // FETCH PROPOSAL
+  // =======================================================
+
+  const {
+    data: proposal,
+    error,
+  } = await supabase
+
+    .from("Proposal")
+
+    .select("*")
+
+    .eq("slug", slug)
+
+    .single();
+
+  const lead =
+    proposal?.proposal_data;
+
+  // =======================================================
+  // NOT FOUND
+  // =======================================================
+
+  if (
+    error ||
+    !lead
+  ) {
+
+    return (
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+
+        Proposal not found
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // TRIP DAYS
+  // Numero di giorni richiesti dal cliente, calcolato da
+  // start_date/end_date del lead (inclusivo: stesso giorno = 1,
+  // giorno successivo = 2, ecc.) — usato da generateProposal per
+  // escludere esperienze che richiedono piu' giorni di quelli
+  // disponibili (min_days). Se le date non sono presenti sul lead
+  // (non dovrebbe succedere, ma per sicurezza), tripDays resta
+  // undefined e il filtro min_days semplicemente non si applica.
+  // =======================================================
+
+  const tripDays =
+    lead.start_date && lead.end_date
+      ? Math.max(
+          1,
+          Math.round(
+            (new Date(lead.end_date).getTime() -
+              new Date(lead.start_date).getTime()) /
+              (1000 * 60 * 60 * 24)
+          ) + 1
+        )
+      : undefined;
+
+  // =======================================================
+  // GENERATE PROPOSAL
+  // =======================================================
+
+  const locale = await getCurrentLocale();
+
+  const dynamicExperiences =
+  await getBookableExperiences(locale);
+
+  const dynamicEnhancements =
+  await getBookableEnhancements(locale);
+
+
+const generatedProposal =
+
+  generateProposal({
+
+    experiencesSelected:
+      lead.experiences || [],
+
+    moodsSelected:
+      lead.moods || [],
+
+    budget:
+      lead.budget,
+
+    guests:
+      lead.guests,
+
+    children:
+      lead.children,
+
+    travelingWithChildren:
+      lead.traveling_with_children || false,
+
+    tripDays,
+
+    startDate:
+      lead.start_date,
+
+    endDate:
+      lead.end_date,
+
+    allExperiences:
+      dynamicExperiences,
+  });
+  // =======================================================
+  // RENDERER DATA
+  // =======================================================
+
+   const {
+    galleryImages,
+    enhancements,
+    includedExperiences,
+    includedExperiencesPreSelected,
+    isMultiDayTrip,
+    finalPrice,
+    proposalSummary,
+  } = buildRendererData({
+
+    generatedProposal,
+
+    lead,
+
+    enhancements:
+    dynamicEnhancements,
+
+    t,
+
+    locale,
+  });
+
+  // =======================================================
+  // DYNAMIC CONTENT
+  // =======================================================
+
+  const heroTitle =
+
+  generatedProposal.heroTitle ||
+
+  "Mediterranean Escape";
+
+  const heroImage =
+
+  generatedProposal.heroImage ||
+
+  "/images/default-hero.webp";
+
+ // introTitles/closingParagraphs vengono da site_copy (tradotti una
+ // volta sola, non per-proposal — sono solo 5+4 varianti fisse, non
+ // testo dinamico): peschiamo per indice invece di usare la stringa
+ // inglese di generateProposal, che resta solo come fallback per il
+ // caso "nessuna esperienza trovata" (indice non disponibile).
+ // (t dichiarato in cima alla funzione, disponibile qui.)
+
+ const dynamicIntroTitle =
+
+  generatedProposal.dynamicIntroTitleIndex !== undefined
+    ? t(`proposal.introTitles.${generatedProposal.dynamicIntroTitleIndex}`)
+    : generatedProposal.dynamicIntroTitle ||
+      "Curated Riviera Experience";
+
+  const dynamicIntroParagraph =
+    generatedProposal.dynamicIntroParagraph;
+
+  const dynamicClosingParagraph =
+
+  generatedProposal.dynamicClosingParagraphIndex !== undefined
+    ? t(`proposal.closingParagraphs.${generatedProposal.dynamicClosingParagraphIndex}`)
+    : generatedProposal.dynamicClosingParagraph ||
+
+  "We look forward to welcoming you into your private Riviera experience.";
+
+ const featuredExperience =
+  generatedProposal.featuredExperience;
+
+// =======================================================
+// NO MATCHING EXPERIENCE
+// =======================================================
+
+if (!featuredExperience) {
+
+  const debug = generatedProposal.noMatchDebug;
+
+  return (
+
+    <main
+      className="
+        min-h-screen
+        bg-black
+        text-white
+        flex
+        items-center
+        justify-center
+        px-6
+        py-24
+      "
+    >
+
+      <div
+        className="
+          text-center
+          max-w-2xl
+        "
+      >
+
+        <p
+          className="
+            uppercase
+            tracking-[0.4em]
+            text-zinc-600
+            text-xs
+            mb-8
+          "
+        >
+
+          {t("proposal.reservation.label")}
+
+        </p>
+
+        <h1
+          className="
+            text-4xl
+            md:text-7xl
+            font-light
+            leading-[0.92]
+            tracking-[-0.04em]
+            mb-10
+          "
+        >
+
+          No matching experience found
+
+        </h1>
+
+        <p
+          className="
+            text-zinc-400
+            text-lg
+            leading-[1.9]
+            mb-12
+          "
+        >
+
+          We couldn't find an experience matching these preferences yet.
+          Contact us directly to request a new curated proposal.
+
+        </p>
+<a
+
+          href="/craft-your-experience"
+          className="
+            inline-block
+            bg-white
+            text-black
+            px-10
+            py-5
+            rounded-full
+            uppercase
+            tracking-[0.25em]
+            text-xs
+            hover:scale-105
+            transition-all
+            duration-500
+          "
+        >
+          Back to configurator
+        </a>
+
+
+
+      </div>
+
+    </main>
+  );
+}
+
+
+
+
+  // =======================================================
+  // EXPIRATION
+  // =======================================================
+
+  const expiresAt =
+    proposal.expires_at;
+
+  const isExpired =
+
+    new Date(expiresAt)
+      .getTime() <
+
+    Date.now();
+
+  // =======================================================
+  // EXPIRED
+  // =======================================================
+
+  if (isExpired) {
+
+    return (
+
+      <main
+        className="
+          min-h-screen
+          bg-black
+          text-white
+          flex
+          items-center
+          justify-center
+          px-6
+        "
+      >
+
+        <div
+          className="
+            text-center
+            max-w-2xl
+          "
+        >
+
+          <p
+            className="
+              uppercase
+              tracking-[0.4em]
+              text-zinc-600
+              text-xs
+              mb-8
+            "
+          >
+
+            {t("proposal.reservation.label")}
+
+          </p>
+
+          <h1
+            className="
+              text-4xl
+              md:text-7xl
+              font-light
+              leading-[0.92]
+              tracking-[-0.04em]
+              mb-10
+            "
+          >
+
+            This proposal has expired
+
+          </h1>
+
+          <p
+            className="
+              text-zinc-400
+              text-lg
+              leading-[1.9]
+            "
+          >
+
+            Your private reservation window is no longer active.
+            Contact us directly to request a new curated proposal.
+
+          </p>
+
+        </div>
+
+      </main>
+    );
+  }
+
+  // =======================================================
+  // WHATSAPP
+  // =======================================================
+
+  const whatsappMessage =
+
+    encodeURIComponent(
+
+      `Hi Stefano, I'd like to confirm my ${featuredExperience?.title || "experience"} experience proposal for ${lead.guests} guests.`
+    );
+
+  const whatsappUrl =
+
+    `https://wa.me/393487140722?text=${whatsappMessage}`;
+
+  // =======================================================
+  // FEATURED EXPERIENCE
+  // =======================================================
+const featuredOperator =
+  featuredExperience?.operator || "";
+
+const featuredSubtitle =
+  featuredExperience?.title || "";
+
+const featuredDescription =
+  featuredExperience?.description || "";
+
+const featuredEssentials =
+  featuredExperience?.essentials || [];
+
+  const featuredSections =
+    featuredExperience?.sections || [];
+
+  // =======================================================
+  // RENDER
+  // =======================================================
+
+  return (
+
+<ProposalClient
+
+    heroImage={heroImage}
+
+    heroTitle={heroTitle}
+
+    lead={lead}
+
+    featuredExperience={featuredExperience}
+
+    includedExperiences={includedExperiences}
+
+    includedExperiencesPreSelected={includedExperiencesPreSelected}
+
+    enhancements={enhancements}
+
+    galleryImages={galleryImages}
+
+    expiresAt={expiresAt}
+
+    whatsappUrl={whatsappUrl}
+
+    isMultiDayTrip={isMultiDayTrip}
+
+
+  dynamicIntroParagraph={dynamicIntroParagraph ?? ""}
+dynamicClosingParagraph={dynamicClosingParagraph ?? ""}
+dynamicIntroTitle={dynamicIntroTitle ?? ""}
+
+    finalPrice={finalPrice}
+
+    proposalSummary={proposalSummary}
+
+    slug={slug}
+      leadName={lead.name}
+      leadEmail={lead.email}
+alreadyVerified={proposal.email_verified === true}
+alreadyRequested={proposal.booking_requested_at != null}
+confirmedSelection={proposal.confirmed_selection ?? null}
+
+/>
+
+);}

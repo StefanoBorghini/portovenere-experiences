@@ -1,0 +1,224 @@
+From 8e42d05de3ff0269649a115f35d1047ae49971d3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 28 Jul 2026 15:55:43 +0000
+Subject: [PATCH] fix: redesign automatic proposal reminders around booking
+ clicks
+
+Reminders now fire only for proposals where the customer never clicked
+"Request Private Booking" (booking_requested_at IS NULL), timed 12/24/36h
+from proposal creation instead of email verification. Clicking the button,
+regardless of later email confirmation, permanently stops the automatic
+reminder track. Since no verification token exists for these customers,
+the email links to the proposal page itself with new copy that doesn't
+reference email confirmation. Also adds vercel.json to actually schedule
+this cron route, which had no trigger configured anywhere in the repo.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/app/api/cron/proposal-reminders/route.ts | 24 +++--
+ src/lib/email/templates.ts                   | 98 ++++++++++++++++++--
+ vercel.json                                  |  8 ++
+ 3 files changed, 111 insertions(+), 19 deletions(-)
+ create mode 100644 vercel.json
+
+diff --git a/src/app/api/cron/proposal-reminders/route.ts b/src/app/api/cron/proposal-reminders/route.ts
+index 32b8347..9921910 100644
+--- a/src/app/api/cron/proposal-reminders/route.ts
++++ b/src/app/api/cron/proposal-reminders/route.ts
+@@ -1,7 +1,7 @@
+ import { NextRequest, NextResponse } from "next/server";
+ import { supabase } from "@/lib/supabase";
+ import { sendEmail } from "@/lib/email/sendEmail";
+-import { reminderEmailTemplate } from "@/lib/email/templates";
++import { bookingReminderTemplate } from "@/lib/email/templates";
+ 
+ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
+ 
+@@ -27,11 +27,16 @@ export async function GET(req: NextRequest) {
+ 
+   try {
+ 
++    // Un solo binario di reminder: proposal generate ma per cui il
++    // cliente non ha MAI cliccato "Request Private Booking"
++    // (booking_requested_at resta null finche' non clicca — vedi
++    // /api/request-booking). Appena clicca, per qualsiasi motivo
++    // (anche se poi non conferma l'email), la proposal esce per
++    // sempre da questa query: nessun reminder oltre quel punto.
+     const { data: pendingProposals, error: fetchError } = await db
+       .from("Proposal")
+       .select("*")
+-      .eq("email_verified", false)
+-      .not("verification_sent_at", "is", null)
++      .is("booking_requested_at", null)
+       .lt("reminder_stage", 3);
+ 
+     if (fetchError) {
+@@ -50,7 +55,7 @@ export async function GET(req: NextRequest) {
+       pendingProposals.map(async (proposal) => {
+ 
+         const hoursSincePending =
+-          (now - new Date(proposal.verification_sent_at).getTime()) / (1000 * 60 * 60);
++          (now - new Date(proposal.created_at).getTime()) / (1000 * 60 * 60);
+ 
+         let dueStage = 0;
+ 
+@@ -68,8 +73,7 @@ export async function GET(req: NextRequest) {
+           return { slug: proposal.slug, skipped: true, reason: "no email on file" };
+         }
+ 
+-        const verifyUrl =
+-          `${SITE_URL}/api/verify-email?token=${proposal.verification_token}&slug=${proposal.slug}`;
++        const proposalUrl = `${SITE_URL}/results/proposal/${proposal.slug}`;
+ 
+         const summaryData = {
+           name: leadData.name || "",
+@@ -90,11 +94,11 @@ export async function GET(req: NextRequest) {
+           to: leadData.email,
+           subject:
+             dueStage === 1
+-              ? "Your Riviera proposal is waiting for you"
++              ? "Your Riviera proposal is still open"
+               : dueStage === 2
+-              ? "Reminder: confirm your Riviera booking request"
+-              : "Last reminder: your Riviera proposal request",
+-          html: reminderEmailTemplate(summaryData, verifyUrl, dueStage as 1 | 2 | 3),
++              ? "Still there? Your Riviera proposal hasn't expired"
++              : "Last chance to view your Riviera proposal",
++          html: bookingReminderTemplate(summaryData, proposalUrl, dueStage as 1 | 2 | 3),
+         });
+ 
+         if (!emailResult.success) {
+diff --git a/src/lib/email/templates.ts b/src/lib/email/templates.ts
+index 31b2c7a..8e2bfcf 100644
+--- a/src/lib/email/templates.ts
++++ b/src/lib/email/templates.ts
+@@ -185,15 +185,11 @@ export function verificationEmailTemplate(data: ProposalSummary, verifyUrl: stri
+ }
+ 
+ // ---------------------------------------------------------
+-// 1b. Email al CLIENTE — REMINDER per proposal non confermate
+-// (12h / 24h / 36h dopo l'invio della mail di verifica, cioe'
+-// da verification_sent_at — non da created_at, perche' quello
+-// e' solo il momento in cui la proposal e' stata generata, non
+-// il momento in cui il cliente ha chiesto il booking).
+-//
+-// Riusa lo stesso verifyUrl (stesso token) della mail iniziale,
+-// e lo stesso riepilogo arricchito — nessuna nuova verifica da
+-// generare, e' solo un promemoria.
++// 1b. Email al CLIENTE — REMINDER manuale per proposal non
++// confermate (inviato dall'admin da /api/admin/send-reminder,
++// non dal cron automatico). Riusa lo stesso verifyUrl (stesso
++// token) della mail iniziale, e lo stesso riepilogo arricchito —
++// nessuna nuova verifica da generare, e' solo un promemoria.
+ //
+ // stage: 1 = 12h, 2 = 24h, 3 = 36h — cambia solo tono/urgenza
+ // del testo, il resto del contenuto e' identico alla mail
+@@ -269,6 +265,90 @@ export function reminderEmailTemplate(
+   `;
+ }
+ 
++// ---------------------------------------------------------
++// 1c. Email al CLIENTE — REMINDER automatico (cron) per chi
++// non ha MAI cliccato "Request Private Booking" sulla proposal.
++// A differenza di reminderEmailTemplate qui non esiste alcun
++// verification_token (quel flusso non e' mai partito), quindi
++// il bottone porta direttamente alla pagina della proposal
++// invece che al link di verifica, e il testo non parla di
++// "confermare l'email" (che il cliente non ha mai iniziato).
++//
++// stage: 1 = 12h, 2 = 24h, 3 = 36h dalla generazione della
++// proposal (created_at) — se il cliente clicca il bottone in
++// qualsiasi momento, booking_requested_at si valorizza e il
++// cron smette di considerare questa proposal per sempre.
++// ---------------------------------------------------------
++
++const BOOKING_REMINDER_COPY: Record<number, { subject: string; heading: string; intro: string }> = {
++  1: {
++    subject: "Your Riviera proposal is still open",
++    heading: "Your private Riviera proposal is waiting",
++    intro: "We put together a private Riviera experience for you and it's still open — here's a quick reminder of what we prepared:",
++  },
++  2: {
++    subject: "Still there? Your Riviera proposal hasn't expired",
++    heading: "Still there? Your proposal hasn't expired yet",
++    intro: "Just a gentle nudge — your private Riviera proposal is still available. Take a moment to look it over:",
++  },
++  3: {
++    subject: "Last chance to view your Riviera proposal",
++    heading: "One last reminder before this proposal closes",
++    intro: "This is our final reminder — your private Riviera proposal is still open, but won't stay available much longer:",
++  },
++};
++
++export function bookingReminderTemplate(
++  data: ProposalSummary,
++  proposalUrl: string,
++  stage: 1 | 2 | 3
++) {
++
++  const copy = BOOKING_REMINDER_COPY[stage];
++
++  return `
++    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
++
++      <div style="text-align: center; margin-bottom: 24px;">
++        <img
++          src="${SITE_URL}/logo-white.png"
++          alt="Portovenere Experiences"
++          style="height: 36px; filter: invert(1);"
++        />
++      </div>
++
++      <h2 style="font-weight: 300;">${copy.heading}</h2>
++      <p>Hi ${escapeHtml(data.name) || "there"},</p>
++      <p>${copy.intro}</p>
++
++      ${summaryTable(data)}
++
++      <p style="margin: 32px 0;">
++        <a
++          href="${proposalUrl}"
++          style="
++            background: #111;
++            color: #fff;
++            padding: 14px 28px;
++            text-decoration: none;
++            border-radius: 999px;
++            font-size: 13px;
++            letter-spacing: 1px;
++            text-transform: uppercase;
++          "
++        >
++          View my proposal
++        </a>
++      </p>
++      <p style="color: #666; font-size: 13px;">
++        If you didn't request this, you can safely ignore this email.
++      </p>
++
++      ${contactsBlock()}
++    </div>
++  `;
++}
++
+ // ---------------------------------------------------------
+ // 2. Email al PROPRIETARIO (info@portovenere.com) —
+ //    non appena una proposal viene generata, indipendentemente
+diff --git a/vercel.json b/vercel.json
+new file mode 100644
+index 0000000..ba71c10
+--- /dev/null
++++ b/vercel.json
+@@ -0,0 +1,8 @@
++{
++  "crons": [
++    {
++      "path": "/api/cron/proposal-reminders",
++      "schedule": "0 * * * *"
++    }
++  ]
++}
+-- 
+2.43.0
+

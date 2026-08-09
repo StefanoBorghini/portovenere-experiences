@@ -1,0 +1,36 @@
+From 8e43d9d9dfc4e13e896a0e9eb9a730503eed63e7 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 26 Jul 2026 14:13:43 +0000
+Subject: [PATCH] fix: enhancement_content.id is bigint, not uuid
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Migration failed on Supabase: "foreign key constraint ... cannot be
+implemented — Key columns 'enhancement_id' and 'id' are of
+incompatible types: uuid and bigint." Copied the uuid pattern from the
+experience_* tables without checking — enhancement_content actually
+uses a bigint primary key.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ supabase-migrations/2026_enhancement_translations.sql | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/supabase-migrations/2026_enhancement_translations.sql b/supabase-migrations/2026_enhancement_translations.sql
+index 06e0616..17551f3 100644
+--- a/supabase-migrations/2026_enhancement_translations.sql
++++ b/supabase-migrations/2026_enhancement_translations.sql
+@@ -14,7 +14,7 @@
+ -- =====================================================================
+ 
+ create table if not exists enhancement_content_translations (
+-  enhancement_id uuid not null references enhancement_content(id) on delete cascade,
++  enhancement_id bigint not null references enhancement_content(id) on delete cascade,
+   locale text not null,
+   title text,
+   description text,
+-- 
+2.43.0
+

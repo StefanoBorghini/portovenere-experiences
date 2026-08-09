@@ -1,0 +1,145 @@
+"use client";
+
+import { useState } from "react";
+
+export default function PrivateAccessPage() {
+
+  const [username, setUsername] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  async function handleLogin() {
+
+    const response = await fetch(
+      "/api/private-login",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      window.location.href =
+        data.redirect;
+
+    } else {
+
+      alert("Invalid credentials");
+
+    }
+  }
+
+  return (
+
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+
+      <div className="w-full max-w-md space-y-6">
+
+     <div className="flex flex-col items-center text-center mb-14">
+
+  <img
+    src="/logo-white.png"
+    alt="Portovenere Experiences"
+    className="
+      w-28
+      md:w-36
+      object-contain
+      mb-8
+      opacity-95
+    "
+  />
+
+  <p
+    className="
+      uppercase
+      tracking-[0.35em]
+      text-xs
+      md:text-sm
+      text-zinc-500
+      mb-6
+    "
+  >
+    PORTOVENERE EXPERIENCES
+  </p>
+
+  <h1
+    className="
+      text-4xl
+      md:text-5xl
+      font-light
+      leading-tight
+      mb-5
+    "
+  >
+    Private Guest Access
+  </h1>
+
+  <p
+    className="
+      text-zinc-400
+      text-sm
+      md:text-base
+      leading-relaxed
+      max-w-sm
+    "
+  >
+    Enter your private credentials
+    to access your curated proposal.
+  </p>
+
+</div>
+
+        <div className="space-y-4">
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) =>
+              setUsername(
+                e.target.value
+              )
+            }
+            className="w-full bg-transparent border border-white/20 p-4 rounded-xl"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(
+                e.target.value
+              )
+            }
+            className="w-full bg-transparent border border-white/20 p-4 rounded-xl"
+          />
+
+          <button
+            onClick={handleLogin}
+            className="w-full bg-white text-black rounded-xl p-4"
+          >
+            Enter Experience
+          </button>
+
+        </div>
+
+      </div>
+
+    </main>
+  );
+}

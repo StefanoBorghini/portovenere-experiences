@@ -1,0 +1,1257 @@
+From 8ba0719e340fa6e7fb7db6a863d92d00a319eadd Mon Sep 17 00:00:00 2001
+From: Stefano Borghini <projects@stefanoborghinidesign.it>
+Date: Sat, 1 Aug 2026 16:06:08 +0000
+Subject: [PATCH] feat: add /become-a-partner B2B landing page and site nav
+
+New operator-facing landing page (Base/Premium/Signature plans,
+selection philosophy, FAQ, and a real application form backed by
+Supabase + Turnstile + an owner notification email), plus a shared
+PublicHeader nav (Home/Configurator/How It Works/For Operators/
+Contact) now used on the homepage and this new page.
+
+- src/app/become-a-partner: page + client component
+- src/app/api/partner-application: verifies Turnstile, inserts into
+  the new partner_applications table, emails the owner
+- supabase-migrations/2026_partner_applications.sql: new table,
+  RLS locked to server-side service-role inserts only
+- src/components/layout/PublicHeader.tsx: shared nav, wired into the
+  homepage in place of its old logo-only nav
+- New "nav" and "becomePartner" namespaces in src/messages/en.json
+  (site_copy/Lara pipeline, same as the rest of the site)
+- /start's Work With Us link now points here instead of the mailto
+  placeholder
+
+Requires running the new SQL migration and seed-site-copy.mjs before
+the page has real copy and can accept submissions.
+---
+ src/app/api/partner-application/route.ts      | 160 ++++++
+ .../become-a-partner/BecomePartnerClient.tsx  | 509 ++++++++++++++++++
+ src/app/become-a-partner/page.tsx             |  12 +
+ src/app/page.tsx                              |  22 +-
+ src/app/start/StartClient.tsx                 |  15 +-
+ src/components/layout/PublicHeader.tsx        | 126 +++++
+ src/lib/analytics/gtag.ts                     |  40 ++
+ src/lib/email/templates.ts                    |  51 ++
+ src/messages/en.json                          | 116 ++++
+ .../2026_partner_applications.sql             |  50 ++
+ 10 files changed, 1074 insertions(+), 27 deletions(-)
+ create mode 100644 src/app/api/partner-application/route.ts
+ create mode 100644 src/app/become-a-partner/BecomePartnerClient.tsx
+ create mode 100644 src/app/become-a-partner/page.tsx
+ create mode 100644 src/components/layout/PublicHeader.tsx
+ create mode 100644 supabase-migrations/2026_partner_applications.sql
+
+diff --git a/src/app/api/partner-application/route.ts b/src/app/api/partner-application/route.ts
+new file mode 100644
+index 0000000..6380e5f
+--- /dev/null
++++ b/src/app/api/partner-application/route.ts
+@@ -0,0 +1,160 @@
++import { NextRequest, NextResponse } from "next/server";
++import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
++import { sendEmail } from "@/lib/email/sendEmail";
++import { ownerNewPartnerApplicationTemplate } from "@/lib/email/templates";
++
++// =========================================================
++// POST /api/partner-application
++// Form B2B su /become-a-partner. Nessuna policy pubblica di
++// insert su partner_applications (vedi migration) — l'unica
++// scrittura passa da qui, lato server, con la service role key,
++// dopo verifica Turnstile — stesso schema di request-booking.
++// =========================================================
++
++const VALID_CATEGORIES = [
++  "hotel",
++  "restaurant",
++  "experience",
++  "travel_professional",
++];
++
++const VALID_PLANS = ["base", "premium", "signature", "not_sure"];
++
++export async function POST(req: NextRequest) {
++
++  try {
++
++    const body = await req.json();
++
++    const {
++      turnstileToken,
++      companyName,
++      contactName,
++      email,
++      phone,
++      categories,
++      planInterest,
++      website,
++      instagram,
++      message,
++      locale,
++    } = body;
++
++    if (!turnstileToken) {
++      return NextResponse.json(
++        { success: false, error: "Missing captcha token" },
++        { status: 400 }
++      );
++    }
++
++    const verifyResponse = await fetch(
++      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
++      {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++        body: JSON.stringify({
++          secret: process.env.TURNSTILE_SECRET_KEY,
++          response: turnstileToken,
++        }),
++      }
++    );
++
++    const verifyData = await verifyResponse.json();
++
++    if (!verifyData.success) {
++      return NextResponse.json(
++        { success: false, error: "Captcha verification failed" },
++        { status: 400 }
++      );
++    }
++
++    if (
++      !companyName ||
++      !contactName ||
++      !email ||
++      !Array.isArray(categories) ||
++      categories.length === 0
++    ) {
++      return NextResponse.json(
++        { success: false, error: "Missing required fields" },
++        { status: 400 }
++      );
++    }
++
++    const cleanCategories = categories.filter((c: unknown) =>
++      VALID_CATEGORIES.includes(String(c))
++    );
++
++    if (cleanCategories.length === 0) {
++      return NextResponse.json(
++        { success: false, error: "Invalid category" },
++        { status: 400 }
++      );
++    }
++
++    const cleanPlan = VALID_PLANS.includes(planInterest)
++      ? planInterest
++      : "not_sure";
++
++    const supabaseAdmin = getSupabaseAdmin();
++
++    const { error: insertError } = await supabaseAdmin
++      .from("partner_applications")
++      .insert([
++        {
++          company_name: companyName,
++          contact_name: contactName,
++          email,
++          phone: phone || null,
++          categories: cleanCategories,
++          plan_interest: cleanPlan,
++          website: website || null,
++          instagram: instagram || null,
++          message: message || null,
++          locale: locale || null,
++        },
++      ]);
++
++    if (insertError) {
++      console.error("partner-application insert error:", insertError);
++      return NextResponse.json(
++        { success: false, error: "Could not save application" },
++        { status: 500 }
++      );
++    }
++
++    const ownerEmail =
++      process.env.OWNER_NOTIFICATION_EMAIL || "info@portovenere.com";
++
++    const emailResult = await sendEmail({
++      to: ownerEmail,
++      subject: `New partner application — ${companyName}`,
++      html: ownerNewPartnerApplicationTemplate({
++        companyName,
++        contactName,
++        email,
++        phone,
++        categories: cleanCategories,
++        planInterest: cleanPlan,
++        website,
++        instagram,
++        message,
++      }),
++    });
++
++    if (!emailResult.success) {
++      console.error("partner-application notification email failed:", emailResult.error);
++    }
++
++    return NextResponse.json({ success: true });
++
++  } catch (err) {
++
++    console.error("partner-application error:", err);
++
++    return NextResponse.json(
++      { success: false, error: "Unexpected error" },
++      { status: 500 }
++    );
++  }
++}
+diff --git a/src/app/become-a-partner/BecomePartnerClient.tsx b/src/app/become-a-partner/BecomePartnerClient.tsx
+new file mode 100644
+index 0000000..c5bcd55
+--- /dev/null
++++ b/src/app/become-a-partner/BecomePartnerClient.tsx
+@@ -0,0 +1,509 @@
++"use client";
++
++import { useEffect, useState } from "react";
++import Turnstile from "react-turnstile";
++import { useTranslations, useLocale } from "next-intl";
++import PublicHeader from "@/components/layout/PublicHeader";
++import {
++  trackPartnerPageView,
++  trackPartnerPlanSelected,
++  trackPartnerApplicationSubmitted,
++  trackPartnerApplicationError,
++} from "@/lib/analytics/gtag";
++
++const PRIVACY_URL = "https://www.iubenda.com/privacy-policy/15645850";
++
++const CATEGORY_KEYS = [
++  { value: "hotel", labelKey: "categoryHotel" },
++  { value: "restaurant", labelKey: "categoryRestaurant" },
++  { value: "experience", labelKey: "categoryExperience" },
++  { value: "travel_professional", labelKey: "categoryTravelProfessional" },
++] as const;
++
++type PlanKey = "base" | "premium" | "signature" | "not_sure";
++
++// Legge un oggetto "pseudo-array" (chiavi numeriche "0","1","2"...) da
++// site_copy — stesso schema gia' usato da proposal.introTitles/
++// closingParagraphs, qui iterato per intero invece che pescato per
++// indice. Le chiavi intere di un oggetto JS sono sempre ordinate
++// numericamente, quindi Object.values basta, nessun sort necessario.
++function rawList(raw: unknown): string[] {
++  if (!raw || typeof raw !== "object") return [];
++  return Object.values(raw as Record<string, string>);
++}
++
++export default function BecomePartnerClient() {
++  const t = useTranslations("becomePartner");
++  const locale = useLocale();
++
++  useEffect(() => {
++    trackPartnerPageView();
++  }, []);
++
++  // =======================================================
++  // FORM STATE
++  // =======================================================
++
++  const [companyName, setCompanyName] = useState("");
++  const [contactName, setContactName] = useState("");
++  const [email, setEmail] = useState("");
++  const [phone, setPhone] = useState("");
++  const [categories, setCategories] = useState<string[]>([]);
++  const [planInterest, setPlanInterest] = useState<PlanKey>("not_sure");
++  const [website, setWebsite] = useState("");
++  const [instagram, setInstagram] = useState("");
++  const [message, setMessage] = useState("");
++  const [captchaToken, setCaptchaToken] = useState("");
++  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
++
++  function toggleCategory(value: string) {
++    setCategories((prev) =>
++      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
++    );
++  }
++
++  function selectPlan(plan: PlanKey) {
++    setPlanInterest(plan);
++    if (plan !== "not_sure") trackPartnerPlanSelected(plan);
++    document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
++  }
++
++  async function handleSubmit(e: React.FormEvent) {
++    e.preventDefault();
++
++    if (!companyName || !contactName || !email || categories.length === 0) {
++      return;
++    }
++
++    if (!captchaToken) {
++      trackPartnerApplicationError("missing_captcha");
++      return;
++    }
++
++    setStatus("sending");
++
++    try {
++
++      const response = await fetch("/api/partner-application", {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++        body: JSON.stringify({
++          turnstileToken: captchaToken,
++          companyName,
++          contactName,
++          email,
++          phone,
++          categories,
++          planInterest,
++          website,
++          instagram,
++          message,
++          locale,
++        }),
++      });
++
++      const data = await response.json();
++
++      if (!data.success) {
++        setStatus("error");
++        trackPartnerApplicationError(data.error || "unknown");
++        return;
++      }
++
++      setStatus("success");
++      trackPartnerApplicationSubmitted(planInterest, categories);
++
++    } catch (err) {
++      console.error("partner-application submit failed:", err);
++      setStatus("error");
++      trackPartnerApplicationError("network");
++    }
++  }
++
++  const basePlanFeatures = rawList(t.raw("plans.base.features"));
++  const premiumPlanFeatures = rawList(t.raw("plans.premium.features"));
++  const processSteps = rawList(t.raw("process.steps"));
++  const faqItems = rawList(t.raw("faq.items")) as unknown as { q: string; a: string }[];
++
++  return (
++    <main className="bg-[#0C0C0C] text-[#EDEBE7] break-words">
++      <PublicHeader />
++
++      {/* HERO */}
++      <section className="px-6 pt-16 pb-20 md:pt-24 md:pb-28 text-center border-b border-[#EDEBE7]/10">
++        <div className="max-w-3xl mx-auto">
++          <p className="uppercase tracking-[0.35em] text-zinc-500 text-[11px] md:text-xs mb-6">
++            {t("hero.eyebrow")}
++          </p>
++          <h1 className="text-4xl md:text-6xl font-light leading-[1.05] tracking-tight mb-6">
++            {t("hero.title")}
++          </h1>
++          <p className="text-zinc-400 text-base md:text-xl leading-relaxed max-w-xl mx-auto mb-10">
++            {t("hero.subtitle")}
++          </p>
++          <a
++            href="#apply"
++            className="inline-block bg-[#EDEBE7] text-black px-10 py-4 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
++          >
++            {t("hero.cta")}
++          </a>
++        </div>
++      </section>
++
++      {/* INTRO */}
++      <section className="px-6 py-20 md:py-28 max-w-3xl mx-auto text-center border-b border-[#EDEBE7]/10">
++        <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
++          {t("intro.eyebrow")}
++        </p>
++        <h2 className="text-3xl md:text-5xl font-light leading-tight mb-6">
++          {t("intro.title")}
++        </h2>
++        <p className="text-zinc-400 text-base md:text-lg leading-relaxed">
++          {t("intro.description")}
++        </p>
++      </section>
++
++      {/* PLANS */}
++      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
++        <div className="max-w-6xl mx-auto">
++          <div className="text-center mb-14 md:mb-20">
++            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
++              {t("plans.eyebrow")}
++            </p>
++            <h2 className="text-3xl md:text-5xl font-light leading-tight">
++              {t("plans.title")}
++            </h2>
++          </div>
++
++          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
++
++            {/* BASE */}
++            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/12 rounded-[28px] p-8">
++              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
++                {t("plans.base.name")}
++              </p>
++              <p className="mb-1 break-words">
++                <span className="text-4xl font-light">{t("plans.base.price")}</span>
++                <span className="text-zinc-500 text-sm ml-1">{t("plans.base.period")}</span>
++              </p>
++              <p className="text-zinc-500 text-sm mb-8">{t("plans.base.tagline")}</p>
++
++              <ul className="flex-1 space-y-3 mb-8">
++                {basePlanFeatures.map((feature, i) => (
++                  <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
++                    <span aria-hidden="true" className="text-zinc-600 mt-0.5">—</span>
++                    {feature}
++                  </li>
++                ))}
++              </ul>
++
++              <button
++                type="button"
++                onClick={() => selectPlan("base")}
++                className="border border-white/20 rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-300"
++              >
++                {t("hero.cta")}
++              </button>
++            </div>
++
++            {/* PREMIUM */}
++            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/25 rounded-[28px] p-8 bg-[#EDEBE7]/[0.03]">
++              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
++                {t("plans.premium.name")}
++              </p>
++              <p className="mb-1 break-words">
++                <span className="text-4xl font-light">{t("plans.premium.price")}</span>
++                <span className="text-zinc-500 text-sm ml-1">{t("plans.premium.period")}</span>
++              </p>
++              <p className="text-zinc-500 text-sm mb-8">{t("plans.premium.tagline")}</p>
++
++              <p className="text-zinc-400 text-xs uppercase tracking-[0.15em] mb-3">
++                {t("plans.premium.featuresIntro")}
++              </p>
++              <ul className="flex-1 space-y-3 mb-8">
++                {premiumPlanFeatures.map((feature, i) => (
++                  <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
++                    <span aria-hidden="true" className="text-[#EDEBE7]/60 mt-0.5">—</span>
++                    {feature}
++                  </li>
++                ))}
++              </ul>
++
++              <button
++                type="button"
++                onClick={() => selectPlan("premium")}
++                className="bg-[#EDEBE7] text-black rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:scale-[1.03] transition-all duration-300"
++              >
++                {t("hero.cta")}
++              </button>
++            </div>
++
++            {/* SIGNATURE */}
++            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/12 rounded-[28px] p-8">
++              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
++                {t("plans.signature.name")}
++              </p>
++              <p className="mb-1 break-words">
++                <span className="text-4xl font-light">{t("plans.signature.price")}</span>
++              </p>
++              <p className="text-zinc-500 text-sm mb-8">{t("plans.signature.tagline")}</p>
++
++              <p className="flex-1 text-sm text-zinc-300 leading-relaxed mb-8">
++                {t("plans.signature.description")}
++              </p>
++
++              <button
++                type="button"
++                onClick={() => selectPlan("signature")}
++                className="border border-white/20 rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-300"
++              >
++                {t("hero.cta")}
++              </button>
++            </div>
++
++          </div>
++        </div>
++      </section>
++
++      {/* PROCESS */}
++      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
++        <div className="max-w-4xl mx-auto text-center">
++          <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
++            {t("process.eyebrow")}
++          </p>
++          <h2 className="text-3xl md:text-5xl font-light leading-tight mb-6">
++            {t("process.title")}
++          </h2>
++          <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-14">
++            {t("process.description")}
++          </p>
++
++          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
++            {processSteps.map((step, i) => (
++              <div key={i} className="flex flex-col items-center">
++                <span className="text-zinc-600 text-sm uppercase tracking-[0.2em] mb-3">
++                  {String(i + 1).padStart(2, "0")}
++                </span>
++                <p className="text-[#EDEBE7]">{step}</p>
++              </div>
++            ))}
++          </div>
++        </div>
++      </section>
++
++      {/* FAQ */}
++      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
++        <div className="max-w-3xl mx-auto">
++          <div className="text-center mb-14">
++            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
++              {t("faq.eyebrow")}
++            </p>
++            <h2 className="text-3xl md:text-5xl font-light leading-tight">
++              {t("faq.title")}
++            </h2>
++          </div>
++
++          <div className="space-y-8">
++            {faqItems.map((item, i) => (
++              <div key={i} className="border-t border-[#EDEBE7]/10 pt-6">
++                <p className="text-[#EDEBE7] mb-2">{item.q}</p>
++                <p className="text-zinc-400 text-sm leading-relaxed">{item.a}</p>
++              </div>
++            ))}
++          </div>
++        </div>
++      </section>
++
++      {/* FORM */}
++      <section id="apply" className="px-6 py-20 md:py-28 scroll-mt-20">
++        <div className="max-w-xl mx-auto">
++          <div className="text-center mb-12">
++            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
++              {t("form.eyebrow")}
++            </p>
++            <h2 className="text-3xl md:text-5xl font-light leading-tight mb-4">
++              {t("form.title")}
++            </h2>
++            <p className="text-zinc-400 text-sm">{t("form.description")}</p>
++          </div>
++
++          {status === "success" ? (
++            <p className="text-center text-[#EDEBE7] text-lg leading-relaxed py-10">
++              {t("form.success")}
++            </p>
++          ) : (
++            <form onSubmit={handleSubmit} className="space-y-6">
++
++              <Field label={t("form.companyName")} required>
++                <input
++                  type="text"
++                  required
++                  value={companyName}
++                  onChange={(e) => setCompanyName(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <Field label={t("form.contactName")} required>
++                <input
++                  type="text"
++                  required
++                  value={contactName}
++                  onChange={(e) => setContactName(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <Field label={t("form.email")} required>
++                <input
++                  type="email"
++                  required
++                  value={email}
++                  onChange={(e) => setEmail(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <Field label={t("form.phone")}>
++                <input
++                  type="tel"
++                  value={phone}
++                  onChange={(e) => setPhone(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <fieldset>
++                <legend className="text-xs uppercase tracking-[0.15em] text-zinc-400 mb-3">
++                  {t("form.categoryLabel")}
++                </legend>
++                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
++                  {CATEGORY_KEYS.map(({ value, labelKey }) => (
++                    <label
++                      key={value}
++                      className="min-w-0 flex items-center gap-2 text-sm text-zinc-300 cursor-pointer"
++                    >
++                      <input
++                        type="checkbox"
++                        checked={categories.includes(value)}
++                        onChange={() => toggleCategory(value)}
++                        className="shrink-0 h-4 w-4 accent-[#EDEBE7] cursor-pointer"
++                      />
++                      <span className="break-words">{t(`form.${labelKey}`)}</span>
++                    </label>
++                  ))}
++                </div>
++              </fieldset>
++
++              <Field label={t("form.planLabel")}>
++                <select
++                  value={planInterest}
++                  onChange={(e) => setPlanInterest(e.target.value as PlanKey)}
++                  className={inputClass}
++                >
++                  <option value="not_sure">{t("form.planNotSure")}</option>
++                  <option value="base">{t("form.planBase")}</option>
++                  <option value="premium">{t("form.planPremium")}</option>
++                  <option value="signature">{t("form.planSignature")}</option>
++                </select>
++              </Field>
++
++              <Field label={t("form.website")}>
++                <input
++                  type="url"
++                  value={website}
++                  onChange={(e) => setWebsite(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <Field label={t("form.instagram")}>
++                <input
++                  type="text"
++                  value={instagram}
++                  onChange={(e) => setInstagram(e.target.value)}
++                  className={inputClass}
++                />
++              </Field>
++
++              <Field label={t("form.message")}>
++                <textarea
++                  value={message}
++                  onChange={(e) => setMessage(e.target.value)}
++                  rows={4}
++                  className={inputClass}
++                />
++              </Field>
++
++              <div className="flex justify-center pt-2">
++                <Turnstile
++                  sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
++                  onVerify={(token) => setCaptchaToken(token)}
++                />
++              </div>
++
++              {status === "error" && (
++                <p className="text-center text-red-400 text-sm">{t("form.error")}</p>
++              )}
++
++              <button
++                type="submit"
++                disabled={status === "sending"}
++                className="w-full bg-[#EDEBE7] text-black px-10 py-4 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-[1.02] transition-all duration-500 disabled:opacity-50 disabled:hover:scale-100"
++              >
++                {status === "sending" ? t("form.submitting") : t("form.submit")}
++              </button>
++            </form>
++          )}
++        </div>
++      </section>
++
++      {/* FOOTER */}
++      <footer className="border-t border-[#EDEBE7]/10 py-16 px-6">
++        <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
++          <img
++            src="/logo-white.png"
++            alt="Portovenere Experiences"
++            className="h-9 w-auto opacity-60"
++          />
++
++          <a
++            href={PRIVACY_URL}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="text-[11px] uppercase tracking-[0.25em] text-zinc-500 hover:text-white transition-colors duration-300"
++          >
++            Privacy
++          </a>
++
++          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
++            © {new Date().getFullYear()} Portovenere Experiences
++          </p>
++        </div>
++      </footer>
++    </main>
++  );
++}
++
++const inputClass =
++  "w-full bg-transparent border border-white/15 rounded-2xl px-4 py-3 text-sm text-[#EDEBE7] placeholder:text-zinc-600 focus:outline-none focus:border-white/40 transition-colors duration-300";
++
++function Field({
++  label,
++  required,
++  children,
++}: {
++  label: string;
++  required?: boolean;
++  children: React.ReactNode;
++}) {
++  return (
++    <label className="block">
++      <span className="block text-xs uppercase tracking-[0.15em] text-zinc-400 mb-2">
++        {label}
++        {required && <span className="text-zinc-600"> *</span>}
++      </span>
++      {children}
++    </label>
++  );
++}
+diff --git a/src/app/become-a-partner/page.tsx b/src/app/become-a-partner/page.tsx
+new file mode 100644
+index 0000000..e8cd8a9
+--- /dev/null
++++ b/src/app/become-a-partner/page.tsx
+@@ -0,0 +1,12 @@
++import type { Metadata } from "next";
++import BecomePartnerClient from "./BecomePartnerClient";
++
++export const metadata: Metadata = {
++  title: "Become a Partner — Portovenere Experience",
++  description:
++    "Join the Portovenere Experience ecosystem — qualified visibility and real client opportunities for hotels, restaurants, experience providers and travel professionals.",
++};
++
++export default function BecomePartnerPage() {
++  return <BecomePartnerClient />;
++}
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 461f522..27a93b4 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -2,6 +2,7 @@
+ 
+ import { useEffect, useRef } from "react";
+ import { useTranslations } from "next-intl";
++import PublicHeader from "@/components/layout/PublicHeader";
+ import {
+   trackScrollDepth,
+   trackHeroViewed,
+@@ -204,25 +205,8 @@ export default function HomePage() {
+           {/* GRAIN */}
+           <div className="absolute inset-0 opacity-20 mix-blend-soft-light bg-[url('https://grainy-gradients.vercel.app/noise.svg')] z-10" />
+ 
+-          {/* NAVBAR — statica, in cima all'hero, non segue lo scroll.
+-              Logo e padding ridotti solo su mobile per lasciare piu'
+-              spazio verticale al contenuto sotto — invariati da md in su. */}
+-          <nav className="relative z-50">
+-            <div className="max-w-7xl mx-auto flex justify-center py-4 md:py-8">
+-
+-              <a
+-                href="/"
+-                className="block"
+-              >
+-                <img
+-                  src="/logo-white.png"
+-                  alt="Portovenere Experiences"
+-                  className="w-auto h-12 md:h-24"
+-                />
+-              </a>
+-
+-            </div>
+-          </nav>
++          {/* NAVBAR — statica, in cima all'hero, non segue lo scroll. */}
++          <PublicHeader />
+ 
+ 
+           {/* HERO CONTENT — su mobile: meno padding-top, titolo piu'
+diff --git a/src/app/start/StartClient.tsx b/src/app/start/StartClient.tsx
+index 9412d0b..249dbab 100644
+--- a/src/app/start/StartClient.tsx
++++ b/src/app/start/StartClient.tsx
+@@ -16,9 +16,10 @@ import {
+ // =========================================================
+ // DESTINAZIONI — un solo punto dove aggiornare i link quando
+ // nasceranno pagine dedicate (esperienze pubbliche, vetrina
+-// locale, collaborazioni). Vedi commenti inline: STAY_EAT_DISCOVER
+-// e WORK_WITH_US sono placeholder (WhatsApp / email) finche'
+-// quelle pagine non esistono — nessun URL e' stato inventato.
++// locale). STAY_EAT_DISCOVER resta un placeholder (WhatsApp)
++// finche' quella vetrina non esiste — nessun URL e' stato
++// inventato. WORK_WITH_US_URL punta a /become-a-partner, la
++// pagina B2B reale.
+ // =========================================================
+ 
+ const CONFIGURATOR_URL = "/craft-your-experience";
+@@ -31,9 +32,7 @@ const STAY_EAT_DISCOVER_URL =
+     "Hi Stefano, I'd love some recommendations for places to stay, eat and discover in Portovenere."
+   );
+ 
+-const WORK_WITH_US_URL =
+-  "mailto:info@portovenere.com?subject=" +
+-  encodeURIComponent("Partnership inquiry — Portovenere Experiences");
++const WORK_WITH_US_URL = "/become-a-partner";
+ 
+ // Nessun handle Instagram presente nel progetto oggi — lasciare
+ // vuoto nasconde l'icona automaticamente (vedi JSX in fondo).
+@@ -219,7 +218,7 @@ export default function StartClient() {
+ 
+       {/* B2B — presente ma volutamente defilato */}
+       <section className="relative z-10 px-6 pb-8 text-center">
+-        <a
++        <Link
+           href={WORK_WITH_US_URL}
+           onClick={() =>
+             trackClickWorkWithUs({
+@@ -230,7 +229,7 @@ export default function StartClient() {
+           className="inline-block text-zinc-500 hover:text-zinc-300 transition-colors duration-300 text-[11px] uppercase tracking-[0.25em]"
+         >
+           Work With Us
+-        </a>
++        </Link>
+         <p className="text-zinc-700 text-[10px] leading-relaxed mt-2 max-w-xs mx-auto">
+           Hotels, restaurants, experience providers and travel professionals.
+         </p>
+diff --git a/src/components/layout/PublicHeader.tsx b/src/components/layout/PublicHeader.tsx
+new file mode 100644
+index 0000000..e0024bc
+--- /dev/null
++++ b/src/components/layout/PublicHeader.tsx
+@@ -0,0 +1,126 @@
++"use client";
++
++import { useState } from "react";
++import Link from "next/link";
++import { useTranslations } from "next-intl";
++import { AnimatePresence, motion } from "framer-motion";
++
++// =========================================================
++// Nav condivisa tra le pagine pubbliche (home, /become-a-partner,
++// e future pagine editoriali) — non usata su /start (deliberatamente
++// senza menu, vedi StartClient.tsx) ne' sul configuratore (flusso
++// a step, una distrazione in meno). "How It Works" punta alla
++// sezione reale gia' esistente in home (id="how-it-works"), "Contact"
++// allo stesso canale WhatsApp usato ovunque nel sito — nessuna pagina
++// contatti dedicata esiste ancora.
++// =========================================================
++
++const CONTACT_WHATSAPP_URL = "https://wa.me/393487140722";
++
++export default function PublicHeader() {
++  const t = useTranslations("nav");
++  const [open, setOpen] = useState(false);
++
++  const links = [
++    { label: t("home"), href: "/" },
++    { label: t("configurator"), href: "/craft-your-experience" },
++    { label: t("howItWorks"), href: "/#how-it-works" },
++    { label: t("partners"), href: "/become-a-partner" },
++  ];
++
++  return (
++    <header className="relative z-50">
++      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4 md:py-6">
++        <Link
++          href="/"
++          aria-label="Portovenere Experiences — home"
++          onClick={() => setOpen(false)}
++        >
++          <img
++            src="/logo-white.png"
++            alt="Portovenere Experiences"
++            className="w-auto h-9 md:h-12"
++          />
++        </Link>
++
++        {/* DESKTOP */}
++        <nav className="hidden md:flex items-center gap-8">
++          {links.map((link) => (
++            <Link
++              key={link.href}
++              href={link.href}
++              className="text-[11px] uppercase tracking-[0.2em] text-zinc-300 hover:text-white transition-colors duration-300"
++            >
++              {link.label}
++            </Link>
++          ))}
++          <a
++            href={CONTACT_WHATSAPP_URL}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="text-[11px] uppercase tracking-[0.2em] border border-white/20 rounded-full px-5 py-2.5 hover:bg-white hover:text-black transition-all duration-300"
++          >
++            {t("contact")}
++          </a>
++        </nav>
++
++        {/* MOBILE TOGGLE */}
++        <button
++          type="button"
++          onClick={() => setOpen((v) => !v)}
++          aria-expanded={open}
++          aria-controls="public-nav-mobile-panel"
++          aria-label={open ? "Close menu" : "Open menu"}
++          className="md:hidden relative z-50 w-9 h-9 flex flex-col items-center justify-center gap-[5px] focus-visible:outline focus-visible:outline-1 focus-visible:outline-white/60 focus-visible:outline-offset-2 rounded-full"
++        >
++          <span
++            className={`block h-px w-5 bg-white transition-transform duration-300 ${
++              open ? "translate-y-[3px] rotate-45" : ""
++            }`}
++          />
++          <span
++            className={`block h-px w-5 bg-white transition-transform duration-300 ${
++              open ? "-translate-y-[3px] -rotate-45" : ""
++            }`}
++          />
++        </button>
++      </div>
++
++      {/* MOBILE PANEL */}
++      <AnimatePresence>
++        {open && (
++          <motion.div
++            id="public-nav-mobile-panel"
++            initial={{ opacity: 0, height: 0 }}
++            animate={{ opacity: 1, height: "auto" }}
++            exit={{ opacity: 0, height: 0 }}
++            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
++            className="md:hidden overflow-hidden bg-[#0C0C0C] border-t border-b border-[#EDEBE7]/10"
++          >
++            <nav className="flex flex-col px-6 py-6 gap-5">
++              {links.map((link) => (
++                <Link
++                  key={link.href}
++                  href={link.href}
++                  onClick={() => setOpen(false)}
++                  className="text-sm uppercase tracking-[0.2em] text-zinc-200"
++                >
++                  {link.label}
++                </Link>
++              ))}
++              <a
++                href={CONTACT_WHATSAPP_URL}
++                target="_blank"
++                rel="noopener noreferrer"
++                onClick={() => setOpen(false)}
++                className="text-sm uppercase tracking-[0.2em] text-zinc-200"
++              >
++                {t("contact")}
++              </a>
++            </nav>
++          </motion.div>
++        )}
++      </AnimatePresence>
++    </header>
++  );
++}
+diff --git a/src/lib/analytics/gtag.ts b/src/lib/analytics/gtag.ts
+index d582cd7..63fb964 100644
+--- a/src/lib/analytics/gtag.ts
++++ b/src/lib/analytics/gtag.ts
+@@ -514,6 +514,46 @@ export function trackClickStayEatDiscover({
+   });
+ }
+ 
++// =========================================================
++// /become-a-partner — landing B2B per operatori (hotel, ristoranti,
++// fornitori di esperienze, travel professional). Categoria dedicata
++// "partners", separata da "start" e da "configurator", cosi' il
++// funnel B2B resta isolabile dal funnel turistico.
++// =========================================================
++
++export function trackPartnerPageView() {
++  trackEvent({
++    action: "partner_page_view",
++    category: "partners",
++  });
++}
++
++export function trackPartnerPlanSelected(plan: string) {
++  trackEvent({
++    action: "partner_plan_selected",
++    category: "partners",
++    label: plan,
++    extra: { plan },
++  });
++}
++
++export function trackPartnerApplicationSubmitted(plan: string, categories: string[]) {
++  trackEvent({
++    action: "partner_application_submitted",
++    category: "partners",
++    label: plan,
++    extra: { plan, categories: categories.join(",") },
++  });
++}
++
++export function trackPartnerApplicationError(reason: string) {
++  trackEvent({
++    action: "partner_application_error",
++    category: "partners",
++    label: reason,
++  });
++}
++
+ export function trackClickWorkWithUs({
+   linkPosition,
+   linkDestination,
+diff --git a/src/lib/email/templates.ts b/src/lib/email/templates.ts
+index 6521675..d6db3fb 100644
+--- a/src/lib/email/templates.ts
++++ b/src/lib/email/templates.ts
+@@ -617,3 +617,54 @@ export function clientChangesConfirmedTemplate(data: ProposalSummary) {
+     ${primaryButton(`${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}`, "View your proposal")}
+   `);
+ }
++
++// ---------------------------------------------------------
++// 6. Email al PROPRIETARIO — nuova candidatura operatore da
++//    /become-a-partner. Nessuna email al richiedente: la conferma
++//    e' solo a schermo sul form (result.success), coerente col
++//    fatto che ogni candidatura viene rivista a mano, non c'e'
++//    nessun "flusso automatico" da confermare via email.
++// ---------------------------------------------------------
++
++interface PartnerApplicationSummary {
++  companyName: string;
++  contactName: string;
++  email: string;
++  phone?: string;
++  categories: string[];
++  planInterest: string;
++  website?: string;
++  instagram?: string;
++  message?: string;
++}
++
++export function ownerNewPartnerApplicationTemplate(data: PartnerApplicationSummary) {
++  return wrapEmail(`
++    <h2 style="font-weight: 300;">New partner application</h2>
++    <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Business</td><td>${escapeHtml(data.companyName)}</td></tr>
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Contact</td><td>${escapeHtml(data.contactName)}</td></tr>
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Email</td><td>${escapeHtml(data.email)}</td></tr>
++      ${data.phone ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Phone</td><td>${escapeHtml(data.phone)}</td></tr>` : ""}
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Category</td><td>${escapeList(data.categories)}</td></tr>
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Plan interest</td><td>${escapeHtml(data.planInterest)}</td></tr>
++      ${data.website ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Website</td><td>${escapeHtml(data.website)}</td></tr>` : ""}
++      ${data.instagram ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Instagram</td><td>${escapeHtml(data.instagram)}</td></tr>` : ""}
++    </table>
++
++    ${
++      data.message
++        ? `<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid ${BORDER_SUBTLE};">
++             <p style="color: ${TEXT_MUTED}; font-size: 13px; margin: 0 0 8px;">Message</p>
++             <p style="font-size: 14px; white-space: pre-wrap;">${escapeHtml(data.message)}</p>
++           </div>`
++        : ""
++    }
++
++    <p style="margin: 24px 0;">
++      <a href="mailto:${escapeHtml(data.email)}" style="color: #fff;">
++        Reply to ${escapeHtml(data.contactName)} →
++      </a>
++    </p>
++  `, 560);
++}
+diff --git a/src/messages/en.json b/src/messages/en.json
+index a07600a..23e2813 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -264,5 +264,121 @@
+       "shareTitle": "Your Riviera Experience Proposal",
+       "shareText": "Here's your curated private Riviera experience."
+     }
++  },
++  "nav": {
++    "home": "Home",
++    "configurator": "Configurator",
++    "howItWorks": "How It Works",
++    "partners": "For Operators",
++    "contact": "Contact"
++  },
++  "becomePartner": {
++    "hero": {
++      "eyebrow": "Portovenere Experiences — For Operators",
++      "title": "Join The Portovenere Ecosystem",
++      "subtitle": "We don't sell a listing. We sell qualified visibility and the opportunity to reach the right guests.",
++      "cta": "Apply To Join"
++    },
++    "intro": {
++      "eyebrow": "How It Works",
++      "title": "A Curated Ecosystem, Not A Directory",
++      "description": "Portovenere Experiences matches travelers to a small number of carefully selected local partners — hotels, restaurants, experience providers and travel professionals — based on their preferences, budget and travel style. Every proposal we send is built around real partners, not a generic list."
++    },
++    "plans": {
++      "eyebrow": "Plans",
++      "title": "Choose How You Show Up",
++      "base": {
++        "name": "Base",
++        "price": "€120",
++        "period": "/ year",
++        "tagline": "For those who want to be there.",
++        "features": {
++          "0": "Full listing profile",
++          "1": "Photos",
++          "2": "Contact details",
++          "3": "Italian & English",
++          "4": "Presence on Portovenere.com",
++          "5": "Presence in the Portovenere Experience configurator"
++        }
++      },
++      "premium": {
++        "name": "Premium",
++        "price": "€180",
++        "period": "/ year",
++        "tagline": "For those who want to be promoted.",
++        "featuresIntro": "Everything in Base, plus:",
++        "features": {
++          "0": "Increased visibility",
++          "1": "Priority in proposals when it fits the guest's profile",
++          "2": "Editorial & SEO opportunities",
++          "3": "Social & Instagram collaborations",
++          "4": "Reporting and greater presence across the ecosystem"
++        }
++      },
++      "signature": {
++        "name": "Signature",
++        "price": "On request",
++        "tagline": "Featured experience in the configurator.",
++        "description": "Reserved for a small number of strategic partners — dedicated campaigns, custom content, sponsorships, ongoing collaborations and tailored solutions, shaped around what actually fits."
++      }
++    },
++    "process": {
++      "eyebrow": "The Process",
++      "title": "Few Partners, Carefully Selected",
++      "description": "We don't onboard every applicant — Portovenere Experiences stays valuable because the partners in it are genuinely worth recommending.",
++      "steps": {
++        "0": "Apply",
++        "1": "We review your profile personally",
++        "2": "We follow up to onboard you"
++      }
++    },
++    "faq": {
++      "eyebrow": "Questions",
++      "title": "Frequently Asked",
++      "items": {
++        "0": {
++          "q": "How does the selection process work?",
++          "a": "We review every application individually against what our guests are actually looking for. We'd rather stay small and genuinely curated than list every business in town."
++        },
++        "1": {
++          "q": "Can I change plans later?",
++          "a": "Yes — you can move between Base and Premium at renewal, or reach out any time to discuss a Signature partnership."
++        },
++        "2": {
++          "q": "What does \"presence in the configurator\" mean?",
++          "a": "Your business becomes one of the real options our matching engine can propose to guests whose preferences fit what you offer — not just a static listing."
++        },
++        "3": {
++          "q": "I'm not sure which plan fits — can I ask first?",
++          "a": "Of course. Select \"Not sure yet\" in the form below and tell us about your business — we'll recommend a plan based on what you're trying to achieve."
++        }
++      }
++    },
++    "form": {
++      "eyebrow": "Apply",
++      "title": "Tell Us About Your Business",
++      "description": "Fill in the details below — we personally review every application.",
++      "companyName": "Business Name",
++      "contactName": "Your Name",
++      "email": "Email",
++      "phone": "Phone (optional)",
++      "categoryLabel": "What best describes you?",
++      "categoryHotel": "Hotel / Accommodation",
++      "categoryRestaurant": "Restaurant",
++      "categoryExperience": "Experience Provider",
++      "categoryTravelProfessional": "Travel Professional / Agency",
++      "planLabel": "Which plan interests you?",
++      "planBase": "Base",
++      "planPremium": "Premium",
++      "planSignature": "Signature",
++      "planNotSure": "Not sure yet",
++      "website": "Website (optional)",
++      "instagram": "Instagram (optional)",
++      "message": "Tell us about your business",
++      "submit": "Submit Application",
++      "submitting": "Sending...",
++      "success": "Thank you — we've received your application and will follow up personally soon.",
++      "error": "Something went wrong — please try again, or reach us directly on WhatsApp."
++    }
+   }
+ }
+\ No newline at end of file
+diff --git a/supabase-migrations/2026_partner_applications.sql b/supabase-migrations/2026_partner_applications.sql
+new file mode 100644
+index 0000000..1813675
+--- /dev/null
++++ b/supabase-migrations/2026_partner_applications.sql
+@@ -0,0 +1,50 @@
++-- =====================================================================
++-- partner_applications
++-- =====================================================================
++-- Candidature ricevute dal form B2B su /become-a-partner (hotel,
++-- ristoranti, fornitori di esperienze, travel professional che
++-- vogliono entrare nell'ecosistema Portovenere Experience).
++--
++-- Nessuna scrittura pubblica via RLS: l'unico punto di inserimento e'
++-- /api/partner-application, che gira lato server con la service role
++-- key (bypassa RLS) dopo aver verificato Turnstile — stessa cautela
++-- gia' usata per site_copy_translations, per non esporre un endpoint
++-- di scrittura pubblica diretta sulla tabella.
++--
++-- Da eseguire UNA VOLTA nel SQL editor di Supabase.
++-- =====================================================================
++
++create table if not exists partner_applications (
++  id uuid primary key default gen_random_uuid(),
++  created_at timestamptz not null default now(),
++
++  company_name text not null,
++  contact_name text not null,
++  email text not null,
++  phone text,
++
++  -- Piu' di una categoria puo' applicarsi alla stessa attivita'
++  -- (es. una tenuta che e' sia alloggio che ristorante).
++  categories text[] not null default '{}',
++
++  -- 'base' | 'premium' | 'signature' | 'not_sure'
++  plan_interest text not null default 'not_sure',
++
++  website text,
++  instagram text,
++  message text,
++
++  -- Triage lato admin — nessun pannello dedicato ancora, ma il campo
++  -- e' pronto per quando servira' (stesso schema di leads/Proposal).
++  status text not null default 'new'
++    check (status in ('new', 'contacted', 'approved', 'rejected')),
++
++  locale text
++);
++
++alter table partner_applications enable row level security;
++
++-- Nessuna policy per anon/authenticated: RLS attiva senza eccezioni
++-- blocca sia lettura che scrittura dal client pubblico. L'unico
++-- accesso e' server-side con la service role key, che bypassa RLS
++-- comunque (vedi src/lib/supabase/adminClient.ts).
+-- 
+2.43.0
+

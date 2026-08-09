@@ -1,0 +1,918 @@
+From 3fe3df7ace1b8e6555629ef3200ee3074b81261c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 18:36:14 +0000
+Subject: [PATCH 5/7] feat: wire the proposal page's static UI text to
+ next-intl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Extracts every hardcoded English string across the proposal page's
+9 rendering components (ProposalHero, ProposalNarrative, CinematicGallery,
+FeaturedExperience, ExperienceCard, IncludedExperiences,
+ProposalEnhancements, FloatingPriceBar, ReservationSection, ShareButton)
+into en.json under a new "proposal" namespace, replacing reads from
+the old proposalConfig.ts static labels and inline hardcoded strings.
+
+- formatPrice() now returns labelKey/valueKey instead of literal text,
+  since it's a plain function without hook access — callers resolve
+  the actual string via useTranslations("proposal").
+- Guest-count sentence in ProposalHero ("N adults and M children") is
+  now composed from singular/plural message keys instead of manual
+  string interpolation, matching the pattern already used in the
+  configurator.
+- it.json picks these keys up automatically via the Lara auto-translate
+  prebuild script on next build.
+
+Not in scope here: enhancement.title/description/button text come
+straight from the enhancements DB table and have no translation
+pipeline at all yet (no enhancements_translations table exists) —
+that's a new feature, not a fix, and needs a DB migration I can't run
+from here.
+---
+ .../proposal/[slug]/proposalClient.tsx        |  6 +-
+ src/components/ShareButton.tsx                |  9 ++-
+ src/components/experience/experienceCard.tsx  | 22 +++---
+ src/components/proposal/CinematicGallery.tsx  | 17 +++--
+ .../proposal/FeaturedExperience.tsx           | 33 +++++----
+ src/components/proposal/FloatingPriceBar.tsx  | 22 +++---
+ .../proposal/IncludedExperiences.tsx          | 11 +--
+ .../proposal/ProposalEnhancements.tsx         | 33 ++++-----
+ src/components/proposal/ProposalHero.tsx      | 25 +++++--
+ src/components/proposal/ProposalNarrative.tsx | 12 ++--
+ .../proposal/ReservationSection.tsx           | 22 +++---
+ src/lib/pricing/formatPrice.tsx               | 23 ++++--
+ src/messages/en.json                          | 70 ++++++++++++++++++-
+ 13 files changed, 206 insertions(+), 99 deletions(-)
+
+diff --git a/src/app/results/proposal/[slug]/proposalClient.tsx b/src/app/results/proposal/[slug]/proposalClient.tsx
+index 9a0a1ae..04fc3f9 100644
+--- a/src/app/results/proposal/[slug]/proposalClient.tsx
++++ b/src/app/results/proposal/[slug]/proposalClient.tsx
+@@ -1,4 +1,5 @@
+ "use client";
++import { useTranslations } from "next-intl";
+ import FloatingPriceBar from "@/components/proposal/FloatingPriceBar";
+ import ProposalHero from "@/components/proposal/ProposalHero";
+ import ProposalNarrative from "@/components/proposal/ProposalNarrative";
+@@ -85,6 +86,8 @@ export default function ProposalClient({
+ 
+ }:Props){
+ 
++    const t = useTranslations("proposal");
++
+     // =====================================================
+     // SAFETY GUARD
+     // =====================================================
+@@ -93,8 +96,7 @@ export default function ProposalClient({
+         return (
+             <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+                 <p className="text-zinc-400 text-lg text-center max-w-xl">
+-                    We couldn't load this proposal correctly.
+-                    Please contact us directly.
++                    {t("errorFallback")}
+                 </p>
+             </main>
+         );
+diff --git a/src/components/ShareButton.tsx b/src/components/ShareButton.tsx
+index c1c5ec2..73baf9e 100644
+--- a/src/components/ShareButton.tsx
++++ b/src/components/ShareButton.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { useState } from "react";
++import { useTranslations } from "next-intl";
+ 
+ interface ShareButtonProps {
+   slug: string;
+@@ -8,6 +9,8 @@ interface ShareButtonProps {
+ 
+ export default function ShareButton({ slug }: ShareButtonProps) {
+ 
++  const t = useTranslations("proposal");
++
+   const [copied, setCopied] = useState(false);
+ 
+   async function handleShare() {
+@@ -19,8 +22,8 @@ export default function ShareButton({ slug }: ShareButtonProps) {
+     if (navigator.share) {
+       try {
+         await navigator.share({
+-          title: "Your Riviera Experience Proposal",
+-          text: "Here's your curated private Riviera experience.",
++          title: t("shareButton.shareTitle"),
++          text: t("shareButton.shareText"),
+           url,
+         });
+       } catch {
+@@ -46,7 +49,7 @@ export default function ShareButton({ slug }: ShareButtonProps) {
+       onClick={handleShare}
+       className="bg-white text-black px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-[1.02] transition-all duration-500"
+     >
+-      {copied ? "Link copied!" : "Share Proposal"}
++      {copied ? t("shareButton.copied") : t("shareButton.share")}
+     </button>
+   );
+ }
+\ No newline at end of file
+diff --git a/src/components/experience/experienceCard.tsx b/src/components/experience/experienceCard.tsx
+index f2f1d6b..3264fca 100644
+--- a/src/components/experience/experienceCard.tsx
++++ b/src/components/experience/experienceCard.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { useState } from "react";
++import { useTranslations } from "next-intl";
+ import { motion } from "framer-motion";
+ import { ProposalExperienceCard } from "@/types/proposal";
+ import ExperienceFacts from "@/components/experience/experienceFacts";
+@@ -46,6 +47,8 @@ export default function ExperienceCard({
+ 
+ }: Props) {
+ 
++  const t = useTranslations("proposal");
++
+   const [showIncluded, setShowIncluded] =
+     useState(false);
+ 
+@@ -57,7 +60,8 @@ export default function ExperienceCard({
+ 
+   const price = useGuestTiers
+     ? {
+-        label: "",
++        labelKey: "" as const,
++        valueKey: "" as const,
+         value: `€${calculatePrice(
+           experience.experience.base_price,
+           experience.experience.pricing_type,
+@@ -73,6 +77,8 @@ export default function ExperienceCard({
+         experience.experience.pricing_type
+       );
+ 
++  const priceValue = price.valueKey ? t(`featured.${price.valueKey}`) : price.value;
++
+   return (
+ 
+    <motion.button
+@@ -239,7 +245,7 @@ ${
+       tracking-[-0.03em]
+     "
+   >
+-    {price.value}
++    {priceValue}
+     {!useGuestTiers &&
+       experience.experience.pricing_type === "per_person" && (
+         <span
+@@ -253,7 +259,7 @@ ${
+             font-normal
+           "
+         >
+-          Per Person
++          {t("featured.perPerson")}
+         </span>
+       )}
+   </p>
+@@ -312,8 +318,8 @@ ${
+         >
+ 
+           {showIncluded
+-            ? "Hide what's included  −"
+-            : "What's included  +"}
++            ? t("featured.hideWhatsIncluded")
++            : t("featured.whatsIncluded")}
+ 
+         </div>
+ 
+@@ -376,10 +382,10 @@ ${
+ `}
+     >
+   {isDisabled
+-    ? "Not compatible"
++    ? t("includedExperiences.notCompatible")
+     : isSelected
+-      ? "Included"
+-      : "Add"}
++      ? t("featured.included")
++      : t("includedExperiences.add")}
+ </div>
+ 
+ </div>
+diff --git a/src/components/proposal/CinematicGallery.tsx b/src/components/proposal/CinematicGallery.tsx
+index 5e50e16..089eeb5 100644
+--- a/src/components/proposal/CinematicGallery.tsx
++++ b/src/components/proposal/CinematicGallery.tsx
+@@ -26,9 +26,7 @@ import {
+   useEffect,
+ } from "react";
+ 
+-import {
+-  proposalConfig,
+-} from "@/config/proposalConfig";
++import { useTranslations } from "next-intl";
+ 
+ interface CinematicGalleryProps {
+ 
+@@ -43,12 +41,17 @@ export default function CinematicGallery({
+ 
+   images,
+ 
+-  label = proposalConfig.gallery.label,
++  label,
+ 
+-  title = proposalConfig.gallery.title,
++  title,
+ 
+ }: CinematicGalleryProps) {
+ 
++  const t = useTranslations("proposal");
++
++  const resolvedLabel = label ?? t("gallery.label");
++  const resolvedTitle = title ?? t("gallery.title");
++
+   const containerRef =
+     useRef<HTMLDivElement>(null);
+ 
+@@ -345,8 +348,8 @@ export default function CinematicGallery({
+   >
+ 
+     <SectionHeader
+-      label={label}
+-      title={title}
++      label={resolvedLabel}
++      title={resolvedTitle}
+     />
+ 
+   </motion.div>
+diff --git a/src/components/proposal/FeaturedExperience.tsx b/src/components/proposal/FeaturedExperience.tsx
+index 000e3f2..19968d5 100644
+--- a/src/components/proposal/FeaturedExperience.tsx
++++ b/src/components/proposal/FeaturedExperience.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { useState } from "react";
++import { useTranslations } from "next-intl";
+ import { motion } from "framer-motion";
+ import { ExperienceFact } from "@/types/experience";
+ import Section
+@@ -86,9 +87,12 @@ export default function FeaturedExperience({
+ 
+ }: FeaturedExperienceProps) {
+ 
++  const t = useTranslations("proposal");
++
+   const price = useGuestTiers
+     ? {
+-        label: "Price",
++        labelKey: "priceLabel" as const,
++        valueKey: "" as const,
+         value: `€${calculatePrice(
+           basePrice,
+           priceType,
+@@ -101,6 +105,9 @@ export default function FeaturedExperience({
+       }
+     : formatPrice(basePrice, priceType);
+ 
++  const priceLabel = price.labelKey ? t(`featured.${price.labelKey}`) : "";
++  const priceValue = price.valueKey ? t(`featured.${price.valueKey}`) : price.value;
++
+   // =====================================================
+   // SHOW MORE / SHOW ALL — stesso pattern gia' usato in
+   // ExperienceCard.tsx per "What's included" (collassato di
+@@ -198,7 +205,7 @@ export default function FeaturedExperience({
+                 "
+               >
+ 
+-                Featured Experience
++                {t("featured.label")}
+ 
+               </p>
+ 
+@@ -284,17 +291,17 @@ export default function FeaturedExperience({
+                   "
+                 >
+                   {showFullDescription
+-                    ? "Show less  −"
+-                    : "Show more  +"}
++                    ? t("featured.showLess")
++                    : t("featured.showMore")}
+                 </button>
+ 
+               )}
+ 
+-              {(price.label || price.value) && (
++              {(priceLabel || priceValue) && (
+ 
+                 <div className="mb-16 mt-10">
+ 
+-                  {price.label && (
++                  {priceLabel && (
+ 
+                     <p
+                       className="
+@@ -305,12 +312,12 @@ export default function FeaturedExperience({
+                         mb-4
+                       "
+                     >
+-                      {price.label}
++                      {priceLabel}
+                     </p>
+ 
+                   )}
+ 
+-                  {price.value && (
++                  {priceValue && (
+ 
+                     <p
+                       className="
+@@ -320,7 +327,7 @@ export default function FeaturedExperience({
+                       leading-none
+                       "
+                     >
+-                      {price.value}
++                      {priceValue}
+                     </p>
+ 
+                   )}
+@@ -375,8 +382,8 @@ export default function FeaturedExperience({
+                 >
+ 
+                   {showAllFacts
+-                    ? "Show less  −"
+-                    : "Show all  +"}
++                    ? t("featured.showLess")
++                    : t("featured.showAll")}
+ 
+                 </div>
+ 
+@@ -414,8 +421,8 @@ export default function FeaturedExperience({
+                   >
+ 
+                     {showAllIncluded
+-                      ? "Hide what's included  −"
+-                      : "What's included  +"}
++                      ? t("featured.hideWhatsIncluded")
++                      : t("featured.whatsIncluded")}
+ 
+                   </div>
+ 
+diff --git a/src/components/proposal/FloatingPriceBar.tsx b/src/components/proposal/FloatingPriceBar.tsx
+index 93fb5d6..29da638 100644
+--- a/src/components/proposal/FloatingPriceBar.tsx
++++ b/src/components/proposal/FloatingPriceBar.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { motion, AnimatePresence } from "framer-motion";
++import { useTranslations } from "next-intl";
+ import { useEffect, useState } from "react";
+ 
+ type BookingState = "idle" | "sending" | "sent" | "error";
+@@ -45,6 +46,9 @@ export default function FloatingPriceBar({
+ 
+ }: FloatingPriceBarProps) {
+ 
++  const t = useTranslations("proposal");
++  const tc = useTranslations("common");
++
+   const [visible, setVisible] = useState(false);
+ 
+   useEffect(() => {
+@@ -64,12 +68,12 @@ export default function FloatingPriceBar({
+   const isDone = bookingState === "sent" && !hasUnconfirmedChanges;
+ 
+   const actionLabel = isDone
+-    ? "Request Sent ✓"
++    ? t("floatingBar.requestSent")
+     : isBusy
+-    ? "Sending..."
++    ? t("floatingBar.sending")
+     : hasUnconfirmedChanges
+-    ? "Confirm Changes"
+-    : "Reserve Now";
++    ? t("floatingBar.confirmChanges")
++    : tc("reserveNow");
+ 
+   const showArrow = !isDone && !isBusy;
+ 
+@@ -84,10 +88,10 @@ export default function FloatingPriceBar({
+ 
+     isDone
+       ? (alreadyVerified
+-          ? `Thank you, ${leadName || "there"} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.`
+-          : `Check your inbox — we've sent a confirmation link to ${leadEmail}. Click it to complete your booking request.`)
++          ? t("floatingBar.thankYouVerified", { name: leadName || t("floatingBar.someone") })
++          : t("floatingBar.checkInbox", { email: leadEmail || "" }))
+       : bookingState === "error"
+-      ? "Something went wrong — please try again, or contact us directly."
++      ? t("floatingBar.genericError")
+       : null;
+ 
+   return (
+@@ -210,7 +214,7 @@ export default function FloatingPriceBar({
+             pt-4
+             pb-2.5
+           ">
+-            {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
++            {experienceCount === 1 ? t("floatingBar.experienceSingular", { count: experienceCount }) : t("floatingBar.experiencePlural", { count: experienceCount })}
+           </span>
+ 
+           {/* RIGA PRINCIPALE — prezzo (+ conteggio su desktop) a
+@@ -251,7 +255,7 @@ export default function FloatingPriceBar({
+                 text-white/45
+                 whitespace-nowrap
+               ">
+-                {experienceCount} Experience{experienceCount !== 1 ? "s" : ""}
++                {experienceCount === 1 ? t("floatingBar.experienceSingular", { count: experienceCount }) : t("floatingBar.experiencePlural", { count: experienceCount })}
+               </span>
+ 
+               <span className="
+diff --git a/src/components/proposal/IncludedExperiences.tsx b/src/components/proposal/IncludedExperiences.tsx
+index 2bda4d0..8fdb562 100644
+--- a/src/components/proposal/IncludedExperiences.tsx
++++ b/src/components/proposal/IncludedExperiences.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { motion } from "framer-motion";
++import { useTranslations } from "next-intl";
+ import { useState, useEffect } from "react";
+ import Section
+ from "@/components/layout/Section";
+@@ -63,6 +64,8 @@ export default function IncludedExperiences({
+ 
+ }: IncludedExperiencesProps) {
+ 
++  const t = useTranslations("proposal");
++
+   const [
+   selectedExperiences,
+   setSelectedExperiences,
+@@ -222,13 +225,13 @@ return (
+           <SectionHeader
+             label={
+               preSelected && !isMultiDayTrip
+-                ? "Included Experiences"
+-                : "You Might Also Like"
++                ? t("includedExperiences.labelPreselected")
++                : t("includedExperiences.labelSuggested")
+             }
+             title={
+               preSelected && !isMultiDayTrip
+-                ? "Curated Riviera Moments"
+-                : "Complete Your Escape"
++                ? t("includedExperiences.titlePreselected")
++                : t("includedExperiences.titleSuggested")
+             }
+           />
+ 
+diff --git a/src/components/proposal/ProposalEnhancements.tsx b/src/components/proposal/ProposalEnhancements.tsx
+index 58e0a17..3a83e43 100644
+--- a/src/components/proposal/ProposalEnhancements.tsx
++++ b/src/components/proposal/ProposalEnhancements.tsx
+@@ -22,9 +22,7 @@ import {
+   fadeReveal,
+ } from "@/lib/motion/fadeReveal";
+ 
+-import {
+-  proposalConfig,
+-} from "@/config/proposalConfig";
++import { useTranslations } from "next-intl";
+ 
+ import {
+   trackEnhancementAdded,
+@@ -71,7 +69,7 @@ export default function ProposalEnhancements({
+ 
+ }: ProposalEnhancementsProps){
+ 
+-  
++  const t = useTranslations("proposal");
+ 
+     function toggleEnhancement(
+         id: number
+@@ -132,16 +130,8 @@ export default function ProposalEnhancements({
+ >
+ 
+   <SectionHeader
+-    label={
+-    proposalConfig
+-      .enhancements
+-      .label
+-  }
+-  title={
+-    proposalConfig
+-      .enhancements
+-      .title
+-  }
++    label={t("enhancements.label")}
++    title={t("enhancements.title")}
+   />
+ 
+ </motion.div>
+@@ -173,7 +163,7 @@ const total = calculatePrice(
+ 
+ );
+ 
+-const price = formatPrice(
++const priceResult = formatPrice(
+ 
+     total,
+ 
+@@ -181,6 +171,9 @@ const price = formatPrice(
+ 
+ );
+ 
++const priceLabel = priceResult.labelKey ? t(`featured.${priceResult.labelKey}`) : "";
++const priceValue = priceResult.valueKey ? t(`featured.${priceResult.valueKey}`) : priceResult.value;
++
+                             return (
+ 
+                                 <button
+@@ -277,11 +270,11 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+ 
+                                         </p>
+ 
+-{(price.label || price.value) && (
++{(priceLabel || priceValue) && (
+ 
+   <div className="mb-8">
+ 
+-    {price.label && (
++    {priceLabel && (
+ 
+       <p
+         className="
+@@ -292,12 +285,12 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+           mb-2
+         "
+       >
+-        {price.label}
++        {priceLabel}
+       </p>
+ 
+     )}
+ 
+-    {price.value && (
++    {priceValue && (
+ 
+       <p
+         className="
+@@ -307,7 +300,7 @@ shadow-[0_0_0_2px_rgba(255,255,255,0.15)]
+           text-white
+         "
+       >
+-        {price.value}
++        {priceValue}
+       </p>
+ 
+     )}
+diff --git a/src/components/proposal/ProposalHero.tsx b/src/components/proposal/ProposalHero.tsx
+index c5deaf1..78ac3be 100644
+--- a/src/components/proposal/ProposalHero.tsx
++++ b/src/components/proposal/ProposalHero.tsx
+@@ -1,5 +1,6 @@
+ "use client";
+ 
++import { useTranslations } from "next-intl";
+ import {
+   proposalConfig,
+ } from "@/config/proposalConfig";
+@@ -40,6 +41,8 @@ export default function ProposalHero({
+ 
+ }: ProposalHeroProps) {
+ 
++  const t = useTranslations("proposal");
++
+   // Stessa formula di buildProposalSummary.ts, cosi' hero e
+   // paragrafo narrativo dicono sempre la stessa cosa — "12
+   // adults" oppure "12 adults and 2 children", mai bambini
+@@ -51,11 +54,21 @@ export default function ProposalHero({
+   const childrenCount =
+     Number(children) || 0;
+ 
++  const adultsText =
++    adults === 1
++      ? t("hero.oneAdult", { count: adults })
++      : t("hero.adultsCount", { count: adults });
++
++  const childrenText =
++    childrenCount === 1
++      ? t("hero.oneChild", { count: childrenCount })
++      : t("hero.childrenCount", { count: childrenCount });
++
+   const guestSentence =
+ 
+     childrenCount > 0
+-      ? `${adults} adult${adults > 1 ? "s" : ""} and ${childrenCount} child${childrenCount > 1 ? "ren" : ""}`
+-      : `${adults} adult${adults > 1 ? "s" : ""}`;
++      ? t("hero.guestsWithChildren", { adults: adultsText, children: childrenText })
++      : adultsText;
+ 
+   return (
+ 
+@@ -195,7 +208,7 @@ md:mb-10
+           text-center
+           mb-6
+         ">
+-          {proposalConfig.hero.label}
++          {t("hero.label")}
+         </p>
+ 
+         {/* TITLE */}
+@@ -237,9 +250,7 @@ mx-auto
+ md:max-w-2xl
+ ">
+ 
+-          Tailored for {guestSentence} across curated Riviera experiences,
+-          cinematic atmosphere and
+-          Mediterranean moments.
++          {t("hero.subtitle", { guestSentence })}
+ 
+         </p>
+ 
+@@ -253,7 +264,7 @@ md:max-w-2xl
+               behavior: "smooth",
+             });
+           }}
+-          aria-label="Scroll to explore"
++          aria-label={t("hero.scrollCue")}
+           className="
+             mt-12
+             flex
+diff --git a/src/components/proposal/ProposalNarrative.tsx b/src/components/proposal/ProposalNarrative.tsx
+index 9df69b7..e403a3a 100644
+--- a/src/components/proposal/ProposalNarrative.tsx
++++ b/src/components/proposal/ProposalNarrative.tsx
+@@ -14,9 +14,7 @@ import {
+   fadeReveal,
+ } from "@/lib/motion/fadeReveal";
+ 
+-import {
+-  proposalConfig,
+-} from "@/config/proposalConfig";
++import { useTranslations } from "next-intl";
+ 
+ interface ProposalNarrativeProps {
+   title?: string;
+@@ -30,6 +28,8 @@ export default function ProposalNarrative({
+   paragraph,
+ }: ProposalNarrativeProps) {
+ 
++  const t = useTranslations("proposal");
++
+   return (
+ 
+    <Section
+@@ -119,7 +119,7 @@ export default function ProposalNarrative({
+             mb-10
+           "
+         >
+-          {proposalConfig.narrative.label}
++          {t("narrative.label")}
+         </p>
+ 
+         {/* TITLE */}
+@@ -141,7 +141,7 @@ export default function ProposalNarrative({
+             mb-16
+           "
+         >
+-{title ?? proposalConfig.narrative.title}         
++{title ?? t("narrative.title")}
+ 
+         </h2>
+ 
+@@ -176,7 +176,7 @@ export default function ProposalNarrative({
+     mx-auto
+   "
+ >
+-  {paragraph ?? proposalConfig.narrative.description}
++  {paragraph ?? t("narrative.description")}
+ </p>
+ 
+       </motion.div>
+diff --git a/src/components/proposal/ReservationSection.tsx b/src/components/proposal/ReservationSection.tsx
+index fa9f5c5..0901c38 100644
+--- a/src/components/proposal/ReservationSection.tsx
++++ b/src/components/proposal/ReservationSection.tsx
+@@ -2,8 +2,7 @@
+ 
+ import { motion } from "framer-motion";
+ 
+-import { proposalConfig }
+-from "@/config/proposalConfig";
++import { useTranslations } from "next-intl";
+ 
+ import Section
+ from "@/components/layout/Section";
+@@ -44,6 +43,9 @@ export default function ReservationSection({
+   hasUnconfirmedChanges = false,
+ }: ReservationSectionProps) {
+ 
++  const t = useTranslations("proposal");
++  const tc = useTranslations("common");
++
+   return (
+ 
+     <Section
+@@ -147,7 +149,7 @@ export default function ReservationSection({
+                   text-zinc-600
+                   mb-8
+                 ">
+-                  Private Reservation
++                  {t("reservation.label")}
+                 </p>
+ 
+                 <p className="
+@@ -156,7 +158,7 @@ export default function ReservationSection({
+                   font-light
+                   text-emerald-300/80
+                 ">
+-                  Booking Confirmed
++                  {t("reservation.bookingConfirmed")}
+                 </p>
+ 
+               </div>
+@@ -183,7 +185,7 @@ export default function ReservationSection({
+               mb-10
+             "
+           >
+-            {proposalConfig.reservation.label}
++            {t("reservation.label")}
+           </p>
+ 
+           {/* TITLE */}
+@@ -207,7 +209,7 @@ export default function ReservationSection({
+             "
+           >
+ 
+-            {proposalConfig.reservation.title}
++            {t("reservation.title")}
+ 
+           </h2>
+ 
+@@ -233,11 +235,7 @@ export default function ReservationSection({
+             "
+           >
+ 
+-            {
+-              closingParagraph ||
+-
+-              "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity."
+-            }
++            {closingParagraph || t("reservation.description")}
+ 
+           </p>
+ 
+@@ -276,7 +274,7 @@ export default function ReservationSection({
+                 duration-500
+               "
+             >
+-              {proposalConfig.cta.secondaryLabel}
++              {tc("speakWithTeam")}
+             </a>
+ 
+           </div>
+diff --git a/src/lib/pricing/formatPrice.tsx b/src/lib/pricing/formatPrice.tsx
+index b8860ef..3ab717c 100644
+--- a/src/lib/pricing/formatPrice.tsx
++++ b/src/lib/pricing/formatPrice.tsx
+@@ -1,8 +1,13 @@
++// labelKey/valueKey puntano a chiavi sotto il namespace next-intl
++// "proposal.featured" (perPerson/included/onRequest/priceLabel) — i
++// chiamanti (componenti, con accesso a useTranslations) risolvono il
++// testo effettivo, dato che questa funzione pura non puo' usare hook.
+ export function formatPrice(
+   amount?: number | null,
+   type?: string
+ ): {
+-  label: string;
++  labelKey: "perPerson" | "priceLabel" | "";
++  valueKey: "included" | "onRequest" | "";
+   value: string;
+ } {
+ 
+@@ -11,29 +16,33 @@ export function formatPrice(
+     case "per_person":
+ 
+       return {
+-        label: "Per Person",
++        labelKey: "perPerson",
++        valueKey: "",
+         value: amount != null ? `€${amount}` : "",
+       };
+ 
+     case "included":
+ 
+       return {
+-        label: "",
+-        value: "Included",
++        labelKey: "",
++        valueKey: "included",
++        value: "",
+       };
+ 
+     case "on_request":
+ 
+       return {
+-        label: "",
+-        value: "On Request",
++        labelKey: "",
++        valueKey: "onRequest",
++        value: "",
+       };
+ 
+     case "fixed":
+     default:
+ 
+       return {
+-        label: amount != null ? "Price" : "",
++        labelKey: amount != null ? "priceLabel" : "",
++        valueKey: "",
+         value: amount != null ? `€${amount}` : "",
+       };
+ 
+diff --git a/src/messages/en.json b/src/messages/en.json
+index 95db2c4..4866be6 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -151,5 +151,73 @@
+     "loading": "Crafting your proposal...",
+     "poweredBy": "Powered by Ductavia"
+   },
+-  "proposal": {}
++  "proposal": {
++    "errorFallback": "We couldn't load this proposal correctly. Please contact us directly.",
++    "hero": {
++      "label": "Private Riviera Proposal",
++      "subtitle": "Tailored for {guestSentence} across curated Riviera experiences, cinematic atmosphere and Mediterranean moments.",
++      "oneAdult": "{count} adult",
++      "adultsCount": "{count} adults",
++      "oneChild": "{count} child",
++      "childrenCount": "{count} children",
++      "guestsWithChildren": "{adults} and {children}",
++      "scrollCue": "Scroll to explore"
++    },
++    "narrative": {
++      "label": "Mediterranean Luxury",
++      "title": "Designed Around Your Riviera Escape",
++      "description": "Every proposal is curated around atmosphere, pace, scenery and personal preferences, creating a private Mediterranean experience designed exclusively for you."
++    },
++    "featured": {
++      "label": "Featured Experience",
++      "showMore": "Show more  +",
++      "showLess": "Show less  −",
++      "showAll": "Show all  +",
++      "whatsIncluded": "What's included  +",
++      "hideWhatsIncluded": "Hide what's included  −",
++      "priceLabel": "Price",
++      "perPerson": "Per Person",
++      "included": "Included",
++      "onRequest": "On Request"
++    },
++    "includedExperiences": {
++      "labelPreselected": "Included Experiences",
++      "labelSuggested": "You Might Also Like",
++      "titlePreselected": "Curated Riviera Moments",
++      "titleSuggested": "Complete Your Escape",
++      "notCompatible": "Not compatible",
++      "add": "Add"
++    },
++    "enhancements": {
++      "label": "Optional Enhancements",
++      "title": "Enhance Your Riviera Escape"
++    },
++    "gallery": {
++      "label": "Experience Gallery",
++      "title": "Moments from the Riviera"
++    },
++    "reservation": {
++      "label": "Private Reservation",
++      "title": "Your Riviera Experience Awaits",
++      "description": "Your curated proposal has been privately reserved for a limited time, allowing you to confirm your Riviera experience in complete exclusivity.",
++      "bookingConfirmed": "Booking Confirmed"
++    },
++    "floatingBar": {
++      "requestSent": "Request Sent ✓",
++      "sending": "Sending...",
++      "confirmChanges": "Confirm Changes",
++      "experienceSingular": "{count} Experience",
++      "experiencePlural": "{count} Experiences",
++      "thankYouVerified": "Thank you, {name} — your email has been confirmed. We'll be in touch shortly to finalize your private booking.",
++      "checkInbox": "Check your inbox — we've sent a confirmation link to {email}. Click it to complete your booking request.",
++      "genericError": "Something went wrong — please try again, or contact us directly.",
++      "someone": "there"
++    },
++    "shareButton": {
++      "share": "Share Proposal",
++      "copied": "Link copied!",
++      "shareTitle": "Your Riviera Experience Proposal",
++      "shareText": "Here's your curated private Riviera experience."
++    }
++  }
+ }
+\ No newline at end of file
+-- 
+2.43.0
+

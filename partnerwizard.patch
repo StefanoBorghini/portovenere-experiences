@@ -1,0 +1,1446 @@
+From dc8f02ce46c186ec5bc59b8e65e67367dc290992 Mon Sep 17 00:00:00 2001
+From: Stefano Borghini <projects@stefanoborghinidesign.it>
+Date: Sat, 1 Aug 2026 16:29:09 +0000
+Subject: [PATCH] refactor: rebuild become-a-partner as a step-by-step wizard
+
+Drops the marketing-page layout (pricing showcase, FAQ, process
+sections) in favor of a single step-by-step form, same interaction
+pattern and visual language as craft-your-experience: back/progress/
+counter header, slide transitions, one focus per screen.
+
+Step 1 asks the operator type (hotel, restaurant, private charter,
+tour operator, other); step 3's questions branch on that choice
+(DETAIL_FIELDS) instead of asking one generic set. Plan interest
+becomes a step with short taglines instead of a public pricing
+page. Backend follow-up: partner_applications now stores a single
+category plus a flexible details jsonb blob instead of a categories
+array, matching the new shape.
+
+Verified interactively end-to-end (category selection -> conditional
+step 3 -> plan -> message/submit), including Next-button validation
+gating at each step and two real overflow bugs caught and fixed
+(flex/grid children need min-w-0 to shrink, not just break-words).
+---
+ src/app/api/partner-application/route.ts      |  42 +-
+ .../become-a-partner/BecomePartnerClient.tsx  | 860 ++++++++++--------
+ src/lib/analytics/gtag.ts                     |  41 +-
+ src/lib/email/templates.ts                    |  33 +-
+ src/messages/en.json                          | 157 ++--
+ .../2026_partner_applications.sql             |  21 +-
+ 6 files changed, 639 insertions(+), 515 deletions(-)
+
+diff --git a/src/app/api/partner-application/route.ts b/src/app/api/partner-application/route.ts
+index 6380e5f..75464c2 100644
+--- a/src/app/api/partner-application/route.ts
++++ b/src/app/api/partner-application/route.ts
+@@ -5,17 +5,19 @@ import { ownerNewPartnerApplicationTemplate } from "@/lib/email/templates";
+ 
+ // =========================================================
+ // POST /api/partner-application
+-// Form B2B su /become-a-partner. Nessuna policy pubblica di
+-// insert su partner_applications (vedi migration) — l'unica
+-// scrittura passa da qui, lato server, con la service role key,
+-// dopo verifica Turnstile — stesso schema di request-booking.
++// Wizard step-by-step su /become-a-partner. Nessuna policy
++// pubblica di insert su partner_applications (vedi migration) —
++// l'unica scrittura passa da qui, lato server, con la service
++// role key, dopo verifica Turnstile — stesso schema di
++// request-booking.
+ // =========================================================
+ 
+ const VALID_CATEGORIES = [
+   "hotel",
+   "restaurant",
+-  "experience",
+-  "travel_professional",
++  "private_charter",
++  "tour_operator",
++  "other",
+ ];
+ 
+ const VALID_PLANS = ["base", "premium", "signature", "not_sure"];
+@@ -32,7 +34,8 @@ export async function POST(req: NextRequest) {
+       contactName,
+       email,
+       phone,
+-      categories,
++      category,
++      details,
+       planInterest,
+       website,
+       instagram,
+@@ -72,8 +75,7 @@ export async function POST(req: NextRequest) {
+       !companyName ||
+       !contactName ||
+       !email ||
+-      !Array.isArray(categories) ||
+-      categories.length === 0
++      !VALID_CATEGORIES.includes(category)
+     ) {
+       return NextResponse.json(
+         { success: false, error: "Missing required fields" },
+@@ -81,21 +83,15 @@ export async function POST(req: NextRequest) {
+       );
+     }
+ 
+-    const cleanCategories = categories.filter((c: unknown) =>
+-      VALID_CATEGORIES.includes(String(c))
+-    );
+-
+-    if (cleanCategories.length === 0) {
+-      return NextResponse.json(
+-        { success: false, error: "Invalid category" },
+-        { status: 400 }
+-      );
+-    }
+-
+     const cleanPlan = VALID_PLANS.includes(planInterest)
+       ? planInterest
+       : "not_sure";
+ 
++    const cleanDetails =
++      details && typeof details === "object" && !Array.isArray(details)
++        ? details
++        : {};
++
+     const supabaseAdmin = getSupabaseAdmin();
+ 
+     const { error: insertError } = await supabaseAdmin
+@@ -106,7 +102,8 @@ export async function POST(req: NextRequest) {
+           contact_name: contactName,
+           email,
+           phone: phone || null,
+-          categories: cleanCategories,
++          category,
++          details: cleanDetails,
+           plan_interest: cleanPlan,
+           website: website || null,
+           instagram: instagram || null,
+@@ -134,7 +131,8 @@ export async function POST(req: NextRequest) {
+         contactName,
+         email,
+         phone,
+-        categories: cleanCategories,
++        category,
++        details: cleanDetails,
+         planInterest: cleanPlan,
+         website,
+         instagram,
+diff --git a/src/app/become-a-partner/BecomePartnerClient.tsx b/src/app/become-a-partner/BecomePartnerClient.tsx
+index c5bcd55..e95d589 100644
+--- a/src/app/become-a-partner/BecomePartnerClient.tsx
++++ b/src/app/become-a-partner/BecomePartnerClient.tsx
+@@ -1,84 +1,203 @@
+ "use client";
+ 
+ import { useEffect, useState } from "react";
++import { useRouter } from "next/navigation";
+ import Turnstile from "react-turnstile";
+ import { useTranslations, useLocale } from "next-intl";
+-import PublicHeader from "@/components/layout/PublicHeader";
++import { motion, AnimatePresence } from "framer-motion";
+ import {
+   trackPartnerPageView,
++  trackPartnerStepEntered,
++  trackPartnerStepBack,
++  trackPartnerTypeSelected,
+   trackPartnerPlanSelected,
+   trackPartnerApplicationSubmitted,
+   trackPartnerApplicationError,
+ } from "@/lib/analytics/gtag";
+ 
+-const PRIVACY_URL = "https://www.iubenda.com/privacy-policy/15645850";
+-
+-const CATEGORY_KEYS = [
+-  { value: "hotel", labelKey: "categoryHotel" },
+-  { value: "restaurant", labelKey: "categoryRestaurant" },
+-  { value: "experience", labelKey: "categoryExperience" },
+-  { value: "travel_professional", labelKey: "categoryTravelProfessional" },
+-] as const;
+-
+-type PlanKey = "base" | "premium" | "signature" | "not_sure";
++// =========================================================
++// Wizard step-by-step, stesso linguaggio visivo e stessa
++// meccanica di src/app/craft-your-experience/page.tsx (header
++// con back/progress/counter, slide animation, footer back/next) —
++// niente pagina "vetrina" con piani/FAQ, solo le domande. Le
++// domande dello step "details" cambiano in base al tipo di
++// operatore scelto allo step "type" (vedi DETAIL_FIELDS).
++// =========================================================
++
++const STEP_IDS = ["type", "basics", "details", "plan", "message"] as const;
++type StepId = (typeof STEP_IDS)[number];
++
++type Category =
++  | "hotel"
++  | "restaurant"
++  | "private_charter"
++  | "tour_operator"
++  | "other";
++
++const CATEGORY_VALUES: Category[] = [
++  "hotel",
++  "restaurant",
++  "private_charter",
++  "tour_operator",
++  "other",
++];
++
++// Valori snake_case (DB/API) -> segmento camelCase usato nelle chiavi
++// di traduzione in en.json (steps.type.privateCharter, ecc.).
++const CATEGORY_I18N_KEY: Record<Category, string> = {
++  hotel: "hotel",
++  restaurant: "restaurant",
++  private_charter: "privateCharter",
++  tour_operator: "tourOperator",
++  other: "other",
++};
++
++interface DetailField {
++  key: string;
++  type: "text" | "select" | "textarea";
++  optionsKey?: string;
++}
+ 
+-// Legge un oggetto "pseudo-array" (chiavi numeriche "0","1","2"...) da
+-// site_copy — stesso schema gia' usato da proposal.introTitles/
+-// closingParagraphs, qui iterato per intero invece che pescato per
+-// indice. Le chiavi intere di un oggetto JS sono sempre ordinate
+-// numericamente, quindi Object.values basta, nessun sort necessario.
++const DETAIL_FIELDS: Record<Category, DetailField[]> = {
++  hotel: [
++    { key: "roomsCount", type: "select", optionsKey: "roomsOptions" },
++    { key: "category", type: "select", optionsKey: "categoryOptions" },
++    { key: "area", type: "text" },
++  ],
++  restaurant: [
++    { key: "cuisineType", type: "text" },
++    { key: "seatingCapacity", type: "select", optionsKey: "seatingOptions" },
++    { key: "priceRange", type: "select", optionsKey: "priceOptions" },
++  ],
++  private_charter: [
++    { key: "fleetType", type: "text" },
++    { key: "maxGuests", type: "select", optionsKey: "maxGuestsOptions" },
++    { key: "skipperIncluded", type: "select", optionsKey: "skipperOptions" },
++  ],
++  tour_operator: [
++    { key: "tourTypes", type: "text" },
++    { key: "groupSize", type: "select", optionsKey: "groupSizeOptions" },
++    { key: "languages", type: "text" },
++  ],
++  other: [{ key: "description", type: "textarea" }],
++};
++
++const PLAN_VALUES = ["base", "premium", "signature", "not_sure"] as const;
++type PlanKey = (typeof PLAN_VALUES)[number];
++
++const slideVariants = {
++  enter: (direction: number) => ({
++    x: direction > 0 ? 80 : -80,
++    opacity: 0,
++  }),
++  center: {
++    x: 0,
++    opacity: 1,
++  },
++  exit: (direction: number) => ({
++    x: direction > 0 ? -80 : 80,
++    opacity: 0,
++  }),
++};
++
++// Legge un oggetto "pseudo-array" (chiavi numeriche "0","1","2"...)
++// da site_copy — stesso schema di proposal.introTitles, qui iterato
++// per intero invece che pescato per indice.
+ function rawList(raw: unknown): string[] {
+   if (!raw || typeof raw !== "object") return [];
+   return Object.values(raw as Record<string, string>);
+ }
+ 
++const inputClass =
++  "w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition";
++
+ export default function BecomePartnerClient() {
+   const t = useTranslations("becomePartner");
+   const locale = useLocale();
++  const router = useRouter();
+ 
+-  useEffect(() => {
+-    trackPartnerPageView();
+-  }, []);
+-
+-  // =======================================================
+-  // FORM STATE
+-  // =======================================================
++  const [currentStep, setCurrentStep] = useState(0);
++  const [direction, setDirection] = useState(0);
+ 
++  const [category, setCategory] = useState<Category | null>(null);
+   const [companyName, setCompanyName] = useState("");
+   const [contactName, setContactName] = useState("");
+   const [email, setEmail] = useState("");
+   const [phone, setPhone] = useState("");
+-  const [categories, setCategories] = useState<string[]>([]);
+-  const [planInterest, setPlanInterest] = useState<PlanKey>("not_sure");
+   const [website, setWebsite] = useState("");
+   const [instagram, setInstagram] = useState("");
++  const [details, setDetails] = useState<Record<string, string>>({});
++  const [planInterest, setPlanInterest] = useState<PlanKey>("not_sure");
+   const [message, setMessage] = useState("");
+   const [captchaToken, setCaptchaToken] = useState("");
+   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+ 
+-  function toggleCategory(value: string) {
+-    setCategories((prev) =>
+-      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
+-    );
++  const stepId: StepId = STEP_IDS[currentStep];
++  const totalSteps = STEP_IDS.length;
++  const progressPercent = ((currentStep + 1) / totalSteps) * 100;
++
++  useEffect(() => {
++    trackPartnerPageView();
++  }, []);
++
++  useEffect(() => {
++    trackPartnerStepEntered(stepId, currentStep);
++    // eslint-disable-next-line react-hooks/exhaustive-deps
++  }, [currentStep]);
++
++  function setDetailField(key: string, value: string) {
++    setDetails((prev) => ({ ...prev, [key]: value }));
+   }
+ 
+-  function selectPlan(plan: PlanKey) {
+-    setPlanInterest(plan);
+-    if (plan !== "not_sure") trackPartnerPlanSelected(plan);
+-    document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
++  function isStepValid(step: StepId): boolean {
++    switch (step) {
++      case "type":
++        return category !== null;
++      case "basics":
++        return (
++          !!companyName.trim() &&
++          !!contactName.trim() &&
++          /\S+@\S+\.\S+/.test(email)
++        );
++      case "details": {
++        if (!category) return false;
++        return DETAIL_FIELDS[category].every((f) => !!details[f.key]?.trim());
++      }
++      case "plan":
++        return true;
++      case "message":
++        return !!captchaToken;
++      default:
++        return true;
++    }
+   }
+ 
+-  async function handleSubmit(e: React.FormEvent) {
+-    e.preventDefault();
++  const currentStepValid = isStepValid(stepId);
+ 
+-    if (!companyName || !contactName || !email || categories.length === 0) {
++  function goNext() {
++    if (!currentStepValid) return;
++
++    if (stepId === "message") {
++      handleSubmit();
+       return;
+     }
+ 
+-    if (!captchaToken) {
+-      trackPartnerApplicationError("missing_captcha");
++    setDirection(1);
++    setCurrentStep((s) => s + 1);
++  }
++
++  function goBack() {
++    if (currentStep === 0) {
++      router.push("/");
+       return;
+     }
++    trackPartnerStepBack(stepId, currentStep);
++    setDirection(-1);
++    setCurrentStep((s) => s - 1);
++  }
++
++  async function handleSubmit() {
++    if (!category) return;
+ 
+     setStatus("sending");
+ 
+@@ -93,7 +212,8 @@ export default function BecomePartnerClient() {
+           contactName,
+           email,
+           phone,
+-          categories,
++          category,
++          details,
+           planInterest,
+           website,
+           instagram,
+@@ -111,7 +231,7 @@ export default function BecomePartnerClient() {
+       }
+ 
+       setStatus("success");
+-      trackPartnerApplicationSubmitted(planInterest, categories);
++      trackPartnerApplicationSubmitted(planInterest, category);
+ 
+     } catch (err) {
+       console.error("partner-application submit failed:", err);
+@@ -120,390 +240,360 @@ export default function BecomePartnerClient() {
+     }
+   }
+ 
+-  const basePlanFeatures = rawList(t.raw("plans.base.features"));
+-  const premiumPlanFeatures = rawList(t.raw("plans.premium.features"));
+-  const processSteps = rawList(t.raw("process.steps"));
+-  const faqItems = rawList(t.raw("faq.items")) as unknown as { q: string; a: string }[];
++  function selectCategory(value: Category) {
++    setCategory(value);
++    setDetails({});
++    trackPartnerTypeSelected(value);
++  }
+ 
+-  return (
+-    <main className="bg-[#0C0C0C] text-[#EDEBE7] break-words">
+-      <PublicHeader />
+-
+-      {/* HERO */}
+-      <section className="px-6 pt-16 pb-20 md:pt-24 md:pb-28 text-center border-b border-[#EDEBE7]/10">
+-        <div className="max-w-3xl mx-auto">
+-          <p className="uppercase tracking-[0.35em] text-zinc-500 text-[11px] md:text-xs mb-6">
+-            {t("hero.eyebrow")}
+-          </p>
+-          <h1 className="text-4xl md:text-6xl font-light leading-[1.05] tracking-tight mb-6">
+-            {t("hero.title")}
+-          </h1>
+-          <p className="text-zinc-400 text-base md:text-xl leading-relaxed max-w-xl mx-auto mb-10">
+-            {t("hero.subtitle")}
+-          </p>
+-          <a
+-            href="#apply"
+-            className="inline-block bg-[#EDEBE7] text-black px-10 py-4 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-105 transition-all duration-500"
+-          >
+-            {t("hero.cta")}
+-          </a>
+-        </div>
+-      </section>
++  function selectPlan(plan: PlanKey) {
++    setPlanInterest(plan);
++    if (plan !== "not_sure") trackPartnerPlanSelected(plan);
++  }
+ 
+-      {/* INTRO */}
+-      <section className="px-6 py-20 md:py-28 max-w-3xl mx-auto text-center border-b border-[#EDEBE7]/10">
+-        <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
+-          {t("intro.eyebrow")}
+-        </p>
+-        <h2 className="text-3xl md:text-5xl font-light leading-tight mb-6">
+-          {t("intro.title")}
+-        </h2>
+-        <p className="text-zinc-400 text-base md:text-lg leading-relaxed">
+-          {t("intro.description")}
++  // =======================================================
++  // SUCCESS
++  // =======================================================
++
++  if (status === "success") {
++    return (
++      <main className="h-dvh flex items-center justify-center bg-[#0C0C0C] text-white px-6 text-center">
++        <p className="text-xl md:text-2xl font-light max-w-md leading-relaxed">
++          {t("success")}
+         </p>
+-      </section>
+-
+-      {/* PLANS */}
+-      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
+-        <div className="max-w-6xl mx-auto">
+-          <div className="text-center mb-14 md:mb-20">
+-            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
+-              {t("plans.eyebrow")}
+-            </p>
+-            <h2 className="text-3xl md:text-5xl font-light leading-tight">
+-              {t("plans.title")}
+-            </h2>
+-          </div>
++      </main>
++    );
++  }
++
++  // =======================================================
++  // STEP CONTENT
++  // =======================================================
+ 
+-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+-
+-            {/* BASE */}
+-            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/12 rounded-[28px] p-8">
+-              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
+-                {t("plans.base.name")}
+-              </p>
+-              <p className="mb-1 break-words">
+-                <span className="text-4xl font-light">{t("plans.base.price")}</span>
+-                <span className="text-zinc-500 text-sm ml-1">{t("plans.base.period")}</span>
+-              </p>
+-              <p className="text-zinc-500 text-sm mb-8">{t("plans.base.tagline")}</p>
+-
+-              <ul className="flex-1 space-y-3 mb-8">
+-                {basePlanFeatures.map((feature, i) => (
+-                  <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+-                    <span aria-hidden="true" className="text-zinc-600 mt-0.5">—</span>
+-                    {feature}
+-                  </li>
+-                ))}
+-              </ul>
++  function renderStep() {
++    switch (stepId) {
+ 
++      case "type":
++        return (
++          <div className="grid gap-3">
++            {CATEGORY_VALUES.map((value) => (
+               <button
+                 type="button"
+-                onClick={() => selectPlan("base")}
+-                className="border border-white/20 rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-300"
++                key={value}
++                onClick={() => selectCategory(value)}
++                className={`border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out ${
++                  category === value
++                    ? "border-white bg-white text-black"
++                    : "border-white/10 bg-white/5 hover:border-white/40"
++                }`}
+               >
+-                {t("hero.cta")}
++                <span className="block text-base font-light">
++                  {t(`steps.type.${CATEGORY_I18N_KEY[value]}`)}
++                </span>
+               </button>
+-            </div>
+-
+-            {/* PREMIUM */}
+-            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/25 rounded-[28px] p-8 bg-[#EDEBE7]/[0.03]">
+-              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
+-                {t("plans.premium.name")}
+-              </p>
+-              <p className="mb-1 break-words">
+-                <span className="text-4xl font-light">{t("plans.premium.price")}</span>
+-                <span className="text-zinc-500 text-sm ml-1">{t("plans.premium.period")}</span>
+-              </p>
+-              <p className="text-zinc-500 text-sm mb-8">{t("plans.premium.tagline")}</p>
+-
+-              <p className="text-zinc-400 text-xs uppercase tracking-[0.15em] mb-3">
+-                {t("plans.premium.featuresIntro")}
+-              </p>
+-              <ul className="flex-1 space-y-3 mb-8">
+-                {premiumPlanFeatures.map((feature, i) => (
+-                  <li key={i} className="flex items-start gap-2 text-sm text-zinc-300">
+-                    <span aria-hidden="true" className="text-[#EDEBE7]/60 mt-0.5">—</span>
+-                    {feature}
+-                  </li>
+-                ))}
+-              </ul>
++            ))}
++          </div>
++        );
++
++      case "basics":
++        return (
++          <div className="space-y-5">
++            <TextField
++              label={t("steps.basics.companyName")}
++              value={companyName}
++              onChange={setCompanyName}
++            />
++            <TextField
++              label={t("steps.basics.contactName")}
++              value={contactName}
++              onChange={setContactName}
++            />
++            <TextField
++              label={t("steps.basics.email")}
++              value={email}
++              onChange={setEmail}
++              type="email"
++            />
++            <TextField
++              label={t("steps.basics.phone")}
++              value={phone}
++              onChange={setPhone}
++              type="tel"
++            />
++            <TextField
++              label={t("steps.basics.website")}
++              value={website}
++              onChange={setWebsite}
++              type="url"
++            />
++            <TextField
++              label={t("steps.basics.instagram")}
++              value={instagram}
++              onChange={setInstagram}
++            />
++          </div>
++        );
++
++      case "details": {
++        if (!category) return null;
++
++        const i18nKey = CATEGORY_I18N_KEY[category];
++        const fields = DETAIL_FIELDS[category];
++
++        return (
++          <div className="space-y-5">
++            {fields.map((field) => {
++
++              const label = t(`steps.details.${i18nKey}.${field.key}`);
++
++              if (field.type === "text") {
++                return (
++                  <TextField
++                    key={field.key}
++                    label={label}
++                    value={details[field.key] || ""}
++                    onChange={(v) => setDetailField(field.key, v)}
++                  />
++                );
++              }
++
++              if (field.type === "textarea") {
++                return (
++                  <div key={field.key}>
++                    <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
++                      {label}
++                    </p>
++                    <textarea
++                      value={details[field.key] || ""}
++                      onChange={(e) => setDetailField(field.key, e.target.value)}
++                      rows={4}
++                      className={inputClass}
++                    />
++                  </div>
++                );
++              }
++
++              const options = rawList(
++                t.raw(`steps.details.${i18nKey}.${field.optionsKey}`)
++              );
++
++              return (
++                <div key={field.key}>
++                  <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
++                    {label}
++                  </p>
++                  <div className="grid gap-2.5">
++                    {options.map((option) => (
++                      <button
++                        type="button"
++                        key={option}
++                        onClick={() => setDetailField(field.key, option)}
++                        className={`border rounded-2xl px-5 py-3 text-left text-sm transition-all duration-500 ease-out ${
++                          details[field.key] === option
++                            ? "border-white bg-white text-black"
++                            : "border-white/10 bg-white/5 hover:border-white/40"
++                        }`}
++                      >
++                        {option}
++                      </button>
++                    ))}
++                  </div>
++                </div>
++              );
++            })}
++          </div>
++        );
++      }
+ 
++      case "plan":
++        return (
++          <div className="grid gap-3">
++            {PLAN_VALUES.map((plan) => (
+               <button
+                 type="button"
+-                onClick={() => selectPlan("premium")}
+-                className="bg-[#EDEBE7] text-black rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:scale-[1.03] transition-all duration-300"
++                key={plan}
++                onClick={() => selectPlan(plan)}
++                className={`min-w-0 border rounded-2xl px-6 py-5 text-left transition-all duration-500 ease-out ${
++                  planInterest === plan
++                    ? "border-white bg-white text-black"
++                    : "border-white/10 bg-white/5 hover:border-white/40"
++                }`}
+               >
+-                {t("hero.cta")}
++                {plan === "not_sure" ? (
++                  <span className="block text-base font-light break-words">
++                    {t("steps.plan.notSure")}
++                  </span>
++                ) : (
++                  <>
++                    <div className="flex items-baseline justify-between gap-2 flex-wrap">
++                      <span className="min-w-0 break-words text-base font-light">
++                        {t(`steps.plan.${plan}.name`)}
++                      </span>
++                      <span
++                        className={`min-w-0 break-words text-sm ${
++                          planInterest === plan ? "text-black/60" : "text-zinc-500"
++                        }`}
++                      >
++                        {t(`steps.plan.${plan}.price`)}
++                      </span>
++                    </div>
++                    <span
++                      className={`block text-sm mt-1 ${
++                        planInterest === plan ? "text-black/60" : "text-zinc-500"
++                      }`}
++                    >
++                      {t(`steps.plan.${plan}.tagline`)}
++                    </span>
++                  </>
++                )}
+               </button>
++            ))}
++          </div>
++        );
++
++      case "message":
++        return (
++          <div className="space-y-6">
++            <textarea
++              value={message}
++              onChange={(e) => setMessage(e.target.value)}
++              placeholder={t("steps.message.placeholder")}
++              rows={5}
++              className={inputClass}
++            />
++
++            <div className="flex justify-center">
++              <Turnstile
++                sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
++                onVerify={(token) => setCaptchaToken(token)}
++              />
+             </div>
+ 
+-            {/* SIGNATURE */}
+-            <div className="min-w-0 flex flex-col border border-[#EDEBE7]/12 rounded-[28px] p-8">
+-              <p className="uppercase tracking-[0.2em] text-xs text-zinc-500 mb-3">
+-                {t("plans.signature.name")}
+-              </p>
+-              <p className="mb-1 break-words">
+-                <span className="text-4xl font-light">{t("plans.signature.price")}</span>
+-              </p>
+-              <p className="text-zinc-500 text-sm mb-8">{t("plans.signature.tagline")}</p>
++            {status === "error" && (
++              <p className="text-center text-red-400 text-sm">{t("error")}</p>
++            )}
++          </div>
++        );
++
++      default:
++        return null;
++    }
++  }
+ 
+-              <p className="flex-1 text-sm text-zinc-300 leading-relaxed mb-8">
+-                {t("plans.signature.description")}
+-              </p>
++  // =======================================================
++  // SHELL
++  // =======================================================
+ 
+-              <button
+-                type="button"
+-                onClick={() => selectPlan("signature")}
+-                className="border border-white/20 rounded-full px-6 py-3 uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all duration-300"
+-              >
+-                {t("hero.cta")}
+-              </button>
+-            </div>
++  return (
++    <main className="h-dvh overflow-hidden bg-[#0C0C0C] text-white flex flex-col break-words">
+ 
++      {/* HEADER: back + progress + counter — compatto, altezza fissa */}
++      <div className="px-6 pt-4 pb-2 md:pt-6 md:pb-3 max-w-xl w-full mx-auto shrink-0">
++
++        <div className="flex items-center gap-4 mb-2 md:mb-4">
++
++          <button
++            type="button"
++            onClick={goBack}
++            aria-label="Back"
++            className="text-2xl opacity-70 hover:opacity-100 transition-opacity"
++          >
++            &#8592;
++          </button>
++
++          <div className="flex-1 h-[2px] bg-white/10 rounded-full overflow-hidden">
++            <div
++              className="h-full bg-[#d6c6a5] transition-all duration-500 ease-out"
++              style={{ width: `${progressPercent}%` }}
++            />
+           </div>
+-        </div>
+-      </section>
+ 
+-      {/* PROCESS */}
+-      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
+-        <div className="max-w-4xl mx-auto text-center">
+-          <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
+-            {t("process.eyebrow")}
+-          </p>
+-          <h2 className="text-3xl md:text-5xl font-light leading-tight mb-6">
+-            {t("process.title")}
+-          </h2>
+-          <p className="text-zinc-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-14">
+-            {t("process.description")}
++          <p className="text-xs text-zinc-500 tabular-nums">
++            {currentStep + 1} / {totalSteps}
+           </p>
+ 
+-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+-            {processSteps.map((step, i) => (
+-              <div key={i} className="flex flex-col items-center">
+-                <span className="text-zinc-600 text-sm uppercase tracking-[0.2em] mb-3">
+-                  {String(i + 1).padStart(2, "0")}
+-                </span>
+-                <p className="text-[#EDEBE7]">{step}</p>
+-              </div>
+-            ))}
+-          </div>
+         </div>
+-      </section>
+-
+-      {/* FAQ */}
+-      <section className="px-6 py-20 md:py-28 border-b border-[#EDEBE7]/10">
+-        <div className="max-w-3xl mx-auto">
+-          <div className="text-center mb-14">
+-            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
+-              {t("faq.eyebrow")}
+-            </p>
+-            <h2 className="text-3xl md:text-5xl font-light leading-tight">
+-              {t("faq.title")}
+-            </h2>
+-          </div>
+ 
+-          <div className="space-y-8">
+-            {faqItems.map((item, i) => (
+-              <div key={i} className="border-t border-[#EDEBE7]/10 pt-6">
+-                <p className="text-[#EDEBE7] mb-2">{item.q}</p>
+-                <p className="text-zinc-400 text-sm leading-relaxed">{item.a}</p>
+-              </div>
+-            ))}
+-          </div>
+-        </div>
+-      </section>
+-
+-      {/* FORM */}
+-      <section id="apply" className="px-6 py-20 md:py-28 scroll-mt-20">
+-        <div className="max-w-xl mx-auto">
+-          <div className="text-center mb-12">
+-            <p className="uppercase tracking-[0.35em] text-zinc-500 text-xs mb-5">
+-              {t("form.eyebrow")}
+-            </p>
+-            <h2 className="text-3xl md:text-5xl font-light leading-tight mb-4">
+-              {t("form.title")}
+-            </h2>
+-            <p className="text-zinc-400 text-sm">{t("form.description")}</p>
+-          </div>
++        <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
++          {t("hero.eyebrow")}
++        </p>
+ 
+-          {status === "success" ? (
+-            <p className="text-center text-[#EDEBE7] text-lg leading-relaxed py-10">
+-              {t("form.success")}
+-            </p>
+-          ) : (
+-            <form onSubmit={handleSubmit} className="space-y-6">
+-
+-              <Field label={t("form.companyName")} required>
+-                <input
+-                  type="text"
+-                  required
+-                  value={companyName}
+-                  onChange={(e) => setCompanyName(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <Field label={t("form.contactName")} required>
+-                <input
+-                  type="text"
+-                  required
+-                  value={contactName}
+-                  onChange={(e) => setContactName(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <Field label={t("form.email")} required>
+-                <input
+-                  type="email"
+-                  required
+-                  value={email}
+-                  onChange={(e) => setEmail(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <Field label={t("form.phone")}>
+-                <input
+-                  type="tel"
+-                  value={phone}
+-                  onChange={(e) => setPhone(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <fieldset>
+-                <legend className="text-xs uppercase tracking-[0.15em] text-zinc-400 mb-3">
+-                  {t("form.categoryLabel")}
+-                </legend>
+-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+-                  {CATEGORY_KEYS.map(({ value, labelKey }) => (
+-                    <label
+-                      key={value}
+-                      className="min-w-0 flex items-center gap-2 text-sm text-zinc-300 cursor-pointer"
+-                    >
+-                      <input
+-                        type="checkbox"
+-                        checked={categories.includes(value)}
+-                        onChange={() => toggleCategory(value)}
+-                        className="shrink-0 h-4 w-4 accent-[#EDEBE7] cursor-pointer"
+-                      />
+-                      <span className="break-words">{t(`form.${labelKey}`)}</span>
+-                    </label>
+-                  ))}
+-                </div>
+-              </fieldset>
+-
+-              <Field label={t("form.planLabel")}>
+-                <select
+-                  value={planInterest}
+-                  onChange={(e) => setPlanInterest(e.target.value as PlanKey)}
+-                  className={inputClass}
+-                >
+-                  <option value="not_sure">{t("form.planNotSure")}</option>
+-                  <option value="base">{t("form.planBase")}</option>
+-                  <option value="premium">{t("form.planPremium")}</option>
+-                  <option value="signature">{t("form.planSignature")}</option>
+-                </select>
+-              </Field>
+-
+-              <Field label={t("form.website")}>
+-                <input
+-                  type="url"
+-                  value={website}
+-                  onChange={(e) => setWebsite(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <Field label={t("form.instagram")}>
+-                <input
+-                  type="text"
+-                  value={instagram}
+-                  onChange={(e) => setInstagram(e.target.value)}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <Field label={t("form.message")}>
+-                <textarea
+-                  value={message}
+-                  onChange={(e) => setMessage(e.target.value)}
+-                  rows={4}
+-                  className={inputClass}
+-                />
+-              </Field>
+-
+-              <div className="flex justify-center pt-2">
+-                <Turnstile
+-                  sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+-                  onVerify={(token) => setCaptchaToken(token)}
+-                />
+-              </div>
+-
+-              {status === "error" && (
+-                <p className="text-center text-red-400 text-sm">{t("form.error")}</p>
+-              )}
++        <h1 className="text-xl md:text-4xl font-light leading-tight">
++          {t(`steps.${stepId}.title`)}
++        </h1>
+ 
+-              <button
+-                type="submit"
+-                disabled={status === "sending"}
+-                className="w-full bg-[#EDEBE7] text-black px-10 py-4 rounded-full uppercase tracking-[0.25em] text-xs hover:scale-[1.02] transition-all duration-500 disabled:opacity-50 disabled:hover:scale-100"
+-              >
+-                {status === "sending" ? t("form.submitting") : t("form.submit")}
+-              </button>
+-            </form>
+-          )}
+-        </div>
+-      </section>
+-
+-      {/* FOOTER */}
+-      <footer className="border-t border-[#EDEBE7]/10 py-16 px-6">
+-        <div className="max-w-7xl mx-auto flex flex-col items-center gap-8">
+-          <img
+-            src="/logo-white.png"
+-            alt="Portovenere Experiences"
+-            className="h-9 w-auto opacity-60"
+-          />
+-
+-          <a
+-            href={PRIVACY_URL}
+-            target="_blank"
+-            rel="noopener noreferrer"
+-            className="text-[11px] uppercase tracking-[0.25em] text-zinc-500 hover:text-white transition-colors duration-300"
++      </div>
++
++      <div className="flex-1 min-h-0 flex flex-col justify-between gap-3 md:gap-6 overflow-y-auto pt-4 pb-4 md:pb-6 px-6 max-w-xl w-full mx-auto">
++
++        <AnimatePresence mode="wait" custom={direction}>
++          <motion.div
++            key={currentStep}
++            custom={direction}
++            variants={slideVariants}
++            initial="enter"
++            animate="center"
++            exit="exit"
++            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+           >
+-            Privacy
+-          </a>
++            {renderStep()}
++          </motion.div>
++        </AnimatePresence>
++
++        <div className="flex gap-4 shrink-0">
++
++          <button
++            type="button"
++            onClick={goBack}
++            className="w-1/3 rounded-full px-2 py-3.5 uppercase tracking-[0.25em] text-xs border border-white/20 text-white/70 hover:border-white/40 hover:text-white transition-all duration-500"
++          >
++            {t("nav.back")}
++          </button>
++
++          <button
++            type="button"
++            onClick={goNext}
++            disabled={!currentStepValid || status === "sending"}
++            className={`w-2/3 rounded-full px-4 py-3.5 uppercase tracking-[0.2em] text-[11px] leading-snug text-center transition-all duration-500 ${
++              currentStepValid && status !== "sending"
++                ? "bg-white text-black hover:scale-[1.02]"
++                : "bg-white/10 text-white/30 cursor-not-allowed"
++            }`}
++          >
++            {stepId === "message"
++              ? status === "sending"
++                ? t("nav.submitting")
++                : t("nav.submit")
++              : t("nav.next")}
++          </button>
+ 
+-          <p className="text-zinc-700 text-[10px] uppercase tracking-[0.3em]">
+-            © {new Date().getFullYear()} Portovenere Experiences
+-          </p>
+         </div>
+-      </footer>
++      </div>
+     </main>
+   );
+ }
+ 
+-const inputClass =
+-  "w-full bg-transparent border border-white/15 rounded-2xl px-4 py-3 text-sm text-[#EDEBE7] placeholder:text-zinc-600 focus:outline-none focus:border-white/40 transition-colors duration-300";
+-
+-function Field({
++function TextField({
+   label,
+-  required,
+-  children,
++  value,
++  onChange,
++  type = "text",
+ }: {
+   label: string;
+-  required?: boolean;
+-  children: React.ReactNode;
++  value: string;
++  onChange: (v: string) => void;
++  type?: string;
+ }) {
+   return (
+-    <label className="block">
+-      <span className="block text-xs uppercase tracking-[0.15em] text-zinc-400 mb-2">
++    <div>
++      <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+         {label}
+-        {required && <span className="text-zinc-600"> *</span>}
+-      </span>
+-      {children}
+-    </label>
++      </p>
++      <input
++        type={type}
++        value={value}
++        onChange={(e) => onChange(e.target.value)}
++        className={inputClass}
++      />
++    </div>
+   );
+ }
+diff --git a/src/lib/analytics/gtag.ts b/src/lib/analytics/gtag.ts
+index 63fb964..daea456 100644
+--- a/src/lib/analytics/gtag.ts
++++ b/src/lib/analytics/gtag.ts
+@@ -515,10 +515,12 @@ export function trackClickStayEatDiscover({
+ }
+ 
+ // =========================================================
+-// /become-a-partner — landing B2B per operatori (hotel, ristoranti,
+-// fornitori di esperienze, travel professional). Categoria dedicata
+-// "partners", separata da "start" e da "configurator", cosi' il
+-// funnel B2B resta isolabile dal funnel turistico.
++// /become-a-partner — wizard B2B step-by-step per operatori (hotel,
++// ristoranti, noleggio privato, tour operator, altro). Categoria
++// dedicata "partners", separata da "start" e da "configurator", cosi'
++// il funnel B2B resta isolabile dal funnel turistico. Stesso schema
++// di eventi step del configuratore (trackStepEntered/trackStepBack),
++// per poter confrontare i due funnel con lo stesso vocabolario.
+ // =========================================================
+ 
+ export function trackPartnerPageView() {
+@@ -528,6 +530,33 @@ export function trackPartnerPageView() {
+   });
+ }
+ 
++export function trackPartnerStepEntered(step: string, stepIndex: number) {
++  trackEvent({
++    action: "partner_step_entered",
++    category: "partners",
++    label: step,
++    extra: { step, step_index: stepIndex },
++  });
++}
++
++export function trackPartnerStepBack(step: string, stepIndex: number) {
++  trackEvent({
++    action: "partner_step_back",
++    category: "partners",
++    label: step,
++    extra: { step, step_index: stepIndex },
++  });
++}
++
++export function trackPartnerTypeSelected(category: string) {
++  trackEvent({
++    action: "partner_type_selected",
++    category: "partners",
++    label: category,
++    extra: { partner_category: category },
++  });
++}
++
+ export function trackPartnerPlanSelected(plan: string) {
+   trackEvent({
+     action: "partner_plan_selected",
+@@ -537,12 +566,12 @@ export function trackPartnerPlanSelected(plan: string) {
+   });
+ }
+ 
+-export function trackPartnerApplicationSubmitted(plan: string, categories: string[]) {
++export function trackPartnerApplicationSubmitted(plan: string, category: string) {
+   trackEvent({
+     action: "partner_application_submitted",
+     category: "partners",
+     label: plan,
+-    extra: { plan, categories: categories.join(",") },
++    extra: { plan, partner_category: category },
+   });
+ }
+ 
+diff --git a/src/lib/email/templates.ts b/src/lib/email/templates.ts
+index d6db3fb..6ba5805 100644
+--- a/src/lib/email/templates.ts
++++ b/src/lib/email/templates.ts
+@@ -631,13 +631,41 @@ interface PartnerApplicationSummary {
+   contactName: string;
+   email: string;
+   phone?: string;
+-  categories: string[];
++  category: string;
++  details?: Record<string, unknown>;
+   planInterest: string;
+   website?: string;
+   instagram?: string;
+   message?: string;
+ }
+ 
++// "roomsCount" -> "Rooms Count" — le chiavi di `details` sono i nomi
++// dei campi dello step "details" del wizard (vedi BecomePartnerClient),
++// scritti in camelCase perche' sono anche chiavi di traduzione.
++function humanizeKey(key: string): string {
++  return key
++    .replace(/([a-z])([A-Z])/g, "$1 $2")
++    .replace(/^./, (c) => c.toUpperCase());
++}
++
++function detailsTable(details: Record<string, unknown> | undefined): string {
++
++  if (!details) return "";
++
++  const entries = Object.entries(details).filter(
++    ([, value]) => typeof value === "string" && value.trim().length > 0
++  ) as [string, string][];
++
++  if (entries.length === 0) return "";
++
++  return entries
++    .map(
++      ([key, value]) =>
++        `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">${escapeHtml(humanizeKey(key))}</td><td>${escapeHtml(value)}</td></tr>`
++    )
++    .join("");
++}
++
+ export function ownerNewPartnerApplicationTemplate(data: PartnerApplicationSummary) {
+   return wrapEmail(`
+     <h2 style="font-weight: 300;">New partner application</h2>
+@@ -646,7 +674,8 @@ export function ownerNewPartnerApplicationTemplate(data: PartnerApplicationSumma
+       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Contact</td><td>${escapeHtml(data.contactName)}</td></tr>
+       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Email</td><td>${escapeHtml(data.email)}</td></tr>
+       ${data.phone ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Phone</td><td>${escapeHtml(data.phone)}</td></tr>` : ""}
+-      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Category</td><td>${escapeList(data.categories)}</td></tr>
++      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Category</td><td>${escapeHtml(data.category)}</td></tr>
++      ${detailsTable(data.details)}
+       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Plan interest</td><td>${escapeHtml(data.planInterest)}</td></tr>
+       ${data.website ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Website</td><td>${escapeHtml(data.website)}</td></tr>` : ""}
+       ${data.instagram ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Instagram</td><td>${escapeHtml(data.instagram)}</td></tr>` : ""}
+diff --git a/src/messages/en.json b/src/messages/en.json
+index 23e2813..edff5b2 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -276,109 +276,78 @@
+     "hero": {
+       "eyebrow": "Portovenere Experiences — For Operators",
+       "title": "Join The Portovenere Ecosystem",
+-      "subtitle": "We don't sell a listing. We sell qualified visibility and the opportunity to reach the right guests.",
+-      "cta": "Apply To Join"
++      "subtitle": "A few quick questions about your business — we personally review every application."
+     },
+-    "intro": {
+-      "eyebrow": "How It Works",
+-      "title": "A Curated Ecosystem, Not A Directory",
+-      "description": "Portovenere Experiences matches travelers to a small number of carefully selected local partners — hotels, restaurants, experience providers and travel professionals — based on their preferences, budget and travel style. Every proposal we send is built around real partners, not a generic list."
+-    },
+-    "plans": {
+-      "eyebrow": "Plans",
+-      "title": "Choose How You Show Up",
+-      "base": {
+-        "name": "Base",
+-        "price": "€120",
+-        "period": "/ year",
+-        "tagline": "For those who want to be there.",
+-        "features": {
+-          "0": "Full listing profile",
+-          "1": "Photos",
+-          "2": "Contact details",
+-          "3": "Italian & English",
+-          "4": "Presence on Portovenere.com",
+-          "5": "Presence in the Portovenere Experience configurator"
+-        }
++    "steps": {
++      "type": {
++        "title": "What kind of business are you?",
++        "hotel": "Hotel / Accommodation",
++        "restaurant": "Restaurant",
++        "privateCharter": "Private Charter",
++        "tourOperator": "Tour Operator",
++        "other": "Something Else"
+       },
+-      "premium": {
+-        "name": "Premium",
+-        "price": "€180",
+-        "period": "/ year",
+-        "tagline": "For those who want to be promoted.",
+-        "featuresIntro": "Everything in Base, plus:",
+-        "features": {
+-          "0": "Increased visibility",
+-          "1": "Priority in proposals when it fits the guest's profile",
+-          "2": "Editorial & SEO opportunities",
+-          "3": "Social & Instagram collaborations",
+-          "4": "Reporting and greater presence across the ecosystem"
+-        }
++      "basics": {
++        "title": "Tell us who you are",
++        "companyName": "Business Name",
++        "contactName": "Your Name",
++        "email": "Email",
++        "phone": "Phone (optional)",
++        "website": "Website (optional)",
++        "instagram": "Instagram (optional)"
+       },
+-      "signature": {
+-        "name": "Signature",
+-        "price": "On request",
+-        "tagline": "Featured experience in the configurator.",
+-        "description": "Reserved for a small number of strategic partners — dedicated campaigns, custom content, sponsorships, ongoing collaborations and tailored solutions, shaped around what actually fits."
+-      }
+-    },
+-    "process": {
+-      "eyebrow": "The Process",
+-      "title": "Few Partners, Carefully Selected",
+-      "description": "We don't onboard every applicant — Portovenere Experiences stays valuable because the partners in it are genuinely worth recommending.",
+-      "steps": {
+-        "0": "Apply",
+-        "1": "We review your profile personally",
+-        "2": "We follow up to onboard you"
+-      }
+-    },
+-    "faq": {
+-      "eyebrow": "Questions",
+-      "title": "Frequently Asked",
+-      "items": {
+-        "0": {
+-          "q": "How does the selection process work?",
+-          "a": "We review every application individually against what our guests are actually looking for. We'd rather stay small and genuinely curated than list every business in town."
++      "details": {
++        "title": "A bit more about your business",
++        "hotel": {
++          "roomsCount": "Number of rooms",
++          "roomsOptions": { "0": "1–10", "1": "11–30", "2": "31+" },
++          "category": "Category",
++          "categoryOptions": { "0": "3-star", "1": "4-star", "2": "5-star / Boutique", "3": "B&B / Guesthouse" },
++          "area": "Where is your property located?"
++        },
++        "restaurant": {
++          "cuisineType": "What kind of cuisine do you offer?",
++          "seatingCapacity": "Seating capacity",
++          "seatingOptions": { "0": "Up to 30", "1": "30–60", "2": "60+" },
++          "priceRange": "Price range",
++          "priceOptions": { "0": "€ Casual", "1": "€€ Mid-range", "2": "€€€ Fine dining" }
+         },
+-        "1": {
+-          "q": "Can I change plans later?",
+-          "a": "Yes — you can move between Base and Premium at renewal, or reach out any time to discuss a Signature partnership."
++        "privateCharter": {
++          "fleetType": "What boats do you operate?",
++          "maxGuests": "Maximum guests",
++          "maxGuestsOptions": { "0": "Up to 6", "1": "7–12", "2": "13+" },
++          "skipperIncluded": "Skipper included?",
++          "skipperOptions": { "0": "Yes, always", "1": "Optional", "2": "No, bareboat only" }
+         },
+-        "2": {
+-          "q": "What does \"presence in the configurator\" mean?",
+-          "a": "Your business becomes one of the real options our matching engine can propose to guests whose preferences fit what you offer — not just a static listing."
++        "tourOperator": {
++          "tourTypes": "What kind of tours do you offer?",
++          "groupSize": "Typical group size",
++          "groupSizeOptions": { "0": "Private / small group (1–8)", "1": "Medium group (9–20)", "2": "Large group (20+)" },
++          "languages": "Which languages do you offer?"
+         },
+-        "3": {
+-          "q": "I'm not sure which plan fits — can I ask first?",
+-          "a": "Of course. Select \"Not sure yet\" in the form below and tell us about your business — we'll recommend a plan based on what you're trying to achieve."
++        "other": {
++          "description": "Tell us about your business"
+         }
++      },
++      "plan": {
++        "title": "Which plan interests you?",
++        "base": { "name": "Base", "price": "€120 / year", "tagline": "For those who want to be there." },
++        "premium": { "name": "Premium", "price": "€180 / year", "tagline": "For those who want to be promoted." },
++        "signature": { "name": "Signature", "price": "On request", "tagline": "By application only — a featured experience in the configurator." },
++        "notSure": "Not sure yet"
++      },
++      "message": {
++        "title": "Anything else we should know?",
++        "placeholder": "Optional message"
+       }
+     },
+-    "form": {
+-      "eyebrow": "Apply",
+-      "title": "Tell Us About Your Business",
+-      "description": "Fill in the details below — we personally review every application.",
+-      "companyName": "Business Name",
+-      "contactName": "Your Name",
+-      "email": "Email",
+-      "phone": "Phone (optional)",
+-      "categoryLabel": "What best describes you?",
+-      "categoryHotel": "Hotel / Accommodation",
+-      "categoryRestaurant": "Restaurant",
+-      "categoryExperience": "Experience Provider",
+-      "categoryTravelProfessional": "Travel Professional / Agency",
+-      "planLabel": "Which plan interests you?",
+-      "planBase": "Base",
+-      "planPremium": "Premium",
+-      "planSignature": "Signature",
+-      "planNotSure": "Not sure yet",
+-      "website": "Website (optional)",
+-      "instagram": "Instagram (optional)",
+-      "message": "Tell us about your business",
++    "nav": {
++      "back": "Back",
++      "next": "Next",
+       "submit": "Submit Application",
+-      "submitting": "Sending...",
+-      "success": "Thank you — we've received your application and will follow up personally soon.",
+-      "error": "Something went wrong — please try again, or reach us directly on WhatsApp."
+-    }
++      "submitting": "Sending..."
++    },
++    "success": "Thank you — we've received your application and will follow up personally soon.",
++    "error": "Something went wrong — please try again, or reach us directly on WhatsApp."
+   }
+ }
+\ No newline at end of file
+diff --git a/supabase-migrations/2026_partner_applications.sql b/supabase-migrations/2026_partner_applications.sql
+index 1813675..90e8f65 100644
+--- a/supabase-migrations/2026_partner_applications.sql
++++ b/supabase-migrations/2026_partner_applications.sql
+@@ -1,9 +1,9 @@
+ -- =====================================================================
+ -- partner_applications
+ -- =====================================================================
+--- Candidature ricevute dal form B2B su /become-a-partner (hotel,
+--- ristoranti, fornitori di esperienze, travel professional che
+--- vogliono entrare nell'ecosistema Portovenere Experience).
++-- Candidature ricevute dal wizard step-by-step su /become-a-partner
++-- (hotel, ristoranti, noleggio privato, tour operator, altro) che
++-- vogliono entrare nell'ecosistema Portovenere Experience.
+ --
+ -- Nessuna scrittura pubblica via RLS: l'unico punto di inserimento e'
+ -- /api/partner-application, che gira lato server con la service role
+@@ -23,9 +23,18 @@ create table if not exists partner_applications (
+   email text not null,
+   phone text,
+ 
+-  -- Piu' di una categoria puo' applicarsi alla stessa attivita'
+-  -- (es. una tenuta che e' sia alloggio che ristorante).
+-  categories text[] not null default '{}',
++  -- Un solo tipo primario per candidatura — il wizard si ramifica su
++  -- questo (step "details" mostra domande diverse a seconda del
++  -- valore). 'hotel' | 'restaurant' | 'private_charter' |
++  -- 'tour_operator' | 'other'.
++  category text not null,
++
++  -- Risposte dello step "details", specifiche per categoria (es.
++  -- {"roomsCount": "11–30", "area": "Le Grazie"} per un hotel).
++  -- jsonb invece di colonne rigide per categoria: lo shape cambia
++  -- per tipo di operatore e potrebbe evolvere senza richiedere
++  -- nuove migration ogni volta.
++  details jsonb not null default '{}',
+ 
+   -- 'base' | 'premium' | 'signature' | 'not_sure'
+   plan_interest text not null default 'not_sure',
+-- 
+2.43.0
+

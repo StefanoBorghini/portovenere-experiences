@@ -1,0 +1,279 @@
+import { buildProposalGallery } from "@/lib/buildProposalGallery";
+import { calculateProposalTotal } from "@/lib/pricing/calculateProposalTotal";
+import { buildProposalExperienceCard } from "../buildProposalExperienceCard";
+import { buildProposalSummary } from "./buildProposalSummary";
+import { isCompatibleWithDateRange } from "@/lib/availability/resolveAvailability";
+
+// =====================================================
+// COMPATIBILITY HELPERS
+// =====================================================
+
+function isIncompatible(a: any, b: any) {
+
+  if (!a || !b) return false;
+
+  const aList = a.incompatible_experiences ?? [];
+  const bList = b.incompatible_experiences ?? [];
+
+  return (
+    aList.includes(b.id) ||
+    bList.includes(a.id)
+  );
+}
+
+function pickCompatible(
+  pool: any[],
+  anchor: any,
+  max: number,
+  ignoreIncompatibility: boolean = false
+) {
+
+  // Viaggio multi-giorno: si puo' fare un'esperienza "incompatibile"
+  // in un giorno diverso, quindi prendiamo semplicemente le migliori
+  // per punteggio, senza escludere nessuna per incompatibilita'.
+  if (ignoreIncompatibility) {
+    return pool.slice(0, max);
+  }
+
+  const chosen: any[] = [];
+
+  for (const candidate of pool) {
+
+    if (chosen.length >= max) break;
+
+    if (isIncompatible(anchor, candidate)) continue;
+
+    if (chosen.some((picked) => isIncompatible(picked, candidate))) continue;
+
+    chosen.push(candidate);
+  }
+
+  return chosen;
+}
+
+// =====================================================
+// BUILD RENDERER DATA
+// =====================================================
+
+export function buildRendererData({
+  generatedProposal,
+  lead,
+  enhancements,
+  t,
+  locale,
+}: any) {
+
+  // ===================================================
+  // MULTI-DAY TRIP CHECK
+  // Se start_date e end_date sono giorni diversi, il cliente
+  // ha piu' di un giorno a disposizione: le esperienze segnate
+  // come incompatibili tra loro (pensate per "non lo stesso
+  // giorno") possono comunque comparire insieme nella proposal,
+  // pianificate su giorni diversi.
+  // ===================================================
+
+  const isMultiDayTrip =
+    Boolean(lead?.start_date) &&
+    Boolean(lead?.end_date) &&
+    lead.start_date !== lead.end_date;
+
+  // ===================================================
+  // EXPERIENCES
+  // ===================================================
+
+  const rankedExperiences =
+    generatedProposal?.scoredExperiences || [];
+
+  const featuredExperience =
+    generatedProposal?.featuredExperience;
+
+  // ===================================================
+  // INCLUDED EXPERIENCES (compatibili con la featured
+  // e compatibili tra loro — a meno che il viaggio non
+  // duri piu' di un giorno, vedi sopra)
+  // — CALCOLATE PRIMA della gallery, così la gallery
+  // può usare esattamente queste esperienze
+  // ===================================================
+
+  const featuredCategory =
+    featuredExperience?.category;
+
+  const featuredId =
+    featuredExperience?.id;
+
+  const candidatePool =
+    rankedExperiences
+
+      .filter(
+        (experience: any) =>
+          experience.id !== featuredId
+      )
+
+      .filter(
+        (experience: any) =>
+          experience.category !== featuredCategory
+      );
+
+  const includedExperiencesRaw =
+    pickCompatible(candidatePool, featuredExperience, 3, isMultiDayTrip);
+
+  // Se la selezione era di una sola categoria, la sezione
+  // "included" sarebbe vuota — usiamo i suggerimenti
+  // calcolati in generateProposal, filtrati con la stessa
+  // logica di compatibilità.
+  // NOTA: usingSuggestedAddOns continua a decidere SOLO quale
+  // pool di esperienze mostrare (compatibili vs suggerimenti),
+  // non se partono selezionate — quello ora e' sempre "no",
+  // vedi includedExperiencesPreSelected piu' sotto.
+
+  const usingSuggestedAddOns =
+    includedExperiencesRaw.length === 0;
+
+  const finalIncludedExperiencesRaw =
+    usingSuggestedAddOns
+      ? pickCompatible(generatedProposal?.suggestedAddOns || [], featuredExperience, 3, isMultiDayTrip)
+      : includedExperiencesRaw;
+
+  const includedExperiences =
+    finalIncludedExperiencesRaw.map(buildProposalExperienceCard);
+
+  // ===================================================
+  // GALLERY
+  // — ORA usa la featured experience + le esperienze
+  // REALMENTE incluse in questa proposal (finalIncludedExperiencesRaw),
+  // non più "le prime 4 tra tutte le esperienze scorate".
+  // Se non ci sono esperienze incluse (solo suggerimenti
+  // non selezionati), la gallery mostra solo la featured.
+  // ===================================================
+
+  const galleryImages =
+    buildProposalGallery({
+      featuredExperience,
+      includedExperiences: finalIncludedExperiencesRaw,
+    });
+
+  // ===================================================
+  // ENHANCEMENTS (filtro quelli incompatibili con la
+  // featured o con una qualsiasi delle experience incluse
+  // — a meno che il viaggio non duri piu' di un giorno,
+  // stessa eccezione multi-day gia' applicata sopra alle
+  // esperienze: un enhancement "incompatibile" puo' comunque
+  // stare nella proposal se va programmato in un giorno diverso.
+  // Prima questo controllo mancava qui, quindi gli enhancement
+  // restavano esclusi anche nei viaggi multi-giorno.
+  // ===================================================
+
+  const relevantExperiences = [
+    featuredExperience,
+    ...finalIncludedExperiencesRaw,
+  ].filter(Boolean);
+
+  const incompatibleEnhancementIds = new Set<string>();
+
+  if (!isMultiDayTrip) {
+
+    relevantExperiences.forEach((experience: any) => {
+
+      (experience.incompatible_enhancements ?? []).forEach(
+        (id: any) => incompatibleEnhancementIds.add(String(id))
+      );
+    });
+  }
+
+  const enhancementCards =
+    enhancements
+      .filter(
+        (item: any) => item.active
+      )
+      .filter(
+        (item: any) => !incompatibleEnhancementIds.has(String(item.id))
+      )
+      .filter(
+        (item: any) =>
+          isCompatibleWithDateRange(
+            {
+              seasons: item.availability_seasons,
+              weekdays: item.availability_weekdays,
+              dates: item.availability_dates,
+            },
+            lead?.start_date,
+            lead?.end_date,
+            item.requires_specific_date === true
+          )
+      )
+      .map(
+        (item: any, index: number) => ({
+
+          ...item,
+
+          image:
+            item.image ||
+            galleryImages[
+              index % galleryImages.length
+            ],
+
+        })
+      );
+
+  // ===================================================
+  // PRICE
+  // Le esperienze incluse/suggerite non sono più MAI
+  // preselezionate (vedi includedExperiencesPreSelected
+  // sotto), quindi il prezzo "di partenza" usato per le email
+  // riflette solo la featured experience — coerente con quello
+  // che il cliente vede davvero al primo caricamento della
+  // pagina, prima di aggiungere qualcosa lui stesso.
+  //
+  // checkInDate: lead.start_date determina quale fascia di
+  // seasonal pricing si applica alla featured experience, se
+  // ce l'ha attiva — stessa logica usata poi lato client in
+  // proposalClient.tsx per il ricalcolo live.
+  // ===================================================
+
+  const finalPrice =
+    calculateProposalTotal({
+      experiences: [
+        featuredExperience,
+      ],
+      guests: lead?.guests,
+      children: lead?.children,
+      checkInDate: lead?.start_date,
+    });
+
+  // ===================================================
+  // RETURN
+  // ===================================================
+
+  const proposalSummary =
+    buildProposalSummary(
+      lead,
+      generatedProposal,
+      t,
+      locale
+    );
+
+  return {
+
+    galleryImages,
+
+    enhancements:
+      enhancementCards,
+
+    includedExperiences,
+
+    // Decisione di prodotto: le esperienze incluse/suggerite
+    // partono SEMPRE deselezionate ("da aggiungere"), a prescindere
+    // da usingSuggestedAddOns. Prima erano preselezionate quando
+    // il cliente aveva scelto piu' categorie — ora mai, per
+    // trasparenza sul prezzo mostrato di default.
+    includedExperiencesPreSelected: false,
+
+    isMultiDayTrip,
+
+    finalPrice,
+
+    proposalSummary,
+
+  };
+
+}

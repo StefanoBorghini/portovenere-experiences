@@ -1,0 +1,95 @@
+From 9c5427cd6c2a1db02da6830ac5ee9e29943faf08 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 12:29:59 +0000
+Subject: [PATCH] fix: translate facts/sections sequentially, not all at once
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Observed on a live test proposal: experience title/description
+translated correctly, but every fact (Duration/Boat/Availability/etc.)
+stayed in English across every experience tested. The only thing those
+calls had in common was volume — syncFullExperienceTranslations fired
+one Lara call per fact/section concurrently via Promise.all, and the
+route fired one syncFullExperienceTranslations per experience
+concurrently on top of that. An experience with several facts plus
+several sibling experiences in the same proposal could easily produce
+15-20 simultaneous Lara calls; facts were both the most numerous group
+and consistently the ones failing, consistent with hitting a
+rate/concurrency limit rather than the character quota (which would
+have blocked the title/description calls too).
+
+Both loops are now sequential — one Lara call at a time. This runs
+fire-and-forget in the background already, so the extra seconds cost
+nothing user-facing.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   | 16 +++++++++++---
+ src/lib/translations/translateExperience.ts   | 22 +++++++++++++------
+ 2 files changed, 28 insertions(+), 10 deletions(-)
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index 7007bfc..af44056 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -97,9 +97,19 @@ export async function POST(request: NextRequest) {
+       if (addOn?.id) experienceIds.add(addOn.id);
+     }
+ 
+-    await Promise.allSettled(
+-      Array.from(experienceIds).map((id) => syncFullExperienceTranslations(id))
+-    );
++    // Sequenziale tra le esperienze, non in parallelo: ognuna gia'
++    // traduce sequenzialmente content/sections/facts al suo interno
++    // (vedi syncFullExperienceTranslations) proprio per evitare troppe
++    // chiamate Lara concorrenti — farle poi in parallelo tra piu'
++    // esperienze vanificherebbe quella scelta. Gira in background,
++    // qualche secondo in piu' non ha costo per l'utente.
++    for (const id of experienceIds) {
++      try {
++        await syncFullExperienceTranslations(id);
++      } catch (err) {
++        console.error(`[api/translate-proposal-experiences] failed for ${id}:`, err);
++      }
++    }
+ 
+     return NextResponse.json({ success: true, translated: Array.from(experienceIds) });
+ 
+diff --git a/src/lib/translations/translateExperience.ts b/src/lib/translations/translateExperience.ts
+index 8967b31..e6ccafb 100644
+--- a/src/lib/translations/translateExperience.ts
++++ b/src/lib/translations/translateExperience.ts
+@@ -182,13 +182,21 @@ export async function syncFullExperienceTranslations(
+     .select("id, label, value")
+     .eq("experience_id", experienceId);
+ 
+-  await Promise.all([
+-    syncExperienceTranslations(experienceId, experience),
+-    ...(sections ?? []).map((section) =>
+-      syncSectionTranslations(section.id, section)
+-    ),
+-    ...(facts ?? []).map((fact) => syncFactTranslations(fact.id, fact)),
+-  ]);
++  // Sequenziale, non Promise.all: un'esperienza con molti facts/sections
++  // lanciava altrettante chiamate Lara in parallelo, e quelle in eccesso
++  // fallivano per rate limiting (osservato: title/description tradotti
++  // correttamente, facts quasi sempre no — proprio i piu' numerosi).
++  // Gira in background (fire-and-forget), quindi qualche secondo in
++  // piu' non ha alcun costo percepito dall'utente.
++  await syncExperienceTranslations(experienceId, experience);
++
++  for (const section of sections ?? []) {
++    await syncSectionTranslations(section.id, section);
++  }
++
++  for (const fact of facts ?? []) {
++    await syncFactTranslations(fact.id, fact);
++  }
+ }
+ 
+ // ---------------------------------------------------------------------
+-- 
+2.43.0
+

@@ -1,0 +1,60 @@
+From e65a5c65459b1e8b16a60ee13fd2f3d6d5e660ea Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 26 Jul 2026 14:07:25 +0000
+Subject: [PATCH] feat: cover hero titles in the experience backfill script
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+experience_hero_titles was added to the on-demand per-proposal sync
+(syncFullExperienceTranslations) after this standalone backfill script
+was written, so the script never picked it up — confirmed on a live
+proposal: content/sections/facts translated fine after backfilling,
+but the hero title at the top of the page stayed in English (it only
+gets synced when a new proposal happens to select that experience).
+
+Reuses the same generic backfillTable() helper already used for the
+other three tables.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ src/scripts/backfill-experience-translations.mjs | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/src/scripts/backfill-experience-translations.mjs b/src/scripts/backfill-experience-translations.mjs
+index 88794b2..e354803 100644
+--- a/src/scripts/backfill-experience-translations.mjs
++++ b/src/scripts/backfill-experience-translations.mjs
+@@ -1,8 +1,9 @@
+ #!/usr/bin/env node
+ /**
+  * Backfill UNA TANTUM: traduce via Lara tutte le righe di
+- * experience_content / experience_sections / experience_facts che non
+- * hanno ancora una riga "ok" nella rispettiva tabella *_translations.
++ * experience_content / experience_sections / experience_facts /
++ * experience_hero_titles che non hanno ancora una riga "ok" nella
++ * rispettiva tabella *_translations.
+  * =====================================================================
+  * La pipeline Lara per le experience (src/lib/translations/translateExperience.ts)
+  * viene chiamata SOLO quando qualcuno salva dal pannello admin — le
+@@ -240,6 +241,16 @@ async function main() {
+     fkColumn: "fact_id",
+   });
+ 
++  await backfillTable({
++    supabase,
++    translator,
++    sourceTable: "experience_hero_titles",
++    idColumn: "id",
++    fields: ["title"],
++    translationsTable: "experience_hero_titles_translations",
++    fkColumn: "hero_title_id",
++  });
++
+   console.log("[backfill] completato.");
+ }
+ 
+-- 
+2.43.0
+

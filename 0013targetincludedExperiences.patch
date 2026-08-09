@@ -1,0 +1,97 @@
+From adbdebe343744721b4d78abc88120f4cfeee8e19 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 25 Jul 2026 13:14:39 +0000
+Subject: [PATCH] fix: target includedExperiences, not suggestedAddOns, for the
+ addon list
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+"Potrebbe piacerti anche" on the proposal page is populated by
+buildRendererData()'s includedExperiences — a compatibility/score-based
+pool computed independently of generateProposal()'s suggestedAddOns.
+suggestedAddOns is only a fallback buildRendererData reaches for when
+that primary pool is empty (which only happens when a single category
+was selected).
+
+The route was translating suggestedAddOns, so on every proposal with
+2+ selected categories (every proposal tested so far) it never even
+attempted the experiences actually shown as add-ons — explaining why
+some add-ons only appeared translated (leftover from the earlier
+one-time catalog backfill) while others (never caught by that backfill
+before it hit its quota) stayed in English no matter how many times a
+new proposal was generated.
+
+Now calls buildRendererData() with the same generatedProposal + lead
+data the results page uses, and targets its includedExperiences.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01XBj5YyCv7itzLP8BDyrEj5
+---
+ .../translate-proposal-experiences/route.ts   | 30 +++++++++++++++----
+ 1 file changed, 24 insertions(+), 6 deletions(-)
+
+diff --git a/src/app/api/translate-proposal-experiences/route.ts b/src/app/api/translate-proposal-experiences/route.ts
+index 5eebc48..e0c4ef7 100644
+--- a/src/app/api/translate-proposal-experiences/route.ts
++++ b/src/app/api/translate-proposal-experiences/route.ts
+@@ -9,10 +9,12 @@
+  *
+  * A differenza del backfill one-shot (src/scripts/backfill-experience-
+  * translations.mjs, che traduce l'intero catalogo), qui rifacciamo lo
+- * stesso matching di generateProposal() per capire ESATTAMENTE quali
+- * esperienze finiranno mostrate in QUESTA proposal (la featured + i
+- * suggested add-ons) e traduciamo solo quelle — niente quota Lara
+- * sprecata su esperienze che nessuna proposal ha ancora selezionato.
++ * stesso matching di generateProposal() + buildRendererData() usato
++ * dalla pagina proposal per capire ESATTAMENTE quali esperienze
++ * finiranno mostrate in QUESTA proposal (la featured + le
++ * includedExperiences di "Potrebbe piacerti anche") e traduciamo solo
++ * quelle — niente quota Lara sprecata su esperienze che nessuna
++ * proposal ha ancora selezionato.
+  *
+  * Body: { leadId }
+  * =====================================================================
+@@ -22,6 +24,7 @@ import { NextRequest, NextResponse } from "next/server";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+ import { getFullExperiences } from "@/lib/supabase/experienceRepository";
+ import { generateProposal } from "@/lib/generateProposal";
++import { buildRendererData } from "@/lib/proposal-engine/buildRendererData";
+ import { syncFullExperienceTranslations } from "@/lib/translations/translateExperience";
+ import { mapWithConcurrency } from "@/lib/concurrencyLimit";
+ 
+@@ -97,14 +100,29 @@ export async function POST(request: NextRequest) {
+       allExperiences,
+     });
+ 
++    // "Potrebbe piacerti anche" NON viene da suggestedAddOns (quello e'
++    // solo un fallback usato da buildRendererData quando il pool
++    // primario e' vuoto) — viene da includedExperiences, calcolate da
++    // buildRendererData con la sua logica di compatibilita'/punteggio.
++    // Usare solo suggestedAddOns qui significava non tradurre mai le
++    // esperienze che finiscono davvero mostrate nella maggior parte
++    // delle proposal (ogni volta che e' stata selezionata piu' di una
++    // categoria, il caso comune). enhancements: [] perche' qui non ci
++    // servono gli enhancement cards, solo includedExperiences.
++    const { includedExperiences } = buildRendererData({
++      generatedProposal,
++      lead,
++      enhancements: [],
++    });
++
+     const experienceIds = new Set<string>();
+ 
+     if (generatedProposal.featuredExperience?.id) {
+       experienceIds.add(generatedProposal.featuredExperience.id);
+     }
+ 
+-    for (const addOn of generatedProposal.suggestedAddOns ?? []) {
+-      if (addOn?.id) experienceIds.add(addOn.id);
++    for (const experience of includedExperiences ?? []) {
++      if (experience?.id) experienceIds.add(experience.id);
+     }
+ 
+     // 2 esperienze alla volta: del tutto sequenziale (com'era prima)
+-- 
+2.43.0
+

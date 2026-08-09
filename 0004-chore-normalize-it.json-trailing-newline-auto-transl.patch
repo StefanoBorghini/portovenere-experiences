@@ -1,0 +1,24 @@
+From 421627abe99a47f995e42a9a459afd67126d0f41 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Fri, 24 Jul 2026 18:36:14 +0000
+Subject: [PATCH 4/7] chore: normalize it.json trailing newline (auto-translate
+ script output)
+
+---
+ src/messages/it.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/messages/it.json b/src/messages/it.json
+index 9b9bb44..fa14b7a 100644
+--- a/src/messages/it.json
++++ b/src/messages/it.json
+@@ -86,4 +86,4 @@
+     "poweredBy": "Powered by Ductavia"
+   },
+   "proposal": {}
+-}
+\ No newline at end of file
++}
+-- 
+2.43.0
+
