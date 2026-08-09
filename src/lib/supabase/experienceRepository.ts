@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
 import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
-import { getActiveOperatorIds } from "./operatorRepository";
 
 // Innesca la sincronizzazione Lara Translate per una section o un fact
 // appena salvati — via fetch a /api/translate-experience, che gira
@@ -404,7 +403,7 @@ export async function duplicateExperience(id: string) {
 
 export async function getExperiences() {
   if (!supabase) {
-    console.error("[DEBUG-EXP] Supabase not initialized (client is null)");
+    console.error("Supabase not initialized");
     return [];
   }
 
@@ -414,19 +413,6 @@ export async function getExperiences() {
     .order("display_order", {
       ascending: true,
     });
-
-  // DIAGNOSTICA TEMPORANEA — logga SEMPRE, successo o errore, per
-  // capire perche' questa query torna 0 righe in produzione nonostante
-  // l'admin (stesso client anon) le veda. Da rimuovere una volta
-  // trovata la causa.
-  console.log(
-    "[DEBUG-EXP] rows:",
-    data?.length ?? "n/a",
-    "error:",
-    error ? JSON.stringify(error) : null,
-    "url:",
-    process.env.NEXT_PUBLIC_SUPABASE_URL
-  );
 
   if (error) {
     console.error(
@@ -1314,42 +1300,18 @@ const localizedExperience = getLocalizedExperience(
 }
 
 // =========================================================
-// Come getFullExperiences(), ma esclude le esperienze GIA' ASSEGNATE
-// a un operatore che non ha ancora completato l'onboarding Stripe
-// Connect. Un'esperienza SENZA operatore assegnato resta visibile
-// come sempre (nessun impatto sul catalogo esistente finche' l'admin
-// non assegna operatori attivamente) — la restrizione e' opt-in per
-// singola esperienza, non un requisito retroattivo per tutto il
-// catalogo. Usata SOLO nei punti in cui generateProposal() gira per
-// il cliente finale (pagina proposal, pre-traduzione della proposal)
-// — le pagine admin continuano a usare getFullExperiences() senza
-// filtro, per poter vedere/assegnare l'operatore anche a esperienze
-// non ancora connesse.
+// FASE 1 (Concierge Fee): alias di getFullExperiences(), SENZA alcun
+// filtro legato a operator_id/Stripe Connect — quel gating era
+// specifico del modello marketplace/split (Fase 2), mai attivo nel
+// flusso Concierge Fee. Tenuto come funzione separata (stesso nome,
+// stessa firma) solo per non dover toccare i call site che gia' la
+// usano (pagina proposal, pre-traduzione) — un domani, se la Fase 2
+// tornera' operativa, la logica di gating va reintrodotta qui, non
+// prima.
 // =========================================================
 
 export async function getBookableExperiences(locale: string = "en") {
-
-  const [experiences, activeOperatorIds] = await Promise.all([
-    getFullExperiences(locale),
-    getActiveOperatorIds(),
-  ]);
-
-  const result = (experiences || []).filter(
-    (experience: { operator_id?: string | null }) =>
-      !experience.operator_id || activeOperatorIds.has(experience.operator_id)
-  );
-
-  // DIAGNOSTICA TEMPORANEA — da rimuovere una volta trovata la causa
-  // del calo 25 -> 0 osservato in produzione.
-  console.log(
-    "[DEBUG-BOOKABLE]",
-    "before:", (experiences || []).length,
-    "after:", result.length,
-    "activeOperatorIds:", Array.from(activeOperatorIds),
-    "sample operator_id:", (experiences || [])[0]?.operator_id
-  );
-
-  return result;
+  return getFullExperiences(locale);
 }
 
 export async function getExperienceGallery() {

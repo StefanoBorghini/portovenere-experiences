@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { resizeImageBeforeUpload, HERO_RESIZE_OPTIONS } from "../../lib/upload/resizeImageBeforeUpload";
 import { getLocalizedExperience } from "@/lib/translations/getLocalizedField";
-import { getActiveOperatorIds } from "./operatorRepository";
 // ======================================================
 // ENHANCEMENTS
 // ======================================================
@@ -273,24 +272,17 @@ export async function deleteEnhancementAvailabilityDate(id: string) {
 }
 
 // =========================================================
-// Come getEnhancements(), ma esclude solo quelli GIA' ASSEGNATI a un
-// operatore che non ha completato l'onboarding Stripe Connect — un
-// enhancement senza operatore assegnato resta visibile come sempre,
-// stesso ragionamento (opt-in, non retroattivo) di
-// getBookableExperiences() in experienceRepository.ts.
+// FASE 1 (Concierge Fee): alias di getEnhancements(), SENZA filtro
+// operator_id/Stripe Connect — stesso ragionamento di
+// getBookableExperiences() in experienceRepository.ts. Un enhancement
+// con un operator_id gia' valorizzato (es. assegnato in un test
+// precedente) non deve mai sparire dal configuratore solo perche' la
+// tabella di supporto Stripe Connect non e' configurata: quel gating
+// era specifico del modello marketplace (Fase 2), mai attivo qui.
 // =========================================================
 
 export async function getBookableEnhancements(locale: string = "en") {
-
-  const [enhancements, activeOperatorIds] = await Promise.all([
-    getEnhancements(locale),
-    getActiveOperatorIds(),
-  ]);
-
-  return (enhancements || []).filter(
-    (enhancement: { operator_id?: string | null }) =>
-      !enhancement.operator_id || activeOperatorIds.has(enhancement.operator_id)
-  );
+  return getEnhancements(locale);
 }
 
 export async function createEnhancement() {

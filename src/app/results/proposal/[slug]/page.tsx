@@ -282,8 +282,6 @@ const generatedProposal =
 
 if (!featuredExperience) {
 
-  const debug = generatedProposal.noMatchDebug;
-
   return (
 
     <main
@@ -368,29 +366,6 @@ if (!featuredExperience) {
         >
           Back to configurator
         </a>
-
-        {/* DIAGNOSTICA TEMPORANEA — da rimuovere dopo aver capito perche'
-            questa proposal non trova match. Non sensibile (solo conteggi/
-            titoli gia' pubblici altrove). */}
-        {debug && (
-          <pre
-            className="
-              mt-12
-              text-left
-              text-xs
-              text-zinc-500
-              bg-zinc-950
-              border
-              border-zinc-800
-              rounded-xl
-              p-4
-              overflow-auto
-              whitespace-pre-wrap
-            "
-          >
-            {JSON.stringify(debug, null, 2)}
-          </pre>
-        )}
 
       </div>
 
