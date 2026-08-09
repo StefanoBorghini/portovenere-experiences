@@ -1334,10 +1334,22 @@ export async function getBookableExperiences(locale: string = "en") {
     getActiveOperatorIds(),
   ]);
 
-  return (experiences || []).filter(
+  const result = (experiences || []).filter(
     (experience: { operator_id?: string | null }) =>
       !experience.operator_id || activeOperatorIds.has(experience.operator_id)
   );
+
+  // DIAGNOSTICA TEMPORANEA — da rimuovere una volta trovata la causa
+  // del calo 25 -> 0 osservato in produzione.
+  console.log(
+    "[DEBUG-BOOKABLE]",
+    "before:", (experiences || []).length,
+    "after:", result.length,
+    "activeOperatorIds:", Array.from(activeOperatorIds),
+    "sample operator_id:", (experiences || [])[0]?.operator_id
+  );
+
+  return result;
 }
 
 export async function getExperienceGallery() {
