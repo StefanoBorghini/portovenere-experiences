@@ -404,7 +404,7 @@ export async function duplicateExperience(id: string) {
 
 export async function getExperiences() {
   if (!supabase) {
-    console.error("Supabase not initialized");
+    console.error("[DEBUG-EXP] Supabase not initialized (client is null)");
     return [];
   }
 
@@ -414,6 +414,19 @@ export async function getExperiences() {
     .order("display_order", {
       ascending: true,
     });
+
+  // DIAGNOSTICA TEMPORANEA — logga SEMPRE, successo o errore, per
+  // capire perche' questa query torna 0 righe in produzione nonostante
+  // l'admin (stesso client anon) le veda. Da rimuovere una volta
+  // trovata la causa.
+  console.log(
+    "[DEBUG-EXP] rows:",
+    data?.length ?? "n/a",
+    "error:",
+    error ? JSON.stringify(error) : null,
+    "url:",
+    process.env.NEXT_PUBLIC_SUPABASE_URL
+  );
 
   if (error) {
     console.error(
