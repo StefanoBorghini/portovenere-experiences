@@ -83,7 +83,7 @@
         "title": "What kind of experience are you dreaming of?"
       },
       "moods": {
-        "label": "Select up to 3 Atmospheres",
+        "label": "Select up to 4 Atmospheres",
         "title": "Choose the vibe that inspires you."
       },
       "guests": {
@@ -105,22 +105,26 @@
     },
     "selection": {
       "experiencesSelected": "{count}/3 selected",
-      "moodsSelected": "{count}/3 selected",
+      "moodsSelected": "{count}/4 selected",
       "warningConflict": "These experiences cannot be combined",
       "warningMaxExperiences": "Maximum 3 experiences allowed",
-      "warningMaxMoods": "Maximum 3 atmospheres selections allowed"
+      "warningMaxMoods": "Maximum 4 atmospheres selections allowed"
     },
     "experienceNames": {
       "seaEscape": "Sea Escape",
-      "aerialEscape": "Aerial Escape",
       "gourmetEscape": "Gourmet Escape",
-      "wildEscape": "Wild Escape"
+      "wineEscape": "Wine Escape",
+      "wildEscape": "Wild Escape",
+      "culturalEscape": "Cultural Escape",
+      "wellnessEscape": "Wellness Escape"
     },
     "moodNames": {
       "romantic": "Romantic",
       "cinematic": "Cinematic",
       "authentic": "Authentic",
-      "adventure": "Adventure"
+      "adventure": "Adventure",
+      "relax": "Relax",
+      "indulgent": "Indulgent"
     },
     "guests": {
       "adultsLabel": "Adults",
@@ -258,7 +262,7 @@
       "genericError": "Something went wrong — please try again, or contact us directly.",
       "someone": "there"
     },
-     "shareButton": {
+    "shareButton": {
       "share": "Share Proposal",
       "copied": "Link copied!",
       "shareTitle": "Your Riviera Experience Proposal",

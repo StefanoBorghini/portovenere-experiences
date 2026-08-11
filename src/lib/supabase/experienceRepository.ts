@@ -154,6 +154,8 @@ const scoringInsert =await supabase
     authentic_score: 0,
     adventure_score: 0,
     cinematic_score: 0,
+    relax_score: 0,
+    indulgent_score: 0,
   });
 
 
@@ -257,6 +259,8 @@ export async function duplicateExperience(id: string) {
       authentic_score: scoring.authentic_score,
       adventure_score: scoring.adventure_score,
       cinematic_score: scoring.cinematic_score,
+      relax_score: scoring.relax_score,
+      indulgent_score: scoring.indulgent_score,
     });
   }
 
@@ -424,6 +428,39 @@ export async function getExperiences() {
   }
 
   return data;
+}
+
+// =========================================================
+// Categorie con almeno un'esperienza attiva — usata dal wizard
+// pubblico per decidere quali categorie mostrare come selezionabili
+// (nessuna categoria vuota mai mostrata, nessuna configurazione
+// manuale). Stessa identica regola "active !== false" gia' usata
+// ovunque in generateProposal.ts (un record senza il campo valorizzato
+// resta considerato attivo di default). Non riusa il sistema di
+// disponibilita' per date (resolveAvailability.ts): quella risponde a
+// una domanda diversa ("disponibile per QUESTE date"), qui serve
+// invece "esiste almeno un'esperienza viva in questa categoria",
+// indipendente dalle date.
+// =========================================================
+
+export async function getVisibleCategoryValues(): Promise<Set<string>> {
+  if (!supabase) return new Set();
+
+  const { data, error } = await supabase
+    .from("experience_content")
+    .select("category, active");
+
+  if (error) {
+    console.error("getVisibleCategoryValues error:", error);
+    return new Set();
+  }
+
+  return new Set(
+    (data || [])
+      .filter((row: { active?: boolean | null }) => row.active !== false)
+      .map((row: { category?: string | null }) => row.category)
+      .filter((category): category is string => Boolean(category))
+  );
 }
 
 export async function getExperienceScoring() {

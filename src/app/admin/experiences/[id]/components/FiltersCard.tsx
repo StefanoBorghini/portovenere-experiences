@@ -1,3 +1,5 @@
+import { CATEGORIES } from "@/lib/config/experienceTaxonomy";
+
 interface FiltersCardProps {
 
   experience:any;
@@ -162,21 +164,11 @@ Experience Filters
 
     >
 
-      <option value="sea_escape">
-        Sea Escape
-      </option>
-
-      <option value="aerial_escape">
-        Aerial Escape
-      </option>
-
-      <option value="gourmet_escape">
-        Gourmet Escape
-      </option>
-
-      <option value="wild_escape">
-        Wild Escape
-      </option>
+      {CATEGORIES.map((category) => (
+        <option key={category.dbValue} value={category.dbValue}>
+          {category.label}
+        </option>
+      ))}
 
     </select>
 

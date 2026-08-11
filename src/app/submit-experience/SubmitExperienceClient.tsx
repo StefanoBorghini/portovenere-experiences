@@ -46,21 +46,26 @@ const STEP_TITLES: Record<StepId, string> = {
   message: "C'è altro che dovremmo sapere?",
 };
 
-// Stessi 4 valori usati ovunque nel sito (vedi
-// src/app/admin/experiences/[id]/components/FiltersCard.tsx) — cosi'
+// Stessi 6 valori usati ovunque nel sito (vedi
+// src/lib/config/experienceTaxonomy.ts, unica fonte di verità) — così
 // la categoria scelta qui combacia 1:1 col dropdown che Stefano userà
-// in admin per inserire l'esperienza vera.
+// in admin per inserire l'esperienza vera. Aerial Escape rimossa dal
+// sistema pubblico — non più selezionabile qui.
 type Category =
   | "sea_escape"
-  | "aerial_escape"
   | "gourmet_escape"
-  | "wild_escape";
+  | "wine_escape"
+  | "wild_escape"
+  | "cultural_escape"
+  | "wellness_escape";
 
 const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
   { value: "sea_escape", label: "Sea Escape (mare, barca...)" },
-  { value: "aerial_escape", label: "Aerial Escape (parapendio, volo...)" },
-  { value: "gourmet_escape", label: "Gourmet Escape (cibo, vino...)" },
+  { value: "gourmet_escape", label: "Gourmet Escape (cibo...)" },
+  { value: "wine_escape", label: "Wine Escape (vino, cantine...)" },
   { value: "wild_escape", label: "Wild Escape (natura, trekking...)" },
+  { value: "cultural_escape", label: "Cultural Escape (arte, tradizioni, storia...)" },
+  { value: "wellness_escape", label: "Wellness Escape (relax, benessere...)" },
 ];
 
 interface DetailField {
@@ -77,17 +82,6 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
     { key: "safetyEquipment", label: "Dotazioni di sicurezza / licenza", type: "text" },
     { key: "weatherDependent", label: "L'esperienza dipende dal meteo?", type: "yesno" },
   ],
-  aerial_escape: [
-    {
-      key: "activityType",
-      label: "Tipo di attività",
-      type: "select",
-      options: ["Parapendio", "Mongolfiera", "Deltaplano", "Altro"],
-    },
-    { key: "flightDuration", label: "Durata del volo", type: "text" },
-    { key: "certifications", label: "Certificazioni / assicurazione", type: "text" },
-    { key: "restrictions", label: "Limiti di peso o età, se presenti", type: "text" },
-  ],
   gourmet_escape: [
     {
       key: "experienceType",
@@ -101,6 +95,16 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       type: "multiselect",
       options: ["Vegetariano", "Vegano", "Senza glutine", "Nessuna"],
     },
+    { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
+  ],
+  wine_escape: [
+    {
+      key: "experienceType",
+      label: "Tipo di esperienza",
+      type: "select",
+      options: ["Degustazione in cantina", "Tour tra i vigneti", "Abbinamento cibo-vino", "Altro"],
+    },
+    { key: "wineriesInvolved", label: "Cantina/e coinvolta/e", type: "text" },
     { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
   ],
   wild_escape: [
@@ -117,6 +121,26 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       options: ["Facile", "Medio", "Impegnativo"],
     },
     { key: "equipmentProvided", label: "Attrezzatura fornita?", type: "yesno" },
+  ],
+  cultural_escape: [
+    {
+      key: "experienceType",
+      label: "Tipo di esperienza",
+      type: "select",
+      options: ["Visita guidata", "Laboratorio artigianale", "Evento/tradizione locale", "Altro"],
+    },
+    { key: "language", label: "Lingue disponibili", type: "text" },
+    { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
+  ],
+  wellness_escape: [
+    {
+      key: "experienceType",
+      label: "Tipo di esperienza",
+      type: "select",
+      options: ["Massaggio/trattamento", "Yoga/meditazione", "Percorso spa", "Altro"],
+    },
+    { key: "location", label: "Dove si svolge (interno/esterno)", type: "text" },
+    { key: "equipmentProvided", label: "Attrezzatura/materiali forniti?", type: "yesno" },
   ],
 };
 

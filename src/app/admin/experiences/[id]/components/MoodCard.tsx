@@ -1,3 +1,5 @@
+import { MOODS } from "@/lib/config/experienceTaxonomy";
+
 interface MoodCardProps {
 
   experience: any;
@@ -6,33 +8,11 @@ interface MoodCardProps {
 
 }
 
-const moods = [
-
-  {
-    label: "Romantic",
-    icon: "♥",
-    key: "romantic_score",
-  },
-
-  {
-    label: "Authentic",
-    icon: "✦",
-    key: "authentic_score",
-  },
-
-  {
-    label: "Adventure",
-    icon: "▲",
-    key: "adventure_score",
-  },
-
-  {
-    label: "Cinematic",
-    icon: "🎬",
-    key: "cinematic_score",
-  },
-
-];
+const moods = MOODS.map((mood) => ({
+  label: mood.label,
+  icon: mood.icon,
+  key: mood.scoreField,
+}));
 
 export default function MoodCard({
 

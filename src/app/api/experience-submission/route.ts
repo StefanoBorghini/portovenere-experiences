@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { ownerNewExperienceSubmissionTemplate } from "@/lib/email/templates";
+import { CATEGORIES } from "@/lib/config/experienceTaxonomy";
 
 // =========================================================
 // POST /api/experience-submission
@@ -12,12 +13,9 @@ import { ownerNewExperienceSubmissionTemplate } from "@/lib/email/templates";
 // saperlo (500) e poter ritentare, non vedere un falso successo.
 // =========================================================
 
-const CATEGORY_LABELS: Record<string, string> = {
-  sea_escape: "Sea Escape",
-  aerial_escape: "Aerial Escape",
-  gourmet_escape: "Gourmet Escape",
-  wild_escape: "Wild Escape",
-};
+const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.dbValue, c.label])
+);
 
 function asObject(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)

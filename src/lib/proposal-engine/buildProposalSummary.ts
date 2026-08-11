@@ -1,5 +1,5 @@
 import { sentenceBuilder } from "./summary/sentenceBuilder";
-import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/experienceMoodNameKeys";
+import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/config/experienceTaxonomy";
 
 // =====================================================
 // DATE — formatta start_date/end_date in un'unica frase

@@ -12,6 +12,22 @@ import {
   updateExperience,
   duplicateExperience,
 } from "@/lib/supabase/experienceRepository";
+import { MOODS } from "@/lib/config/experienceTaxonomy";
+
+// Soglia "mood notevolmente presente" per il filtro CMS — i mood sono
+// punteggi 1-10 (non tag booleani, vedi MoodCard.tsx), quindi "filtrare
+// per mood" qui significa "punteggio di quel mood >= 6", non un
+// semplice presente/assente. Stessa soglia usata per decidere quale/i
+// mood mostrare come badge "Top mood" in lista.
+const MOOD_BADGE_THRESHOLD = 6;
+
+function getTopMoods(experience: any): string[] {
+  return MOODS
+    .filter((mood) => (experience[mood.scoreField] ?? 0) >= MOOD_BADGE_THRESHOLD)
+    .sort((a, b) => (experience[b.scoreField] ?? 0) - (experience[a.scoreField] ?? 0))
+    .slice(0, 2)
+    .map((mood) => mood.label);
+}
 
 export default function AdminExperiencesPage() {
 
@@ -21,6 +37,11 @@ export default function AdminExperiencesPage() {
     useState<any[]>([]);
 
   const [search, setSearch] =
+    useState("");
+
+  // "" = nessun filtro mood attivo. Il valore e' lo scoreField (es.
+  // "romantic_score") cosi' il filtro sotto non deve ri-cercare MOODS.
+  const [moodFilter, setMoodFilter] =
     useState("");
 
   // Evita doppi click mentre la richiesta e' in corso, per
@@ -43,7 +64,7 @@ const filteredExperiences =
       const query =
         search.toLowerCase();
 
-      return (
+      const matchesSearch = (
 
         experience.title
           ?.toLowerCase()
@@ -62,6 +83,12 @@ const filteredExperiences =
           .includes(query)
 
       );
+
+      const matchesMood =
+        !moodFilter ||
+        (experience[moodFilter] ?? 0) >= MOOD_BADGE_THRESHOLD;
+
+      return matchesSearch && matchesMood;
     }
   );
 
@@ -282,6 +309,27 @@ onChange={(e) =>
       outline-none
     "
   />
+
+  <select
+    value={moodFilter}
+    onChange={(e) => setMoodFilter(e.target.value)}
+    className="
+      px-4
+      py-3
+      rounded-xl
+      bg-white/[0.04]
+      border
+      border-white/[0.08]
+      outline-none
+    "
+  >
+    <option value="" className="bg-black">All moods</option>
+    {MOODS.map((mood) => (
+      <option key={mood.scoreField} value={mood.scoreField} className="bg-black">
+        {mood.label}
+      </option>
+    ))}
+  </select>
 
 <button
 
@@ -515,6 +563,28 @@ onChange={(e) =>
 
         </div>
 
+        {getTopMoods(experience).length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {getTopMoods(experience).map((label) => (
+              <span
+                key={label}
+                className="
+                  px-2.5
+                  py-1
+                  rounded-full
+                  text-xs
+                  border
+                  border-white/10
+                  bg-white/[0.03]
+                  text-white/70
+                "
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex gap-2 mt-4">
 
           <Link
@@ -605,6 +675,10 @@ onChange={(e) =>
         </th>
 
         <th className="p-4 text-left">
+          Top mood
+        </th>
+
+        <th className="p-4 text-left">
           Price
         </th>
 
@@ -692,6 +766,34 @@ onChange={(e) =>
                 {experience.category}
 
               </span>
+
+            </td>
+
+            <td className="p-4">
+
+              {getTopMoods(experience).length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {getTopMoods(experience).map((label) => (
+                    <span
+                      key={label}
+                      className="
+                        px-2.5
+                        py-1
+                        rounded-full
+                        text-xs
+                        border
+                        border-white/10
+                        bg-white/[0.03]
+                        text-white/70
+                      "
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span className="text-white/30 text-xs">—</span>
+              )}
 
             </td>
 

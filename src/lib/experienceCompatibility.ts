@@ -387,4 +387,31 @@ export const experienceCompatibility = {
 
   combinations: {},
 },
+
+// Nuove categorie (Wine/Cultural/Wellness Escape) — entry vuote ma
+// sicure (compatibleWith/moods/combinations presenti, nessun lookup
+// puo' fallire), pronte per essere arricchite con suggerimenti di
+// addon reali quando ci saranno esperienze in queste categorie. Stessa
+// logica delle altre: compatibilityData le legge solo se
+// selectedMainCategory le raggiunge davvero.
+"Wine Escape": {
+  compatibleWith: ["Gourmet Escape"],
+  incompatibleWith: [],
+  moods: {},
+  combinations: {},
+},
+
+"Cultural Escape": {
+  compatibleWith: [],
+  incompatibleWith: [],
+  moods: {},
+  combinations: {},
+},
+
+"Wellness Escape": {
+  compatibleWith: [],
+  incompatibleWith: [],
+  moods: {},
+  combinations: {},
+},
 };

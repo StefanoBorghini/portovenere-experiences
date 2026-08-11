@@ -55,6 +55,8 @@ import {
   experienceCompatibility,
 } from "./experienceCompatibility";
 
+import { MOODS } from "@/lib/config/experienceTaxonomy";
+
 interface GenerateProposalProps {
 
   experiencesSelected: string[];
@@ -372,28 +374,18 @@ const matchesBudget =
           ) * 20;
 
         // =====================================================
-        // MOOD REFINEMENT
+        // MOOD REFINEMENT — stessa formula di sempre (peso ×10 per
+        // mood selezionato, additivo, nessuna normalizzazione), ora
+        // guidata da MOODS invece di una catena di if hardcoded: si
+        // estende automaticamente a nuovi mood senza toccare questo
+        // file, vedi src/lib/config/experienceTaxonomy.ts.
         // =====================================================
 
- safeMoodsSelected.forEach((mood) => {
-
-  if (mood === "Romantic") {
-    score += (experience.romantic_score ?? 0) * 10;
-  }
-
-  if (mood === "Authentic") {
-    score += (experience.authentic_score ?? 0) * 10;
-  }
-
-  if (mood === "Adventure") {
-    score += (experience.adventure_score ?? 0) * 10;
-  }
-
-  if (mood === "Cinematic") {
-    score += (experience.cinematic_score ?? 0) * 10;
-  }
-
-});
+        MOODS.forEach((mood) => {
+          if (safeMoodsSelected.includes(mood.label)) {
+            score += (experience[mood.scoreField] ?? 0) * 10;
+          }
+        });
 
         // =====================================================
         // FASCIA ORARIA PREFERITA — bonus di priorità, non filtro.
@@ -457,19 +449,8 @@ const matchesBudget =
   // BEST EXPERIENCE
   // =========================================================
 
- const narrativePriority = [
-
-  "Sea Escape",
-
-  "Aerial Escape",
-
-  "Gourmet Escape",
-
-  "Wild Escape",
-];
-
 // trova la categoria principale
-// in base alla priorità narrativa
+// (la prima selezionata dal cliente)
 const selectedMainCategory =
 
   safeExperiencesSelected[0]
@@ -629,11 +610,10 @@ if (safeExperiencesSelected.length === 1) {
 
       let score = (experience.luxuryPriority || 1) * 20;
 
-      safeMoodsSelected.forEach((mood) => {
-        if (mood === "Romantic") score += (experience.romantic_score ?? 0) * 10;
-        if (mood === "Authentic") score += (experience.authentic_score ?? 0) * 10;
-        if (mood === "Adventure") score += (experience.adventure_score ?? 0) * 10;
-        if (mood === "Cinematic") score += (experience.cinematic_score ?? 0) * 10;
+      MOODS.forEach((mood) => {
+        if (safeMoodsSelected.includes(mood.label)) {
+          score += (experience[mood.scoreField] ?? 0) * 10;
+        }
       });
 
       // Stesso bonus fascia oraria applicato anche ai suggerimenti,

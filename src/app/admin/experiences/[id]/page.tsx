@@ -870,6 +870,12 @@ for (const fact of experience.facts) {
           cinematic_score:
             experience.cinematic_score,
 
+          relax_score:
+            experience.relax_score,
+
+          indulgent_score:
+            experience.indulgent_score,
+
         }
 
       );

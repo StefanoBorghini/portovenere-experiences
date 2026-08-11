@@ -9,7 +9,13 @@ import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { Sunrise, Sun, Sunset, Clock } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-import { EXPERIENCE_NAME_KEYS, MOOD_NAME_KEYS } from "@/lib/experienceMoodNameKeys";
+import {
+  CATEGORIES,
+  MOODS,
+  EXPERIENCE_NAME_KEYS,
+  MOOD_NAME_KEYS,
+} from "@/lib/config/experienceTaxonomy";
+import { getVisibleCategoryValues } from "@/lib/supabase/experienceRepository";
 import {
   trackEvent,
   trackConfiguratorStart,
@@ -77,42 +83,15 @@ const TERMS_URL = "https://www.portovenere.com/terms-conditions/";
 const INTRO_STEP = -1;
 
 // =========================================================
-// IMMAGINI E TESTI — hardcoded per ora, come richiesto.
-// Quando arriverà il CMS, questi tre oggetti diventeranno
-// la fonte dinamica (stessa struttura, dati da Supabase invece
-// che da qui) — il resto del codice non cambia.
-//
-// Path reali già impostati (public/images/... e public/hero-config.jpg).
-// Se sposti o rinomini i file, aggiorna solo qui sotto.
+// CATEGORIE E MOOD — ora lette da CATEGORIES/MOODS
+// (src/lib/config/experienceTaxonomy.ts), unica fonte di verità
+// condivisa con admin/scoring/submit-experience. Quali categorie sono
+// effettivamente SELEZIONABILI in questo step dipende inoltre da
+// visibleCategories (vedi useEffect sotto): solo quelle con almeno
+// un'esperienza attiva nel catalogo compaiono, mai una categoria vuota.
 // =========================================================
 
-const EXPERIENCE_DETAILS: Record<string, { image: string; description: string }> = {
-  "Sea Escape": {
-    image: "/images/sailing/dino/cinematic.webp",
-    description: "Private sailing and sunset cruises along the Riviera coast.",
-  },
-  "Aerial Escape": {
-    image: "/images/flying/para.webp",
-    description: "See the coast from above with unforgettable views.",
-  },
-  "Gourmet Escape": {
-    image: "/images/dining/ristorante/romantic.jpg",
-    description: "Savor exceptional flavors in unique locations.",
-  },
-  "Wild Escape": {
-    image: "/images/wild/underwater/mermaiding/cinematic.jpg",
-    description: "Reconnect with nature and hidden places.",
-  },
-};
-
-const MOOD_IMAGES: Record<string, string> = {
-  Romantic: "/images/romantic.jpg",
-  Cinematic: "/images/cinematic.jpg",
-  Authentic: "/images/authentic.jpg",
-  Adventure: "/images/adventure.jpg",
-};
-
-// I valori sopra (chiavi di EXPERIENCE_DETAILS/MOOD_IMAGES, formData.experiences/
+// I valori sopra (label di CATEGORIES/MOODS, formData.experiences/
 // moods, incompatibleExperiences) restano identificatori interni in inglese —
 // usati per il matching con generateProposal/experienceCompatibility e salvati
 // cosi' su Supabase. Le label mostrate all'utente passano invece dalle mappe
@@ -161,6 +140,22 @@ export default function CraftYourExperience() {
   useEffect(() => {
     trackConfiguratorLoaded();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // =======================================================
+  // CATEGORIE VISIBILI — solo quelle con almeno un'esperienza attiva
+  // nel catalogo, mai configurate a mano. Caricate al mount: c'e' la
+  // schermata di benvenuto (INTRO_STEP) prima che l'utente arrivi allo
+  // step "experiences", quindi in pratica il fetch e' gia' concluso
+  // quando serve. null = ancora in caricamento, il grid non mostra
+  // nulla finche' non arriva (evita un flash "categoria che poi
+  // sparisce").
+  // =======================================================
+
+  const [visibleCategories, setVisibleCategories] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    getVisibleCategoryValues().then(setVisibleCategories);
   }, []);
 
   // =======================================================
@@ -398,10 +393,11 @@ export default function CraftYourExperience() {
     });
   }
 
-  const incompatibleExperiences: Record<string, string[]> = {
-    "Sea Escape": ["Aerial Escape"],
-    "Aerial Escape": ["Sea Escape"],
-  };
+  // Aerial Escape rimossa dal sistema pubblico — nessuna coppia di
+  // categorie incompatibili resta da dichiarare qui per ora. Struttura
+  // tenuta pronta per un'eventuale incompatibilita' futura tra le
+  // nuove categorie.
+  const incompatibleExperiences: Record<string, string[]> = {};
 
   // =======================================================
   // SELECT HANDLERS
@@ -785,10 +781,11 @@ export default function CraftYourExperience() {
             </div>
 
             <div className="-mx-6 grid grid-cols-2 gap-2.5">
-              {["Sea Escape", "Aerial Escape", "Gourmet Escape", "Wild Escape"].map(
-                (item) => {
+              {CATEGORIES.filter(
+                (category) => visibleCategories?.has(category.dbValue)
+              ).map((category) => {
 
-                  const details = EXPERIENCE_DETAILS[item];
+                  const item = category.label;
                   const isSelected = formData.experiences.includes(item);
                   const label = t(`experienceNames.${EXPERIENCE_NAME_KEYS[item]}`);
 
@@ -802,7 +799,7 @@ export default function CraftYourExperience() {
                       }`}
                     >
                       <Image
-                        src={details.image}
+                        src={category.image}
                         alt={label}
                         fill
                         sizes="50vw"
@@ -852,8 +849,9 @@ export default function CraftYourExperience() {
             </div>
 
             <div className="-mx-6 grid grid-cols-2 gap-2.5">
-              {["Romantic", "Cinematic", "Authentic", "Adventure"].map((item) => {
+              {MOODS.map((mood) => {
 
+                const item = mood.label;
                 const isSelected = formData.moods.includes(item);
                 const label = t(`moodNames.${MOOD_NAME_KEYS[item]}`);
 
@@ -861,13 +859,13 @@ export default function CraftYourExperience() {
                   <button
                     type="button"
                     key={item}
-                    onClick={() => handleMultiSelect("moods", item, 3)}
+                    onClick={() => handleMultiSelect("moods", item, 4)}
                     className={`relative rounded-2xl overflow-hidden h-32 border transition-all duration-500 ${
                       isSelected ? "border-white" : "border-white/10 hover:border-white/30"
                     }`}
                   >
                     <Image
-                      src={MOOD_IMAGES[item]}
+                      src={mood.image}
                       alt={label}
                       fill
                       sizes="50vw"
