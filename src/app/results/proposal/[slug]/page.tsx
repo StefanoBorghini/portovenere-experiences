@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ProposalClient from "./proposalClient";
 import {
@@ -105,6 +106,19 @@ const resolvedSearchParams =
     .eq("slug", slug)
 
     .single();
+
+  // =======================================================
+  // CONCIERGE FEE GIA' PAGATA — la proposal non e' piu' modificabile
+  // da questo momento: si va sulla pagina di sola lettura
+  // (results/proposal/[slug]/confirmed), mai piu' su questa (checkbox,
+  // "Prenota ora"/"Confirm changes"). Va controllato PRIMA di ogni
+  // altra elaborazione, cosi' anche un vecchio link salvato non
+  // riporta mai a una proposal ormai congelata.
+  // =======================================================
+
+  if (proposal?.payment_status === "deposit_paid") {
+    redirect(`/results/proposal/${slug}/confirmed`);
+  }
 
   const lead =
     proposal?.proposal_data;

@@ -138,7 +138,10 @@ export async function POST(req: NextRequest) {
           quantity: 1,
         },
       ],
-      success_url: `${siteUrl}/results/proposal/${proposal.slug}?payment=success`,
+      // success_url porta alla pagina di sola lettura (mai piu' alla
+      // proposal editabile) — vedi
+      // results/proposal/[slug]/confirmed/page.tsx.
+      success_url: `${siteUrl}/results/proposal/${proposal.slug}/confirmed`,
       cancel_url: `${siteUrl}/results/proposal/${proposal.slug}?payment=cancelled`,
       metadata: {
         proposalSlug: proposal.slug,
