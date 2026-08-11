@@ -71,7 +71,7 @@ export const CATEGORIES: CategoryDef[] = [
     dbValue: "wine_escape",
     i18nKey: "wineEscape",
     // TODO: foto reale — placeholder provvisorio (riuso foto dining)
-    image: "/images/dining/ristorante/romantic.jpg",
+    image: "/images/dining/ristorante/wine.jpg",
     description: "Discover exceptional wines with the people who make them.",
   },
   {
@@ -86,7 +86,7 @@ export const CATEGORIES: CategoryDef[] = [
     dbValue: "cultural_escape",
     i18nKey: "culturalEscape",
     // TODO: foto reale — placeholder provvisorio (riuso foto wild)
-    image: "/images/wild/underwater/mermaiding/cinematic.jpg",
+    image: "/images/castle.jpg",
     description: "Local traditions, history and authentic craftsmanship.",
   },
   {
@@ -94,7 +94,7 @@ export const CATEGORIES: CategoryDef[] = [
     dbValue: "wellness_escape",
     i18nKey: "wellnessEscape",
     // TODO: foto reale — placeholder provvisorio (riuso foto sailing)
-    image: "/images/sailing/dino/cinematic.webp",
+    image: "/images/wellness.jpg",
     description: "Slow down and take care of yourself, Riviera style.",
   },
 ];
