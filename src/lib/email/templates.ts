@@ -986,3 +986,93 @@ export function ownerNewPartnerApplicationTemplate(data: PartnerApplicationSumma
     </p>
   `, 560);
 }
+
+// ---------------------------------------------------------
+// 7. Email al PROPRIETARIO — un operatore ha proposto UNA singola
+// esperienza da /submit-experience (diverso da become-a-partner, che
+// riguarda l'intera attivita'). Nessuna email all'operatore: stesso
+// principio di ownerNewPartnerApplicationTemplate, ogni proposta viene
+// rivista a mano e poi inserita manualmente nel CMS se accettata —
+// niente "flusso automatico" da confermare.
+// ---------------------------------------------------------
+
+interface ExperienceSubmissionSummary {
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  categoryLabel: string;
+  experienceTitle: string;
+  shortDescription?: string;
+  fullDescription?: string;
+  details?: Record<string, unknown>;
+  basePrice?: string;
+  priceType?: string;
+  duration?: string;
+  minParticipants?: string;
+  maxParticipants?: string;
+  meetingPoint?: string;
+  availabilityNotes?: string;
+  photoDelivery?: string;
+  photoLink?: string;
+  message?: string;
+}
+
+export function ownerNewExperienceSubmissionTemplate(data: ExperienceSubmissionSummary) {
+
+  const logistics: Record<string, unknown> = {
+    basePrice: data.basePrice,
+    priceType: data.priceType,
+    duration: data.duration,
+    minParticipants: data.minParticipants,
+    maxParticipants: data.maxParticipants,
+    meetingPoint: data.meetingPoint,
+    availabilityNotes: data.availabilityNotes,
+  };
+
+  const photos: Record<string, unknown> = {
+    photoDelivery: data.photoDelivery,
+    photoLink: data.photoLink,
+  };
+
+  return wrapEmail(`
+    <h2 style="font-weight: 300;">New experience submission</h2>
+    <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Business</td><td>${escapeHtml(data.businessName)}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Contact</td><td>${escapeHtml(data.contactName)}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Email</td><td>${escapeHtml(data.email)}</td></tr>
+      ${data.phone ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Phone</td><td>${escapeHtml(data.phone)}</td></tr>` : ""}
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Category</td><td>${escapeHtml(data.categoryLabel)}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Experience title</td><td>${escapeHtml(data.experienceTitle)}</td></tr>
+      ${data.shortDescription ? `<tr><td style="padding: 6px 0; color: ${TEXT_MUTED}; vertical-align: top;">Short description</td><td>${escapeHtml(data.shortDescription)}</td></tr>` : ""}
+    </table>
+
+    ${
+      data.fullDescription
+        ? `<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid ${BORDER_SUBTLE};">
+             <p style="color: ${TEXT_MUTED}; font-size: 13px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px;">Full description</p>
+             <p style="font-size: 14px; white-space: pre-wrap;">${escapeHtml(data.fullDescription)}</p>
+           </div>`
+        : ""
+    }
+
+    ${jsonbSection("Category details", data.details)}
+    ${jsonbSection("Logistics", logistics)}
+    ${jsonbSection("Photos", photos)}
+
+    ${
+      data.message
+        ? `<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid ${BORDER_SUBTLE};">
+             <p style="color: ${TEXT_MUTED}; font-size: 13px; margin: 0 0 8px;">Message</p>
+             <p style="font-size: 14px; white-space: pre-wrap;">${escapeHtml(data.message)}</p>
+           </div>`
+        : ""
+    }
+
+    <p style="margin: 24px 0;">
+      <a href="mailto:${escapeHtml(data.email)}" style="color: #fff;">
+        Reply to ${escapeHtml(data.contactName)} →
+      </a>
+    </p>
+  `, 560);
+}

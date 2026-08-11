@@ -583,6 +583,65 @@ export function trackPartnerApplicationError(reason: string) {
   });
 }
 
+// =========================================================
+// /submit-experience — wizard per operatori che propongono UNA
+// singola esperienza (non un'intera attivita', quello e' il funnel
+// "partners" sopra). Categoria dedicata "experience_submissions",
+// stesso vocabolario di eventi (step_entered/step_back) per restare
+// confrontabile con gli altri due funnel.
+// =========================================================
+
+export function trackExperienceSubmissionPageView() {
+  trackEvent({
+    action: "experience_submission_page_view",
+    category: "experience_submissions",
+  });
+}
+
+export function trackExperienceSubmissionStepEntered(step: string, stepIndex: number) {
+  trackEvent({
+    action: "experience_submission_step_entered",
+    category: "experience_submissions",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
+export function trackExperienceSubmissionStepBack(step: string, stepIndex: number) {
+  trackEvent({
+    action: "experience_submission_step_back",
+    category: "experience_submissions",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
+export function trackExperienceSubmissionTypeSelected(category: string) {
+  trackEvent({
+    action: "experience_submission_type_selected",
+    category: "experience_submissions",
+    label: category,
+    extra: { experience_category: category },
+  });
+}
+
+export function trackExperienceSubmissionSubmitted(category: string) {
+  trackEvent({
+    action: "experience_submission_submitted",
+    category: "experience_submissions",
+    label: category,
+    extra: { experience_category: category },
+  });
+}
+
+export function trackExperienceSubmissionError(reason: string) {
+  trackEvent({
+    action: "experience_submission_error",
+    category: "experience_submissions",
+    label: reason,
+  });
+}
+
 export function trackClickWorkWithUs({
   linkPosition,
   linkDestination,
