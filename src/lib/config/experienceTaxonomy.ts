@@ -141,7 +141,7 @@ export const MOODS: MoodDef[] = [
     i18nKey: "relax",
     scoreField: "relax_score",
     // TODO: foto reale — placeholder provvisorio (riuso foto authentic)
-    image: "/images/authentic.jpg",
+    image: "/images/relax.png",
     icon: "☾",
   },
   {
@@ -149,7 +149,7 @@ export const MOODS: MoodDef[] = [
     i18nKey: "indulgent",
     scoreField: "indulgent_score",
     // TODO: foto reale — placeholder provvisorio (riuso foto romantic)
-    image: "/images/romantic.jpg",
+    image: "/images/indulgent.webp",
     icon: "✧",
   },
 ];
