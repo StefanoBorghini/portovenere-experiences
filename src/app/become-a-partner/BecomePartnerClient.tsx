@@ -12,6 +12,7 @@ import {
   trackPartnerApplicationSubmitted,
   trackPartnerApplicationError,
 } from "@/lib/analytics/gtag";
+import { LANGUAGE_OPTIONS } from "@/lib/config/languageOptions";
 
 // =========================================================
 // Wizard step-by-step, stesso linguaggio visivo e stessa
@@ -73,7 +74,12 @@ const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
 interface DetailField {
   key: string;
   label: string;
-  type: "text" | "textarea" | "select" | "multiselect" | "yesno";
+  // "yesno-bool" e' come "yesno" ma salva un booleano vero (true/false)
+  // invece della stringa "yes"/"no" — usato solo dove esplicitamente
+  // richiesto (Negozi), per non cambiare il formato dei campi yesno
+  // gia' esistenti fuori da questo step (es. "photos", che ha i suoi
+  // YesNoButtons separati e non passa da DETAIL_FIELDS).
+  type: "text" | "textarea" | "select" | "multiselect" | "yesno" | "yesno-bool";
   options?: string[];
 }
 
@@ -138,20 +144,19 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
     {
       key: "requestMethod",
       label: "Modalità di richiesta",
-      type: "select",
+      type: "multiselect",
       options: ["Telefono", "WhatsApp", "Email", "Sito", "Altro"],
     },
   ],
   shops: [
     { key: "shopType", label: "Tipologia di negozio", type: "text" },
     { key: "mainProducts", label: "Prodotti principali", type: "text" },
-    { key: "localProducts", label: "Prodotti locali / artigianali", type: "yesno" },
-    { key: "onlineShipping", label: "Spedizione / acquisto online", type: "yesno" },
+    { key: "localProducts", label: "Prodotti locali / artigianali", type: "yesno-bool" },
+    { key: "onlineShipping", label: "Spedizione / acquisto online", type: "yesno-bool" },
     { key: "distinctiveBrands", label: "Marchi o produzioni distintive", type: "text" },
   ],
 };
 
-const LANGUAGE_OPTIONS = ["Italiano", "English", "Français", "Deutsch", "Altro"];
 const OPENING_PERIOD_OPTIONS = ["Annuale", "Stagionale"];
 const CTA_DESTINATION_OPTIONS = ["Sito web", "WhatsApp", "Telefono", "Email", "Prenotazione", "Altro"];
 const PHOTO_DELIVERY_OPTIONS = ["Email", "WhatsApp", "Drive/Dropbox", "Altro"];
@@ -169,7 +174,7 @@ interface PlanOption {
 
 const PLAN_OPTIONS: PlanOption[] = [
   { value: "base", name: "Base", price: "€120 / anno", tagline: "Per chi vuole esserci." },
-  { value: "premium", name: "Premium", price: "€240 / anno", tagline: "Per chi vuole essere promosso." },
+  { value: "premium", name: "Premium", price: "€180 / anno", tagline: "Per chi vuole essere promosso." },
   {
     value: "signature",
     name: "Signature",
@@ -201,14 +206,24 @@ const inputClass =
 // stringhe (input di testo) e array (multiselect) nello stesso
 // oggetto — questi due helper restringono il tipo esatto atteso da
 // ciascun campo, invece di sparpagliare cast inline in ogni JSX.
-function getString(obj: Record<string, string | string[]>, key: string): string {
+// I due helper accettano anche il booleano (solo "details"/Step 5 lo
+// usa davvero, per i campi "yesno-bool" — profile/booking/materials
+// restano string | string[] come prima, non toccati da questa
+// modifica; il tipo piu' ampio qui e' solo per poter riusare le stesse
+// funzioni su entrambi senza duplicarle).
+function getString(obj: Record<string, string | string[] | boolean>, key: string): string {
   const value = obj[key];
   return typeof value === "string" ? value : "";
 }
 
-function getArray(obj: Record<string, string | string[]>, key: string): string[] {
+function getArray(obj: Record<string, string | string[] | boolean>, key: string): string[] {
   const value = obj[key];
   return Array.isArray(value) ? value : [];
+}
+
+function getBoolean(obj: Record<string, string | string[] | boolean>, key: string): boolean | undefined {
+  const value = obj[key];
+  return typeof value === "boolean" ? value : undefined;
 }
 
 export default function BecomePartnerClient() {
@@ -230,7 +245,7 @@ export default function BecomePartnerClient() {
   const [instagram, setInstagram] = useState("");
 
   const [profile, setProfile] = useState<Record<string, string | string[]>>({});
-  const [details, setDetails] = useState<Record<string, string | string[]>>({});
+  const [details, setDetails] = useState<Record<string, string | string[] | boolean>>({});
   const [booking, setBooking] = useState<Record<string, string | string[]>>({});
   const [materials, setMaterials] = useState<Record<string, string | string[]>>({});
 
@@ -259,7 +274,7 @@ export default function BecomePartnerClient() {
     setProfile((prev) => ({ ...prev, [key]: value }));
   }
 
-  function setDetailField(key: string, value: string | string[]) {
+  function setDetailField(key: string, value: string | string[] | boolean) {
     setDetails((prev) => ({ ...prev, [key]: value }));
   }
 
@@ -306,6 +321,7 @@ export default function BecomePartnerClient() {
         return DETAIL_FIELDS[category].every((f) => {
           const value = details[f.key];
           if (f.type === "multiselect") return Array.isArray(value) && value.length > 0;
+          if (f.type === "yesno-bool") return typeof value === "boolean";
           return !!value && String(value).trim().length > 0;
         });
       }
@@ -577,6 +593,17 @@ export default function BecomePartnerClient() {
                     values={getArray(details, field.key)}
                     onToggle={(v) => toggleDetailMulti(field.key, v)}
                     options={field.options || []}
+                  />
+                );
+              }
+
+              if (field.type === "yesno-bool") {
+                return (
+                  <YesNoBooleanButtons
+                    key={field.key}
+                    label={field.label}
+                    value={getBoolean(details, field.key)}
+                    onChange={(v) => setDetailField(field.key, v)}
                   />
                 );
               }
@@ -991,6 +1018,44 @@ function YesNoButtons({
             }`}
           >
             {v === "yes" ? "Sì" : "No"}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Stessa identica UI di YesNoButtons, ma legge/scrive un booleano vero
+// invece della stringa "yes"/"no" — usato solo dai campi Step 5
+// dichiarati "yesno-bool" (Negozi), per non cambiare il formato dei
+// campi yesno esistenti altrove nel form (es. "photos").
+function YesNoBooleanButtons({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | undefined;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div>
+      <p className="uppercase tracking-[0.3em] text-zinc-500 text-sm mb-2">
+        {label}
+      </p>
+      <div className="grid grid-cols-2 gap-2.5">
+        {[true, false].map((v) => (
+          <button
+            type="button"
+            key={String(v)}
+            onClick={() => onChange(v)}
+            className={`min-w-0 border rounded-2xl px-5 py-3 text-center text-sm transition-all duration-500 ease-out ${
+              value === v
+                ? "border-white bg-white text-black"
+                : "border-white/10 bg-white/5 hover:border-white/40"
+            }`}
+          >
+            {v ? "Sì" : "No"}
           </button>
         ))}
       </div>

@@ -11,6 +11,7 @@ import {
   trackExperienceSubmissionSubmitted,
   trackExperienceSubmissionError,
 } from "@/lib/analytics/gtag";
+import { LANGUAGE_OPTIONS } from "@/lib/config/languageOptions";
 
 // =========================================================
 // Wizard step-by-step per operatori che propongono UNA singola
@@ -73,6 +74,10 @@ interface DetailField {
   label: string;
   type: "text" | "textarea" | "select" | "multiselect" | "yesno";
   options?: string[];
+  // Solo per "multiselect": se presente, selezionarlo deseleziona tutte
+  // le altre opzioni (e viceversa) — usato da "Nessuna" in Gourmet
+  // Escape, opzionale/inerte per ogni altro campo multiselect.
+  exclusiveValue?: string;
 }
 
 const DETAIL_FIELDS: Record<Category, DetailField[]> = {
@@ -94,6 +99,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       label: "Opzioni alimentari disponibili",
       type: "multiselect",
       options: ["Vegetariano", "Vegano", "Senza glutine", "Nessuna"],
+      exclusiveValue: "Nessuna",
     },
     { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
   ],
@@ -129,7 +135,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       type: "select",
       options: ["Visita guidata", "Laboratorio artigianale", "Evento/tradizione locale", "Altro"],
     },
-    { key: "language", label: "Lingue disponibili", type: "text" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
     { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
   ],
   wellness_escape: [
@@ -165,17 +171,25 @@ const slideVariants = {
 const inputClass =
   "w-full rounded-2xl px-6 py-3.5 text-white placeholder:text-zinc-500 outline-none border border-white/10 bg-white/5 focus:border-white/40 transition";
 
-// "details" mescola stringhe (input di testo) e array (multiselect)
-// nello stesso oggetto — stessi due helper di BecomePartnerClient.tsx
-// per restringere il tipo esatto atteso da ciascun campo.
-function getString(obj: Record<string, string | string[]>, key: string): string {
+// "details" mescola stringhe (input di testo), array (multiselect) e
+// booleani (yesno) nello stesso oggetto — stessi helper di
+// BecomePartnerClient.tsx per restringere il tipo esatto atteso da
+// ciascun campo.
+type DetailValue = string | string[] | boolean;
+
+function getString(obj: Record<string, DetailValue>, key: string): string {
   const value = obj[key];
   return typeof value === "string" ? value : "";
 }
 
-function getArray(obj: Record<string, string | string[]>, key: string): string[] {
+function getArray(obj: Record<string, DetailValue>, key: string): string[] {
   const value = obj[key];
   return Array.isArray(value) ? value : [];
+}
+
+function getBoolean(obj: Record<string, DetailValue>, key: string): boolean | undefined {
+  const value = obj[key];
+  return typeof value === "boolean" ? value : undefined;
 }
 
 export default function SubmitExperienceClient() {
@@ -194,7 +208,7 @@ export default function SubmitExperienceClient() {
   const [shortDescription, setShortDescription] = useState("");
   const [fullDescription, setFullDescription] = useState("");
 
-  const [details, setDetails] = useState<Record<string, string | string[]>>({});
+  const [details, setDetails] = useState<Record<string, DetailValue>>({});
 
   const [basePrice, setBasePrice] = useState("");
   const [priceType, setPriceType] = useState("");
@@ -224,16 +238,24 @@ export default function SubmitExperienceClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep]);
 
-  function setDetailField(key: string, value: string | string[]) {
+  function setDetailField(key: string, value: DetailValue) {
     setDetails((prev) => ({ ...prev, [key]: value }));
   }
 
-  function toggleDetailMulti(key: string, value: string) {
+  function toggleDetailMulti(key: string, value: string, exclusiveValue?: string) {
     const current: string[] = getArray(details, key);
-    setDetailField(
-      key,
-      current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
-    );
+    let next: string[];
+
+    if (exclusiveValue && value === exclusiveValue) {
+      next = current.includes(value) ? [] : [exclusiveValue];
+    } else {
+      const withoutExclusive = exclusiveValue ? current.filter((v) => v !== exclusiveValue) : current;
+      next = withoutExclusive.includes(value)
+        ? withoutExclusive.filter((v) => v !== value)
+        : [...withoutExclusive, value];
+    }
+
+    setDetailField(key, next);
   }
 
   function isStepValid(step: StepId): boolean {
@@ -253,6 +275,7 @@ export default function SubmitExperienceClient() {
         return DETAIL_FIELDS[category].every((f) => {
           const value = details[f.key];
           if (f.type === "multiselect") return Array.isArray(value) && value.length > 0;
+          if (f.type === "yesno") return typeof value === "boolean";
           return !!value && String(value).trim().length > 0;
         });
       }
@@ -469,7 +492,7 @@ export default function SubmitExperienceClient() {
                     key={field.key}
                     label={field.label}
                     values={getArray(details, field.key)}
-                    onToggle={(v) => toggleDetailMulti(field.key, v)}
+                    onToggle={(v) => toggleDetailMulti(field.key, v, field.exclusiveValue)}
                     options={field.options || []}
                   />
                 );
@@ -480,7 +503,7 @@ export default function SubmitExperienceClient() {
                 <YesNoButtons
                   key={field.key}
                   label={field.label}
-                  value={getString(details, field.key)}
+                  value={getBoolean(details, field.key)}
                   onChange={(v) => setDetailField(field.key, v)}
                 />
               );
@@ -806,8 +829,8 @@ function YesNoButtons({
   onChange,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
+  value: boolean | undefined;
+  onChange: (v: boolean) => void;
 }) {
   return (
     <div>
@@ -815,10 +838,10 @@ function YesNoButtons({
         {label}
       </p>
       <div className="grid grid-cols-2 gap-2.5">
-        {["yes", "no"].map((v) => (
+        {[true, false].map((v) => (
           <button
             type="button"
-            key={v}
+            key={String(v)}
             onClick={() => onChange(v)}
             className={`min-w-0 border rounded-2xl px-5 py-3 text-center text-sm transition-all duration-500 ease-out ${
               value === v
@@ -826,7 +849,7 @@ function YesNoButtons({
                 : "border-white/10 bg-white/5 hover:border-white/40"
             }`}
           >
-            {v === "yes" ? "Sì" : "No"}
+            {v ? "Sì" : "No"}
           </button>
         ))}
       </div>
