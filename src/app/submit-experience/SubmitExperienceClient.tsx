@@ -86,6 +86,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
     { key: "departurePoint", label: "Punto di partenza", type: "text" },
     { key: "safetyEquipment", label: "Dotazioni di sicurezza / licenza", type: "text" },
     { key: "weatherDependent", label: "L'esperienza dipende dal meteo?", type: "yesno" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
   ],
   gourmet_escape: [
     {
@@ -102,6 +103,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       exclusiveValue: "Nessuna",
     },
     { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
   ],
   wine_escape: [
     {
@@ -112,6 +114,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
     },
     { key: "wineriesInvolved", label: "Cantina/e coinvolta/e", type: "text" },
     { key: "groupSize", label: "Dimensione tipica del gruppo", type: "text" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
   ],
   wild_escape: [
     {
@@ -127,6 +130,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
       options: ["Facile", "Medio", "Impegnativo"],
     },
     { key: "equipmentProvided", label: "Attrezzatura fornita?", type: "yesno" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
   ],
   cultural_escape: [
     {
@@ -147,6 +151,7 @@ const DETAIL_FIELDS: Record<Category, DetailField[]> = {
     },
     { key: "location", label: "Dove si svolge (interno/esterno)", type: "text" },
     { key: "equipmentProvided", label: "Attrezzatura/materiali forniti?", type: "yesno" },
+    { key: "language", label: "Lingue disponibili", type: "multiselect", options: LANGUAGE_OPTIONS },
   ],
 };
 
