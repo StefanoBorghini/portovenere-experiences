@@ -4,22 +4,25 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getProposalPayments } from "@/lib/supabase/leadRepository";
-import { getCustomPayments } from "@/lib/supabase/customPaymentRepository";
+import { getCustomPayments, deleteCustomPayment } from "@/lib/supabase/customPaymentRepository";
 
 // =========================================================
 // PAYMENTS — vista unificata di tutti i pagamenti Stripe mai
 // richiesti: sia le Concierge Fee legate a una proposal (colonne su
 // Proposal, vedi getProposalPayments) sia i pagamenti personalizzati
 // creati a mano dalla sezione "Custom Payment" (tabella
-// custom_payments, vedi getCustomPayments). Sola lettura — nessuna
-// azione qui, solo per avere colpo d'occhio su cosa e' stato pagato o
-// no. Le due fonti restano separate a livello di dati (nessuna nuova
-// tabella/join creata solo per questa pagina), unite solo qui in
-// memoria per la visualizzazione.
+// custom_payments, vedi getCustomPayments). Le due fonti restano
+// separate a livello di dati (nessuna nuova tabella/join creata solo
+// per questa pagina), unite solo qui in memoria per la
+// visualizzazione. Link/cancellazione riguardano SOLO i pagamenti
+// custom: le Concierge Fee non salvano il link (non richiesto) e
+// cancellare una riga li' vorrebbe dire toccare la Proposal stessa,
+// fuori scope — quindi restano sola lettura.
 // =========================================================
 
 type PaymentRow = {
   id: string;
+  customPaymentId: string | null;
   type: "concierge_fee" | "custom";
   customerName: string;
   customerEmail: string;
@@ -29,6 +32,7 @@ type PaymentRow = {
   requestedAt: string;
   paidAt: string | null;
   leadId: string | null;
+  checkoutUrl: string | null;
 };
 
 const STATUS_OPTIONS: { value: PaymentRow["status"] | "all"; label: string }[] = [
@@ -60,6 +64,8 @@ export default function AdminPaymentsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<PaymentRow["status"] | "all">("all");
   const [typeFilter, setTypeFilter] = useState<"all" | PaymentRow["type"]>("all");
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -81,6 +87,7 @@ export default function AdminPaymentsPage() {
 
       const proposalRows: PaymentRow[] = (proposalPayments || []).map((p: any) => ({
         id: `proposal-${p.lead_id}`,
+        customPaymentId: null,
         type: "concierge_fee",
         customerName: p.proposal_data?.name || "—",
         customerEmail: p.proposal_data?.email || "—",
@@ -90,10 +97,12 @@ export default function AdminPaymentsPage() {
         requestedAt: p.created_at,
         paidAt: p.paid_at,
         leadId: p.lead_id,
+        checkoutUrl: null,
       }));
 
       const customRows: PaymentRow[] = (customPayments || []).map((c: any) => ({
         id: `custom-${c.id}`,
+        customPaymentId: c.id,
         type: "custom",
         customerName: c.customer_name || "—",
         customerEmail: c.customer_email || "—",
@@ -103,6 +112,7 @@ export default function AdminPaymentsPage() {
         requestedAt: c.created_at,
         paidAt: c.paid_at,
         leadId: c.linked_lead_id,
+        checkoutUrl: c.checkout_url || null,
       }));
 
       const merged = [...proposalRows, ...customRows].sort(
@@ -128,6 +138,32 @@ export default function AdminPaymentsPage() {
 
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  async function handleDelete(row: PaymentRow) {
+    if (!row.customPaymentId) return;
+
+    const confirmed = window.confirm(
+      `Delete this custom payment for ${row.customerName}? This cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    setDeletingIds((prev) => new Set(prev).add(row.id));
+
+    const result = await deleteCustomPayment(row.customPaymentId);
+
+    if (!result.success) {
+      alert("Could not delete payment — please try again.");
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(row.id);
+        return next;
+      });
+      return;
+    }
+
+    setRows((prev) => prev.filter((r) => r.id !== row.id));
+  }
 
   if (loading) {
     return (
@@ -192,6 +228,8 @@ export default function AdminPaymentsPage() {
               <th className="px-5 py-4 font-normal">Status</th>
               <th className="px-5 py-4 font-normal">Requested</th>
               <th className="px-5 py-4 font-normal">Paid</th>
+              <th className="px-5 py-4 font-normal">Link</th>
+              <th className="px-5 py-4 font-normal">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -226,12 +264,38 @@ export default function AdminPaymentsPage() {
                 <td className="px-5 py-4 text-white/60">
                   {row.paidAt ? new Date(row.paidAt).toLocaleDateString() : "—"}
                 </td>
+                <td className="px-5 py-4">
+                  {row.checkoutUrl ? (
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(row.checkoutUrl!);
+                        setCopiedId(row.id);
+                      }}
+                      className="text-xs px-2.5 py-1 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/5 transition-all"
+                    >
+                      {copiedId === row.id ? "Copied ✓" : "Copy link"}
+                    </button>
+                  ) : (
+                    <span className="text-white/30">—</span>
+                  )}
+                </td>
+                <td className="px-5 py-4">
+                  {row.customPaymentId && (
+                    <button
+                      onClick={() => handleDelete(row)}
+                      disabled={deletingIds.has(row.id)}
+                      className="text-red-400/70 hover:text-red-400 text-sm disabled:opacity-50"
+                    >
+                      {deletingIds.has(row.id) ? "Deleting..." : "Delete"}
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
 
             {filteredRows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-white/30">
+                <td colSpan={9} className="px-5 py-10 text-center text-white/30">
                   No payments match your filters.
                 </td>
               </tr>

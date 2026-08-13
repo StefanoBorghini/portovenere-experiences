@@ -38,3 +38,35 @@ export async function getCustomPayments() {
 
   return data.rows;
 }
+
+export async function deleteCustomPayment(id: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) {
+    return { success: false, error: "Supabase not initialized" };
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const response = await fetch("/api/admin/custom-payments", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error("Error deleting custom payment:", data.error);
+    return { success: false, error: data.error };
+  }
+
+  return { success: true };
+}

@@ -3,30 +3,33 @@ import { supabase } from "@/lib/supabase";
 import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
 
 // =========================================================
-// GET /api/admin/custom-payments
+// GET/DELETE /api/admin/custom-payments
 // custom_payments ha RLS senza policy pubblica (stesso trattamento di
 // concierge_operator_status/operators) — il client admin (anon) non
-// puo' leggerla direttamente, serve una route autenticata che usi il
-// service role, stesso pattern di
+// puo' leggerla/scriverla direttamente, serve una route autenticata
+// che usi il service role, stesso pattern di
 // /api/admin/concierge-operator-status.
 // =========================================================
 
-export async function GET(req: NextRequest) {
-
-  if (!supabase) {
-    return NextResponse.json({ success: false, error: "Supabase not configured" }, { status: 500 });
-  }
+async function requireAdmin(req: NextRequest) {
+  if (!supabase) return null;
 
   const authHeader = req.headers.get("authorization");
   const accessToken = authHeader?.replace("Bearer ", "");
 
-  if (!accessToken) {
-    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  }
+  if (!accessToken) return null;
 
-  const { data: userData, error: authError } = await supabase.auth.getUser(accessToken);
+  const { data: userData, error } = await supabase.auth.getUser(accessToken);
 
-  if (authError || !userData?.user) {
+  if (error || !userData?.user) return null;
+
+  return userData.user;
+}
+
+export async function GET(req: NextRequest) {
+  const user = await requireAdmin(req);
+
+  if (!user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
 
@@ -43,4 +46,35 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ success: true, rows: data || [] });
+}
+
+// Cancella un pagamento custom dalla lista (es. voci di test) — non
+// tocca Stripe: la Checkout Session, se ancora aperta, scade comunque
+// da sola secondo le sue regole normali. Solo il record locale sparisce.
+export async function DELETE(req: NextRequest) {
+  const user = await requireAdmin(req);
+
+  if (!user) {
+    return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await req.json();
+
+  if (!id) {
+    return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
+  }
+
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const { error } = await supabaseAdmin
+    .from("custom_payments")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("DELETE custom-payments error:", error);
+    return NextResponse.json({ success: false, error: "Could not delete row" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

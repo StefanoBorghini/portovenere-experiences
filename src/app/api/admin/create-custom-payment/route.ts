@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
         percentage: mode === "percentage" ? Number(percentage) : null,
         amount,
         stripe_checkout_session_id: session.id,
+        checkout_url: session.url || null,
       },
     ]);
 
