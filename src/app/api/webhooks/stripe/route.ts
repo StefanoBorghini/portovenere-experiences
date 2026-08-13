@@ -50,6 +50,31 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
 
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // Pagamento personalizzato (sezione admin "Custom Payment") —
+        // MAI legato a una Proposal, gestito qui interamente e mai
+        // fatto proseguire nella logica leadId/Proposal sotto (che
+        // altrimenti, se fosse stato collegato un lead esistente,
+        // segnerebbe erroneamente la SUA Proposal come pagata).
+        if (session.metadata?.type === "custom_payment") {
+
+          const paymentIntentId =
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id;
+
+          await supabaseAdmin
+            .from("custom_payments")
+            .update({
+              status: "paid",
+              paid_at: new Date().toISOString(),
+              stripe_payment_intent_id: paymentIntentId || null,
+            })
+            .eq("stripe_checkout_session_id", session.id);
+
+          break;
+        }
+
         const leadId = session.metadata?.leadId;
 
         if (!leadId) {
@@ -251,6 +276,17 @@ export async function POST(req: NextRequest) {
       case "checkout.session.expired": {
 
         const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.metadata?.type === "custom_payment") {
+          await supabaseAdmin
+            .from("custom_payments")
+            .update({ status: "expired" })
+            .eq("stripe_checkout_session_id", session.id)
+            .eq("status", "pending");
+
+          break;
+        }
+
         const leadId = session.metadata?.leadId;
 
         if (leadId) {
