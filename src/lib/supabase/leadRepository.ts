@@ -235,6 +235,46 @@ export async function getProposalPayments() {
 }
 
 // =========================================================
+// DELETE PROPOSAL PAYMENT — resetta le colonne di pagamento sulla
+// Proposal di questo lead (nessuna riga da eliminare, i dati vivono
+// come colonne — vedi /api/admin/request-payment DELETE). La
+// Proposal/il lead restano intatti, solo il pagamento sparisce dalla
+// vista admin "Payments".
+// =========================================================
+
+export async function deleteProposalPayment(leadId: string): Promise<{ success: boolean; error?: string }> {
+  if (!supabase) {
+    return { success: false, error: "Supabase not initialized" };
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return { success: false, error: "Not authenticated" };
+  }
+
+  const response = await fetch("/api/admin/request-payment", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ leadId }),
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error("Error deleting proposal payment:", data.error);
+    return { success: false, error: data.error };
+  }
+
+  return { success: true };
+}
+
+// =========================================================
 // RESOLVE SELECTED EXPERIENCES/ENHANCEMENTS
 // La Proposal salva solo gli ID scelti (confirmed_selection).
 // Questa funzione li incrocia con le tabelle experience_content

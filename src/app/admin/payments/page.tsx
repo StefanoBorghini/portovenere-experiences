@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { getProposalPayments } from "@/lib/supabase/leadRepository";
+import { getProposalPayments, deleteProposalPayment } from "@/lib/supabase/leadRepository";
 import { getCustomPayments, deleteCustomPayment } from "@/lib/supabase/customPaymentRepository";
 
 // =========================================================
@@ -14,10 +14,14 @@ import { getCustomPayments, deleteCustomPayment } from "@/lib/supabase/customPay
 // custom_payments, vedi getCustomPayments). Le due fonti restano
 // separate a livello di dati (nessuna nuova tabella/join creata solo
 // per questa pagina), unite solo qui in memoria per la
-// visualizzazione. Link/cancellazione riguardano SOLO i pagamenti
-// custom: le Concierge Fee non salvano il link (non richiesto) e
-// cancellare una riga li' vorrebbe dire toccare la Proposal stessa,
-// fuori scope — quindi restano sola lettura.
+// visualizzazione. Il link resta solo per i pagamenti custom (le
+// Concierge Fee non lo salvano, non richiesto). La cancellazione
+// invece esiste per entrambi i tipi, ma con effetto diverso: per i
+// custom rimuove davvero la riga da custom_payments; per le Concierge
+// Fee non esiste una riga a se' (sono colonne su Proposal), quindi
+// "cancellare" resetta quelle colonne a "nessun pagamento richiesto"
+// — la Proposal/il lead restano intatti, vedi
+// deleteProposalPayment().
 // =========================================================
 
 type PaymentRow = {
@@ -140,17 +144,27 @@ export default function AdminPaymentsPage() {
   });
 
   async function handleDelete(row: PaymentRow) {
-    if (!row.customPaymentId) return;
 
-    const confirmed = window.confirm(
-      `Delete this custom payment for ${row.customerName}? This cannot be undone.`
-    );
+    const paidWarning =
+      row.status === "paid"
+        ? " This payment is marked as PAID — deleting it will remove that record."
+        : "";
+
+    const confirmMessage =
+      row.type === "custom"
+        ? `Delete this custom payment for ${row.customerName}?${paidWarning} This cannot be undone.`
+        : `Reset the Concierge Fee payment for ${row.customerName}?${paidWarning} The proposal itself is NOT deleted — only the payment request is cleared, and "Request Concierge Fee" becomes available again.`;
+
+    const confirmed = window.confirm(confirmMessage);
 
     if (!confirmed) return;
 
     setDeletingIds((prev) => new Set(prev).add(row.id));
 
-    const result = await deleteCustomPayment(row.customPaymentId);
+    const result =
+      row.type === "custom"
+        ? await deleteCustomPayment(row.customPaymentId!)
+        : await deleteProposalPayment(row.leadId!);
 
     if (!result.success) {
       alert("Could not delete payment — please try again.");
@@ -280,15 +294,13 @@ export default function AdminPaymentsPage() {
                   )}
                 </td>
                 <td className="px-5 py-4">
-                  {row.customPaymentId && (
-                    <button
-                      onClick={() => handleDelete(row)}
-                      disabled={deletingIds.has(row.id)}
-                      className="text-red-400/70 hover:text-red-400 text-sm disabled:opacity-50"
-                    >
-                      {deletingIds.has(row.id) ? "Deleting..." : "Delete"}
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleDelete(row)}
+                    disabled={deletingIds.has(row.id)}
+                    className="text-red-400/70 hover:text-red-400 text-sm disabled:opacity-50"
+                  >
+                    {deletingIds.has(row.id) ? "Deleting..." : "Delete"}
+                  </button>
                 </td>
               </tr>
             ))}

@@ -210,3 +210,70 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Unexpected error" }, { status: 500 });
   }
 }
+
+// =========================================================
+// DELETE /api/admin/request-payment
+// "Cancella" un pagamento Concierge Fee dalla vista admin "Payments" —
+// non esiste una riga a se' da eliminare (i dati vivono come colonne
+// su Proposal), quindi qui si RESETTANO quelle colonne allo stato
+// "nessun pagamento richiesto" (payment_status='none' + il resto a
+// null). La Proposal/il lead restano intatti — solo il pagamento
+// smette di comparire nella lista, e "Request Concierge Fee" torna
+// disponibile come se non fosse mai stato chiesto.
+// =========================================================
+
+export async function DELETE(req: NextRequest) {
+
+  try {
+
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: "Supabase not configured" }, { status: 500 });
+    }
+
+    const authHeader = req.headers.get("authorization");
+    const accessToken = authHeader?.replace("Bearer ", "");
+
+    if (!accessToken) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { data: userData, error: authError } = await supabase.auth.getUser(accessToken);
+
+    if (authError || !userData?.user) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { leadId } = await req.json();
+
+    if (!leadId) {
+      return NextResponse.json({ success: false, error: "Missing leadId" }, { status: 400 });
+    }
+
+    const supabaseAdmin = getSupabaseAdmin();
+
+    const { error } = await supabaseAdmin
+      .from("Proposal")
+      .update({
+        payment_status: "none",
+        concierge_fee_amount: null,
+        concierge_fee_percentage: null,
+        stripe_checkout_session_id: null,
+        stripe_payment_intent_id: null,
+        paid_at: null,
+      })
+      .eq("lead_id", leadId);
+
+    if (error) {
+      console.error("request-payment DELETE error:", error);
+      return NextResponse.json({ success: false, error: "Could not reset payment" }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+
+  } catch (err) {
+
+    console.error("admin/request-payment DELETE error:", err);
+
+    return NextResponse.json({ success: false, error: "Unexpected error" }, { status: 500 });
+  }
+}
