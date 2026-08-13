@@ -203,6 +203,38 @@ export async function getEmailVerifiedMap(): Promise<
 }
 
 // =========================================================
+// GET PROPOSAL PAYMENTS — tutte le Proposal per cui e' stato chiesto
+// un pagamento Concierge Fee almeno una volta (payment_status !=
+// 'none'), per la pagina admin unificata "Payments" (vedi
+// src/app/admin/payments/page.tsx), che le affianca ai pagamenti
+// personalizzati di custom_payments. name/email vivono dentro
+// proposal_data (nessuna colonna dedicata su Proposal), quindi
+// restano nel jsonb grezzo — il chiamante li estrae da li'.
+// =========================================================
+
+export async function getProposalPayments() {
+  if (!supabase) {
+    console.error("Supabase not initialized");
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("Proposal")
+    .select(
+      "lead_id, slug, created_at, payment_status, concierge_fee_amount, concierge_fee_percentage, paid_at, proposal_data"
+    )
+    .neq("payment_status", "none")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error loading proposal payments:", error);
+    return [];
+  }
+
+  return data;
+}
+
+// =========================================================
 // RESOLVE SELECTED EXPERIENCES/ENHANCEMENTS
 // La Proposal salva solo gli ID scelti (confirmed_selection).
 // Questa funzione li incrocia con le tabelle experience_content

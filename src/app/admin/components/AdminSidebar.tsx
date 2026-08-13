@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/experiences", label: "Experiences", icon: ExperiencesIcon },
   { href: "/admin/enhancements", label: "Enhancements", icon: EnhancementsIcon },
   { href: "/admin/leads", label: "Leads", icon: LeadsIcon },
+  { href: "/admin/payments", label: "Payments", icon: PaymentsIcon },
   { href: "/admin/custom-payment", label: "Custom Payment", icon: CustomPaymentIcon },
   // "Operators" rimosso dal menu — infrastruttura Stripe Connect
   // Fase 2, non usata nel modello Concierge Fee (si lavora per
@@ -66,6 +67,15 @@ function LeadsIcon() {
       <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
       <circle cx="17" cy="8" r="2.3" />
       <path d="M15.5 14.2c2.4.4 4.5 2.5 4.5 5.8" />
+    </svg>
+  );
+}
+
+function PaymentsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 shrink-0">
+      <path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" />
+      <path d="M8 12h8M8 16h5" />
     </svg>
   );
 }
