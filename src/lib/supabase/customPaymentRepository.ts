@@ -1,7 +1,12 @@
 import { supabase } from "@/lib/supabase";
 
 // =========================================================
-// CUSTOM PAYMENTS REPOSITORY — stesso pattern di leadRepository.ts.
+// CUSTOM PAYMENTS REPOSITORY
+// custom_payments ha RLS senza policy pubblica (vedi migration) —
+// diversamente da leadRepository.ts (che legge "leads"/"Proposal",
+// pubblicamente leggibili), qui il client anon non basta: si passa
+// sempre da /api/admin/custom-payments, autenticata col token della
+// sessione admin corrente.
 // =========================================================
 
 export async function getCustomPayments() {
@@ -10,15 +15,26 @@ export async function getCustomPayments() {
     return [];
   }
 
-  const { data, error } = await supabase
-    .from("custom_payments")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (error) {
-    console.error("Error loading custom payments:", error);
+  if (!session) {
     return [];
   }
 
-  return data;
+  const response = await fetch("/api/admin/custom-payments", {
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    console.error("Error loading custom payments:", data.error);
+    return [];
+  }
+
+  return data.rows;
 }
