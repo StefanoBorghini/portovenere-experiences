@@ -174,7 +174,7 @@ interface PlanOption {
 
 const PLAN_OPTIONS: PlanOption[] = [
   { value: "base", name: "Base", price: "€120 / anno", tagline: "Per chi vuole esserci." },
-  { value: "premium", name: "Premium", price: "€180 / anno", tagline: "Per chi vuole essere promosso." },
+  { value: "premium", name: "Premium", price: "€240 / anno", tagline: "Per chi vuole essere promosso." },
   {
     value: "signature",
     name: "Signature",
