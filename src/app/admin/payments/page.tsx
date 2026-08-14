@@ -14,8 +14,9 @@ import { getCustomPayments, deleteCustomPayment } from "@/lib/supabase/customPay
 // custom_payments, vedi getCustomPayments). Le due fonti restano
 // separate a livello di dati (nessuna nuova tabella/join creata solo
 // per questa pagina), unite solo qui in memoria per la
-// visualizzazione. Il link resta solo per i pagamenti custom (le
-// Concierge Fee non lo salvano, non richiesto). La cancellazione
+// visualizzazione. Il link e' salvato per entrambi i tipi (Proposal.
+// checkout_url per le Concierge Fee, custom_payments.checkout_url per
+// i custom). La cancellazione
 // invece esiste per entrambi i tipi, ma con effetto diverso: per i
 // custom rimuove davvero la riga da custom_payments; per le Concierge
 // Fee non esiste una riga a se' (sono colonne su Proposal), quindi
@@ -101,7 +102,7 @@ export default function AdminPaymentsPage() {
         requestedAt: p.created_at,
         paidAt: p.paid_at,
         leadId: p.lead_id,
-        checkoutUrl: null,
+        checkoutUrl: p.checkout_url || null,
       }));
 
       const customRows: PaymentRow[] = (customPayments || []).map((c: any) => ({

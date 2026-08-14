@@ -221,7 +221,7 @@ export async function getProposalPayments() {
   const { data, error } = await supabase
     .from("Proposal")
     .select(
-      "lead_id, slug, created_at, payment_status, concierge_fee_amount, concierge_fee_percentage, paid_at, proposal_data"
+      "lead_id, slug, created_at, payment_status, concierge_fee_amount, concierge_fee_percentage, paid_at, proposal_data, checkout_url"
     )
     .neq("payment_status", "none")
     .order("created_at", { ascending: false });

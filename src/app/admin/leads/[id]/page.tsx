@@ -272,7 +272,7 @@ export default function LeadDetailPage() {
   // =========================================================
   // REQUEST CONCIERGE FEE — unico punto in cui parte davvero un
   // pagamento (mai automatico su "Prenota Ora"): calcola la Concierge
-  // Fee a scaglioni sul totale esperienze server-side, crea la Stripe
+  // Fee (10% fisso) sul totale esperienze server-side, crea la Stripe
   // Checkout Session e manda al cliente il link. Il cliente paga SOLO
   // questa commissione qui — le esperienze restano da pagare
   // direttamente a ciascun operatore, fuori da questo pagamento.

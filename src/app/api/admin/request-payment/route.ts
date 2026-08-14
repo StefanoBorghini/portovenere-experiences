@@ -159,6 +159,7 @@ export async function POST(req: NextRequest) {
         concierge_fee_amount: feeAmountEuros,
         concierge_fee_percentage: feePercentage,
         stripe_checkout_session_id: session.id,
+        checkout_url: session.url || null,
       })
       .eq("lead_id", leadId);
 
@@ -259,6 +260,7 @@ export async function DELETE(req: NextRequest) {
         concierge_fee_percentage: null,
         stripe_checkout_session_id: null,
         stripe_payment_intent_id: null,
+        checkout_url: null,
         paid_at: null,
       })
       .eq("lead_id", leadId);

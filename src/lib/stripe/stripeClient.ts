@@ -46,32 +46,18 @@ export function getDepositPercentage(): number {
 }
 
 // =====================================================================
-// CONCIERGE FEE (Fase 1) — percentuale a scaglioni DECRESCENTE sul
-// VALORE TOTALE delle esperienze scelte (mai sul prezzo di una singola
-// riga): e' la commissione di intermediazione che il cliente paga a
-// Portovenere, non un acconto sull'esperienza stessa (che il cliente
-// paga poi direttamente a ciascun operatore, fuori da questo sistema).
-// Scaglioni configurabili via env, con i default del documento di
-// prodotto Fase 1 se non impostati.
+// CONCIERGE FEE (Fase 1) — percentuale FISSA sul VALORE TOTALE delle
+// esperienze scelte (mai sul prezzo di una singola riga): e' la
+// commissione di intermediazione che il cliente paga a Portovenere,
+// non un acconto sull'esperienza stessa (che il cliente paga poi
+// direttamente a ciascun operatore, fuori da questo sistema).
+// Percentuale configurabile via env, con il default 10% se non
+// impostata. Importo arrotondato per difetto (mai a favore di
+// Portovenere sul centesimo).
 // =====================================================================
 
 export function getConciergeFeeTier(totalValue: number): { percentage: number; amount: number } {
-  const tier1Max = Number(process.env.CONCIERGE_FEE_TIER_1_MAX) || 500;
-  const tier1Pct = Number(process.env.CONCIERGE_FEE_TIER_1_PERCENTAGE) || 10;
-  const tier2Max = Number(process.env.CONCIERGE_FEE_TIER_2_MAX) || 1500;
-  const tier2Pct = Number(process.env.CONCIERGE_FEE_TIER_2_PERCENTAGE) || 7;
-  const tier3Max = Number(process.env.CONCIERGE_FEE_TIER_3_MAX) || 3000;
-  const tier3Pct = Number(process.env.CONCIERGE_FEE_TIER_3_PERCENTAGE) || 5;
-  const tier4Pct = Number(process.env.CONCIERGE_FEE_TIER_4_PERCENTAGE) || 3;
+  const percentage = Number(process.env.CONCIERGE_FEE_PERCENTAGE) || 10;
 
-  const percentage =
-    totalValue <= tier1Max
-      ? tier1Pct
-      : totalValue <= tier2Max
-        ? tier2Pct
-        : totalValue <= tier3Max
-          ? tier3Pct
-          : tier4Pct;
-
-  return { percentage, amount: Math.round((totalValue * percentage) / 100) };
+  return { percentage, amount: Math.floor((totalValue * percentage) / 100) };
 }
