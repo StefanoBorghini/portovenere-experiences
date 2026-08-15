@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import ProposalClient from "./proposalClient";
@@ -18,6 +20,148 @@ import {
 } from "@/lib/supabase/experienceRepository";
 import { getCurrentLocale } from "@/i18n/locale";
 import { getTranslations } from "next-intl/server";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
+
+// =========================================================
+// PROPOSAL CORE — fetch + generateProposal(), condivisi tra
+// generateMetadata() e il componente pagina qui sotto. Sono due
+// invocazioni separate nella stessa request (Next non le dedup
+// automaticamente come fa per fetch()), quindi wrappiamo in
+// cache() cosi' il lavoro (query Supabase + matching) viene fatto
+// una volta sola, non due.
+// =========================================================
+
+const getProposalCore = cache(async (slug: string) => {
+
+  if (!slug || !supabase) {
+    return null;
+  }
+
+  const { data: proposal, error } = await supabase
+    .from("Proposal")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !proposal) {
+    return null;
+  }
+
+  const lead = proposal.proposal_data;
+
+  if (!lead) {
+    return null;
+  }
+
+  const tripDays =
+    lead.start_date && lead.end_date
+      ? Math.max(
+          1,
+          Math.round(
+            (new Date(lead.end_date).getTime() -
+              new Date(lead.start_date).getTime()) /
+              (1000 * 60 * 60 * 24)
+          ) + 1
+        )
+      : undefined;
+
+  const locale = await getCurrentLocale();
+
+  const dynamicExperiences = await getBookableExperiences(locale);
+
+  const generatedProposal = generateProposal({
+    experiencesSelected: lead.experiences || [],
+    moodsSelected: lead.moods || [],
+    budget: lead.budget,
+    guests: lead.guests,
+    children: lead.children,
+    travelingWithChildren: lead.traveling_with_children || false,
+    tripDays,
+    startDate: lead.start_date,
+    endDate: lead.end_date,
+    allExperiences: dynamicExperiences,
+  });
+
+  return { proposal, lead, locale, generatedProposal };
+});
+
+// =========================================================
+// METADATA — Open Graph/Twitter card dinamica per-proposal, cosi'
+// il link condiviso (WhatsApp, ecc.) mostra l'immagine hero e il
+// titolo di QUELLA proposta specifica, non piu' l'immagine
+// generica del sito per tutte. Fallback sui default del layout
+// (src/app/layout.tsx) per i casi senza match/scaduti/non trovati,
+// cosi' nessuna regressione per quei rami.
+// =========================================================
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+
+  const { slug } = await params;
+
+  const core = await getProposalCore(slug);
+
+  const featuredExperience = core?.generatedProposal.featuredExperience;
+
+  if (!core || !featuredExperience) {
+
+    return {
+      title: "Portovenere Experiences",
+      description: "Private luxury experiences on the Italian Riviera.",
+      openGraph: {
+        title: "Portovenere Experiences",
+        description: "Private luxury experiences on the Italian Riviera.",
+        url: `${SITE_URL}/results/proposal/${slug}`,
+        siteName: "Portovenere Experiences",
+        images: [{ url: `${SITE_URL}/hero-config.jpg`, width: 1200, height: 630 }],
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Portovenere Experiences",
+        description: "Private luxury experiences on the Italian Riviera.",
+        images: [`${SITE_URL}/hero-config.jpg`],
+      },
+    };
+  }
+
+  const heroImage = core.generatedProposal.heroImage || "/images/default-hero.webp";
+
+  const absoluteHeroImage = heroImage.startsWith("http")
+    ? heroImage
+    : `${SITE_URL}${heroImage}`;
+
+  const title = `${core.generatedProposal.heroTitle || featuredExperience.title} — Portovenere Experiences`;
+
+  const description =
+    featuredExperience.short_description ||
+    featuredExperience.description ||
+    "A private luxury experience curated for you on the Italian Riviera.";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/results/proposal/${slug}`,
+      siteName: "Portovenere Experiences",
+      images: [{ url: absoluteHeroImage }],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [absoluteHeroImage],
+    },
+  };
+}
 
 // =========================================================
 // TYPES
@@ -91,21 +235,14 @@ export default async function ProposalPage({
 const resolvedSearchParams =
     await searchParams;
   // =======================================================
-  // FETCH PROPOSAL
+  // FETCH PROPOSAL + GENERATE PROPOSAL
+  // Stessa logica gia' eseguita da generateMetadata() qui sopra —
+  // getProposalCore e' cache()-ata per request, quindi questa
+  // chiamata riusa il risultato gia' calcolato invece di rifare
+  // la query Supabase e il matching da capo.
   // =======================================================
 
-  const {
-    data: proposal,
-    error,
-  } = await supabase
-
-    .from("Proposal")
-
-    .select("*")
-
-    .eq("slug", slug)
-
-    .single();
+  const core = await getProposalCore(slug);
 
   // =======================================================
   // CONCIERGE FEE GIA' PAGATA — la proposal non e' piu' modificabile
@@ -116,21 +253,15 @@ const resolvedSearchParams =
   // riporta mai a una proposal ormai congelata.
   // =======================================================
 
-  if (proposal?.payment_status === "deposit_paid") {
+  if (core?.proposal?.payment_status === "deposit_paid") {
     redirect(`/results/proposal/${slug}/confirmed`);
   }
-
-  const lead =
-    proposal?.proposal_data;
 
   // =======================================================
   // NOT FOUND
   // =======================================================
 
-  if (
-    error ||
-    !lead
-  ) {
+  if (!core) {
 
     return (
 
@@ -151,75 +282,11 @@ const resolvedSearchParams =
     );
   }
 
-  // =======================================================
-  // TRIP DAYS
-  // Numero di giorni richiesti dal cliente, calcolato da
-  // start_date/end_date del lead (inclusivo: stesso giorno = 1,
-  // giorno successivo = 2, ecc.) — usato da generateProposal per
-  // escludere esperienze che richiedono piu' giorni di quelli
-  // disponibili (min_days). Se le date non sono presenti sul lead
-  // (non dovrebbe succedere, ma per sicurezza), tripDays resta
-  // undefined e il filtro min_days semplicemente non si applica.
-  // =======================================================
-
-  const tripDays =
-    lead.start_date && lead.end_date
-      ? Math.max(
-          1,
-          Math.round(
-            (new Date(lead.end_date).getTime() -
-              new Date(lead.start_date).getTime()) /
-              (1000 * 60 * 60 * 24)
-          ) + 1
-        )
-      : undefined;
-
-  // =======================================================
-  // GENERATE PROPOSAL
-  // =======================================================
-
-  const locale = await getCurrentLocale();
-
-  const dynamicExperiences =
-  await getBookableExperiences(locale);
+  const { proposal, lead, locale, generatedProposal } = core;
 
   const dynamicEnhancements =
   await getBookableEnhancements(locale);
 
-
-const generatedProposal =
-
-  generateProposal({
-
-    experiencesSelected:
-      lead.experiences || [],
-
-    moodsSelected:
-      lead.moods || [],
-
-    budget:
-      lead.budget,
-
-    guests:
-      lead.guests,
-
-    children:
-      lead.children,
-
-    travelingWithChildren:
-      lead.traveling_with_children || false,
-
-    tripDays,
-
-    startDate:
-      lead.start_date,
-
-    endDate:
-      lead.end_date,
-
-    allExperiences:
-      dynamicExperiences,
-  });
   // =======================================================
   // RENDERER DATA
   // =======================================================
