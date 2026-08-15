@@ -184,8 +184,8 @@ const matchesCategory =
 
   normalizedSelected.length === 0 ||
 
-  normalizedSelected.includes(
-    experience.category
+  (experience.categories ?? []).some((category: string) =>
+    normalizedSelected.includes(category)
   );
 
 
@@ -462,8 +462,9 @@ const bestExperience =
   sortedExperiences.find(
     experience =>
 
-      experience.category ===
-      selectedMainCategory
+      (experience.categories ?? []).includes(
+        selectedMainCategory
+      )
   ) ||
 
   sortedExperiences[0];
@@ -482,7 +483,9 @@ if (!bestExperience) {
   const matchingCategory = safeAllExperiences.filter(
     (experience) =>
       normalizedSelected.length === 0 ||
-      normalizedSelected.includes(experience.category)
+      (experience.categories ?? []).some((category: string) =>
+        normalizedSelected.includes(category)
+      )
   );
 
   const matchingCategoryAndGuests = matchingCategory.filter((experience) => {
@@ -541,7 +544,12 @@ if (safeExperiencesSelected.length === 1) {
 
     .filter((experience) => experience.id !== bestExperience.id)
 
-    .filter((experience) => experience.category !== bestExperience.category)
+    .filter(
+      (experience) =>
+        !(experience.categories ?? []).some((category: string) =>
+          (bestExperience.categories ?? []).includes(category)
+        )
+    )
 
     // Stesso fix: un'esperienza disattivata non deve comparire
     // nemmeno tra i suggerimenti (prima non c'era nessun controllo

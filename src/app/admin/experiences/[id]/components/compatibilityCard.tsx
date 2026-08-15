@@ -202,7 +202,7 @@ const filteredEnhancements = useMemo(() => {
     </div>
 
     <div className="text-xs text-white/40">
-        {exp.category}
+        {(exp.categories ?? []).join(", ")}
     </div>
 
 </div>

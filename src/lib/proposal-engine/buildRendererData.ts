@@ -95,8 +95,8 @@ export function buildRendererData({
   // può usare esattamente queste esperienze
   // ===================================================
 
-  const featuredCategory =
-    featuredExperience?.category;
+  const featuredCategories: string[] =
+    featuredExperience?.categories ?? [];
 
   const featuredId =
     featuredExperience?.id;
@@ -111,7 +111,9 @@ export function buildRendererData({
 
       .filter(
         (experience: any) =>
-          experience.category !== featuredCategory
+          !(experience.categories ?? []).some((category: string) =>
+            featuredCategories.includes(category)
+          )
       );
 
   const includedExperiencesRaw =

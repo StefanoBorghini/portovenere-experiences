@@ -24,7 +24,9 @@ export function buildProposalExperienceCard(
 
       experience.operator ?? "",
 
-      experience.category?.replaceAll("_", " ") ?? "",
+      (experience.categories ?? [])
+        .map((category) => category.replaceAll("_", " "))
+        .join(", "),
 
       `From €${experience.base_price}`,
 

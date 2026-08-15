@@ -113,7 +113,7 @@ function toggleExperience(id: string) {
     );
 
     const trackingLabel =
-      target?.experience?.category ?? id;
+      target?.experience?.categories?.join(", ") ?? id;
 
     // Deselezione normale
     if (current.includes(id)) {

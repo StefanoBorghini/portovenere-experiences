@@ -78,9 +78,9 @@ const filteredExperiences =
 
         ||
 
-        experience.category
-          ?.toLowerCase()
-          .includes(query)
+        (experience.categories ?? []).some((category: string) =>
+          category.toLowerCase().includes(query)
+        )
 
       );
 
@@ -554,7 +554,7 @@ onChange={(e) =>
         >
 
           <span>
-            {experience.category}
+            {(experience.categories ?? []).join(", ")}
           </span>
 
           <span>
@@ -763,7 +763,7 @@ onChange={(e) =>
                 "
               >
 
-                {experience.category}
+                {(experience.categories ?? []).join(", ")}
 
               </span>
 

@@ -128,49 +128,69 @@ Experience Filters
         block
         text-sm
         text-white/50
-        mb-2
+        mb-4
       "
     >
 
-      Category
+      Categories
 
     </label>
 
-    <select
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 
-      value={experience.category}
+      {CATEGORIES.map((category) => {
 
-      onChange={(e)=>
+        const isChecked =
+          (experience.categories ?? []).includes(category.dbValue);
 
-        setExperience({
+        return (
+          <label
+            key={category.dbValue}
+            className="
+              flex
+              items-center
+              gap-2
+              rounded-xl
+              border
+              border-white/10
+              bg-white/5
+              px-4
+              py-3
+              cursor-pointer
+            "
+          >
 
-          ...experience,
+            <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={(e) => {
 
-          category:e.target.value,
+                const current: string[] = experience.categories ?? [];
 
-        })
+                const next = e.target.checked
+                  ? [...current, category.dbValue]
+                  : current.filter((value) => value !== category.dbValue);
 
-      }
+                setExperience({
+                  ...experience,
+                  categories: next,
+                });
+              }}
+            />
 
-      className="
-        w-full
-        rounded-xl
-        bg-white/5
-        border
-        border-white/10
-        px-4
-        py-3
-      "
+            {category.label}
 
-    >
+          </label>
+        );
+      })}
 
-      {CATEGORIES.map((category) => (
-        <option key={category.dbValue} value={category.dbValue}>
-          {category.label}
-        </option>
-      ))}
+    </div>
 
-    </select>
+    <p className="text-white/30 text-xs mt-2">
+      Un&apos;esperienza puo&apos; comparire in piu&apos; di una
+      macrocategoria — deve esserne selezionata almeno una perche&apos;
+      compaia nel configuratore.
+    </p>
 
   </div>
 

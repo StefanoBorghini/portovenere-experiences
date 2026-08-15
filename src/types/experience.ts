@@ -44,6 +44,8 @@ export interface Experience {
 
     category?: string;
 
+    categories?: string[];
+
     operator?: string;
 
     image?: string;

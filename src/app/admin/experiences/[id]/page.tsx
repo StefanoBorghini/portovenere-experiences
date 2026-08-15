@@ -150,7 +150,7 @@ setExperience(found);
 
   operator={experience.operator}
 
-  category={experience.category}
+  category={(experience.categories ?? []).join(", ")}
 
   active={experience.active}
 
@@ -738,6 +738,9 @@ for (const fact of experience.facts) {
 
     category:
       experience.category,
+
+    categories:
+      experience.categories,
 
     active:
       experience.active,

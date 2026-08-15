@@ -101,6 +101,8 @@ export async function createExperience() {
 
         category: "sea_escape",
 
+        categories: ["sea_escape"],
+
         base_price: 0,
 
         description: "",
@@ -448,7 +450,7 @@ export async function getVisibleCategoryValues(): Promise<Set<string>> {
 
   const { data, error } = await supabase
     .from("experience_content")
-    .select("category, active");
+    .select("categories, active");
 
   if (error) {
     console.error("getVisibleCategoryValues error:", error);
@@ -458,8 +460,7 @@ export async function getVisibleCategoryValues(): Promise<Set<string>> {
   return new Set(
     (data || [])
       .filter((row: { active?: boolean | null }) => row.active !== false)
-      .map((row: { category?: string | null }) => row.category)
-      .filter((category): category is string => Boolean(category))
+      .flatMap((row: { categories?: string[] | null }) => row.categories ?? [])
   );
 }
 

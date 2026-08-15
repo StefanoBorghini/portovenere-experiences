@@ -302,7 +302,7 @@ export function resolveLeadSelection(
       id: exp.id,
       title: exp.title,
       operator: exp.operator,
-      category: exp.category,
+      categories: exp.categories,
     }));
 
   const selectedEnhancements = enhancementIds
