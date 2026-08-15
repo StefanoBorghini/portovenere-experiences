@@ -1,6 +1,7 @@
 "use client";
 
 import { useOperatorsList } from "@/app/admin/components/useOperatorsList";
+import RichTextEditor from "./admin/richTextEditor";
 
 interface GeneralCardProps {
 
@@ -224,24 +225,14 @@ export default function GeneralCard({
         Description
       </label>
 
-      <textarea
-        rows={6}
+      <RichTextEditor
         value={experience.description || ""}
-        onChange={(e)=>
+        onChange={(value) =>
           setExperience({
             ...experience,
-            description:e.target.value,
+            description: value,
           })
         }
-        className="
-          w-full
-          rounded-xl
-          bg-white/5
-          border
-          border-white/10
-          px-4
-          py-3
-        "
       />
 
     </div>

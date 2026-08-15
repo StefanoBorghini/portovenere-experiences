@@ -251,26 +251,31 @@ export default function FeaturedExperience({
                   blocco prezzo qui sotto e' stato spostato FUORI
                   dal <p> della description (prima era annidato
                   dentro, <div> dentro <p> non e' HTML valido) —
-                  stesso ordine visivo di prima, solo markup corretto. */}
+                  stesso ordine visivo di prima, solo markup corretto.
+                  Renderizzato come HTML (RichTextEditor in admin, vedi
+                  GeneralCard.tsx) — [&_p]:m-0 evita margini doppi tra
+                  il <p> generato da Tiptap e questo contenitore,
+                  stesso trattamento di ExperienceSections.tsx. */}
 
-              <p
+              <div
                 className={`
                   text-white/50
                   text-[15px]
                   md:text-[18px]
                   leading-[1.9]
                   max-w-2xl
+                  [&_p]:m-0
+                  [&_ul]:list-none
+                  [&_ul]:pl-0
+                  [&_li]:my-2
                   ${
                     !showFullDescription && isDescriptionLong
                       ? "line-clamp-4"
                       : ""
                   }
                 `}
-              >
-
-                {description}
-
-              </p>
+                dangerouslySetInnerHTML={{ __html: description }}
+              />
 
               {isDescriptionLong && (
 

@@ -264,7 +264,12 @@ ${
       )}
   </p>
 
-  <p
+  {/* description = short_description, o la description lunga come
+      fallback (vedi buildProposalExperienceCard.ts) — quest'ultima
+      puo' contenere HTML (RichTextEditor in admin), quindi va
+      renderizzata come tale, stesso trattamento di
+      FeaturedExperience.tsx / ExperienceSections.tsx. */}
+  <div
     className="
       text-[15px]
       md:text-[16px]
@@ -273,11 +278,13 @@ ${
       text-white/62
       max-w-[320px]
       mx-auto
-      
+      [&_p]:m-0
+      [&_ul]:list-none
+      [&_ul]:pl-0
+      [&_li]:my-2
     "
-  >
-    {experience.description}
-  </p>
+    dangerouslySetInnerHTML={{ __html: experience.description }}
+  />
 <div
     className="
         w-full
