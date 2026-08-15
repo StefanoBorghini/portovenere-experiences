@@ -32,13 +32,17 @@ import { loadEnvLocal } from "./loadEnvLocal.mjs";
 
 loadEnvLocal();
 
-const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+const TARGET_LOCALES = ["it", "fr", "de", "es", "ru", "zh", "ja"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
 
 const LOCALE_TO_LARA = {
   en: "en-US",
   it: "it-IT",
   fr: "fr-FR",
   de: "de-DE",
+  es: "es-ES",
+  ru: "ru-RU",
+  zh: "zh-CN",
+  ja: "ja-JP",
 };
 
 const BRAND_INSTRUCTIONS = [

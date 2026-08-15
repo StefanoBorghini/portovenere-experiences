@@ -76,6 +76,10 @@ const DATE_LOCALES: Record<string, string> = {
   it: "it-IT",
   fr: "fr-FR",
   de: "de-DE",
+  es: "es-ES",
+  ru: "ru-RU",
+  zh: "zh-CN",
+  ja: "ja-JP",
 };
 
 type TFunction = (key: string, values?: Record<string, string | number>) => string;
