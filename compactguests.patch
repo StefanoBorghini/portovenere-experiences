@@ -1,0 +1,204 @@
+From 3662797e917b6514a3f5d113e25cb5a6d787a2a5 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 06:46:59 +0000
+Subject: [PATCH] Compact guests step and time-slot grid to fit without
+ scrolling
+
+Adults grid, children/pets steppers: tighter padding/margins/gaps. Time slot buttons (dates step): single row of 4 instead of 2x2, smaller icon/text. Frees enough vertical space that Back/Next stay reachable without scrolling on typical mobile viewports. Pure sizing/spacing changes, same visual style and structure.
+---
+ src/app/craft-your-experience/page.tsx | 54 +++++++++++++-------------
+ 1 file changed, 27 insertions(+), 27 deletions(-)
+
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index fab04f4..cc48300 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -871,11 +871,11 @@ export default function CraftYourExperience() {
+         return (
+           <div>
+ 
+-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3">
++            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+               {t("guests.adultsLabel")}
+             </p>
+ 
+-            <div className="grid grid-cols-2 gap-2.5">
++            <div className="grid grid-cols-2 gap-2">
+               {[2, 3, 4, 5, 6, 7, 8].map((item) => (
+                 <button
+                   type="button"
+@@ -885,15 +885,15 @@ export default function CraftYourExperience() {
+                     setShowMoreGuests(false);
+                     setFormData({ ...formData, guests: String(item) });
+                   }}
+-                  className={`border rounded-2xl px-4 py-3 text-center transition-all duration-500 ease-out ${
++                  className={`border rounded-2xl px-3 py-2 text-center transition-all duration-500 ease-out ${
+                     guestCount === item
+                       ? "border-white bg-white text-black"
+                       : "border-white/10 bg-white/5 hover:border-white/40"
+                   }`}
+                 >
+-                  <span className="block text-base leading-tight">{item}</span>
++                  <span className="block text-sm leading-tight">{item}</span>
+                   <span
+-                    className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
++                    className={`block text-[9px] uppercase tracking-wide ${
+                       guestCount === item ? "text-black/50" : "text-zinc-500"
+                     }`}
+                   >
+@@ -909,15 +909,15 @@ export default function CraftYourExperience() {
+                   setShowMoreGuests(true);
+                   setFormData({ ...formData, guests: "" });
+                 }}
+-                className={`rounded-2xl border px-4 py-3 text-center transition-all duration-500 ease-out ${
++                className={`rounded-2xl border px-3 py-2 text-center transition-all duration-500 ease-out ${
+                   showMoreGuests
+                     ? "border-white bg-white text-black"
+                     : "border-white/10 bg-white/5 hover:border-white/40"
+                 }`}
+               >
+-                <span className="block text-base leading-tight">9+</span>
++                <span className="block text-sm leading-tight">9+</span>
+                 <span
+-                  className={`block text-[9px] uppercase tracking-wide mt-0.5 ${
++                  className={`block text-[9px] uppercase tracking-wide ${
+                     showMoreGuests ? "text-black/50" : "text-zinc-500"
+                   }`}
+                 >
+@@ -949,11 +949,11 @@ export default function CraftYourExperience() {
+             </div>
+ 
+             {/* CHILDREN — stepper compatto in riga, unito allo stesso step */}
+-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
++            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-1.5 mt-3">
+               {t("guests.childrenLabel")}
+             </p>
+ 
+-            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
++            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-4 py-2 bg-white/5">
+ 
+               <span className="text-zinc-400 text-sm">
+                 {formData.children === 0
+@@ -963,7 +963,7 @@ export default function CraftYourExperience() {
+                   : t("guests.childrenCount", { count: formData.children })}
+               </span>
+ 
+-              <div className="flex items-center gap-4">
++              <div className="flex items-center gap-3">
+ 
+                 <button
+                   type="button"
+@@ -975,12 +975,12 @@ export default function CraftYourExperience() {
+                       travelingWithChildren: value > 0,
+                     });
+                   }}
+-                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                  className="w-7 h-7 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                 >
+                   −
+                 </button>
+ 
+-                <span className="text-lg font-light w-6 text-center tabular-nums">
++                <span className="text-base font-light w-5 text-center tabular-nums">
+                   {formData.children}
+                 </span>
+ 
+@@ -994,7 +994,7 @@ export default function CraftYourExperience() {
+                       travelingWithChildren: value > 0,
+                     });
+                   }}
+-                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                  className="w-7 h-7 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                 >
+                   +
+                 </button>
+@@ -1004,11 +1004,11 @@ export default function CraftYourExperience() {
+             </div>
+ 
+             {/* PETS — stesso stepper compatto dei bambini */}
+-            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
++            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-1.5 mt-3">
+               {t("guests.petsLabel")}
+             </p>
+ 
+-            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
++            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-4 py-2 bg-white/5">
+ 
+               <span className="text-zinc-400 text-sm">
+                 {formData.pets === 0
+@@ -1018,7 +1018,7 @@ export default function CraftYourExperience() {
+                   : t("guests.petsCount", { count: formData.pets })}
+               </span>
+ 
+-              <div className="flex items-center gap-4">
++              <div className="flex items-center gap-3">
+ 
+                 <button
+                   type="button"
+@@ -1026,12 +1026,12 @@ export default function CraftYourExperience() {
+                     const value = Math.max(0, formData.pets - 1);
+                     setFormData({ ...formData, pets: value });
+                   }}
+-                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                  className="w-7 h-7 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                 >
+                   −
+                 </button>
+ 
+-                <span className="text-lg font-light w-6 text-center tabular-nums">
++                <span className="text-base font-light w-5 text-center tabular-nums">
+                   {formData.pets}
+                 </span>
+ 
+@@ -1041,7 +1041,7 @@ export default function CraftYourExperience() {
+                     const value = Math.min(10, formData.pets + 1);
+                     setFormData({ ...formData, pets: value });
+                   }}
+-                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                  className="w-7 h-7 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                 >
+                   +
+                 </button>
+@@ -1192,13 +1192,13 @@ export default function CraftYourExperience() {
+                 e' coerente con come funzionano gia' guests/budget.
+                 =================================================== */}
+ 
+-            <div className="mt-3 md:mt-6">
++            <div className="mt-2 md:mt-6">
+ 
+-              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2 md:mb-3">
++              <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-1.5 md:mb-3">
+                 {t("dates.preferredTimeSlot")}
+               </p>
+ 
+-              <div className="grid grid-cols-2 gap-2 md:gap-2.5">
++              <div className="grid grid-cols-4 gap-1.5 md:gap-2.5">
+                 {TIME_SLOTS.map((slot) => {
+ 
+                   const isSelected = formData.preferredTime === slot.value;
+@@ -1209,18 +1209,18 @@ export default function CraftYourExperience() {
+                       type="button"
+                       key={slot.value}
+                       onClick={() => handleSelect("preferredTime", slot.value)}
+-                      className={`border rounded-2xl px-3 py-2.5 md:px-4 md:py-3 text-center transition-all duration-500 ease-out ${
++                      className={`border rounded-2xl px-1 py-2 md:px-4 md:py-3 text-center transition-all duration-500 ease-out ${
+                         isSelected
+                           ? "border-white bg-white text-black"
+                           : "border-white/10 bg-white/5 hover:border-white/40"
+                       }`}
+                     >
+                       <Icon
+-                        className="mx-auto mb-1 md:mb-1.5"
+-                        size={18}
++                        className="mx-auto mb-0.5 md:mb-1.5"
++                        size={16}
+                         strokeWidth={1.5}
+                       />
+-                      <span className="block text-[11px] md:text-xs">
++                      <span className="block text-[9px] md:text-xs leading-tight">
+                         {t(`dates.${slot.value}`)}
+                       </span>
+                     </button>
+-- 
+2.43.0
+

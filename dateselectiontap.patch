@@ -1,0 +1,220 @@
+From 4de203619e37a1aaff205235d140008258ce27e8 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 05:27:59 +0000
+Subject: [PATCH] Replace drag-to-select date range with tap-only selection
+ cycle
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Configurator dates step: tap a date for a single-day selection, tap another to complete a range (chronologically ordered regardless of tap order), tap again after a complete range to start fresh — no Reset button needed. Removes the pointer-drag logic entirely. Guide text under the calendar now reflects the current selection state (none/single/range) instead of a static 'tap or drag' hint.
+---
+ site_copy_dates_tap.sql                | 37 +++++++++++
+ src/app/craft-your-experience/page.tsx | 88 ++++++++------------------
+ src/messages/en.json                   |  4 +-
+ 3 files changed, 67 insertions(+), 62 deletions(-)
+ create mode 100644 site_copy_dates_tap.sql
+
+diff --git a/site_copy_dates_tap.sql b/site_copy_dates_tap.sql
+new file mode 100644
+index 0000000..fe5fe23
+--- /dev/null
++++ b/site_copy_dates_tap.sql
+@@ -0,0 +1,37 @@
++-- =========================================================
++-- Selezione date del configuratore: da drag-to-select a tap-only.
++-- Rimuove la vecchia chiave "configurator.dates.dragHint" (un solo
++-- testo statico) e la sostituisce con 3 chiavi, una per stato del
++-- ciclo di selezione (nessuna data / una data / intervallo completo).
++--
++-- src/messages/en.json e' SOLO il seed storico, non letto a runtime:
++-- il testo vive in site_copy / site_copy_translations (Supabase).
++--
++-- Dopo aver eseguito questo SQL, richiama (una volta per chiave, cosi'
++-- Lara traduce anche gli altri locale oltre a it):
++--   POST /api/translate-site-copy   body: {"key":"configurator.dates.hintEmpty"}
++--   POST /api/translate-site-copy   body: {"key":"configurator.dates.hintOneSelected"}
++--   POST /api/translate-site-copy   body: {"key":"configurator.dates.hintRangeSelected"}
++-- Le righe it sotto sono gia' inserite a mano in site_copy_translations
++-- cosi' il sito mostra il testo giusto in italiano da subito, senza
++-- aspettare la chiamata a Lara.
++-- =========================================================
++
++delete from site_copy where key = 'configurator.dates.dragHint';
++delete from site_copy_translations where key = 'configurator.dates.dragHint';
++
++insert into site_copy (key, en_text) values
++  ('configurator.dates.hintEmpty', 'Select a date'),
++  ('configurator.dates.hintOneSelected', 'Tap another date to select a range'),
++  ('configurator.dates.hintRangeSelected', 'Tap a date to start a new selection')
++on conflict (key) do update set en_text = excluded.en_text;
++
++insert into site_copy_translations (key, locale, text, translation_status, translated_at, updated_at) values
++  ('configurator.dates.hintEmpty', 'it', 'Seleziona una data', 'ok', now(), now()),
++  ('configurator.dates.hintOneSelected', 'it', 'Tocca un''altra data per selezionare un intervallo', 'ok', now(), now()),
++  ('configurator.dates.hintRangeSelected', 'it', 'Tocca una data per iniziare una nuova selezione', 'ok', now(), now())
++on conflict (key, locale) do update set
++  text = excluded.text,
++  translation_status = excluded.translation_status,
++  translated_at = excluded.translated_at,
++  updated_at = excluded.updated_at;
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index 033b073..f6037ce 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -250,7 +250,7 @@ export default function CraftYourExperience() {
+   minimumBookingDate.setDate(minimumBookingDate.getDate() + 14);
+ 
+   // =======================================================
+-  // INLINE CALENDAR — drag-to-select date range
++  // INLINE CALENDAR — tap-to-select date range
+   // =======================================================
+ 
+   function toISODate(date: Date): string {
+@@ -266,24 +266,6 @@ export default function CraftYourExperience() {
+   const [viewYear, setViewYear] = useState(minimumBookingDate.getFullYear());
+   const [viewMonth, setViewMonth] = useState(minimumBookingDate.getMonth());
+ 
+-  const [isDragging, setIsDragging] = useState(false);
+-  const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
+-
+-  // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
+-  // scivola leggermente oltre il bordo): un listener globale garantisce
+-  // che il drag si chiuda comunque.
+-  useEffect(() => {
+-    function handlePointerUp() {
+-      setIsDragging(false);
+-    }
+-    window.addEventListener("pointerup", handlePointerUp);
+-    window.addEventListener("pointercancel", handlePointerUp);
+-    return () => {
+-      window.removeEventListener("pointerup", handlePointerUp);
+-      window.removeEventListener("pointercancel", handlePointerUp);
+-    };
+-  }, []);
+-
+   function buildCalendarCells(year: number, month: number) {
+ 
+     const firstOfMonth = new Date(year, month, 1);
+@@ -314,47 +296,31 @@ export default function CraftYourExperience() {
+     return cells;
+   }
+ 
+-  function startDateDrag(iso: string) {
++  // Ciclo di selezione a tap, sempre derivato da startDate/endDate (nessuno
++  // stato extra da tenere sincronizzato): nessuna selezione o un intervallo
++  // gia' completo -> il tap inizia una nuova data singola; una singola data
++  // gia' selezionata (startDate === endDate) -> il tap la completa in un
++  // intervallo, riordinando le due date cronologicamente qualunque sia
++  // l'ordine dei tap. Mai serve un pulsante "Reset".
++  function handleDateTap(iso: string) {
+ 
+     if (iso < minBookingIso) return;
+ 
+-    setIsDragging(true);
+-    setDragAnchorIso(iso);
++    const { startDate, endDate } = formData;
+ 
+-    setFormData((prev) => ({
+-      ...prev,
+-      startDate: iso,
+-      endDate: iso,
+-    }));
+-  }
+-
+-  function extendDateDrag(iso: string) {
++    const hasCompleteRange =
++      startDate !== "" && endDate !== "" && startDate !== endDate;
+ 
+-    if (!isDragging || !dragAnchorIso) return;
+-    if (iso < minBookingIso) return;
+-
+-    const [start, end] =
+-      iso < dragAnchorIso ? [iso, dragAnchorIso] : [dragAnchorIso, iso];
+-
+-    setFormData((prev) => ({
+-      ...prev,
+-      startDate: start,
+-      endDate: end,
+-    }));
+-  }
+-
+-  function handleCalendarPointerMove(e: React.PointerEvent) {
+-
+-    if (!isDragging) return;
++    if (startDate === "" || hasCompleteRange) {
++      setFormData((prev) => ({ ...prev, startDate: iso, endDate: iso }));
++      return;
++    }
+ 
+-    const target = document.elementFromPoint(
+-      e.clientX,
+-      e.clientY
+-    ) as HTMLElement | null;
++    if (iso === startDate) return;
+ 
+-    const iso = target?.closest("[data-iso]")?.getAttribute("data-iso");
++    const [start, end] = iso < startDate ? [iso, startDate] : [startDate, iso];
+ 
+-    if (iso) extendDateDrag(iso);
++    setFormData((prev) => ({ ...prev, startDate: start, endDate: end }));
+   }
+ 
+   function goPrevMonth() {
+@@ -1116,12 +1082,8 @@ export default function CraftYourExperience() {
+               ))}
+             </div>
+ 
+-            {/* CALENDAR GRID — tap-and-drag per selezionare l'intervallo */}
+-            <div
+-              className="grid grid-cols-7 select-none"
+-              style={{ touchAction: "none" }}
+-              onPointerMove={handleCalendarPointerMove}
+-            >
++            {/* CALENDAR GRID — tap per selezionare l'intervallo */}
++            <div className="grid grid-cols-7 select-none">
+               {cells.map((cell) => {
+ 
+                 const iso = toISODate(cell.date);
+@@ -1139,8 +1101,8 @@ export default function CraftYourExperience() {
+                   <div
+                     key={iso}
+                     data-iso={iso}
+-                    onPointerDown={() => {
+-                      if (!disabled) startDateDrag(iso);
++                    onClick={() => {
++                      if (!disabled) handleDateTap(iso);
+                     }}
+                     className={`
+                       h-8 md:h-9 flex items-center justify-center relative
+@@ -1165,7 +1127,11 @@ export default function CraftYourExperience() {
+             </div>
+ 
+             <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
+-              {t("dates.dragHint")}
++              {formData.startDate === ""
++                ? t("dates.hintEmpty")
++                : formData.startDate === formData.endDate
++                  ? t("dates.hintOneSelected")
++                  : t("dates.hintRangeSelected")}
+             </p>
+ 
+             {/* ===================================================
+diff --git a/src/messages/en.json b/src/messages/en.json
+index a80420a..b330dd3 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -138,7 +138,9 @@
+     "dates": {
+       "checkIn": "Check-in",
+       "checkOut": "Check-out",
+-      "dragHint": "Tap a date, or drag across dates to select a range.",
++      "hintEmpty": "Select a date",
++      "hintOneSelected": "Tap another date to select a range",
++      "hintRangeSelected": "Tap a date to start a new selection",
+       "preferredTimeSlot": "Preferred Time Slot",
+       "morning": "Morning",
+       "afternoon": "Afternoon",
+-- 
+2.43.0
+

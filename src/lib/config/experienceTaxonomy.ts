@@ -71,7 +71,7 @@ export const CATEGORIES: CategoryDef[] = [
     dbValue: "wine_escape",
     i18nKey: "wineEscape",
     // TODO: foto reale — placeholder provvisorio (riuso foto dining)
-    image: "/images/dining/ristorante/wine.jpg",
+    image: "/images/dining/ristorante/wine.webp",
     description: "Discover exceptional wines with the people who make them.",
   },
   {

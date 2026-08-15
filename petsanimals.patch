@@ -1,0 +1,281 @@
+From ca0822e3f2987028532c2eb52266cc418bd308bc Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 06:33:02 +0000
+Subject: [PATCH] Add pets counter to guests step; Animals Allowed toggle on
+ experiences
+
+Configurator guests step: hide the top eyebrow label (redundant with the title), add a pets stepper next to the existing children one, persisted as leads.pets / Proposal.proposal_data.pets. Admin experience editor: new Animals Allowed checkbox (experience_content.animals_allowed, default true) next to Children Allowed; shown in admin leads detail alongside Children.
+---
+ site_copy_pets.sql                            | 25 ++++++++
+ .../[id]/components/FiltersCard.tsx           | 45 ++++++++++++++
+ src/app/admin/experiences/[id]/page.tsx       |  3 +
+ src/app/admin/leads/[id]/page.tsx             |  4 ++
+ src/app/craft-your-experience/page.tsx        | 58 ++++++++++++++++++-
+ src/messages/en.json                          |  6 +-
+ .../2026_experience_animals_allowed.sql       |  7 +++
+ supabase-migrations/2026_leads_pets.sql       |  8 +++
+ 8 files changed, 152 insertions(+), 4 deletions(-)
+ create mode 100644 site_copy_pets.sql
+ create mode 100644 supabase-migrations/2026_experience_animals_allowed.sql
+ create mode 100644 supabase-migrations/2026_leads_pets.sql
+
+diff --git a/site_copy_pets.sql b/site_copy_pets.sql
+new file mode 100644
+index 0000000..58ac0a7
+--- /dev/null
++++ b/site_copy_pets.sql
+@@ -0,0 +1,25 @@
++-- =========================================================
++-- Nuove chiavi per lo stepper "Pets" nello step guests del
++-- configuratore (stesso pattern di children).
++--
++-- src/messages/en.json e' SOLO il seed storico, non letto a runtime:
++-- il testo vive in site_copy / site_copy_translations (Supabase).
++-- =========================================================
++
++insert into site_copy (key, en_text) values
++  ('configurator.guests.petsLabel', 'Pets'),
++  ('configurator.guests.noPets', 'No pets'),
++  ('configurator.guests.onePet', '1 pet'),
++  ('configurator.guests.petsCount', '{count} pets')
++on conflict (key) do update set en_text = excluded.en_text;
++
++insert into site_copy_translations (key, locale, text, translation_status, translated_at, updated_at) values
++  ('configurator.guests.petsLabel', 'it', 'Animali', 'ok', now(), now()),
++  ('configurator.guests.noPets', 'it', 'Nessun animale', 'ok', now(), now()),
++  ('configurator.guests.onePet', 'it', '1 animale', 'ok', now(), now()),
++  ('configurator.guests.petsCount', 'it', '{count} animali', 'ok', now(), now())
++on conflict (key, locale) do update set
++  text = excluded.text,
++  translation_status = excluded.translation_status,
++  translated_at = excluded.translated_at,
++  updated_at = excluded.updated_at;
+diff --git a/src/app/admin/experiences/[id]/components/FiltersCard.tsx b/src/app/admin/experiences/[id]/components/FiltersCard.tsx
+index 6eac2af..07b7655 100644
+--- a/src/app/admin/experiences/[id]/components/FiltersCard.tsx
++++ b/src/app/admin/experiences/[id]/components/FiltersCard.tsx
+@@ -587,6 +587,51 @@ Experience Filters
+ 
+   </div>
+ 
++</div>
++<div>
++
++  <label
++    className="
++      block
++      text-sm
++      text-white/50
++      mb-4
++    "
++  >
++    Animals
++  </label>
++
++  <label
++    className="
++      flex
++      items-center
++      justify-between
++      rounded-xl
++      border
++      border-white/10
++      bg-white/5
++      px-4
++      py-4
++      cursor-pointer
++      md:w-1/2
++    "
++  >
++
++    <span>Animals Allowed</span>
++
++    <input
++      type="checkbox"
++      checked={experience.animals_allowed ?? true}
++      onChange={(e) =>
++        setExperience({
++          ...experience,
++          animals_allowed: e.target.checked,
++        })
++      }
++    />
++
++  </label>
++
+ </div>
+ <div>
+ 
+diff --git a/src/app/admin/experiences/[id]/page.tsx b/src/app/admin/experiences/[id]/page.tsx
+index 6427ff7..ce39dfa 100644
+--- a/src/app/admin/experiences/[id]/page.tsx
++++ b/src/app/admin/experiences/[id]/page.tsx
+@@ -757,6 +757,9 @@ for (const fact of experience.facts) {
+     child_discount_percentage:
+       experience.child_discount_percentage,
+ 
++    animals_allowed:
++      experience.animals_allowed,
++
+        incompatible_experiences:
+       experience.incompatible_experiences,
+ 
+diff --git a/src/app/admin/leads/[id]/page.tsx b/src/app/admin/leads/[id]/page.tsx
+index aefd239..f995b87 100644
+--- a/src/app/admin/leads/[id]/page.tsx
++++ b/src/app/admin/leads/[id]/page.tsx
+@@ -428,6 +428,10 @@ export default function LeadDetailPage() {
+                 : "No"}
+             </dd>
+           </div>
++          <div>
++            <dt className="text-white/40">Pets</dt>
++            <dd>{lead.pets ?? 0}</dd>
++          </div>
+         </dl>
+ 
+         {proposal && (
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index f6037ce..fab04f4 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -232,6 +232,7 @@ export default function CraftYourExperience() {
+     guests: "",
+     budget: "",
+     children: 0,
++    pets: 0,
+ 
+     startDate: "",
+     endDate: "",
+@@ -630,6 +631,7 @@ export default function CraftYourExperience() {
+             preferred_time: formData.preferredTime || null,
+             traveling_with_children: formData.travelingWithChildren,
+             children: formData.children,
++            pets: formData.pets,
+           },
+         ]);
+ 
+@@ -678,6 +680,7 @@ export default function CraftYourExperience() {
+               moods: formData.moods,
+               guests: formData.guests,
+               children: formData.children,
++              pets: formData.pets,
+               budget: formData.budget,
+               start_date: formData.startDate,
+               end_date: formData.endDate,
+@@ -1000,6 +1003,53 @@ export default function CraftYourExperience() {
+ 
+             </div>
+ 
++            {/* PETS — stesso stepper compatto dei bambini */}
++            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
++              {t("guests.petsLabel")}
++            </p>
++
++            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
++
++              <span className="text-zinc-400 text-sm">
++                {formData.pets === 0
++                  ? t("guests.noPets")
++                  : formData.pets === 1
++                  ? t("guests.onePet")
++                  : t("guests.petsCount", { count: formData.pets })}
++              </span>
++
++              <div className="flex items-center gap-4">
++
++                <button
++                  type="button"
++                  onClick={() => {
++                    const value = Math.max(0, formData.pets - 1);
++                    setFormData({ ...formData, pets: value });
++                  }}
++                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                >
++                  −
++                </button>
++
++                <span className="text-lg font-light w-6 text-center tabular-nums">
++                  {formData.pets}
++                </span>
++
++                <button
++                  type="button"
++                  onClick={() => {
++                    const value = Math.min(10, formData.pets + 1);
++                    setFormData({ ...formData, pets: value });
++                  }}
++                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
++                >
++                  +
++                </button>
++
++              </div>
++
++            </div>
++
+           </div>
+         );
+ 
+@@ -1466,9 +1516,11 @@ export default function CraftYourExperience() {
+ 
+         </div>
+ 
+-        <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+-          {t(`steps.${stepId}.label`)}
+-        </p>
++        {stepId !== "guests" && (
++          <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
++            {t(`steps.${stepId}.label`)}
++          </p>
++        )}
+ 
+         <h1 className="text-xl md:text-4xl font-light leading-tight">
+           {t(`steps.${stepId}.title`)}
+diff --git a/src/messages/en.json b/src/messages/en.json
+index b330dd3..34a1062 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -133,7 +133,11 @@
+       "exactNumberPlaceholder": "Enter exact number",
+       "noChildren": "No children",
+       "oneChild": "1 child",
+-      "childrenCount": "{count} children"
++      "childrenCount": "{count} children",
++      "petsLabel": "Pets",
++      "noPets": "No pets",
++      "onePet": "1 pet",
++      "petsCount": "{count} pets"
+     },
+     "dates": {
+       "checkIn": "Check-in",
+diff --git a/supabase-migrations/2026_experience_animals_allowed.sql b/supabase-migrations/2026_experience_animals_allowed.sql
+new file mode 100644
+index 0000000..154e378
+--- /dev/null
++++ b/supabase-migrations/2026_experience_animals_allowed.sql
+@@ -0,0 +1,7 @@
++-- =========================================================
++-- experience_content — "Animals Allowed" (si/no), stesso trattamento
++-- di children_allowed: default true, editabile dalla scheda
++-- esperienza in admin (sezione Filters).
++-- =========================================================
++
++alter table experience_content add column if not exists animals_allowed boolean default true;
+diff --git a/supabase-migrations/2026_leads_pets.sql b/supabase-migrations/2026_leads_pets.sql
+new file mode 100644
+index 0000000..c6e936a
+--- /dev/null
++++ b/supabase-migrations/2026_leads_pets.sql
+@@ -0,0 +1,8 @@
++-- =========================================================
++-- leads — aggiunge il numero di animali del gruppo (step "guests"
++-- del configuratore), stesso trattamento del campo "children" gia'
++-- esistente: nessuna colonna analoga a traveling_with_children,
++-- 0 significa semplicemente "nessun animale".
++-- =========================================================
++
++alter table leads add column if not exists pets integer default 0;
+-- 
+2.43.0
+
