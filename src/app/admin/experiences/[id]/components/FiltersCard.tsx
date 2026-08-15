@@ -598,6 +598,51 @@ Experience Filters
       mb-4
     "
   >
+    Animals
+  </label>
+
+  <label
+    className="
+      flex
+      items-center
+      justify-between
+      rounded-xl
+      border
+      border-white/10
+      bg-white/5
+      px-4
+      py-4
+      cursor-pointer
+      md:w-1/2
+    "
+  >
+
+    <span>Animals Allowed</span>
+
+    <input
+      type="checkbox"
+      checked={experience.animals_allowed ?? true}
+      onChange={(e) =>
+        setExperience({
+          ...experience,
+          animals_allowed: e.target.checked,
+        })
+      }
+    />
+
+  </label>
+
+</div>
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
 
     Status
 

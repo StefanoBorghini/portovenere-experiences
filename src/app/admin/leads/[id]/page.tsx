@@ -428,6 +428,10 @@ export default function LeadDetailPage() {
                 : "No"}
             </dd>
           </div>
+          <div>
+            <dt className="text-white/40">Pets</dt>
+            <dd>{lead.pets ?? 0}</dd>
+          </div>
         </dl>
 
         {proposal && (

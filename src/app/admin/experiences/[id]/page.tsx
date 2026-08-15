@@ -757,6 +757,9 @@ for (const fact of experience.facts) {
     child_discount_percentage:
       experience.child_discount_percentage,
 
+    animals_allowed:
+      experience.animals_allowed,
+
        incompatible_experiences:
       experience.incompatible_experiences,
 

@@ -133,7 +133,11 @@
       "exactNumberPlaceholder": "Enter exact number",
       "noChildren": "No children",
       "oneChild": "1 child",
-      "childrenCount": "{count} children"
+      "childrenCount": "{count} children",
+      "petsLabel": "Pets",
+      "noPets": "No pets",
+      "onePet": "1 pet",
+      "petsCount": "{count} pets"
     },
     "dates": {
       "checkIn": "Check-in",

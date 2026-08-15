@@ -232,6 +232,7 @@ export default function CraftYourExperience() {
     guests: "",
     budget: "",
     children: 0,
+    pets: 0,
 
     startDate: "",
     endDate: "",
@@ -630,6 +631,7 @@ export default function CraftYourExperience() {
             preferred_time: formData.preferredTime || null,
             traveling_with_children: formData.travelingWithChildren,
             children: formData.children,
+            pets: formData.pets,
           },
         ]);
 
@@ -678,6 +680,7 @@ export default function CraftYourExperience() {
               moods: formData.moods,
               guests: formData.guests,
               children: formData.children,
+              pets: formData.pets,
               budget: formData.budget,
               start_date: formData.startDate,
               end_date: formData.endDate,
@@ -990,6 +993,53 @@ export default function CraftYourExperience() {
                       children: value,
                       travelingWithChildren: value > 0,
                     });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  +
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* PETS — stesso stepper compatto dei bambini */}
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-3 mt-6">
+              {t("guests.petsLabel")}
+            </p>
+
+            <div className="flex items-center justify-between border border-white/10 rounded-2xl px-5 py-3.5 bg-white/5">
+
+              <span className="text-zinc-400 text-sm">
+                {formData.pets === 0
+                  ? t("guests.noPets")
+                  : formData.pets === 1
+                  ? t("guests.onePet")
+                  : t("guests.petsCount", { count: formData.pets })}
+              </span>
+
+              <div className="flex items-center gap-4">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.max(0, formData.pets - 1);
+                    setFormData({ ...formData, pets: value });
+                  }}
+                  className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                >
+                  −
+                </button>
+
+                <span className="text-lg font-light w-6 text-center tabular-nums">
+                  {formData.pets}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const value = Math.min(10, formData.pets + 1);
+                    setFormData({ ...formData, pets: value });
                   }}
                   className="w-8 h-8 rounded-full border border-white/20 text-lg flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
@@ -1466,9 +1516,11 @@ export default function CraftYourExperience() {
 
         </div>
 
-        <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
-          {t(`steps.${stepId}.label`)}
-        </p>
+        {stepId !== "guests" && (
+          <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-2">
+            {t(`steps.${stepId}.label`)}
+          </p>
+        )}
 
         <h1 className="text-xl md:text-4xl font-light leading-tight">
           {t(`steps.${stepId}.title`)}
