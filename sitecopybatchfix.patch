@@ -1,0 +1,172 @@
+From 8a7d8c97fd3fba01778f9068f879dd0da747d44a Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 07:56:15 +0000
+Subject: [PATCH] Fix site_copy bulk translation timing out with 7 locales
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The '*' path in /api/translate-site-copy called syncSiteCopyTranslation per key (one Lara call per key per locale) — with ~190 keys x 7 locales that's 1300+ individual Lara calls, and the route had no maxDuration set, so it got killed by Vercel's default timeout partway through, leaving some keys/locales translated and others silently still in English depending on which calls happened to finish first. Added syncAllSiteCopyTranslations, which batches keys into groups of 50 and does one Lara call per batch per locale (same principle as syncAllEnhancementTranslations) — cuts ~1300 calls down to a few dozen. Also set maxDuration=60->120 as extra margin; the shared 700 chars/sec rate limiter is still the real ceiling (~190 keys x 7 locales worth of text needs ~60-90s minimum), so a single call may still need to be re-run once or twice on a lower-tier hosting plan — safe to do, it's hash-based idempotent and only re-translates what's still missing.
+---
+ src/app/api/translate-site-copy/route.ts |  19 ++--
+ src/lib/translations/siteCopy.ts         | 109 +++++++++++++++++++++++
+ 2 files changed, 123 insertions(+), 5 deletions(-)
+
+diff --git a/src/app/api/translate-site-copy/route.ts b/src/app/api/translate-site-copy/route.ts
+index 7adcb4b..bf5dc15 100644
+--- a/src/app/api/translate-site-copy/route.ts
++++ b/src/app/api/translate-site-copy/route.ts
+@@ -18,7 +18,18 @@
+ 
+ import { NextRequest, NextResponse } from "next/server";
+ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
+-import { syncSiteCopyTranslation } from "@/lib/translations/siteCopy";
++import { syncSiteCopyTranslation, syncAllSiteCopyTranslations } from "@/lib/translations/siteCopy";
++
++// Il percorso "*" traduce tutte le chiavi per tutti i locale in
++// blocchi da 50 (vedi syncAllSiteCopyTranslations): molto meno
++// chiamate Lara di prima, ma il rate limiter (700 caratteri/sec,
++// condiviso da tutta l'app) resta comunque il collo di bottiglia reale
++// — con ~190 chiavi x 7 locale il tempo minimo teorico e' sui 60-90s.
++// Se il piano Vercel in uso ha un tetto piu' basso di questo valore,
++// una singola chiamata potrebbe non bastare: rilanciare la stessa
++// richiesta e' sempre sicuro (idempotente per hash, riparte da dove
++// si era fermata invece di ricominciare).
++export const maxDuration = 120;
+ 
+ export async function POST(request: NextRequest) {
+ 
+@@ -48,11 +59,9 @@ export async function POST(request: NextRequest) {
+         );
+       }
+ 
+-      await Promise.all(
+-        rows.map((row) => syncSiteCopyTranslation(row.key, row.en_text))
+-      );
++      const stats = await syncAllSiteCopyTranslations(rows);
+ 
+-      return NextResponse.json({ success: true, count: rows.length });
++      return NextResponse.json({ success: true, count: rows.length, ...stats });
+     }
+ 
+     const { data: row, error } = await supabaseAdmin
+diff --git a/src/lib/translations/siteCopy.ts b/src/lib/translations/siteCopy.ts
+index 2305783..963ddc8 100644
+--- a/src/lib/translations/siteCopy.ts
++++ b/src/lib/translations/siteCopy.ts
+@@ -159,3 +159,112 @@ export async function syncSiteCopyTranslation(
+     })
+   );
+ }
++
++// Quante chiavi per chiamata Lara nel percorso "*" (vedi sotto) — una
++// singola chiamata per blocco invece che per chiave, stesso principio
++// di syncAllEnhancementTranslations. 50 e' un compromesso prudente tra
++// "poche chiamate" e "non mandare a Lara un payload enorme in un colpo
++// solo" (mai testato oltre questa taglia).
++const SITE_COPY_BATCH_SIZE = 50;
++
++/**
++ * (Ri)traduce TUTTE le chiavi di site_copy passate, per tutti i locale
++ * supportati — percorso "*" di /api/translate-site-copy.
++ *
++ * A differenza di syncSiteCopyTranslation (una chiamata Lara PER
++ * CHIAVE), qui le chiavi vengono raggruppate in blocchi e tradotte con
++ * UNA chiamata Lara per blocco per locale: con ~190 chiavi x 7 locale,
++ * il percorso per-chiave farebbe oltre 1300 chiamate Lara individuali
++ * — la route Next.js va in timeout ben prima di finirle, lasciando
++ * alcune chiavi/locale a meta' tradotte "a caso" in base a quali
++ * chiamate erano gia' partite. Raggruppare per blocco lo riporta a un
++ * numero di chiamate gestibile (poche decine).
++ */
++export async function syncAllSiteCopyTranslations(
++  rows: { key: string; en_text: string }[]
++): Promise<{ translated: number; skipped: number; failed: number }> {
++
++  const supabaseAdmin = getSupabaseAdmin();
++
++  let translated = 0;
++  let skipped = 0;
++  let failed = 0;
++
++  for (const locale of SUPPORTED_TARGET_LOCALES) {
++
++    const { data: existingRows } = await supabaseAdmin
++      .from("site_copy_translations")
++      .select("key, source_hash, translation_status")
++      .eq("locale", locale);
++
++    const existingByKey = new Map(
++      (existingRows ?? []).map((row) => [row.key, row])
++    );
++
++    const toTranslate = rows.filter((row) => {
++      const sourceHash = hashText(row.en_text);
++      const existing = existingByKey.get(row.key);
++      return !(existing?.source_hash === sourceHash && existing.translation_status === "ok");
++    });
++
++    skipped += rows.length - toTranslate.length;
++
++    for (let i = 0; i < toTranslate.length; i += SITE_COPY_BATCH_SIZE) {
++
++      const chunk = toTranslate.slice(i, i + SITE_COPY_BATCH_SIZE);
++
++      const fields: Record<string, string> = {};
++      chunk.forEach((row, index) => {
++        fields[`k${index}`] = row.en_text;
++      });
++
++      const result = await translateFields(fields, locale);
++      const nowIso = new Date().toISOString();
++
++      const upsertRows = chunk.map((row, index) => {
++
++        const sourceHash = hashText(row.en_text);
++
++        if (!result.ok) {
++          return {
++            key: row.key,
++            locale,
++            translation_status: "failed",
++            source_hash: sourceHash,
++            updated_at: nowIso,
++          };
++        }
++
++        return {
++          key: row.key,
++          locale,
++          text: result.translations[`k${index}`] ?? null,
++          translation_status: "ok",
++          source_hash: sourceHash,
++          translated_at: nowIso,
++          updated_at: nowIso,
++        };
++      });
++
++      const { error: upsertError } = await supabaseAdmin
++        .from("site_copy_translations")
++        .upsert(upsertRows, { onConflict: "key,locale" });
++
++      if (upsertError) {
++        console.error(`[siteCopy] batch upsert failed for ${locale}:`, upsertError);
++      }
++
++      if (!result.ok) {
++        console.error(`[siteCopy] batch translate failed for ${locale}:`, result.error);
++      }
++
++      if (upsertError || !result.ok) {
++        failed += chunk.length;
++      } else {
++        translated += chunk.length;
++      }
++    }
++  }
++
++  return { translated, skipped, failed };
++}
+-- 
+2.43.0
+

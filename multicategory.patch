@@ -1,0 +1,399 @@
+From bec6554037f304c300ff9beae2a4aeef10dbec34 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 13:34:16 +0000
+Subject: [PATCH] Allow an experience to belong to multiple macrocategories
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The 6 categories (Sea/Gourmet/Wine/Wild/Wellness/Cultural Escape) were a single-select field per experience, driving the configurator's matching directly. Added experience_content.categories (text[]), backfilled from the old single category column (kept, unused by app code going forward, no destructive migration). Admin Filters card: category dropdown -> checkbox grid, same pattern already used for guests/budget/time-slot filters. Updated every place that compared categories by equality to use array overlap instead: generateProposal.ts's category match / best-experience pick / add-ons exclusion, buildRendererData.ts's included-experiences candidate pool, plus the admin list search/badges and a few cosmetic display spots. Verified the new matching logic against 5 scenarios (multi-category match, best-experience pick when the matching category isn't first in the array, partial-overlap exclusion) with an isolated test — all pass. /submit-experience (partner intake form) intentionally left single-select: it never writes to experience_content, admins categorize the real experience manually after reviewing a submission.
+---
+ .../[id]/components/FiltersCard.tsx           | 94 +++++++++++--------
+ .../[id]/components/compatibilityCard.tsx     |  2 +-
+ src/app/admin/experiences/[id]/page.tsx       |  5 +-
+ src/app/admin/experiences/page.tsx            | 10 +-
+ .../proposal/IncludedExperiences.tsx          |  2 +-
+ src/lib/buildProposalExperienceCard.ts        |  4 +-
+ src/lib/generateProposal.ts                   | 20 ++--
+ src/lib/proposal-engine/buildRendererData.ts  |  8 +-
+ src/lib/supabase/experienceRepository.ts      |  7 +-
+ src/lib/supabase/leadRepository.ts            |  2 +-
+ src/types/experience.ts                       |  2 +
+ .../2026_experience_categories_array.sql      | 19 ++++
+ 12 files changed, 116 insertions(+), 59 deletions(-)
+ create mode 100644 supabase-migrations/2026_experience_categories_array.sql
+
+diff --git a/src/app/admin/experiences/[id]/components/FiltersCard.tsx b/src/app/admin/experiences/[id]/components/FiltersCard.tsx
+index 07b7655..7f38054 100644
+--- a/src/app/admin/experiences/[id]/components/FiltersCard.tsx
++++ b/src/app/admin/experiences/[id]/components/FiltersCard.tsx
+@@ -128,49 +128,69 @@ Experience Filters
+         block
+         text-sm
+         text-white/50
+-        mb-2
++        mb-4
+       "
+     >
+ 
+-      Category
++      Categories
+ 
+     </label>
+ 
+-    <select
+-
+-      value={experience.category}
+-
+-      onChange={(e)=>
+-
+-        setExperience({
+-
+-          ...experience,
+-
+-          category:e.target.value,
+-
+-        })
+-
+-      }
+-
+-      className="
+-        w-full
+-        rounded-xl
+-        bg-white/5
+-        border
+-        border-white/10
+-        px-4
+-        py-3
+-      "
+-
+-    >
+-
+-      {CATEGORIES.map((category) => (
+-        <option key={category.dbValue} value={category.dbValue}>
+-          {category.label}
+-        </option>
+-      ))}
+-
+-    </select>
++    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
++
++      {CATEGORIES.map((category) => {
++
++        const isChecked =
++          (experience.categories ?? []).includes(category.dbValue);
++
++        return (
++          <label
++            key={category.dbValue}
++            className="
++              flex
++              items-center
++              gap-2
++              rounded-xl
++              border
++              border-white/10
++              bg-white/5
++              px-4
++              py-3
++              cursor-pointer
++            "
++          >
++
++            <input
++              type="checkbox"
++              checked={isChecked}
++              onChange={(e) => {
++
++                const current: string[] = experience.categories ?? [];
++
++                const next = e.target.checked
++                  ? [...current, category.dbValue]
++                  : current.filter((value) => value !== category.dbValue);
++
++                setExperience({
++                  ...experience,
++                  categories: next,
++                });
++              }}
++            />
++
++            {category.label}
++
++          </label>
++        );
++      })}
++
++    </div>
++
++    <p className="text-white/30 text-xs mt-2">
++      Un&apos;esperienza puo&apos; comparire in piu&apos; di una
++      macrocategoria — deve esserne selezionata almeno una perche&apos;
++      compaia nel configuratore.
++    </p>
+ 
+   </div>
+ 
+diff --git a/src/app/admin/experiences/[id]/components/compatibilityCard.tsx b/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
+index 0b50c55..ddb4c50 100644
+--- a/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
++++ b/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
+@@ -202,7 +202,7 @@ const filteredEnhancements = useMemo(() => {
+     </div>
+ 
+     <div className="text-xs text-white/40">
+-        {exp.category}
++        {(exp.categories ?? []).join(", ")}
+     </div>
+ 
+ </div>
+diff --git a/src/app/admin/experiences/[id]/page.tsx b/src/app/admin/experiences/[id]/page.tsx
+index ce39dfa..8a6a1cf 100644
+--- a/src/app/admin/experiences/[id]/page.tsx
++++ b/src/app/admin/experiences/[id]/page.tsx
+@@ -150,7 +150,7 @@ setExperience(found);
+ 
+   operator={experience.operator}
+ 
+-  category={experience.category}
++  category={(experience.categories ?? []).join(", ")}
+ 
+   active={experience.active}
+ 
+@@ -739,6 +739,9 @@ for (const fact of experience.facts) {
+     category:
+       experience.category,
+ 
++    categories:
++      experience.categories,
++
+     active:
+       experience.active,
+ 
+diff --git a/src/app/admin/experiences/page.tsx b/src/app/admin/experiences/page.tsx
+index ed64199..f8c7a13 100644
+--- a/src/app/admin/experiences/page.tsx
++++ b/src/app/admin/experiences/page.tsx
+@@ -78,9 +78,9 @@ const filteredExperiences =
+ 
+         ||
+ 
+-        experience.category
+-          ?.toLowerCase()
+-          .includes(query)
++        (experience.categories ?? []).some((category: string) =>
++          category.toLowerCase().includes(query)
++        )
+ 
+       );
+ 
+@@ -554,7 +554,7 @@ onChange={(e) =>
+         >
+ 
+           <span>
+-            {experience.category}
++            {(experience.categories ?? []).join(", ")}
+           </span>
+ 
+           <span>
+@@ -763,7 +763,7 @@ onChange={(e) =>
+                 "
+               >
+ 
+-                {experience.category}
++                {(experience.categories ?? []).join(", ")}
+ 
+               </span>
+ 
+diff --git a/src/components/proposal/IncludedExperiences.tsx b/src/components/proposal/IncludedExperiences.tsx
+index 8fdb562..445ebb2 100644
+--- a/src/components/proposal/IncludedExperiences.tsx
++++ b/src/components/proposal/IncludedExperiences.tsx
+@@ -113,7 +113,7 @@ function toggleExperience(id: string) {
+     );
+ 
+     const trackingLabel =
+-      target?.experience?.category ?? id;
++      target?.experience?.categories?.join(", ") ?? id;
+ 
+     // Deselezione normale
+     if (current.includes(id)) {
+diff --git a/src/lib/buildProposalExperienceCard.ts b/src/lib/buildProposalExperienceCard.ts
+index e9307c9..4555ab1 100644
+--- a/src/lib/buildProposalExperienceCard.ts
++++ b/src/lib/buildProposalExperienceCard.ts
+@@ -24,7 +24,9 @@ export function buildProposalExperienceCard(
+ 
+       experience.operator ?? "",
+ 
+-      experience.category?.replaceAll("_", " ") ?? "",
++      (experience.categories ?? [])
++        .map((category) => category.replaceAll("_", " "))
++        .join(", "),
+ 
+       `From €${experience.base_price}`,
+ 
+diff --git a/src/lib/generateProposal.ts b/src/lib/generateProposal.ts
+index 8f5979f..ddffb06 100644
+--- a/src/lib/generateProposal.ts
++++ b/src/lib/generateProposal.ts
+@@ -184,8 +184,8 @@ const matchesCategory =
+ 
+   normalizedSelected.length === 0 ||
+ 
+-  normalizedSelected.includes(
+-    experience.category
++  (experience.categories ?? []).some((category: string) =>
++    normalizedSelected.includes(category)
+   );
+ 
+ 
+@@ -462,8 +462,9 @@ const bestExperience =
+   sortedExperiences.find(
+     experience =>
+ 
+-      experience.category ===
+-      selectedMainCategory
++      (experience.categories ?? []).includes(
++        selectedMainCategory
++      )
+   ) ||
+ 
+   sortedExperiences[0];
+@@ -482,7 +483,9 @@ if (!bestExperience) {
+   const matchingCategory = safeAllExperiences.filter(
+     (experience) =>
+       normalizedSelected.length === 0 ||
+-      normalizedSelected.includes(experience.category)
++      (experience.categories ?? []).some((category: string) =>
++        normalizedSelected.includes(category)
++      )
+   );
+ 
+   const matchingCategoryAndGuests = matchingCategory.filter((experience) => {
+@@ -541,7 +544,12 @@ if (safeExperiencesSelected.length === 1) {
+ 
+     .filter((experience) => experience.id !== bestExperience.id)
+ 
+-    .filter((experience) => experience.category !== bestExperience.category)
++    .filter(
++      (experience) =>
++        !(experience.categories ?? []).some((category: string) =>
++          (bestExperience.categories ?? []).includes(category)
++        )
++    )
+ 
+     // Stesso fix: un'esperienza disattivata non deve comparire
+     // nemmeno tra i suggerimenti (prima non c'era nessun controllo
+diff --git a/src/lib/proposal-engine/buildRendererData.ts b/src/lib/proposal-engine/buildRendererData.ts
+index 1f7007d..264f63d 100644
+--- a/src/lib/proposal-engine/buildRendererData.ts
++++ b/src/lib/proposal-engine/buildRendererData.ts
+@@ -95,8 +95,8 @@ export function buildRendererData({
+   // può usare esattamente queste esperienze
+   // ===================================================
+ 
+-  const featuredCategory =
+-    featuredExperience?.category;
++  const featuredCategories: string[] =
++    featuredExperience?.categories ?? [];
+ 
+   const featuredId =
+     featuredExperience?.id;
+@@ -111,7 +111,9 @@ export function buildRendererData({
+ 
+       .filter(
+         (experience: any) =>
+-          experience.category !== featuredCategory
++          !(experience.categories ?? []).some((category: string) =>
++            featuredCategories.includes(category)
++          )
+       );
+ 
+   const includedExperiencesRaw =
+diff --git a/src/lib/supabase/experienceRepository.ts b/src/lib/supabase/experienceRepository.ts
+index faec3c3..4e16c9e 100644
+--- a/src/lib/supabase/experienceRepository.ts
++++ b/src/lib/supabase/experienceRepository.ts
+@@ -101,6 +101,8 @@ export async function createExperience() {
+ 
+         category: "sea_escape",
+ 
++        categories: ["sea_escape"],
++
+         base_price: 0,
+ 
+         description: "",
+@@ -448,7 +450,7 @@ export async function getVisibleCategoryValues(): Promise<Set<string>> {
+ 
+   const { data, error } = await supabase
+     .from("experience_content")
+-    .select("category, active");
++    .select("categories, active");
+ 
+   if (error) {
+     console.error("getVisibleCategoryValues error:", error);
+@@ -458,8 +460,7 @@ export async function getVisibleCategoryValues(): Promise<Set<string>> {
+   return new Set(
+     (data || [])
+       .filter((row: { active?: boolean | null }) => row.active !== false)
+-      .map((row: { category?: string | null }) => row.category)
+-      .filter((category): category is string => Boolean(category))
++      .flatMap((row: { categories?: string[] | null }) => row.categories ?? [])
+   );
+ }
+ 
+diff --git a/src/lib/supabase/leadRepository.ts b/src/lib/supabase/leadRepository.ts
+index b3525f1..f11dfe3 100644
+--- a/src/lib/supabase/leadRepository.ts
++++ b/src/lib/supabase/leadRepository.ts
+@@ -302,7 +302,7 @@ export function resolveLeadSelection(
+       id: exp.id,
+       title: exp.title,
+       operator: exp.operator,
+-      category: exp.category,
++      categories: exp.categories,
+     }));
+ 
+   const selectedEnhancements = enhancementIds
+diff --git a/src/types/experience.ts b/src/types/experience.ts
+index e01073a..ce3e885 100644
+--- a/src/types/experience.ts
++++ b/src/types/experience.ts
+@@ -44,6 +44,8 @@ export interface Experience {
+ 
+     category?: string;
+ 
++    categories?: string[];
++
+     operator?: string;
+ 
+     image?: string;
+diff --git a/supabase-migrations/2026_experience_categories_array.sql b/supabase-migrations/2026_experience_categories_array.sql
+new file mode 100644
+index 0000000..298ed55
+--- /dev/null
++++ b/supabase-migrations/2026_experience_categories_array.sql
+@@ -0,0 +1,19 @@
++-- =====================================================================
++-- experience_content — ogni esperienza puo' ora appartenere a PIU' di
++-- una delle 6 macrocategorie (Sea/Gourmet/Wine/Wild/Wellness/Cultural
++-- Escape), non solo una. Aggiunge "categories" (array) accanto alla
++-- vecchia colonna singola "category", che resta cosi' com'e' (nessuna
++-- migrazione distruttiva, nessuna colonna rimossa) ma non viene piu'
++-- letta dal codice applicativo dopo questa modifica — solo scritta,
++-- per compatibilita' storica.
++--
++-- Backfill: ogni riga esistente parte con categories = [category],
++-- cosi' nessuna esperienza sparisce dal matching del configuratore
++-- finche' qualcuno non ne aggiunge/toglie manualmente dall'admin.
++-- =====================================================================
++
++alter table experience_content add column if not exists categories text[];
++
++update experience_content
++  set categories = array[category]
++  where categories is null and category is not null;
+-- 
+2.43.0
+

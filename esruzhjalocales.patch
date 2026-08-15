@@ -1,0 +1,165 @@
+From 21f4b10f359b948774578393839def2578d93b41 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 07:32:37 +0000
+Subject: [PATCH] Add Spanish, Russian, Chinese and Japanese as supported site
+ locales
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Same mechanism as the earlier French/German rollout: adds es/ru/zh/ja to SUPPORTED_LOCALES (auto-detected from Accept-Language) and SUPPORTED_TARGET_LOCALES (Lara translation targets), maps them to Lara's locale codes (es-ES, ru-RU, zh-CN, ja-JP), adds them to the two DATE_LOCALES maps, and keeps the three standalone scripts' duplicated locale lists in sync. Arabic intentionally left out — it's RTL and needs separate layout work, not just a locale-list addition.
+---
+ src/app/craft-your-experience/page.tsx            |  4 ++++
+ src/i18n/localeShared.ts                          |  2 +-
+ src/lib/proposal-engine/buildProposalSummary.ts   |  4 ++++
+ src/lib/translations/lara.ts                      | 12 +++++++-----
+ src/scripts/backfill-enhancement-translations.mjs |  6 +++++-
+ src/scripts/backfill-experience-translations.mjs  |  6 +++++-
+ src/scripts/seed-site-copy.mjs                    |  6 +++++-
+ 7 files changed, 31 insertions(+), 9 deletions(-)
+
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index 3af5a83..5df4aad 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -42,6 +42,10 @@ const DATE_LOCALES: Record<string, string> = {
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
+ };
+ 
+ // =========================================================
+diff --git a/src/i18n/localeShared.ts b/src/i18n/localeShared.ts
+index 27e024d..4cee443 100644
+--- a/src/i18n/localeShared.ts
++++ b/src/i18n/localeShared.ts
+@@ -8,7 +8,7 @@
+  * =====================================================================
+  */
+ 
+-export const SUPPORTED_LOCALES = ["en", "it", "fr", "de"] as const;
++export const SUPPORTED_LOCALES = ["en", "it", "fr", "de", "es", "ru", "zh", "ja"] as const;
+ export type Locale = (typeof SUPPORTED_LOCALES)[number];
+ 
+ export const DEFAULT_LOCALE: Locale = "en";
+diff --git a/src/lib/proposal-engine/buildProposalSummary.ts b/src/lib/proposal-engine/buildProposalSummary.ts
+index e875a67..d062bbf 100644
+--- a/src/lib/proposal-engine/buildProposalSummary.ts
++++ b/src/lib/proposal-engine/buildProposalSummary.ts
+@@ -76,6 +76,10 @@ const DATE_LOCALES: Record<string, string> = {
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
+ };
+ 
+ type TFunction = (key: string, values?: Record<string, string | number>) => string;
+diff --git a/src/lib/translations/lara.ts b/src/lib/translations/lara.ts
+index 9e56270..3655680 100644
+--- a/src/lib/translations/lara.ts
++++ b/src/lib/translations/lara.ts
+@@ -45,8 +45,7 @@ function getLara(): Translator {
+ // listed here. Adding a language later = adding one string to this
+ // array + one row to LOCALE_TO_LARA below. No other code changes.
+ // ---------------------------------------------------------------------
+-export const SUPPORTED_TARGET_LOCALES = ["it", "fr", "de"] as const;
+-// Future: ["it", "fr", "de", "es"] as const;
++export const SUPPORTED_TARGET_LOCALES = ["it", "fr", "de", "es", "ru", "zh", "ja"] as const;
+ 
+ export type TargetLocale = (typeof SUPPORTED_TARGET_LOCALES)[number];
+ 
+@@ -57,9 +56,12 @@ const LOCALE_TO_LARA: Record<string, string> = {
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
+-  es: "es-ES",  
+-};  
+- 
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
++};
++
+ // Applied to every call so tone stays consistent across the whole
+ // site without repeating it at every call site. Tune here only.
+ const BRAND_INSTRUCTIONS = [
+diff --git a/src/scripts/backfill-enhancement-translations.mjs b/src/scripts/backfill-enhancement-translations.mjs
+index a45e169..8f4f9e0 100644
+--- a/src/scripts/backfill-enhancement-translations.mjs
++++ b/src/scripts/backfill-enhancement-translations.mjs
+@@ -29,13 +29,17 @@ import { loadEnvLocal } from "./loadEnvLocal.mjs";
+ 
+ loadEnvLocal();
+ 
+-const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++const TARGET_LOCALES = ["it", "fr", "de", "es", "ru", "zh", "ja"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+ 
+ const LOCALE_TO_LARA = {
+   en: "en-US",
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
+ };
+ 
+ const BRAND_INSTRUCTIONS = [
+diff --git a/src/scripts/backfill-experience-translations.mjs b/src/scripts/backfill-experience-translations.mjs
+index 05f7aed..9bb0a84 100644
+--- a/src/scripts/backfill-experience-translations.mjs
++++ b/src/scripts/backfill-experience-translations.mjs
+@@ -32,13 +32,17 @@ import { loadEnvLocal } from "./loadEnvLocal.mjs";
+ 
+ loadEnvLocal();
+ 
+-const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++const TARGET_LOCALES = ["it", "fr", "de", "es", "ru", "zh", "ja"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+ 
+ const LOCALE_TO_LARA = {
+   en: "en-US",
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
+ };
+ 
+ const BRAND_INSTRUCTIONS = [
+diff --git a/src/scripts/seed-site-copy.mjs b/src/scripts/seed-site-copy.mjs
+index 1218331..d8e4799 100644
+--- a/src/scripts/seed-site-copy.mjs
++++ b/src/scripts/seed-site-copy.mjs
+@@ -37,13 +37,17 @@ loadEnvLocal();
+ const __dirname = path.dirname(fileURLToPath(import.meta.url));
+ const EN_MESSAGES_PATH = path.join(__dirname, "..", "messages", "en.json");
+ 
+-const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++const TARGET_LOCALES = ["it", "fr", "de", "es", "ru", "zh", "ja"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+ 
+ const LOCALE_TO_LARA = {
+   en: "en-US",
+   it: "it-IT",
+   fr: "fr-FR",
+   de: "de-DE",
++  es: "es-ES",
++  ru: "ru-RU",
++  zh: "zh-CN",
++  ja: "ja-JP",
+ };
+ 
+ const BRAND_INSTRUCTIONS = [
+-- 
+2.43.0
+

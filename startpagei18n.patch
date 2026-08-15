@@ -1,0 +1,251 @@
+From 78898b73a53efdd4e12a871523e9ac53bba970ec Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 09:17:34 +0000
+Subject: [PATCH] Wire /start page into the site_copy translation system
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This page was never connected to next-intl/site_copy — every string was hardcoded English directly in StartClient.tsx, so none of the locale work (it/fr/de/es/ru/zh/ja) reached it. Replaced all visible copy with useTranslations("start") calls (hero, the 3 secondary link cards, manifesto, Work With Us, footer). Left brand/domain literals (Portovenere.com, image alt/aria-labels) as-is, consistent with how proper nouns are handled elsewhere. Dropped the two manual <br/> mid-sentence line breaks in favor of natural CSS wrapping — a hardcoded break point doesn't hold up across languages with very different average word/sentence length.
+---
+ site_copy_start_page.sql      | 35 ++++++++++++++++++++++++++++
+ src/app/start/StartClient.tsx | 43 ++++++++++++++++-------------------
+ src/messages/en.json          | 34 +++++++++++++++++++++++++++
+ 3 files changed, 89 insertions(+), 23 deletions(-)
+ create mode 100644 site_copy_start_page.sql
+
+diff --git a/site_copy_start_page.sql b/site_copy_start_page.sql
+new file mode 100644
+index 0000000..34dc0cf
+--- /dev/null
++++ b/site_copy_start_page.sql
+@@ -0,0 +1,35 @@
++-- =========================================================
++-- /start (micro-landing per il traffico social) non era mai stata
++-- collegata al sistema di traduzione: tutto il testo era hardcoded
++-- in inglese direttamente nel componente. Ora usa useTranslations
++-- come il resto del sito — queste sono le chiavi corrispondenti.
++--
++-- src/messages/en.json e' SOLO il seed storico, non letto a runtime:
++-- il testo vive in site_copy / site_copy_translations (Supabase).
++--
++-- Dopo aver eseguito questo SQL, richiama (come sempre) per tradurre
++-- anche in tutte le lingue attive:
++--   curl -X POST https://experiences.portovenere.com/api/translate-site-copy \
++--     -H "Content-Type: application/json" -d "{\"key\": \"*\"}"
++-- =========================================================
++
++insert into site_copy (key, en_text) values
++  ('start.hero.eyebrow', 'Portovenere, Italy'),
++  ('start.hero.title', 'Experience Portovenere, your way.'),
++  ('start.hero.subtitle', 'Curated places, experiences and local stories. Build your journey around the way you want to travel.'),
++  ('start.hero.cta', 'Create Your Experience'),
++  ('start.hero.ctaSubtext', 'Tell us what you love. We''ll turn it into your Portovenere.'),
++  ('start.links.explore.eyebrow', 'Explore Portovenere'),
++  ('start.links.explore.description', 'Places, stories and inspiration for discovering the destination.'),
++  ('start.links.curated.eyebrow', 'Curated Experiences'),
++  ('start.links.curated.description', 'Selected ways to experience Portovenere and the Gulf of Poets.'),
++  ('start.links.concierge.eyebrow', 'Speak with a Concierge'),
++  ('start.links.concierge.description', 'Handpicked accommodation, restaurants, shops and local services.'),
++  ('start.manifesto', 'The destination doesn''t change. The way you experience it does.'),
++  ('start.workWithUs.label', 'Work With Us'),
++  ('start.workWithUs.description', 'Hotels, restaurants, experience providers and travel professionals.'),
++  ('start.footer.tagline', 'Travel Better.'),
++  ('start.footer.privacy', 'Privacy'),
++  ('start.footer.cookies', 'Cookies'),
++  ('start.footer.contact', 'Contact')
++on conflict (key) do update set en_text = excluded.en_text;
+diff --git a/src/app/start/StartClient.tsx b/src/app/start/StartClient.tsx
+index 6ea87b4..f25ab53 100644
+--- a/src/app/start/StartClient.tsx
++++ b/src/app/start/StartClient.tsx
+@@ -3,6 +3,7 @@
+ import { useEffect, useMemo } from "react";
+ import Link from "next/link";
+ import { useSearchParams } from "next/navigation";
++import { useTranslations } from "next-intl";
+ import { motion, useReducedMotion } from "framer-motion";
+ import {
+   trackStartPageView,
+@@ -52,6 +53,7 @@ const UTM_PARAMS = [
+ ] as const;
+ 
+ export default function StartClient() {
++  const t = useTranslations("start");
+   const reduceMotion = useReducedMotion();
+ 
+   // =======================================================
+@@ -110,18 +112,15 @@ export default function StartClient() {
+       <section className="relative z-10 flex-1 flex flex-col justify-center px-6 pt-8 pb-10 text-center">
+         <div className="max-w-md mx-auto w-full">
+           <p className="uppercase tracking-[0.35em] text-zinc-500 text-[10px] mb-4">
+-            Portovenere, Italy
++            {t("hero.eyebrow")}
+           </p>
+ 
+           <h1 className="text-[32px] leading-[1.05] sm:text-[40px] font-light tracking-tight mb-4">
+-            Experience Portovenere,
+-            <br />
+-            your way.
++            {t("hero.title")}
+           </h1>
+ 
+           <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-sm mx-auto">
+-            Curated places, experiences and local stories. Build your journey
+-            around the way you want to travel.
++            {t("hero.subtitle")}
+           </p>
+ 
+           {/* CTA PRIMARIA — dominante, unica in questo colore/peso */}
+@@ -144,11 +143,11 @@ export default function StartClient() {
+               shadow-[0_0_40px_-8px_rgba(237,235,231,0.35)]
+             "
+           >
+-            Create Your Experience
++            {t("hero.cta")}
+           </Link>
+ 
+           <p className="text-zinc-500 text-xs leading-relaxed mt-4">
+-            Tell us what you love. We&rsquo;ll turn it into your Portovenere.
++            {t("hero.ctaSubtext")}
+           </p>
+         </div>
+       </section>
+@@ -161,8 +160,8 @@ export default function StartClient() {
+       >
+         <div className="max-w-md mx-auto w-full flex flex-col gap-3">
+           <LinkCard
+-            eyebrow="Explore Portovenere"
+-            description="Places, stories and inspiration for discovering the destination."
++            eyebrow={t("links.explore.eyebrow")}
++            description={t("links.explore.description")}
+             href={EXPLORE_PORTOVENERE_URL}
+             external={false}
+             onSelect={() =>
+@@ -174,8 +173,8 @@ export default function StartClient() {
+           />
+ 
+           <LinkCard
+-            eyebrow="Curated Experiences"
+-            description="Selected ways to experience Portovenere and the Gulf of Poets."
++            eyebrow={t("links.curated.eyebrow")}
++            description={t("links.curated.description")}
+             href={CURATED_EXPERIENCES_URL}
+             external={false}
+             onSelect={() =>
+@@ -187,8 +186,8 @@ export default function StartClient() {
+           />
+ 
+           <LinkCard
+-            eyebrow="Speak with a Concierge"
+-            description="Handpicked accommodation, restaurants, shops and local services."
++            eyebrow={t("links.concierge.eyebrow")}
++            description={t("links.concierge.description")}
+             href={STAY_EAT_DISCOVER_URL}
+             external
+             onSelect={() =>
+@@ -207,9 +206,7 @@ export default function StartClient() {
+         className="relative z-10 border-t border-[#EDEBE7]/10 px-6 py-8 text-center"
+       >
+         <p className="uppercase tracking-[0.3em] text-zinc-600 text-[10px] leading-relaxed max-w-xs mx-auto">
+-          The destination doesn&rsquo;t change.
+-          <br />
+-          The way you experience it does.
++          {t("manifesto")}
+         </p>
+       </motion.section>
+ 
+@@ -225,10 +222,10 @@ export default function StartClient() {
+           }
+           className="inline-block text-zinc-500 hover:text-zinc-300 transition-colors duration-300 text-[11px] uppercase tracking-[0.25em]"
+         >
+-          Work With Us
++          {t("workWithUs.label")}
+         </Link>
+         <p className="text-zinc-700 text-[10px] leading-relaxed mt-2 max-w-xs mx-auto">
+-          Hotels, restaurants, experience providers and travel professionals.
++          {t("workWithUs.description")}
+         </p>
+       </section>
+ 
+@@ -238,7 +235,7 @@ export default function StartClient() {
+           <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-500">
+             Portovenere.com
+             <br />
+-            <span className="text-zinc-600">Travel Better.</span>
++            <span className="text-zinc-600">{t("footer.tagline")}</span>
+           </p>
+ 
+           <div className="flex items-center gap-6 text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+@@ -248,7 +245,7 @@ export default function StartClient() {
+               rel="noopener noreferrer"
+               className="hover:text-zinc-400 transition-colors duration-300"
+             >
+-              Privacy
++              {t("footer.privacy")}
+             </a>
+             <a
+               href={COOKIE_POLICY_URL}
+@@ -256,13 +253,13 @@ export default function StartClient() {
+               rel="noopener noreferrer"
+               className="hover:text-zinc-400 transition-colors duration-300"
+             >
+-              Cookies
++              {t("footer.cookies")}
+             </a>
+             <a
+               href={STAY_EAT_DISCOVER_URL}
+               className="hover:text-zinc-400 transition-colors duration-300"
+             >
+-              Contact
++              {t("footer.contact")}
+             </a>
+           </div>
+ 
+diff --git a/src/messages/en.json b/src/messages/en.json
+index 34a1062..adbf28a 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -275,5 +275,39 @@
+       "shareText": "Here's your curated private Riviera experience."
+     },
+     "newProposalCta": "Create Another Proposal"
++  },
++  "start": {
++    "hero": {
++      "eyebrow": "Portovenere, Italy",
++      "title": "Experience Portovenere, your way.",
++      "subtitle": "Curated places, experiences and local stories. Build your journey around the way you want to travel.",
++      "cta": "Create Your Experience",
++      "ctaSubtext": "Tell us what you love. We'll turn it into your Portovenere."
++    },
++    "links": {
++      "explore": {
++        "eyebrow": "Explore Portovenere",
++        "description": "Places, stories and inspiration for discovering the destination."
++      },
++      "curated": {
++        "eyebrow": "Curated Experiences",
++        "description": "Selected ways to experience Portovenere and the Gulf of Poets."
++      },
++      "concierge": {
++        "eyebrow": "Speak with a Concierge",
++        "description": "Handpicked accommodation, restaurants, shops and local services."
++      }
++    },
++    "manifesto": "The destination doesn't change. The way you experience it does.",
++    "workWithUs": {
++      "label": "Work With Us",
++      "description": "Hotels, restaurants, experience providers and travel professionals."
++    },
++    "footer": {
++      "tagline": "Travel Better.",
++      "privacy": "Privacy",
++      "cookies": "Cookies",
++      "contact": "Contact"
++    }
+   }
+ }
+-- 
+2.43.0
+

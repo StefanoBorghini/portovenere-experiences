@@ -1,0 +1,138 @@
+From 955cb438fd1d2daa521a5a90d6f1da51e11acfd0 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 13:13:04 +0000
+Subject: [PATCH] Make experience Description formattable, like Included
+ Sections
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Swap the plain textarea for the same RichTextEditor (Tiptap: bold/italic/bullet/numbered list) already used for Included Sections. Stores HTML in experience_content.description, same as experience_sections.description already does -> reuses the exact same (already working) Lara translation path, no new risk there. Public rendering: FeaturedExperience.tsx and experienceCard.tsx both displayed description as escaped plain text, so switched both to dangerouslySetInnerHTML (same [&_p]:m-0 / [&_ul]:list-none treatment as ExperienceSections.tsx) — experienceCard.tsx needed it too since it falls back to the long description when short_description is empty (see buildProposalExperienceCard.ts).
+---
+ .../[id]/components/GeneralCard.tsx           | 17 ++++-------------
+ src/components/experience/experienceCard.tsx  | 17 ++++++++++++-----
+ .../proposal/FeaturedExperience.tsx           | 19 ++++++++++++-------
+ 3 files changed, 28 insertions(+), 25 deletions(-)
+
+diff --git a/src/app/admin/experiences/[id]/components/GeneralCard.tsx b/src/app/admin/experiences/[id]/components/GeneralCard.tsx
+index 2ba9683..84731be 100644
+--- a/src/app/admin/experiences/[id]/components/GeneralCard.tsx
++++ b/src/app/admin/experiences/[id]/components/GeneralCard.tsx
+@@ -1,6 +1,7 @@
+ "use client";
+ 
+ import { useOperatorsList } from "@/app/admin/components/useOperatorsList";
++import RichTextEditor from "./admin/richTextEditor";
+ 
+ interface GeneralCardProps {
+ 
+@@ -224,24 +225,14 @@ export default function GeneralCard({
+         Description
+       </label>
+ 
+-      <textarea
+-        rows={6}
++      <RichTextEditor
+         value={experience.description || ""}
+-        onChange={(e)=>
++        onChange={(value) =>
+           setExperience({
+             ...experience,
+-            description:e.target.value,
++            description: value,
+           })
+         }
+-        className="
+-          w-full
+-          rounded-xl
+-          bg-white/5
+-          border
+-          border-white/10
+-          px-4
+-          py-3
+-        "
+       />
+ 
+     </div>
+diff --git a/src/components/experience/experienceCard.tsx b/src/components/experience/experienceCard.tsx
+index 3264fca..ada0771 100644
+--- a/src/components/experience/experienceCard.tsx
++++ b/src/components/experience/experienceCard.tsx
+@@ -264,7 +264,12 @@ ${
+       )}
+   </p>
+ 
+-  <p
++  {/* description = short_description, o la description lunga come
++      fallback (vedi buildProposalExperienceCard.ts) — quest'ultima
++      puo' contenere HTML (RichTextEditor in admin), quindi va
++      renderizzata come tale, stesso trattamento di
++      FeaturedExperience.tsx / ExperienceSections.tsx. */}
++  <div
+     className="
+       text-[15px]
+       md:text-[16px]
+@@ -273,11 +278,13 @@ ${
+       text-white/62
+       max-w-[320px]
+       mx-auto
+-      
++      [&_p]:m-0
++      [&_ul]:list-none
++      [&_ul]:pl-0
++      [&_li]:my-2
+     "
+-  >
+-    {experience.description}
+-  </p>
++    dangerouslySetInnerHTML={{ __html: experience.description }}
++  />
+ <div
+     className="
+         w-full
+diff --git a/src/components/proposal/FeaturedExperience.tsx b/src/components/proposal/FeaturedExperience.tsx
+index 19968d5..2a8700c 100644
+--- a/src/components/proposal/FeaturedExperience.tsx
++++ b/src/components/proposal/FeaturedExperience.tsx
+@@ -251,26 +251,31 @@ export default function FeaturedExperience({
+                   blocco prezzo qui sotto e' stato spostato FUORI
+                   dal <p> della description (prima era annidato
+                   dentro, <div> dentro <p> non e' HTML valido) —
+-                  stesso ordine visivo di prima, solo markup corretto. */}
++                  stesso ordine visivo di prima, solo markup corretto.
++                  Renderizzato come HTML (RichTextEditor in admin, vedi
++                  GeneralCard.tsx) — [&_p]:m-0 evita margini doppi tra
++                  il <p> generato da Tiptap e questo contenitore,
++                  stesso trattamento di ExperienceSections.tsx. */}
+ 
+-              <p
++              <div
+                 className={`
+                   text-white/50
+                   text-[15px]
+                   md:text-[18px]
+                   leading-[1.9]
+                   max-w-2xl
++                  [&_p]:m-0
++                  [&_ul]:list-none
++                  [&_ul]:pl-0
++                  [&_li]:my-2
+                   ${
+                     !showFullDescription && isDescriptionLong
+                       ? "line-clamp-4"
+                       : ""
+                   }
+                 `}
+-              >
+-
+-                {description}
+-
+-              </p>
++                dangerouslySetInnerHTML={{ __html: description }}
++              />
+ 
+               {isDescriptionLong && (
+ 
+-- 
+2.43.0
+

@@ -1,0 +1,111 @@
+From 4fcf4fee47113792810d7752f69ad734f8ca8e6c Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 15 Aug 2026 06:54:52 +0000
+Subject: [PATCH] Add French and German as supported site locales
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The i18n architecture (site_copy/experience/enhancement translation tables, Lara sync functions) was already generic over SUPPORTED_TARGET_LOCALES/SUPPORTED_LOCALES, with fr-FR/de-DE already mapped in lara.ts — this just turns fr/de on: adds them to SUPPORTED_LOCALES (auto-detected from Accept-Language, same as it today, no manual switcher) and SUPPORTED_TARGET_LOCALES (Lara translation targets), adds fr-FR/de-DE to the two DATE_LOCALES maps for correct date formatting, and keeps the two standalone backfill/seed scripts' duplicated locale maps in sync per their own comments. Existing site_copy/experience/enhancement rows still need a one-time backfill to actually get fr/de text — see delivery notes.
+---
+ src/app/craft-your-experience/page.tsx           | 2 ++
+ src/i18n/localeShared.ts                         | 2 +-
+ src/lib/proposal-engine/buildProposalSummary.ts  | 2 ++
+ src/lib/translations/lara.ts                     | 2 +-
+ src/scripts/backfill-experience-translations.mjs | 4 +++-
+ src/scripts/seed-site-copy.mjs                   | 4 +++-
+ 6 files changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/src/app/craft-your-experience/page.tsx b/src/app/craft-your-experience/page.tsx
+index cc48300..3af5a83 100644
+--- a/src/app/craft-your-experience/page.tsx
++++ b/src/app/craft-your-experience/page.tsx
+@@ -40,6 +40,8 @@ import {
+ const DATE_LOCALES: Record<string, string> = {
+   en: "en-US",
+   it: "it-IT",
++  fr: "fr-FR",
++  de: "de-DE",
+ };
+ 
+ // =========================================================
+diff --git a/src/i18n/localeShared.ts b/src/i18n/localeShared.ts
+index da61487..27e024d 100644
+--- a/src/i18n/localeShared.ts
++++ b/src/i18n/localeShared.ts
+@@ -8,7 +8,7 @@
+  * =====================================================================
+  */
+ 
+-export const SUPPORTED_LOCALES = ["en", "it"] as const;
++export const SUPPORTED_LOCALES = ["en", "it", "fr", "de"] as const;
+ export type Locale = (typeof SUPPORTED_LOCALES)[number];
+ 
+ export const DEFAULT_LOCALE: Locale = "en";
+diff --git a/src/lib/proposal-engine/buildProposalSummary.ts b/src/lib/proposal-engine/buildProposalSummary.ts
+index c6a3855..e875a67 100644
+--- a/src/lib/proposal-engine/buildProposalSummary.ts
++++ b/src/lib/proposal-engine/buildProposalSummary.ts
+@@ -74,6 +74,8 @@ function formatDateRange(
+ const DATE_LOCALES: Record<string, string> = {
+   en: "en-US",
+   it: "it-IT",
++  fr: "fr-FR",
++  de: "de-DE",
+ };
+ 
+ type TFunction = (key: string, values?: Record<string, string | number>) => string;
+diff --git a/src/lib/translations/lara.ts b/src/lib/translations/lara.ts
+index ebca27c..9e56270 100644
+--- a/src/lib/translations/lara.ts
++++ b/src/lib/translations/lara.ts
+@@ -45,7 +45,7 @@ function getLara(): Translator {
+ // listed here. Adding a language later = adding one string to this
+ // array + one row to LOCALE_TO_LARA below. No other code changes.
+ // ---------------------------------------------------------------------
+-export const SUPPORTED_TARGET_LOCALES = ["it"] as const;
++export const SUPPORTED_TARGET_LOCALES = ["it", "fr", "de"] as const;
+ // Future: ["it", "fr", "de", "es"] as const;
+ 
+ export type TargetLocale = (typeof SUPPORTED_TARGET_LOCALES)[number];
+diff --git a/src/scripts/backfill-experience-translations.mjs b/src/scripts/backfill-experience-translations.mjs
+index 1d34580..05f7aed 100644
+--- a/src/scripts/backfill-experience-translations.mjs
++++ b/src/scripts/backfill-experience-translations.mjs
+@@ -32,11 +32,13 @@ import { loadEnvLocal } from "./loadEnvLocal.mjs";
+ 
+ loadEnvLocal();
+ 
+-const TARGET_LOCALES = ["it"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+ 
+ const LOCALE_TO_LARA = {
+   en: "en-US",
+   it: "it-IT",
++  fr: "fr-FR",
++  de: "de-DE",
+ };
+ 
+ const BRAND_INSTRUCTIONS = [
+diff --git a/src/scripts/seed-site-copy.mjs b/src/scripts/seed-site-copy.mjs
+index 43029be..1218331 100644
+--- a/src/scripts/seed-site-copy.mjs
++++ b/src/scripts/seed-site-copy.mjs
+@@ -37,11 +37,13 @@ loadEnvLocal();
+ const __dirname = path.dirname(fileURLToPath(import.meta.url));
+ const EN_MESSAGES_PATH = path.join(__dirname, "..", "messages", "en.json");
+ 
+-const TARGET_LOCALES = ["it"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
++const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+ 
+ const LOCALE_TO_LARA = {
+   en: "en-US",
+   it: "it-IT",
++  fr: "fr-FR",
++  de: "de-DE",
+ };
+ 
+ const BRAND_INSTRUCTIONS = [
+-- 
+2.43.0
+
