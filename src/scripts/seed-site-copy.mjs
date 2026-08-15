@@ -37,11 +37,13 @@ loadEnvLocal();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const EN_MESSAGES_PATH = path.join(__dirname, "..", "messages", "en.json");
 
-const TARGET_LOCALES = ["it"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
+const TARGET_LOCALES = ["it", "fr", "de"]; // tenere in sync con SUPPORTED_TARGET_LOCALES
 
 const LOCALE_TO_LARA = {
   en: "en-US",
   it: "it-IT",
+  fr: "fr-FR",
+  de: "de-DE",
 };
 
 const BRAND_INSTRUCTIONS = [

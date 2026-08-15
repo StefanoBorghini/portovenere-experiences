@@ -40,6 +40,8 @@ import {
 const DATE_LOCALES: Record<string, string> = {
   en: "en-US",
   it: "it-IT",
+  fr: "fr-FR",
+  de: "de-DE",
 };
 
 // =========================================================

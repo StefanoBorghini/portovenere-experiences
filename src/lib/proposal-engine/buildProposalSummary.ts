@@ -74,6 +74,8 @@ function formatDateRange(
 const DATE_LOCALES: Record<string, string> = {
   en: "en-US",
   it: "it-IT",
+  fr: "fr-FR",
+  de: "de-DE",
 };
 
 type TFunction = (key: string, values?: Record<string, string | number>) => string;

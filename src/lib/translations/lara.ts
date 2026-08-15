@@ -45,7 +45,7 @@ function getLara(): Translator {
 // listed here. Adding a language later = adding one string to this
 // array + one row to LOCALE_TO_LARA below. No other code changes.
 // ---------------------------------------------------------------------
-export const SUPPORTED_TARGET_LOCALES = ["it"] as const;
+export const SUPPORTED_TARGET_LOCALES = ["it", "fr", "de"] as const;
 // Future: ["it", "fr", "de", "es"] as const;
 
 export type TargetLocale = (typeof SUPPORTED_TARGET_LOCALES)[number];
