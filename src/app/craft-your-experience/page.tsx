@@ -250,7 +250,7 @@ export default function CraftYourExperience() {
   minimumBookingDate.setDate(minimumBookingDate.getDate() + 14);
 
   // =======================================================
-  // INLINE CALENDAR — drag-to-select date range
+  // INLINE CALENDAR — tap-to-select date range
   // =======================================================
 
   function toISODate(date: Date): string {
@@ -265,24 +265,6 @@ export default function CraftYourExperience() {
 
   const [viewYear, setViewYear] = useState(minimumBookingDate.getFullYear());
   const [viewMonth, setViewMonth] = useState(minimumBookingDate.getMonth());
-
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragAnchorIso, setDragAnchorIso] = useState<string | null>(null);
-
-  // Il rilascio del dito può avvenire fuori dalla griglia (es. l'utente
-  // scivola leggermente oltre il bordo): un listener globale garantisce
-  // che il drag si chiuda comunque.
-  useEffect(() => {
-    function handlePointerUp() {
-      setIsDragging(false);
-    }
-    window.addEventListener("pointerup", handlePointerUp);
-    window.addEventListener("pointercancel", handlePointerUp);
-    return () => {
-      window.removeEventListener("pointerup", handlePointerUp);
-      window.removeEventListener("pointercancel", handlePointerUp);
-    };
-  }, []);
 
   function buildCalendarCells(year: number, month: number) {
 
@@ -314,47 +296,31 @@ export default function CraftYourExperience() {
     return cells;
   }
 
-  function startDateDrag(iso: string) {
+  // Ciclo di selezione a tap, sempre derivato da startDate/endDate (nessuno
+  // stato extra da tenere sincronizzato): nessuna selezione o un intervallo
+  // gia' completo -> il tap inizia una nuova data singola; una singola data
+  // gia' selezionata (startDate === endDate) -> il tap la completa in un
+  // intervallo, riordinando le due date cronologicamente qualunque sia
+  // l'ordine dei tap. Mai serve un pulsante "Reset".
+  function handleDateTap(iso: string) {
 
     if (iso < minBookingIso) return;
 
-    setIsDragging(true);
-    setDragAnchorIso(iso);
+    const { startDate, endDate } = formData;
 
-    setFormData((prev) => ({
-      ...prev,
-      startDate: iso,
-      endDate: iso,
-    }));
-  }
+    const hasCompleteRange =
+      startDate !== "" && endDate !== "" && startDate !== endDate;
 
-  function extendDateDrag(iso: string) {
+    if (startDate === "" || hasCompleteRange) {
+      setFormData((prev) => ({ ...prev, startDate: iso, endDate: iso }));
+      return;
+    }
 
-    if (!isDragging || !dragAnchorIso) return;
-    if (iso < minBookingIso) return;
+    if (iso === startDate) return;
 
-    const [start, end] =
-      iso < dragAnchorIso ? [iso, dragAnchorIso] : [dragAnchorIso, iso];
+    const [start, end] = iso < startDate ? [iso, startDate] : [startDate, iso];
 
-    setFormData((prev) => ({
-      ...prev,
-      startDate: start,
-      endDate: end,
-    }));
-  }
-
-  function handleCalendarPointerMove(e: React.PointerEvent) {
-
-    if (!isDragging) return;
-
-    const target = document.elementFromPoint(
-      e.clientX,
-      e.clientY
-    ) as HTMLElement | null;
-
-    const iso = target?.closest("[data-iso]")?.getAttribute("data-iso");
-
-    if (iso) extendDateDrag(iso);
+    setFormData((prev) => ({ ...prev, startDate: start, endDate: end }));
   }
 
   function goPrevMonth() {
@@ -1116,12 +1082,8 @@ export default function CraftYourExperience() {
               ))}
             </div>
 
-            {/* CALENDAR GRID — tap-and-drag per selezionare l'intervallo */}
-            <div
-              className="grid grid-cols-7 select-none"
-              style={{ touchAction: "none" }}
-              onPointerMove={handleCalendarPointerMove}
-            >
+            {/* CALENDAR GRID — tap per selezionare l'intervallo */}
+            <div className="grid grid-cols-7 select-none">
               {cells.map((cell) => {
 
                 const iso = toISODate(cell.date);
@@ -1139,8 +1101,8 @@ export default function CraftYourExperience() {
                   <div
                     key={iso}
                     data-iso={iso}
-                    onPointerDown={() => {
-                      if (!disabled) startDateDrag(iso);
+                    onClick={() => {
+                      if (!disabled) handleDateTap(iso);
                     }}
                     className={`
                       h-8 md:h-9 flex items-center justify-center relative
@@ -1165,7 +1127,11 @@ export default function CraftYourExperience() {
             </div>
 
             <p className="text-zinc-500 text-[11px] mt-1 md:mt-2 text-center">
-              {t("dates.dragHint")}
+              {formData.startDate === ""
+                ? t("dates.hintEmpty")
+                : formData.startDate === formData.endDate
+                  ? t("dates.hintOneSelected")
+                  : t("dates.hintRangeSelected")}
             </p>
 
             {/* ===================================================

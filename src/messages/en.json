@@ -138,7 +138,9 @@
     "dates": {
       "checkIn": "Check-in",
       "checkOut": "Check-out",
-      "dragHint": "Tap a date, or drag across dates to select a range.",
+      "hintEmpty": "Select a date",
+      "hintOneSelected": "Tap another date to select a range",
+      "hintRangeSelected": "Tap a date to start a new selection",
       "preferredTimeSlot": "Preferred Time Slot",
       "morning": "Morning",
       "afternoon": "Afternoon",
