@@ -159,3 +159,112 @@ export async function syncSiteCopyTranslation(
     })
   );
 }
+
+// Quante chiavi per chiamata Lara nel percorso "*" (vedi sotto) — una
+// singola chiamata per blocco invece che per chiave, stesso principio
+// di syncAllEnhancementTranslations. 50 e' un compromesso prudente tra
+// "poche chiamate" e "non mandare a Lara un payload enorme in un colpo
+// solo" (mai testato oltre questa taglia).
+const SITE_COPY_BATCH_SIZE = 50;
+
+/**
+ * (Ri)traduce TUTTE le chiavi di site_copy passate, per tutti i locale
+ * supportati — percorso "*" di /api/translate-site-copy.
+ *
+ * A differenza di syncSiteCopyTranslation (una chiamata Lara PER
+ * CHIAVE), qui le chiavi vengono raggruppate in blocchi e tradotte con
+ * UNA chiamata Lara per blocco per locale: con ~190 chiavi x 7 locale,
+ * il percorso per-chiave farebbe oltre 1300 chiamate Lara individuali
+ * — la route Next.js va in timeout ben prima di finirle, lasciando
+ * alcune chiavi/locale a meta' tradotte "a caso" in base a quali
+ * chiamate erano gia' partite. Raggruppare per blocco lo riporta a un
+ * numero di chiamate gestibile (poche decine).
+ */
+export async function syncAllSiteCopyTranslations(
+  rows: { key: string; en_text: string }[]
+): Promise<{ translated: number; skipped: number; failed: number }> {
+
+  const supabaseAdmin = getSupabaseAdmin();
+
+  let translated = 0;
+  let skipped = 0;
+  let failed = 0;
+
+  for (const locale of SUPPORTED_TARGET_LOCALES) {
+
+    const { data: existingRows } = await supabaseAdmin
+      .from("site_copy_translations")
+      .select("key, source_hash, translation_status")
+      .eq("locale", locale);
+
+    const existingByKey = new Map(
+      (existingRows ?? []).map((row) => [row.key, row])
+    );
+
+    const toTranslate = rows.filter((row) => {
+      const sourceHash = hashText(row.en_text);
+      const existing = existingByKey.get(row.key);
+      return !(existing?.source_hash === sourceHash && existing.translation_status === "ok");
+    });
+
+    skipped += rows.length - toTranslate.length;
+
+    for (let i = 0; i < toTranslate.length; i += SITE_COPY_BATCH_SIZE) {
+
+      const chunk = toTranslate.slice(i, i + SITE_COPY_BATCH_SIZE);
+
+      const fields: Record<string, string> = {};
+      chunk.forEach((row, index) => {
+        fields[`k${index}`] = row.en_text;
+      });
+
+      const result = await translateFields(fields, locale);
+      const nowIso = new Date().toISOString();
+
+      const upsertRows = chunk.map((row, index) => {
+
+        const sourceHash = hashText(row.en_text);
+
+        if (!result.ok) {
+          return {
+            key: row.key,
+            locale,
+            translation_status: "failed",
+            source_hash: sourceHash,
+            updated_at: nowIso,
+          };
+        }
+
+        return {
+          key: row.key,
+          locale,
+          text: result.translations[`k${index}`] ?? null,
+          translation_status: "ok",
+          source_hash: sourceHash,
+          translated_at: nowIso,
+          updated_at: nowIso,
+        };
+      });
+
+      const { error: upsertError } = await supabaseAdmin
+        .from("site_copy_translations")
+        .upsert(upsertRows, { onConflict: "key,locale" });
+
+      if (upsertError) {
+        console.error(`[siteCopy] batch upsert failed for ${locale}:`, upsertError);
+      }
+
+      if (!result.ok) {
+        console.error(`[siteCopy] batch translate failed for ${locale}:`, result.error);
+      }
+
+      if (upsertError || !result.ok) {
+        failed += chunk.length;
+      } else {
+        translated += chunk.length;
+      }
+    }
+  }
+
+  return { translated, skipped, failed };
+}

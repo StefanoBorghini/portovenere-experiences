@@ -18,7 +18,18 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
-import { syncSiteCopyTranslation } from "@/lib/translations/siteCopy";
+import { syncSiteCopyTranslation, syncAllSiteCopyTranslations } from "@/lib/translations/siteCopy";
+
+// Il percorso "*" traduce tutte le chiavi per tutti i locale in
+// blocchi da 50 (vedi syncAllSiteCopyTranslations): molto meno
+// chiamate Lara di prima, ma il rate limiter (700 caratteri/sec,
+// condiviso da tutta l'app) resta comunque il collo di bottiglia reale
+// — con ~190 chiavi x 7 locale il tempo minimo teorico e' sui 60-90s.
+// Se il piano Vercel in uso ha un tetto piu' basso di questo valore,
+// una singola chiamata potrebbe non bastare: rilanciare la stessa
+// richiesta e' sempre sicuro (idempotente per hash, riparte da dove
+// si era fermata invece di ricominciare).
+export const maxDuration = 120;
 
 export async function POST(request: NextRequest) {
 
@@ -48,11 +59,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      await Promise.all(
-        rows.map((row) => syncSiteCopyTranslation(row.key, row.en_text))
-      );
+      const stats = await syncAllSiteCopyTranslations(rows);
 
-      return NextResponse.json({ success: true, count: rows.length });
+      return NextResponse.json({ success: true, count: rows.length, ...stats });
     }
 
     const { data: row, error } = await supabaseAdmin
