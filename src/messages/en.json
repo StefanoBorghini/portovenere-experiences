@@ -275,5 +275,39 @@
       "shareText": "Here's your curated private Riviera experience."
     },
     "newProposalCta": "Create Another Proposal"
+  },
+  "start": {
+    "hero": {
+      "eyebrow": "Portovenere, Italy",
+      "title": "Experience Portovenere, your way.",
+      "subtitle": "Curated places, experiences and local stories. Build your journey around the way you want to travel.",
+      "cta": "Create Your Experience",
+      "ctaSubtext": "Tell us what you love. We'll turn it into your Portovenere."
+    },
+    "links": {
+      "explore": {
+        "eyebrow": "Explore Portovenere",
+        "description": "Places, stories and inspiration for discovering the destination."
+      },
+      "curated": {
+        "eyebrow": "Curated Experiences",
+        "description": "Selected ways to experience Portovenere and the Gulf of Poets."
+      },
+      "concierge": {
+        "eyebrow": "Speak with a Concierge",
+        "description": "Handpicked accommodation, restaurants, shops and local services."
+      }
+    },
+    "manifesto": "The destination doesn't change. The way you experience it does.",
+    "workWithUs": {
+      "label": "Work With Us",
+      "description": "Hotels, restaurants, experience providers and travel professionals."
+    },
+    "footer": {
+      "tagline": "Travel Better.",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "contact": "Contact"
+    }
   }
 }

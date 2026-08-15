@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   trackStartPageView,
@@ -52,6 +53,7 @@ const UTM_PARAMS = [
 ] as const;
 
 export default function StartClient() {
+  const t = useTranslations("start");
   const reduceMotion = useReducedMotion();
 
   // =======================================================
@@ -110,18 +112,15 @@ export default function StartClient() {
       <section className="relative z-10 flex-1 flex flex-col justify-center px-6 pt-8 pb-10 text-center">
         <div className="max-w-md mx-auto w-full">
           <p className="uppercase tracking-[0.35em] text-zinc-500 text-[10px] mb-4">
-            Portovenere, Italy
+            {t("hero.eyebrow")}
           </p>
 
           <h1 className="text-[32px] leading-[1.05] sm:text-[40px] font-light tracking-tight mb-4">
-            Experience Portovenere,
-            <br />
-            your way.
+            {t("hero.title")}
           </h1>
 
           <p className="text-zinc-400 text-sm leading-relaxed mb-8 max-w-sm mx-auto">
-            Curated places, experiences and local stories. Build your journey
-            around the way you want to travel.
+            {t("hero.subtitle")}
           </p>
 
           {/* CTA PRIMARIA — dominante, unica in questo colore/peso */}
@@ -144,11 +143,11 @@ export default function StartClient() {
               shadow-[0_0_40px_-8px_rgba(237,235,231,0.35)]
             "
           >
-            Create Your Experience
+            {t("hero.cta")}
           </Link>
 
           <p className="text-zinc-500 text-xs leading-relaxed mt-4">
-            Tell us what you love. We&rsquo;ll turn it into your Portovenere.
+            {t("hero.ctaSubtext")}
           </p>
         </div>
       </section>
@@ -161,8 +160,8 @@ export default function StartClient() {
       >
         <div className="max-w-md mx-auto w-full flex flex-col gap-3">
           <LinkCard
-            eyebrow="Explore Portovenere"
-            description="Places, stories and inspiration for discovering the destination."
+            eyebrow={t("links.explore.eyebrow")}
+            description={t("links.explore.description")}
             href={EXPLORE_PORTOVENERE_URL}
             external={false}
             onSelect={() =>
@@ -174,8 +173,8 @@ export default function StartClient() {
           />
 
           <LinkCard
-            eyebrow="Curated Experiences"
-            description="Selected ways to experience Portovenere and the Gulf of Poets."
+            eyebrow={t("links.curated.eyebrow")}
+            description={t("links.curated.description")}
             href={CURATED_EXPERIENCES_URL}
             external={false}
             onSelect={() =>
@@ -187,8 +186,8 @@ export default function StartClient() {
           />
 
           <LinkCard
-            eyebrow="Speak with a Concierge"
-            description="Handpicked accommodation, restaurants, shops and local services."
+            eyebrow={t("links.concierge.eyebrow")}
+            description={t("links.concierge.description")}
             href={STAY_EAT_DISCOVER_URL}
             external
             onSelect={() =>
@@ -207,9 +206,7 @@ export default function StartClient() {
         className="relative z-10 border-t border-[#EDEBE7]/10 px-6 py-8 text-center"
       >
         <p className="uppercase tracking-[0.3em] text-zinc-600 text-[10px] leading-relaxed max-w-xs mx-auto">
-          The destination doesn&rsquo;t change.
-          <br />
-          The way you experience it does.
+          {t("manifesto")}
         </p>
       </motion.section>
 
@@ -225,10 +222,10 @@ export default function StartClient() {
           }
           className="inline-block text-zinc-500 hover:text-zinc-300 transition-colors duration-300 text-[11px] uppercase tracking-[0.25em]"
         >
-          Work With Us
+          {t("workWithUs.label")}
         </Link>
         <p className="text-zinc-700 text-[10px] leading-relaxed mt-2 max-w-xs mx-auto">
-          Hotels, restaurants, experience providers and travel professionals.
+          {t("workWithUs.description")}
         </p>
       </section>
 
@@ -238,7 +235,7 @@ export default function StartClient() {
           <p className="text-[11px] uppercase tracking-[0.3em] text-zinc-500">
             Portovenere.com
             <br />
-            <span className="text-zinc-600">Travel Better.</span>
+            <span className="text-zinc-600">{t("footer.tagline")}</span>
           </p>
 
           <div className="flex items-center gap-6 text-[10px] uppercase tracking-[0.2em] text-zinc-600">
@@ -248,7 +245,7 @@ export default function StartClient() {
               rel="noopener noreferrer"
               className="hover:text-zinc-400 transition-colors duration-300"
             >
-              Privacy
+              {t("footer.privacy")}
             </a>
             <a
               href={COOKIE_POLICY_URL}
@@ -256,13 +253,13 @@ export default function StartClient() {
               rel="noopener noreferrer"
               className="hover:text-zinc-400 transition-colors duration-300"
             >
-              Cookies
+              {t("footer.cookies")}
             </a>
             <a
               href={STAY_EAT_DISCOVER_URL}
               className="hover:text-zinc-400 transition-colors duration-300"
             >
-              Contact
+              {t("footer.contact")}
             </a>
           </div>
 
