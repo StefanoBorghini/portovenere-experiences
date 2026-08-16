@@ -448,6 +448,33 @@ if (!featuredExperience) {
           {t("proposal.noMatch.cta")}
         </a>
 
+        <div className="mt-8">
+          <a
+            href={`https://wa.me/393487140722?text=${encodeURIComponent(
+              `Hi Stefano, I'm ${lead.name} and I couldn't find a matching experience for my request. Could you help me put together a custom proposal?`
+            )}`}
+            target="_blank"
+            className="
+              inline-block
+              border
+              border-white/20
+              rounded-full
+              px-6
+              py-3
+              text-white/60
+              text-[11px]
+              uppercase
+              tracking-[0.22em]
+              hover:border-white/40
+              hover:text-white
+              transition-all
+              duration-500
+            "
+          >
+            {t("common.speakWithTeam")}
+          </a>
+        </div>
+
       </div>
 
     </main>
@@ -538,6 +565,54 @@ if (!featuredExperience) {
             {t("proposal.expired.description")}
 
           </p>
+
+          <a
+            href="/craft-your-experience"
+            className="
+              inline-block
+              bg-white
+              text-black
+              px-10
+              py-5
+              rounded-full
+              uppercase
+              tracking-[0.25em]
+              text-xs
+              hover:scale-105
+              transition-all
+              duration-500
+              mt-12
+            "
+          >
+            {t("proposal.noMatch.cta")}
+          </a>
+
+          <div className="mt-8">
+            <a
+              href={`https://wa.me/393487140722?text=${encodeURIComponent(
+                `Hi Stefano, I'm ${lead.name} and my ${featuredExperience?.title || "experience"} proposal has expired. Could you help me get a new one?`
+              )}`}
+              target="_blank"
+              className="
+                inline-block
+                border
+                border-white/20
+                rounded-full
+                px-6
+                py-3
+                text-white/60
+                text-[11px]
+                uppercase
+                tracking-[0.22em]
+                hover:border-white/40
+                hover:text-white
+                transition-all
+                duration-500
+              "
+            >
+              {t("common.speakWithTeam")}
+            </a>
+          </div>
 
         </div>
 
