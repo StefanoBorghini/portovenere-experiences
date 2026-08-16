@@ -259,6 +259,7 @@ export default function FeaturedExperience({
 
               <div
                 className={`
+                  text-left
                   text-white/50
                   text-[15px]
                   md:text-[18px]
