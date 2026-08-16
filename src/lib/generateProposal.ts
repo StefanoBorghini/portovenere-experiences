@@ -61,52 +61,79 @@ import {
   ACCESSIBILITY_NEEDS,
 } from "@/lib/config/experienceTaxonomy";
 
+import { calculateProposalTotal } from "@/lib/pricing/calculateProposalTotal";
+
 // =========================================================
-// BUDGET — helper condivisi dai (finora) 3 punti che applicavano lo
-// stesso confronto duplicato. `budget` e' ora la chiave strutturata
-// salvata dal wizard (es. "500_1000"), non piu' la stringa "€500 -
-// €1000": vedi BUDGET_TIERS in experienceTaxonomy.ts.
+// BUDGET — il budget del cliente e' la capacita' di spesa
+// COMPLESSIVA della proposta (Experience + Enhancement + eventuali
+// altre componenti), non il prezzo massimo della singola Experience.
+// Niente filtro rigido: un'Experience sotto la fascia lascia
+// semplicemente margine per aggiungere altro (mai penalizzata per
+// questo), un'Experience sopra la fascia perde punteggio in modo
+// continuo — nessuna esclusione automatica, nessuna soglia fissa.
+//
+// Il prezzo usato e' quello REALE per questo lead (calculateProposalTotal,
+// la stessa funzione gia' usata per il prezzo mostrato in proposal —
+// tiene conto di pricing_type "per_person"/tier a scaglioni/seasonal
+// pricing, non il base_price grezzo), non un nuovo calcolo inventato.
 // =========================================================
 
 function findBudgetTier(budget?: string | null) {
   return BUDGET_TIERS.find((tier) => tier.key === budget) || null;
 }
 
-// Filtro rigido invariato nello spirito (checkbox opt-in per
-// esperienza), solo esteso a 4 fasce invece di 3. Se budget non e'
-// una chiave riconosciuta (non impostato, o vecchio formato di una
-// lead salvata prima di questa modifica), nessun filtro si applica —
-// stesso comportamento di sempre.
-function experienceMatchesBudgetTier(budget: string | undefined, experience: any): boolean {
+// Bonus pieno se il prezzo reale dell'esperienza (per QUESTO lead) sta
+// entro il tetto della fascia richiesta — mai penalizzata per essere
+// sotto: e' esattamente lo spazio che resta per Enhancement/altre
+// componenti. Sopra il tetto, la penalita' cresce con continuita' in
+// proporzione a quanto lo si supera RISPETTO ALL'AMPIEZZA della fascia
+// stessa (non un valore assoluto fisso) — cosi' la stessa formula si
+// auto-calibra sia per una fascia stretta (200-500) che per una larga
+// (1000-3000), senza soglie arbitrarie diverse per ciascuna.
+//
+// Calibrazione (fascia 500-1000, ampiezza 500): totale 950 (nel tetto)
+// -> +60; 1050 (+10% dell'ampiezza sopra il tetto) -> +57; 1400 (+80%)
+// -> +17; 2500 (+300%) -> pavimento a -90. Stessi pesi di ordine di
+// grandezza delle altre penalita' dello scoring (idealGuests -100,
+// accessibilita' -70).
+const BUDGET_IN_RANGE_BONUS = 60;
+const BUDGET_OVER_PENALTY_RATE = 30;
+const BUDGET_SCORE_FLOOR = -90;
+
+function computeBudgetRelevanceScore(
+  budget: string | undefined,
+  experience: any,
+  guests: string,
+  children: number | string | undefined,
+  checkInDate: string | null | undefined
+): number {
+
   const tier = findBudgetTier(budget);
-  if (!tier) return true;
-  return experience[tier.dbField] === true;
-}
 
-// Bonus/penalita' di SCORING (non filtro) basato sul base_price REALE
-// dell'esperienza, non solo sul checkbox manuale: un'esperienza il
-// cui prezzo ricade esattamente nella fascia richiesta prende un
-// vantaggio; piu' la sua fascia di prezzo naturale e' lontana da
-// quella richiesta, piu' scende in classifica — senza escluderla se
-// e' comunque passata dal filtro sopra (es. checkbox spuntato anche
-// per una fascia adiacente).
-function computeBudgetRelevanceScore(budget: string | undefined, experience: any): number {
+  if (!tier) return 0;
 
-  const tier = findBudgetTier(budget);
+  const estimatedPrice = calculateProposalTotal({
+    experiences: [experience],
+    guests,
+    children,
+    checkInDate,
+  });
 
-  if (!tier || typeof experience.base_price !== "number") return 0;
+  if (!estimatedPrice) return 0;
 
-  const tierIndex = BUDGET_TIERS.indexOf(tier);
+  if (estimatedPrice <= tier.max) return BUDGET_IN_RANGE_BONUS;
 
-  const priceTierIndex = BUDGET_TIERS.findIndex(
-    (t) => experience.base_price >= t.min && experience.base_price < t.max
+  const tierWidth = tier.max - tier.min;
+
+  const overFraction = (estimatedPrice - tier.max) / tierWidth;
+
+  const penalty =
+    BUDGET_OVER_PENALTY_RATE * (overFraction + overFraction * overFraction);
+
+  return Math.max(
+    BUDGET_SCORE_FLOOR,
+    BUDGET_IN_RANGE_BONUS - penalty
   );
-
-  if (priceTierIndex === -1) return 0;
-
-  const distance = Math.abs(priceTierIndex - tierIndex);
-
-  return distance === 0 ? 60 : -30 * distance;
 }
 
 // =========================================================
@@ -309,8 +336,12 @@ const matchesGuests =
     ? experience.guest_20_plus
   : true;
 
-const matchesBudget =
-  experienceMatchesBudgetTier(budget, experience);
+        // Budget: niente filtro rigido qui — il cliente indica una
+        // capacita' di spesa complessiva per l'intera proposta
+        // (Experience + Enhancement), non un tetto per la singola
+        // Experience. Il segnale budget agisce solo come bonus/
+        // penalita' nello scoring, vedi computeBudgetRelevanceScore
+        // piu' sotto.
 
         // =====================================================
         // CHILDREN
@@ -400,8 +431,6 @@ const matchesBudget =
           matchesCategory &&
 
           matchesGuests &&
-
-          matchesBudget &&
 
           matchesChildren &&
 
@@ -503,7 +532,7 @@ const matchesBudget =
         // computeBudgetRelevanceScore in cima al file.
         // =====================================================
 
-        score += computeBudgetRelevanceScore(budget, experience);
+        score += computeBudgetRelevanceScore(budget, experience, guests, children, startDate);
 
         // =====================================================
         // ACCESSIBILITA' — bonus se l'esperienza dichiara
@@ -603,10 +632,6 @@ if (!bestExperience) {
     return true;
   });
 
-  const matchingCategoryAndBudget = matchingCategory.filter((experience) =>
-    experienceMatchesBudgetTier(budget, experience)
-  );
-
   return {
 
     heroTitle: "Mediterranean Escape",
@@ -624,7 +649,6 @@ if (!bestExperience) {
       matchingCategoryCount: matchingCategory.length,
       matchingCategoryTitles: matchingCategory.map((e) => e.title),
       matchingCategoryAndGuestsCount: matchingCategoryAndGuests.length,
-      matchingCategoryAndBudgetCount: matchingCategoryAndBudget.length,
     },
   };
 }
@@ -700,8 +724,8 @@ if (safeExperiencesSelected.length === 1) {
           ? experience.guest_20_plus
         : true;
 
-      const matchesBudget =
-        experienceMatchesBudgetTier(budget, experience);
+      // Budget: nessun filtro rigido anche qui, stesso principio del
+      // blocco principale — solo bonus/penalita' nello scoring.
 
       // Stesso filtro children applicato anche ai suggerimenti,
       // per coerenza con la lista principale.
@@ -709,7 +733,7 @@ if (safeExperiencesSelected.length === 1) {
         !travelingWithChildren ||
         experience.children_allowed === true;
 
-      return matchesGuests && matchesBudget && matchesChildren;
+      return matchesGuests && matchesChildren;
     })
 
     .map((experience) => {
@@ -733,7 +757,7 @@ if (safeExperiencesSelected.length === 1) {
 
       // Stessi bonus/penalita' budget + accessibilita' applicati
       // anche ai suggerimenti, per coerenza con la lista principale.
-      score += computeBudgetRelevanceScore(budget, experience);
+      score += computeBudgetRelevanceScore(budget, experience, guests, children, startDate);
       score += computeAccessibilityScore(accessibility, experience);
 
       return { ...experience, finalScore: score };
