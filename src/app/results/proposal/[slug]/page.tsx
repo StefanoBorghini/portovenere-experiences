@@ -20,6 +20,7 @@ import {
 } from "@/lib/supabase/experienceRepository";
 import { getCurrentLocale } from "@/i18n/locale";
 import { getTranslations } from "next-intl/server";
+import { proposalConfig } from "@/config/proposalConfig";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
@@ -386,6 +387,19 @@ if (!featuredExperience) {
         "
       >
 
+        <img
+          src={proposalConfig.brand.logo}
+          alt="Portovenere Experiences"
+          className="
+            w-28
+            md:w-36
+            object-contain
+            mx-auto
+            mb-12
+            opacity-95
+          "
+        />
+
         <p
           className="
             uppercase
@@ -524,6 +538,19 @@ if (!featuredExperience) {
             max-w-2xl
           "
         >
+
+          <img
+            src={proposalConfig.brand.logo}
+            alt="Portovenere Experiences"
+            className="
+              w-28
+              md:w-36
+              object-contain
+              mx-auto
+              mb-12
+              opacity-95
+            "
+          />
 
           <p
             className="
