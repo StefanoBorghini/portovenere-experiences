@@ -157,11 +157,14 @@ export function buildRendererData({
   // ===================================================
   // ENHANCEMENTS (filtro quelli la cui lista
   // incompatible_experiences contiene la featured o una
-  // qualsiasi delle experience incluse — a meno che il
-  // viaggio non duri piu' di un giorno, stessa eccezione
-  // multi-day gia' applicata sopra alle esperienze: un
-  // enhancement "incompatibile" puo' comunque stare nella
-  // proposal se va programmato in un giorno diverso.
+  // qualsiasi delle experience incluse. A differenza del
+  // filtro Experience<->Experience qui sopra, questo NON ha
+  // l'eccezione multi-day: un'incompatibilita' Enhancement<->
+  // Experience non e' un conflitto "stesso giorno" risolvibile
+  // programmandoli su giorni diversi, e' un'incompatibilita'
+  // strutturale con quella experience (es. l'enhancement non
+  // ha senso con quel tipo di esperienza), quindi vale sempre,
+  // a prescindere dalla durata del viaggio.
   //
   // Fonte di verita': enhancement.incompatible_experiences
   // (gestita dalla scheda Enhancement in admin), non piu'
@@ -185,7 +188,6 @@ export function buildRendererData({
       )
       .filter(
         (item: any) =>
-          isMultiDayTrip ||
           !(item.incompatible_experiences ?? []).some(
             (id: any) => relevantExperienceIds.has(String(id))
           )
