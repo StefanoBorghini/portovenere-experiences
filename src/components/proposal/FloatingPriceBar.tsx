@@ -109,19 +109,21 @@ export default function FloatingPriceBar({
 
           className="
             fixed
-            bottom-14
-            md:bottom-6
-            left-1/2
-            -translate-x-1/2
+            bottom-4
+            md:bottom-4
+            left-4
+            md:left-1/2
+            md:-translate-x-1/2
             z-50
 
-            w-[92vw]
+            w-[calc(100vw-6rem)]
             max-w-sm
             md:w-auto
 
             flex
             flex-col
-            items-center
+            items-start
+            md:items-center
             gap-3
           "
         >
