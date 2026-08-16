@@ -64,8 +64,6 @@ export interface Experience {
 
     incompatible_experiences: string[];
 
-    incompatible_enhancements: string[];
-
     // NUOVI — pricing a scaglioni per numero ospiti (vedi
     // calculatePrice.ts). pricing_type sopra resta invariato,
     // questi sono un flag+dati a parte che lo scavalcano quando

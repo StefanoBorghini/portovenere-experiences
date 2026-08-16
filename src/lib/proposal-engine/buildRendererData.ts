@@ -155,14 +155,18 @@ export function buildRendererData({
     });
 
   // ===================================================
-  // ENHANCEMENTS (filtro quelli incompatibili con la
-  // featured o con una qualsiasi delle experience incluse
-  // — a meno che il viaggio non duri piu' di un giorno,
-  // stessa eccezione multi-day gia' applicata sopra alle
-  // esperienze: un enhancement "incompatibile" puo' comunque
-  // stare nella proposal se va programmato in un giorno diverso.
-  // Prima questo controllo mancava qui, quindi gli enhancement
-  // restavano esclusi anche nei viaggi multi-giorno.
+  // ENHANCEMENTS (filtro quelli la cui lista
+  // incompatible_experiences contiene la featured o una
+  // qualsiasi delle experience incluse — a meno che il
+  // viaggio non duri piu' di un giorno, stessa eccezione
+  // multi-day gia' applicata sopra alle esperienze: un
+  // enhancement "incompatibile" puo' comunque stare nella
+  // proposal se va programmato in un giorno diverso.
+  //
+  // Fonte di verita': enhancement.incompatible_experiences
+  // (gestita dalla scheda Enhancement in admin), non piu'
+  // experience.incompatible_enhancements. Stesso principio
+  // "default compatibile, eccezione esplicita".
   // ===================================================
 
   const relevantExperiences = [
@@ -170,17 +174,9 @@ export function buildRendererData({
     ...finalIncludedExperiencesRaw,
   ].filter(Boolean);
 
-  const incompatibleEnhancementIds = new Set<string>();
-
-  if (!isMultiDayTrip) {
-
-    relevantExperiences.forEach((experience: any) => {
-
-      (experience.incompatible_enhancements ?? []).forEach(
-        (id: any) => incompatibleEnhancementIds.add(String(id))
-      );
-    });
-  }
+  const relevantExperienceIds = new Set(
+    relevantExperiences.map((experience: any) => String(experience.id))
+  );
 
   const enhancementCards =
     enhancements
@@ -188,7 +184,11 @@ export function buildRendererData({
         (item: any) => item.active
       )
       .filter(
-        (item: any) => !incompatibleEnhancementIds.has(String(item.id))
+        (item: any) =>
+          isMultiDayTrip ||
+          !(item.incompatible_experiences ?? []).some(
+            (id: any) => relevantExperienceIds.has(String(id))
+          )
       )
       .filter(
         (item: any) =>

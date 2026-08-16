@@ -12,8 +12,11 @@ import {
   getEnhancements,
 } from "@/lib/supabase/enhancementRepository";
 
+import { getExperiences } from "@/lib/supabase/experienceRepository";
+
 import EnhancementCard from "./components/EnhancementCard";
 import EnhancementAvailabilityCard from "./components/EnhancementAvailabilityCard";
+import IncompatibleExperiencesCard from "./components/IncompatibleExperiencesCard";
 import SaveBar from "../../experiences/[id]/components/SaveBar";
 
 import {
@@ -39,6 +42,8 @@ export default function EnhancementEditor() {
 
   const [enhancement,setEnhancement] =
     useState<any>(null);
+
+  const [allExperiences, setAllExperiences] = useState<any[]>([]);
 
   // =========================================================
   // TRADUCI ORA — sincronizza subito la traduzione italiana per
@@ -98,6 +103,9 @@ export default function EnhancementEditor() {
         );
 
       setEnhancement(found);
+
+      const experiences = await getExperiences();
+      setAllExperiences(experiences);
 
     }
 
@@ -199,6 +207,18 @@ export default function EnhancementEditor() {
           setEnhancement={
             setEnhancement
           }
+
+        />
+
+        <IncompatibleExperiencesCard
+
+          enhancement={enhancement}
+
+          setEnhancement={
+            setEnhancement
+          }
+
+          experiences={allExperiences}
 
         />
 
@@ -355,6 +375,8 @@ export default function EnhancementEditor() {
     selected_button_text: enhancement.selected_button_text,
 
     unselected_button_text: enhancement.unselected_button_text,
+
+    incompatible_experiences: enhancement.incompatible_experiences,
 
         }
 

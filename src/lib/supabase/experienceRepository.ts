@@ -1308,9 +1308,6 @@ const localizedExperience = getLocalizedExperience(
   incompatible_experiences:
     experience.incompatible_experiences ?? [],
 
-  incompatible_enhancements:
-    experience.incompatible_enhancements ?? [],
-
   ...(score || {}),
 
   ...(filter || {}),

@@ -13,9 +13,6 @@ import PriceTiersCard from "./components/PriceTiersCard";
 import SeasonalPricingCard from "./components/SeasonalPricingCard";
 import AvailabilityCard from "./components/AvailabilityCard";
 import CollapsibleSection from "./components/CollapsibleSection";
-import {
-  getEnhancements,
-} from "@/lib/supabase/enhancementRepository";
 import CompatibilityCard
 from "./components/compatibilityCard";
 
@@ -83,7 +80,6 @@ export default function ExperienceEditor() {
     useState<any>(null);
 
   const [allExperiences, setAllExperiences] = useState<any[]>([]);
-  const [allEnhancements, setAllEnhancements] = useState<any[]>([]);
 
   useEffect(() => {
 
@@ -106,11 +102,6 @@ if (!session) {
   await getFullExperiences();
 
 setAllExperiences(experiences);
-
-const enhancements =
-  await getEnhancements();
-
-setAllEnhancements(enhancements);
 
 const found =
   experiences.find(
@@ -245,8 +236,6 @@ setExperience(found);
       setExperience={setExperience}
 
       experiences={allExperiences}
-
-      enhancements={allEnhancements}
 
   />
 </CollapsibleSection>
@@ -784,9 +773,6 @@ for (const fact of experience.facts) {
        incompatible_experiences:
       experience.incompatible_experiences,
 
-    incompatible_enhancements:
-      experience.incompatible_enhancements,
-
   }
 
 );
@@ -920,11 +906,6 @@ for (const fact of experience.facts) {
     }
 const experiences = await getFullExperiences();
 setAllExperiences(experiences);
-
-const enhancements =
-  await getEnhancements();
-
-setAllEnhancements(enhancements);
 
 const updated = experiences.find(
   e => e.id === experience.id
