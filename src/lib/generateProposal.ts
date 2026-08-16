@@ -64,32 +64,97 @@ import {
 import { calculateProposalTotal } from "@/lib/pricing/calculateProposalTotal";
 
 // =========================================================
-// BUDGET — il budget del cliente e' la capacita' di spesa
-// COMPLESSIVA della proposta (Experience + Enhancement + eventuali
-// altre componenti), non il prezzo massimo della singola Experience.
-// Niente filtro rigido: un'Experience sotto la fascia lascia
-// semplicemente margine per aggiungere altro (mai penalizzata per
-// questo), un'Experience sopra la fascia perde punteggio in modo
-// continuo — nessuna esclusione automatica, nessuna soglia fissa.
+// BUDGET — logica ibrida per fascia (non uniforme):
 //
-// Il prezzo usato e' quello REALE per questo lead (calculateProposalTotal,
-// la stessa funzione gia' usata per il prezzo mostrato in proposal —
-// tiene conto di pricing_type "per_person"/tier a scaglioni/seasonal
-// pricing, non il base_price grezzo), non un nuovo calcolo inventato.
+// - 200-500 e 500-1000: il budget e' ancora prevalentemente il
+//   costo di UNA singola Experience (eventualmente + un piccolo
+//   Enhancement) — resta un TETTO RIGIDO sulla singola Experience,
+//   piu' stretto per la fascia piu' bassa, con una tolleranza per
+//   quella intermedia (vedi BUDGET_HARD_CEILING_TOLERANCE).
+// - 1000-3000 e 3000+: il budget e' la capacita' di spesa
+//   COMPLESSIVA della proposta (Experience + Enhancement + altre
+//   componenti) — nessun tetto sulla singola Experience, solo
+//   scoring: un'Experience sotto la fascia lascia margine per
+//   aggiungere altro (mai penalizzata per questo), sopra la fascia
+//   perde punteggio con continuita'.
+//
+// In ENTRAMBI i casi il prezzo usato e' quello EFFETTIVO per questo
+// lead — stesso identico motore di pricing gia' esistente
+// (calculateProposalTotal -> calculatePrice), che per price_type
+// "per_person" moltiplica base_price per adulti (+ bambini scontati),
+// non il base_price grezzo. Nessuna nuova fascia/tag salvata
+// sull'Experience: il tetto/punteggio si calcola al volo dal prezzo
+// reale rispetto a BUDGET_TIERS, unica fonte di verita' gia' esistente.
 // =========================================================
 
 function findBudgetTier(budget?: string | null) {
   return BUDGET_TIERS.find((tier) => tier.key === budget) || null;
 }
 
-// Bonus pieno se il prezzo reale dell'esperienza (per QUESTO lead) sta
-// entro il tetto della fascia richiesta — mai penalizzata per essere
-// sotto: e' esattamente lo spazio che resta per Enhancement/altre
-// componenti. Sopra il tetto, la penalita' cresce con continuita' in
-// proporzione a quanto lo si supera RISPETTO ALL'AMPIEZZA della fascia
-// stessa (non un valore assoluto fisso) — cosi' la stessa formula si
-// auto-calibra sia per una fascia stretta (200-500) che per una larga
-// (1000-3000), senza soglie arbitrarie diverse per ciascuna.
+// Prezzo EFFETTIVO di una singola Experience per questo lead —
+// stesso motore di pricing gia' usato per il prezzo mostrato in
+// proposal (guest tiers, per_person, seasonal pricing...), mai
+// duplicato qui. 0 per "on_request"/"included" (prezzo sconosciuto):
+// sia il tetto che lo scoring trattano 0 come "nessun segnale",
+// nessuna esclusione/bonus per un prezzo che non conosciamo.
+function getEstimatedExperiencePrice(
+  experience: any,
+  guests: string,
+  children: number | string | undefined,
+  checkInDate: string | null | undefined
+): number {
+  return calculateProposalTotal({
+    experiences: [experience],
+    guests,
+    children,
+    checkInDate,
+  });
+}
+
+// Tolleranza sul tetto rigido, espressa come frazione dell'AMPIEZZA
+// della fascia stessa (stesso principio di auto-calibrazione usato
+// per la penalita' di scoring sotto) — non un euro fisso. Le fasce
+// assenti da questa mappa (1000-3000, 3000+) non hanno tetto: vedi
+// commento in cima al blocco BUDGET.
+const BUDGET_HARD_CEILING_TOLERANCE: Record<string, number> = {
+  "200_500": 0, // fascia piu' bassa: tetto rigido, esattamente il massimo della fascia
+  "500_1000": 0.3, // fascia intermedia: margine per un piccolo Enhancement
+};
+
+// true se il prezzo effettivo dell'Experience supera il tetto rigido
+// della fascia scelta — solo per le fasce presenti in
+// BUDGET_HARD_CEILING_TOLERANCE, mai per 1000-3000/3000+.
+function experienceExceedsBudgetCeiling(
+  budget: string | undefined,
+  estimatedPrice: number
+): boolean {
+
+  const tier = findBudgetTier(budget);
+
+  if (!tier) return false;
+
+  const tolerance = BUDGET_HARD_CEILING_TOLERANCE[tier.key];
+
+  if (tolerance === undefined) return false;
+
+  if (!estimatedPrice) return false;
+
+  const ceiling = tier.max + tolerance * (tier.max - tier.min);
+
+  return estimatedPrice > ceiling;
+}
+
+// Bonus pieno se il prezzo effettivo dell'esperienza (per QUESTO
+// lead) sta entro il tetto della fascia richiesta — mai penalizzata
+// per essere sotto: e' esattamente lo spazio che resta per
+// Enhancement/altre componenti. Sopra il tetto, la penalita' cresce
+// con continuita' in proporzione a quanto lo si supera RISPETTO
+// ALL'AMPIEZZA della fascia stessa (non un valore assoluto fisso) —
+// cosi' la stessa formula si auto-calibra sia per una fascia stretta
+// (200-500) che per una larga (1000-3000), senza soglie arbitrarie
+// diverse per ciascuna. Vale anche per le fasce con tetto rigido: tra
+// le Experience che passano il tetto, quelle piu' vicine alla fascia
+// vengono comunque preferite nel ranking.
 //
 // Calibrazione (fascia 500-1000, ampiezza 500): totale 950 (nel tetto)
 // -> +60; 1050 (+10% dell'ampiezza sopra il tetto) -> +57; 1400 (+80%)
@@ -102,24 +167,12 @@ const BUDGET_SCORE_FLOOR = -90;
 
 function computeBudgetRelevanceScore(
   budget: string | undefined,
-  experience: any,
-  guests: string,
-  children: number | string | undefined,
-  checkInDate: string | null | undefined
+  estimatedPrice: number
 ): number {
 
   const tier = findBudgetTier(budget);
 
-  if (!tier) return 0;
-
-  const estimatedPrice = calculateProposalTotal({
-    experiences: [experience],
-    guests,
-    children,
-    checkInDate,
-  });
-
-  if (!estimatedPrice) return 0;
+  if (!tier || !estimatedPrice) return 0;
 
   if (estimatedPrice <= tier.max) return BUDGET_IN_RANGE_BONUS;
 
@@ -336,12 +389,15 @@ const matchesGuests =
     ? experience.guest_20_plus
   : true;
 
-        // Budget: niente filtro rigido qui — il cliente indica una
-        // capacita' di spesa complessiva per l'intera proposta
-        // (Experience + Enhancement), non un tetto per la singola
-        // Experience. Il segnale budget agisce solo come bonus/
-        // penalita' nello scoring, vedi computeBudgetRelevanceScore
-        // piu' sotto.
+        // Budget: tetto rigido SOLO per le fasce 200-500/500-1000
+        // (vedi BUDGET_HARD_CEILING_TOLERANCE) — per 1000-3000/3000+
+        // nessuna esclusione, solo bonus/penalita' nello scoring piu'
+        // sotto (computeBudgetRelevanceScore).
+        const matchesBudget =
+          !experienceExceedsBudgetCeiling(
+            budget,
+            getEstimatedExperiencePrice(experience, guests, children, startDate)
+          );
 
         // =====================================================
         // CHILDREN
@@ -431,6 +487,8 @@ const matchesGuests =
           matchesCategory &&
 
           matchesGuests &&
+
+          matchesBudget &&
 
           matchesChildren &&
 
@@ -526,13 +584,16 @@ const matchesGuests =
         }
 
         // =====================================================
-        // BUDGET RELEVANCE — bonus/penalita' basato sul base_price
-        // reale, non solo sul checkbox budget_* (che resta un filtro
-        // rigido separato, vedi matchesBudget sopra). Vedi
-        // computeBudgetRelevanceScore in cima al file.
+        // BUDGET RELEVANCE — tra le Experience che passano il tetto
+        // rigido (matchesBudget sopra, dove applicabile), quelle piu'
+        // vicine alla fascia richiesta vengono comunque preferite nel
+        // ranking. Vedi computeBudgetRelevanceScore in cima al file.
         // =====================================================
 
-        score += computeBudgetRelevanceScore(budget, experience, guests, children, startDate);
+        score += computeBudgetRelevanceScore(
+          budget,
+          getEstimatedExperiencePrice(experience, guests, children, startDate)
+        );
 
         // =====================================================
         // ACCESSIBILITA' — bonus se l'esperienza dichiara
@@ -724,8 +785,12 @@ if (safeExperiencesSelected.length === 1) {
           ? experience.guest_20_plus
         : true;
 
-      // Budget: nessun filtro rigido anche qui, stesso principio del
-      // blocco principale — solo bonus/penalita' nello scoring.
+      // Stesso tetto rigido (dove applicabile) del blocco principale.
+      const matchesBudget =
+        !experienceExceedsBudgetCeiling(
+          budget,
+          getEstimatedExperiencePrice(experience, guests, children, startDate)
+        );
 
       // Stesso filtro children applicato anche ai suggerimenti,
       // per coerenza con la lista principale.
@@ -733,7 +798,7 @@ if (safeExperiencesSelected.length === 1) {
         !travelingWithChildren ||
         experience.children_allowed === true;
 
-      return matchesGuests && matchesChildren;
+      return matchesGuests && matchesBudget && matchesChildren;
     })
 
     .map((experience) => {
@@ -757,7 +822,10 @@ if (safeExperiencesSelected.length === 1) {
 
       // Stessi bonus/penalita' budget + accessibilita' applicati
       // anche ai suggerimenti, per coerenza con la lista principale.
-      score += computeBudgetRelevanceScore(budget, experience, guests, children, startDate);
+      score += computeBudgetRelevanceScore(
+        budget,
+        getEstimatedExperiencePrice(experience, guests, children, startDate)
+      );
       score += computeAccessibilityScore(accessibility, experience);
 
       return { ...experience, finalScore: score };
