@@ -1,4 +1,8 @@
-import { CATEGORIES } from "@/lib/config/experienceTaxonomy";
+import {
+  CATEGORIES,
+  BUDGET_TIERS,
+  ACCESSIBILITY_NEEDS,
+} from "@/lib/config/experienceTaxonomy";
 
 interface FiltersCardProps {
 
@@ -35,23 +39,35 @@ const guestOptions = [
   },
 ];
 
-const budgetOptions = [
+// Fonte: BUDGET_TIERS in experienceTaxonomy.ts — stessa lista usata
+// dallo step budget del wizard e da generateProposal.ts, cosi' una
+// fascia aggiunta/rimossa li' compare qui automaticamente.
+const budgetOptions = BUDGET_TIERS.map((tier) => ({
+  label: tier.range,
+  key: tier.dbField,
+}));
 
-  {
-    label: "€500 - €1000",
-    key: "budget_500_1000",
-  },
+// Etichette solo-admin (pannello sempre in inglese, niente locale
+// switcher) — ACCESSIBILITY_NEEDS.i18nKey e' per il wizard pubblico,
+// qui serve testo semplice locale al file, stesso trattamento di
+// guestOptions/budgetOptions sopra.
+const ACCESSIBILITY_ADMIN_LABELS: Record<string, string> = {
+  mobility_reduced: "Reduced mobility",
+  visual_impairment: "Visual impairment",
+  hearing_impairment: "Hearing impairment",
+  cognitive_sensory: "Cognitive/sensory needs",
+  other: "Other accessibility need",
+};
 
-  {
-    label: "€1000 - €3000",
-    key: "budget_1000_3000",
-  },
-
-  {
-    label: "€3000+",
-    key: "budget_3000_plus",
-  },
-
+// Non specificato / Si' / No — tre stati espliciti, non solo
+// checkbox on/off: un booleano nullable su experience_content, cosi'
+// "mai impostato" resta distinguibile da "esplicitamente non
+// accessibile" (vedi generateProposal.ts, scoring neutro sul primo
+// caso).
+const ACCESSIBILITY_STATE_OPTIONS: { label: string; value: boolean | null }[] = [
+  { label: "Not specified", value: null },
+  { label: "Yes", value: true },
+  { label: "No", value: false },
 ];
 
 // =========================================================
@@ -402,7 +418,7 @@ Experience Filters
     Budget
   </label>
 
-  <div className="grid md:grid-cols-3 gap-3">
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
 
     {budgetOptions.map((budget)=>(
 
@@ -653,6 +669,106 @@ Experience Filters
   </label>
 
 </div>
+
+<div>
+
+  <label
+    className="
+      block
+      text-sm
+      text-white/50
+      mb-4
+    "
+  >
+    Accessibility
+  </label>
+
+  <div className="space-y-3">
+
+    {ACCESSIBILITY_NEEDS.map((need) => {
+
+      const currentValue: boolean | null = experience[need.dbField] ?? null;
+
+      return (
+        <div
+          key={need.dbField}
+          className="
+            flex
+            items-center
+            justify-between
+            rounded-xl
+            border
+            border-white/10
+            bg-white/5
+            px-4
+            py-3
+            gap-4
+          "
+        >
+          <span>{ACCESSIBILITY_ADMIN_LABELS[need.key]}</span>
+
+          <div className="flex gap-1.5 shrink-0">
+            {ACCESSIBILITY_STATE_OPTIONS.map((option) => (
+              <button
+                type="button"
+                key={String(option.value)}
+                onClick={() =>
+                  setExperience({
+                    ...experience,
+                    [need.dbField]: option.value,
+                  })
+                }
+                className={`px-3 py-1.5 rounded-lg text-xs border transition-all duration-300 ${
+                  currentValue === option.value
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+
+  </div>
+
+  <textarea
+    value={experience.accessibility_notes ?? ""}
+    onChange={(e) =>
+      setExperience({
+        ...experience,
+        accessibility_notes: e.target.value,
+      })
+    }
+    placeholder="Accessibility notes (optional) — extra detail for the team, e.g. step-free access, assistance available on request..."
+    rows={2}
+    className="
+      w-full
+      mt-3
+      rounded-xl
+      border
+      border-white/10
+      bg-white/5
+      px-4
+      py-3
+      text-sm
+      outline-none
+      transition-all
+      duration-300
+      focus:border-white/40
+    "
+  />
+
+  <p className="text-white/30 text-xs mt-2">
+    &quot;Not specified&quot; (default) keeps this experience neutral in
+    matching for that need — it is never treated as inaccessible just
+    because the field was never set.
+  </p>
+
+</div>
+
 <div>
 
   <label

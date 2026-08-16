@@ -187,6 +187,14 @@ export function trackGuestChanged(guests: string | number) {
   });
 }
 
+export function trackAccessibilityChanged(hasNeeds: boolean, needs: string[]) {
+  trackEvent({
+    action: "accessibility_changed",
+    category: "configurator",
+    label: hasNeeds ? needs.join(",") || "yes_unspecified" : "no",
+  });
+}
+
 export function trackDateSelected(
   startDate: string,
   endDate: string

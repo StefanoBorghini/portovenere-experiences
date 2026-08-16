@@ -763,6 +763,24 @@ for (const fact of experience.facts) {
     animals_allowed:
       experience.animals_allowed,
 
+    accessibility_mobility_reduced:
+      experience.accessibility_mobility_reduced,
+
+    accessibility_visual_impairment:
+      experience.accessibility_visual_impairment,
+
+    accessibility_hearing_impairment:
+      experience.accessibility_hearing_impairment,
+
+    accessibility_cognitive_sensory:
+      experience.accessibility_cognitive_sensory,
+
+    accessibility_other:
+      experience.accessibility_other,
+
+    accessibility_notes:
+      experience.accessibility_notes,
+
        incompatible_experiences:
       experience.incompatible_experiences,
 
@@ -826,6 +844,9 @@ for (const fact of experience.facts) {
 
           guest_20_plus:
             experience.guest_20_plus,
+
+          budget_200_500:
+            experience.budget_200_500,
 
           budget_500_1000:
             experience.budget_500_1000,

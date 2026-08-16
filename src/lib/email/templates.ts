@@ -4,6 +4,8 @@
 // visivo scuro del resto del sito).
 // =========================================================
 
+import { formatBudgetLabel } from "@/lib/config/experienceTaxonomy";
+
 interface LineItemDetail {
   title: string;
   // null quando la riga non ha un prezzo autonomo da mostrare
@@ -252,7 +254,7 @@ function summaryTable(data: ProposalSummary): string {
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
       ${enhancementsRow}
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
-      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(formatBudgetLabel(data.budget)) || "—"}</td></tr>
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
       ${totalRow}
     </table>
@@ -537,7 +539,7 @@ export function ownerNewProposalTemplate(data: ProposalSummary) {
       }
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Moods</td><td>${escapeList(data.moods)}</td></tr>
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Guests</td><td>${escapeHtml(data.guests)}</td></tr>
-      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(data.budget)}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(formatBudgetLabel(data.budget))}</td></tr>
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Dates</td><td>${escapeHtml(data.startDate)} → ${escapeHtml(data.endDate)}</td></tr>
     </table>
 
@@ -626,7 +628,7 @@ export function ownerEmailConfirmedTemplate(data: ProposalSummary) {
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Atmosphere</td><td>${escapeList(data.moods) || "—"}</td></tr>
       ${enhancementsRow}
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Guests</td><td>${escapeHtml(data.guests) || "—"}</td></tr>
-      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(data.budget) || "—"}</td></tr>
+      <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Budget</td><td>${escapeHtml(formatBudgetLabel(data.budget)) || "—"}</td></tr>
       <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Dates</td><td>${escapeHtml(data.startDate) || "—"} → ${escapeHtml(data.endDate) || "—"}</td></tr>
       ${totalRow}
       ${notesRow}

@@ -137,7 +137,18 @@
       "petsLabel": "Pets",
       "noPets": "No pets",
       "onePet": "1 pet",
-      "petsCount": "{count} pets"
+      "petsCount": "{count} pets",
+      "accessibilityQuestion": "Does anyone in your group have specific accessibility needs?",
+      "accessibilityNo": "No",
+      "accessibilityYes": "Yes",
+      "accessibilityNeeds": {
+        "mobilityReduced": "Reduced mobility",
+        "visualImpairment": "Visual impairment",
+        "hearingImpairment": "Hearing impairment",
+        "cognitiveSensory": "Cognitive/sensory needs",
+        "other": "Other needs"
+      },
+      "accessibilityOtherPlaceholder": "Tell us more (optional)"
     },
     "dates": {
       "checkIn": "Check-in",
@@ -150,11 +161,6 @@
       "afternoon": "Afternoon",
       "sunset": "Sunset",
       "full_day": "Full Day"
-    },
-    "budget": {
-      "essential": "Essential",
-      "signature": "Signature",
-      "luxury": "Luxury"
     },
     "contact": {
       "nameLabel": "Your Name",

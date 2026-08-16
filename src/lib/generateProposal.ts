@@ -55,7 +55,94 @@ import {
   experienceCompatibility,
 } from "./experienceCompatibility";
 
-import { MOODS } from "@/lib/config/experienceTaxonomy";
+import {
+  MOODS,
+  BUDGET_TIERS,
+  ACCESSIBILITY_NEEDS,
+} from "@/lib/config/experienceTaxonomy";
+
+// =========================================================
+// BUDGET — helper condivisi dai (finora) 3 punti che applicavano lo
+// stesso confronto duplicato. `budget` e' ora la chiave strutturata
+// salvata dal wizard (es. "500_1000"), non piu' la stringa "€500 -
+// €1000": vedi BUDGET_TIERS in experienceTaxonomy.ts.
+// =========================================================
+
+function findBudgetTier(budget?: string | null) {
+  return BUDGET_TIERS.find((tier) => tier.key === budget) || null;
+}
+
+// Filtro rigido invariato nello spirito (checkbox opt-in per
+// esperienza), solo esteso a 4 fasce invece di 3. Se budget non e'
+// una chiave riconosciuta (non impostato, o vecchio formato di una
+// lead salvata prima di questa modifica), nessun filtro si applica —
+// stesso comportamento di sempre.
+function experienceMatchesBudgetTier(budget: string | undefined, experience: any): boolean {
+  const tier = findBudgetTier(budget);
+  if (!tier) return true;
+  return experience[tier.dbField] === true;
+}
+
+// Bonus/penalita' di SCORING (non filtro) basato sul base_price REALE
+// dell'esperienza, non solo sul checkbox manuale: un'esperienza il
+// cui prezzo ricade esattamente nella fascia richiesta prende un
+// vantaggio; piu' la sua fascia di prezzo naturale e' lontana da
+// quella richiesta, piu' scende in classifica — senza escluderla se
+// e' comunque passata dal filtro sopra (es. checkbox spuntato anche
+// per una fascia adiacente).
+function computeBudgetRelevanceScore(budget: string | undefined, experience: any): number {
+
+  const tier = findBudgetTier(budget);
+
+  if (!tier || typeof experience.base_price !== "number") return 0;
+
+  const tierIndex = BUDGET_TIERS.indexOf(tier);
+
+  const priceTierIndex = BUDGET_TIERS.findIndex(
+    (t) => experience.base_price >= t.min && experience.base_price < t.max
+  );
+
+  if (priceTierIndex === -1) return 0;
+
+  const distance = Math.abs(priceTierIndex - tierIndex);
+
+  return distance === 0 ? 60 : -30 * distance;
+}
+
+// =========================================================
+// ACCESSIBILITA' — solo scoring, mai esclusione (vedi richiesta
+// esplicita: un'esperienza che non dichiara compatibilita' con
+// un'esigenza richiesta non deve sparire, deve solo perdere terreno
+// rispetto a una che la dichiara compatibile). Un campo esperienza
+// mai valorizzato (null/undefined = "nessuna informazione
+// dichiarata") resta neutro: ne' bonus ne' penalita', cosi' le
+// esperienze esistenti non vengono mai penalizzate solo perche' il
+// campo non c'era prima di oggi.
+// =========================================================
+
+function computeAccessibilityScore(
+  accessibility: { needs?: string[] } | null | undefined,
+  experience: any
+): number {
+
+  const needs = accessibility?.needs ?? [];
+
+  let score = 0;
+
+  needs.forEach((needKey) => {
+
+    const needDef = ACCESSIBILITY_NEEDS.find((n) => n.key === needKey);
+
+    if (!needDef) return;
+
+    const value = experience[needDef.dbField];
+
+    if (value === true) score += 70;
+    else if (value === false) score -= 70;
+  });
+
+  return score;
+}
 
 interface GenerateProposalProps {
 
@@ -74,6 +161,16 @@ interface GenerateProposalProps {
   children?: number | string;
 
   travelingWithChildren: boolean;
+
+  // NUOVO — esigenze di accessibilita' dichiarate dal cliente nello
+  // step "guests" (vedi ACCESSIBILITY_NEEDS in experienceTaxonomy.ts).
+  // Opzionale: se non passato o needs vuoto, nessun bonus/penalita' di
+  // scoring viene applicato — comportamento identico a prima
+  // dell'introduzione del parametro.
+  accessibility?: {
+    needs?: string[];
+    otherDetails?: string;
+  } | null;
 
   // NUOVO — "morning" | "afternoon" | "sunset" | "full_day".
   // Opzionale: se non passato (utente non l'ha selezionata nel
@@ -117,6 +214,8 @@ export function generateProposal({
   children,
 
   travelingWithChildren,
+
+  accessibility,
 
   preferredTime,
 
@@ -211,17 +310,7 @@ const matchesGuests =
   : true;
 
 const matchesBudget =
-
-  budget === "€500 - €1000"
-    ? experience.budget_500_1000
-
-  : budget === "€1000 - €3000"
-    ? experience.budget_1000_3000
-
-  : budget === "€3000+"
-    ? experience.budget_3000_plus
-
-  : true;
+  experienceMatchesBudgetTier(budget, experience);
 
         // =====================================================
         // CHILDREN
@@ -408,6 +497,24 @@ const matchesBudget =
         }
 
         // =====================================================
+        // BUDGET RELEVANCE — bonus/penalita' basato sul base_price
+        // reale, non solo sul checkbox budget_* (che resta un filtro
+        // rigido separato, vedi matchesBudget sopra). Vedi
+        // computeBudgetRelevanceScore in cima al file.
+        // =====================================================
+
+        score += computeBudgetRelevanceScore(budget, experience);
+
+        // =====================================================
+        // ACCESSIBILITA' — bonus se l'esperienza dichiara
+        // compatibilita' con un'esigenza richiesta, penalita' (non
+        // esclusione) se la dichiara esplicitamente incompatibile,
+        // neutro se non dichiarata. Vedi computeAccessibilityScore.
+        // =====================================================
+
+        score += computeAccessibilityScore(accessibility, experience);
+
+        // =====================================================
         // RETURN
         // =====================================================
 
@@ -496,12 +603,9 @@ if (!bestExperience) {
     return true;
   });
 
-  const matchingCategoryAndBudget = matchingCategory.filter((experience) => {
-    if (budget === "€500 - €1000") return experience.budget_500_1000;
-    if (budget === "€1000 - €3000") return experience.budget_1000_3000;
-    if (budget === "€3000+") return experience.budget_3000_plus;
-    return true;
-  });
+  const matchingCategoryAndBudget = matchingCategory.filter((experience) =>
+    experienceMatchesBudgetTier(budget, experience)
+  );
 
   return {
 
@@ -597,13 +701,7 @@ if (safeExperiencesSelected.length === 1) {
         : true;
 
       const matchesBudget =
-        budget === "€500 - €1000"
-          ? experience.budget_500_1000
-        : budget === "€1000 - €3000"
-          ? experience.budget_1000_3000
-        : budget === "€3000+"
-          ? experience.budget_3000_plus
-        : true;
+        experienceMatchesBudgetTier(budget, experience);
 
       // Stesso filtro children applicato anche ai suggerimenti,
       // per coerenza con la lista principale.
@@ -632,6 +730,11 @@ if (safeExperiencesSelected.length === 1) {
       ) {
         score += 50;
       }
+
+      // Stessi bonus/penalita' budget + accessibilita' applicati
+      // anche ai suggerimenti, per coerenza con la lista principale.
+      score += computeBudgetRelevanceScore(budget, experience);
+      score += computeAccessibilityScore(accessibility, experience);
 
       return { ...experience, finalScore: score };
     })

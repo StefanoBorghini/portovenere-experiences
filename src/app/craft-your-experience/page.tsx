@@ -14,6 +14,8 @@ import {
   MOODS,
   EXPERIENCE_NAME_KEYS,
   MOOD_NAME_KEYS,
+  BUDGET_TIERS,
+  ACCESSIBILITY_NEEDS,
 } from "@/lib/config/experienceTaxonomy";
 import { getVisibleCategoryValues } from "@/lib/supabase/experienceRepository";
 import {
@@ -30,6 +32,7 @@ import {
   trackMoodRemoved,
   trackBudgetChanged,
   trackGuestChanged,
+  trackAccessibilityChanged,
   trackDateSelected,
   trackProposalGenerated,
 } from "@/lib/analytics/gtag";
@@ -239,6 +242,14 @@ export default function CraftYourExperience() {
     budget: "",
     children: 0,
     pets: 0,
+
+    // Esigenze di accessibilita' — hasAccessibilityNeeds e' il gate
+    // Si'/No, separato da needs (array di chiavi, stessa convenzione
+    // di experiences/moods) cosi' un "Si'" senza ancora nessuna
+    // esigenza specifica spuntata mostra comunque le opzioni.
+    hasAccessibilityNeeds: false,
+    accessibilityNeeds: [] as string[],
+    accessibilityOtherDetails: "",
 
     startDate: "",
     endDate: "",
@@ -613,6 +624,18 @@ export default function CraftYourExperience() {
         return;
       }
 
+      // ACCESSIBILITA' — stesso oggetto scritto sia su leads che su
+      // Proposal.proposal_data, needs vuoto se "No" (gia' garantito
+      // dal reset in handleSelect, ridondanza voluta per sicurezza).
+      const accessibilityPayload = {
+        needs: formData.hasAccessibilityNeeds ? formData.accessibilityNeeds : [],
+        otherDetails:
+          formData.hasAccessibilityNeeds &&
+          formData.accessibilityNeeds.includes("other")
+            ? formData.accessibilityOtherDetails
+            : "",
+      };
+
       // SAVE LEAD — generiamo noi l'id, cosi' non serve rileggere la riga
       // subito dopo (niente .select(): la tabella leads non e' leggibile
       // pubblicamente via RLS, di proposito).
@@ -638,6 +661,7 @@ export default function CraftYourExperience() {
             traveling_with_children: formData.travelingWithChildren,
             children: formData.children,
             pets: formData.pets,
+            accessibility: accessibilityPayload,
           },
         ]);
 
@@ -687,6 +711,7 @@ export default function CraftYourExperience() {
               guests: formData.guests,
               children: formData.children,
               pets: formData.pets,
+              accessibility: accessibilityPayload,
               budget: formData.budget,
               start_date: formData.startDate,
               end_date: formData.endDate,
@@ -1056,6 +1081,103 @@ export default function CraftYourExperience() {
 
             </div>
 
+            {/* ACCESSIBILITA' — gate Si'/No, poi (solo se Si') le
+                esigenze specifiche. Stesso stile a bottoni bordati gia'
+                usato per budget/categorie/mood, nessun elemento nuovo
+                introdotto nel wizard. */}
+            <p className="uppercase tracking-[0.3em] text-zinc-500 text-xs mb-1.5 mt-3">
+              {t("guests.accessibilityQuestion")}
+            </p>
+
+            <div className="grid grid-cols-2 gap-2">
+
+              <button
+                type="button"
+                onClick={() => {
+                  trackAccessibilityChanged(false, []);
+                  setFormData({
+                    ...formData,
+                    hasAccessibilityNeeds: false,
+                    accessibilityNeeds: [],
+                    accessibilityOtherDetails: "",
+                  });
+                }}
+                className={`border rounded-2xl px-4 py-2.5 text-sm text-center transition-all duration-500 ease-out ${
+                  !formData.hasAccessibilityNeeds
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                {t("guests.accessibilityNo")}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  trackAccessibilityChanged(true, formData.accessibilityNeeds);
+                  setFormData({ ...formData, hasAccessibilityNeeds: true });
+                }}
+                className={`border rounded-2xl px-4 py-2.5 text-sm text-center transition-all duration-500 ease-out ${
+                  formData.hasAccessibilityNeeds
+                    ? "border-white bg-white text-black"
+                    : "border-white/10 bg-white/5 hover:border-white/40"
+                }`}
+              >
+                {t("guests.accessibilityYes")}
+              </button>
+
+            </div>
+
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-out ${
+                formData.hasAccessibilityNeeds
+                  ? "max-h-96 opacity-100 mt-3"
+                  : "max-h-0 opacity-0"
+              }`}
+            >
+
+              <div className="grid grid-cols-2 gap-2">
+                {ACCESSIBILITY_NEEDS.map((need) => {
+
+                  const isSelected = formData.accessibilityNeeds.includes(need.key);
+
+                  return (
+                    <button
+                      type="button"
+                      key={need.key}
+                      onClick={() => {
+
+                        const nextNeeds = isSelected
+                          ? formData.accessibilityNeeds.filter((k) => k !== need.key)
+                          : [...formData.accessibilityNeeds, need.key];
+
+                        trackAccessibilityChanged(true, nextNeeds);
+                        setFormData({ ...formData, accessibilityNeeds: nextNeeds });
+                      }}
+                      className={`border rounded-2xl px-3 py-2 text-xs text-center transition-all duration-500 ease-out ${
+                        isSelected
+                          ? "border-white bg-white text-black"
+                          : "border-white/10 bg-white/5 hover:border-white/40"
+                      }`}
+                    >
+                      {t(`guests.accessibilityNeeds.${need.i18nKey}`)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <input
+                type="text"
+                value={formData.accessibilityOtherDetails}
+                onChange={(e) =>
+                  setFormData({ ...formData, accessibilityOtherDetails: e.target.value })
+                }
+                placeholder={t("guests.accessibilityOtherPlaceholder")}
+                className="w-full mt-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm outline-none transition-all duration-500 focus:border-white/40"
+              />
+
+            </div>
+
           </div>
         );
 
@@ -1243,29 +1365,22 @@ export default function CraftYourExperience() {
       case "budget":
         return (
           <div className="grid gap-4">
-            {[
-              { key: "essential" as const, range: "€500 - €1000" },
-              { key: "signature" as const, range: "€1000 - €3000" },
-              { key: "luxury" as const, range: "€3000+" },
-            ].map(({ key, range }) => (
+            {/* Nessuna etichetta qualitativa (Essential/Signature/Luxury
+                rimosse): solo la fascia di prezzo, che e' anche il vero
+                valore salvato (tier.key, es. "500_1000") — vedi
+                BUDGET_TIERS in experienceTaxonomy.ts. */}
+            {BUDGET_TIERS.map((tier) => (
               <button
                 type="button"
-                key={range}
-                onClick={() => handleSelect("budget", range)}
+                key={tier.key}
+                onClick={() => handleSelect("budget", tier.key)}
                 className={`border rounded-2xl px-6 py-6 text-center transition-all duration-500 ease-out ${
-                  formData.budget === range
+                  formData.budget === tier.key
                     ? "border-white bg-white text-black"
                     : "border-white/10 bg-white/5 hover:border-white/40"
                 }`}
               >
-                <span className="block text-lg font-light">{t(`budget.${key}`)}</span>
-                <span
-                  className={`block text-sm mt-1 ${
-                    formData.budget === range ? "text-black/60" : "text-zinc-500"
-                  }`}
-                >
-                  {range}
-                </span>
+                <span className="block text-lg font-light">{tier.range}</span>
               </button>
             ))}
           </div>

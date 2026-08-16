@@ -78,6 +78,7 @@ const getProposalCore = cache(async (slug: string) => {
     guests: lead.guests,
     children: lead.children,
     travelingWithChildren: lead.traveling_with_children || false,
+    accessibility: lead.accessibility,
     tripDays,
     startDate: lead.start_date,
     endDate: lead.end_date,

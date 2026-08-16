@@ -12,6 +12,8 @@ import {
   LeadStatus,
 } from "@/lib/supabase/leadRepository";
 
+import { formatBudgetLabel } from "@/lib/config/experienceTaxonomy";
+
 // =========================================================
 // STATUS OPTIONS — stesso ordine mostrato nei filtri e nel
 // select di dettaglio, cosi' restano sempre coerenti.
@@ -240,7 +242,7 @@ export default function AdminLeadsPage() {
                 <td className="px-5 py-4 text-white/60">
                   {(lead.experiences || []).join(", ")}
                 </td>
-                <td className="px-5 py-4 text-white/60">{lead.budget}</td>
+                <td className="px-5 py-4 text-white/60">{formatBudgetLabel(lead.budget)}</td>
                 <td className="px-5 py-4">
                   <span
                     className={`text-xs px-2.5 py-1 rounded-full border ${

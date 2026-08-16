@@ -23,6 +23,20 @@ import {
   CONCIERGE_OPERATOR_STATUS_OPTIONS,
 } from "@/lib/supabase/conciergeRepository";
 
+import { formatBudgetLabel } from "@/lib/config/experienceTaxonomy";
+
+// Etichette solo-admin per le esigenze di accessibilita' (stesso
+// trattamento di ACCESSIBILITY_ADMIN_LABELS in FiltersCard.tsx —
+// ACCESSIBILITY_NEEDS.i18nKey e' per il wizard pubblico, il pannello
+// admin resta sempre in inglese).
+const ACCESSIBILITY_NEED_LABELS: Record<string, string> = {
+  mobility_reduced: "Reduced mobility",
+  visual_impairment: "Visual impairment",
+  hearing_impairment: "Hearing impairment",
+  cognitive_sensory: "Cognitive/sensory needs",
+  other: "Other",
+};
+
 const STATUS_OPTIONS: { value: LeadStatus; label: string }[] = [
   { value: "new", label: "New" },
   { value: "contacted", label: "Contacted" },
@@ -412,7 +426,7 @@ export default function LeadDetailPage() {
           </div>
           <div>
             <dt className="text-white/40">Budget</dt>
-            <dd>{lead.budget || "—"}</dd>
+            <dd>{formatBudgetLabel(lead.budget) || "—"}</dd>
           </div>
           <div>
             <dt className="text-white/40">Dates</dt>
@@ -431,6 +445,22 @@ export default function LeadDetailPage() {
           <div>
             <dt className="text-white/40">Pets</dt>
             <dd>{lead.pets ?? 0}</dd>
+          </div>
+          <div>
+            <dt className="text-white/40">Accessibility needs</dt>
+            <dd>
+              {(lead.accessibility?.needs ?? []).length === 0
+                ? "None declared"
+                : (lead.accessibility.needs as string[])
+                    .map((key) => ACCESSIBILITY_NEED_LABELS[key] || key)
+                    .join(", ")}
+              {lead.accessibility?.needs?.includes("other") &&
+                lead.accessibility?.otherDetails && (
+                  <span className="block text-white/40 text-xs mt-1">
+                    &quot;{lead.accessibility.otherDetails}&quot;
+                  </span>
+                )}
+            </dd>
           </div>
         </dl>
 
