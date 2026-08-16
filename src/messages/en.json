@@ -249,6 +249,15 @@
       "label": "Experience Gallery",
       "title": "Moments from the Riviera"
     },
+    "noMatch": {
+      "title": "No matching experience found",
+      "description": "We couldn't find an experience matching these preferences yet. Contact us directly to request a new curated proposal.",
+      "cta": "Back to configurator"
+    },
+    "expired": {
+      "title": "This proposal has expired",
+      "description": "Your private reservation window is no longer active. Contact us directly to request a new curated proposal."
+    },
     "reservation": {
       "label": "Private Reservation",
       "title": "Your Riviera Experience Awaits",

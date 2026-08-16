@@ -411,7 +411,7 @@ if (!featuredExperience) {
           "
         >
 
-          No matching experience found
+          {t("proposal.noMatch.title")}
 
         </h1>
 
@@ -424,8 +424,7 @@ if (!featuredExperience) {
           "
         >
 
-          We couldn't find an experience matching these preferences yet.
-          Contact us directly to request a new curated proposal.
+          {t("proposal.noMatch.description")}
 
         </p>
 <a
@@ -446,7 +445,7 @@ if (!featuredExperience) {
             duration-500
           "
         >
-          Back to configurator
+          {t("proposal.noMatch.cta")}
         </a>
 
       </div>
@@ -524,7 +523,7 @@ if (!featuredExperience) {
             "
           >
 
-            This proposal has expired
+            {t("proposal.expired.title")}
 
           </h1>
 
@@ -536,8 +535,7 @@ if (!featuredExperience) {
             "
           >
 
-            Your private reservation window is no longer active.
-            Contact us directly to request a new curated proposal.
+            {t("proposal.expired.description")}
 
           </p>
 
