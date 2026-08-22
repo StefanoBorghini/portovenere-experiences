@@ -1,0 +1,46 @@
+From 12c39934f3e94334394fb46718df68e45fe1b028 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 22 Aug 2026 10:33:02 +0000
+Subject: [PATCH] Push tracked events to dataLayer for GTM custom event
+ triggers
+
+trackEvent() already sends to GA4 via gtag(), but gtag's internal
+dataLayer format isn't a clean {event: name} shape GTM's "Custom
+Event" trigger can match on. Adds a parallel dataLayer.push() with
+that shape, so every existing trackEvent() call (including
+proposal_generated) becomes triggerable from GTM without touching
+any of the call sites.
+---
+ src/lib/analytics/gtag.ts | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/src/lib/analytics/gtag.ts b/src/lib/analytics/gtag.ts
+index c8520c3..7dc03f7 100644
+--- a/src/lib/analytics/gtag.ts
++++ b/src/lib/analytics/gtag.ts
+@@ -49,6 +49,22 @@ export function trackEvent({
+     value,
+     ...extra,
+   });
++
++  // Stesso evento anche nel dataLayer, in un formato che i trigger
++  // "Evento personalizzato" di GTM possono leggere direttamente
++  // (event: action) -- gtag() sopra scrive nel dataLayer col suo
++  // formato interno (arguments array), che GTM non intercetta come
++  // Custom Event pulito. Nessun window.dataLayer = [] qui: sia
++  // GoogleAnalytics.tsx che GoogleTagManager.tsx lo inizializzano
++  // gia' prima che questo possa girare (stesso gate window.gtag
++  // sopra -- se gtag esiste, dataLayer esiste).
++  window.dataLayer.push({
++    event: action,
++    event_category: category,
++    event_label: label,
++    value,
++    ...extra,
++  });
+ }
+ 
+ // =========================================================
+-- 
+2.43.0
+
