@@ -1,0 +1,112 @@
+From 77bc014d025868f5492a2d06e20f24b6c6c45feb Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 11:30:02 +0000
+Subject: [PATCH] Add WhatsApp contact button to no-match and expired proposal
+ pages
+
+Both states already promised "contact us directly" in their copy but
+had no actual way to do it (no-match had only "back to configurator",
+expired had nothing). Reuses the existing wa.me number/style from
+ReservationSection and the already-translated common.speakWithTeam
+label, no new site_copy keys needed. Expired page also gets the same
+"back to configurator" CTA as the no-match page.
+---
+ src/app/results/proposal/[slug]/page.tsx | 75 ++++++++++++++++++++++++
+ 1 file changed, 75 insertions(+)
+
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index 553713e..feb7008 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -448,6 +448,33 @@ if (!featuredExperience) {
+           {t("proposal.noMatch.cta")}
+         </a>
+ 
++        <div className="mt-8">
++          <a
++            href={`https://wa.me/393487140722?text=${encodeURIComponent(
++              `Hi Stefano, I'm ${lead.name} and I couldn't find a matching experience for my request. Could you help me put together a custom proposal?`
++            )}`}
++            target="_blank"
++            className="
++              inline-block
++              border
++              border-white/20
++              rounded-full
++              px-6
++              py-3
++              text-white/60
++              text-[11px]
++              uppercase
++              tracking-[0.22em]
++              hover:border-white/40
++              hover:text-white
++              transition-all
++              duration-500
++            "
++          >
++            {t("common.speakWithTeam")}
++          </a>
++        </div>
++
+       </div>
+ 
+     </main>
+@@ -539,6 +566,54 @@ if (!featuredExperience) {
+ 
+           </p>
+ 
++          <a
++            href="/craft-your-experience"
++            className="
++              inline-block
++              bg-white
++              text-black
++              px-10
++              py-5
++              rounded-full
++              uppercase
++              tracking-[0.25em]
++              text-xs
++              hover:scale-105
++              transition-all
++              duration-500
++              mt-12
++            "
++          >
++            {t("proposal.noMatch.cta")}
++          </a>
++
++          <div className="mt-8">
++            <a
++              href={`https://wa.me/393487140722?text=${encodeURIComponent(
++                `Hi Stefano, I'm ${lead.name} and my ${featuredExperience?.title || "experience"} proposal has expired. Could you help me get a new one?`
++              )}`}
++              target="_blank"
++              className="
++                inline-block
++                border
++                border-white/20
++                rounded-full
++                px-6
++                py-3
++                text-white/60
++                text-[11px]
++                uppercase
++                tracking-[0.22em]
++                hover:border-white/40
++                hover:text-white
++                transition-all
++                duration-500
++              "
++            >
++              {t("common.speakWithTeam")}
++            </a>
++          </div>
++
+         </div>
+ 
+       </main>
+-- 
+2.43.0
+

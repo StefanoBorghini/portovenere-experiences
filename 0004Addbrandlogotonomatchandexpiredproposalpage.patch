@@ -1,0 +1,68 @@
+From a67ef5bef38894348aacb67109c3ab54158638e3 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 11:36:49 +0000
+Subject: [PATCH] Add brand logo to no-match and expired proposal pages
+
+Both states were plain text-only, unlike the rest of the proposal
+flow (ProposalHero already shows the logo). Reuses the same asset
+(proposalConfig.brand.logo) and sizing, static (no motion) since
+these are rendered from the server component directly.
+---
+ src/app/results/proposal/[slug]/page.tsx | 27 ++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index feb7008..72d7aa4 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -20,6 +20,7 @@ import {
+ } from "@/lib/supabase/experienceRepository";
+ import { getCurrentLocale } from "@/i18n/locale";
+ import { getTranslations } from "next-intl/server";
++import { proposalConfig } from "@/config/proposalConfig";
+ 
+ const SITE_URL =
+   process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
+@@ -386,6 +387,19 @@ if (!featuredExperience) {
+         "
+       >
+ 
++        <img
++          src={proposalConfig.brand.logo}
++          alt="Portovenere Experiences"
++          className="
++            w-28
++            md:w-36
++            object-contain
++            mx-auto
++            mb-12
++            opacity-95
++          "
++        />
++
+         <p
+           className="
+             uppercase
+@@ -525,6 +539,19 @@ if (!featuredExperience) {
+           "
+         >
+ 
++          <img
++            src={proposalConfig.brand.logo}
++            alt="Portovenere Experiences"
++            className="
++              w-28
++              md:w-36
++              object-contain
++              mx-auto
++              mb-12
++              opacity-95
++            "
++          />
++
+           <p
+             className="
+               uppercase
+-- 
+2.43.0
+

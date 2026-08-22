@@ -1,0 +1,107 @@
+From dd9c28515b01bf342277183081bf02bb0d81a9b5 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 09:20:06 +0000
+Subject: [PATCH] Translate the no-match and expired proposal pages
+
+"No matching experience found" and "This proposal has expired" (results/proposal/[slug]/page.tsx) were hardcoded English strings, never passed through t() -- so they never translated for other locales even though the rest of the page does. Moved them to site_copy under proposal.noMatch.*/proposal.expired.*, same pattern as the rest of this page's copy.
+---
+ src/app/results/proposal/[slug]/page.tsx           | 12 +++++-------
+ src/messages/en.json                               |  9 +++++++++
+ .../2026_proposal_no_match_expired_copy.sql        | 14 ++++++++++++++
+ 3 files changed, 28 insertions(+), 7 deletions(-)
+ create mode 100644 supabase-migrations/2026_proposal_no_match_expired_copy.sql
+
+diff --git a/src/app/results/proposal/[slug]/page.tsx b/src/app/results/proposal/[slug]/page.tsx
+index 1af8dd7..553713e 100644
+--- a/src/app/results/proposal/[slug]/page.tsx
++++ b/src/app/results/proposal/[slug]/page.tsx
+@@ -411,7 +411,7 @@ if (!featuredExperience) {
+           "
+         >
+ 
+-          No matching experience found
++          {t("proposal.noMatch.title")}
+ 
+         </h1>
+ 
+@@ -424,8 +424,7 @@ if (!featuredExperience) {
+           "
+         >
+ 
+-          We couldn't find an experience matching these preferences yet.
+-          Contact us directly to request a new curated proposal.
++          {t("proposal.noMatch.description")}
+ 
+         </p>
+ <a
+@@ -446,7 +445,7 @@ if (!featuredExperience) {
+             duration-500
+           "
+         >
+-          Back to configurator
++          {t("proposal.noMatch.cta")}
+         </a>
+ 
+       </div>
+@@ -524,7 +523,7 @@ if (!featuredExperience) {
+             "
+           >
+ 
+-            This proposal has expired
++            {t("proposal.expired.title")}
+ 
+           </h1>
+ 
+@@ -536,8 +535,7 @@ if (!featuredExperience) {
+             "
+           >
+ 
+-            Your private reservation window is no longer active.
+-            Contact us directly to request a new curated proposal.
++            {t("proposal.expired.description")}
+ 
+           </p>
+ 
+diff --git a/src/messages/en.json b/src/messages/en.json
+index c8aa941..f9de70c 100644
+--- a/src/messages/en.json
++++ b/src/messages/en.json
+@@ -249,6 +249,15 @@
+       "label": "Experience Gallery",
+       "title": "Moments from the Riviera"
+     },
++    "noMatch": {
++      "title": "No matching experience found",
++      "description": "We couldn't find an experience matching these preferences yet. Contact us directly to request a new curated proposal.",
++      "cta": "Back to configurator"
++    },
++    "expired": {
++      "title": "This proposal has expired",
++      "description": "Your private reservation window is no longer active. Contact us directly to request a new curated proposal."
++    },
+     "reservation": {
+       "label": "Private Reservation",
+       "title": "Your Riviera Experience Awaits",
+diff --git a/supabase-migrations/2026_proposal_no_match_expired_copy.sql b/supabase-migrations/2026_proposal_no_match_expired_copy.sql
+new file mode 100644
+index 0000000..fab330b
+--- /dev/null
++++ b/supabase-migrations/2026_proposal_no_match_expired_copy.sql
+@@ -0,0 +1,14 @@
++-- =====================================================================
++-- site_copy — "No matching experience found" e "This proposal has
++-- expired" (results/proposal/[slug]/page.tsx) erano testo fisso in
++-- inglese, mai passato da t(), quindi mai tradotto per gli altri
++-- locale. Aggiunge le chiavi mancanti sotto proposal.noMatch/expired.
++-- =====================================================================
++
++insert into site_copy (key, en_text) values
++  ('proposal.noMatch.title', 'No matching experience found'),
++  ('proposal.noMatch.description', 'We couldn''t find an experience matching these preferences yet. Contact us directly to request a new curated proposal.'),
++  ('proposal.noMatch.cta', 'Back to configurator'),
++  ('proposal.expired.title', 'This proposal has expired'),
++  ('proposal.expired.description', 'Your private reservation window is no longer active. Contact us directly to request a new curated proposal.')
++on conflict (key) do update set en_text = excluded.en_text, updated_at = now();
+-- 
+2.43.0
+

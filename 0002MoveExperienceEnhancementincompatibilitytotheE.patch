@@ -1,0 +1,681 @@
+From 00aa668570f876ec92238c11981e8cbfa7e389b4 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 10:39:20 +0000
+Subject: [PATCH] Move Experience/Enhancement incompatibility to the
+ Enhancement admin page
+
+Incompatibility is now configured from Enhancement -> Incompatible
+Experiences (blacklist, default compatible) instead of from the
+Experience side. Adds enhancement_content.incompatible_experiences,
+backfills it from the old experience_content.incompatible_enhancements
+column via inversion, then drops the old column so there is a single
+source of truth. buildRendererData.ts's enhancement filter reads from
+the new column; the multi-day exception is unchanged.
+---
+ .../IncompatibleExperiencesCard.tsx           | 160 ++++++++++++++++++
+ src/app/admin/enhancements/[id]/page.tsx      |  22 +++
+ .../[id]/components/compatibilityCard.tsx     | 155 +----------------
+ src/app/admin/experiences/[id]/page.tsx       |  19 ---
+ src/lib/proposal-engine/buildRendererData.ts  |  40 ++---
+ src/lib/supabase/experienceRepository.ts      |   3 -
+ src/types/experience.ts                       |   2 -
+ ...6_enhancement_incompatible_experiences.sql |  61 +++++++
+ 8 files changed, 267 insertions(+), 195 deletions(-)
+ create mode 100644 src/app/admin/enhancements/[id]/components/IncompatibleExperiencesCard.tsx
+ create mode 100644 supabase-migrations/2026_enhancement_incompatible_experiences.sql
+
+diff --git a/src/app/admin/enhancements/[id]/components/IncompatibleExperiencesCard.tsx b/src/app/admin/enhancements/[id]/components/IncompatibleExperiencesCard.tsx
+new file mode 100644
+index 0000000..15e45d4
+--- /dev/null
++++ b/src/app/admin/enhancements/[id]/components/IncompatibleExperiencesCard.tsx
+@@ -0,0 +1,160 @@
++"use client";
++import { useMemo, useState } from "react";
++
++interface Props {
++  enhancement: any;
++  setEnhancement: (value: any) => void;
++  experiences: any[];
++}
++
++export default function IncompatibleExperiencesCard({
++  enhancement,
++  setEnhancement,
++  experiences,
++}: Props) {
++
++  const [search, setSearch] = useState("");
++
++  const incompatibleIds: string[] = (
++    enhancement.incompatible_experiences ?? []
++  ).map(String);
++
++  const filteredExperiences = useMemo(() => {
++    return experiences.filter((exp) =>
++      exp.title.toLowerCase().includes(search.toLowerCase())
++    );
++  }, [experiences, search]);
++
++  function toggleExperience(id: string) {
++
++    const idStr = String(id);
++
++    const updated = incompatibleIds.includes(idStr)
++      ? incompatibleIds.filter((x) => x !== idStr)
++      : [...incompatibleIds, idStr];
++
++    setEnhancement({
++      ...enhancement,
++      incompatible_experiences: updated,
++    });
++  }
++
++  return (
++
++    <section
++      className="
++        rounded-3xl
++        border
++        border-white/10
++        bg-zinc-950
++        p-8
++      "
++    >
++
++      <h2 className="text-3xl font-light mb-2">
++        Incompatible Experiences
++      </h2>
++
++      <p className="text-white/50 mb-8">
++        This enhancement will not be proposed together with the
++        experiences selected below. Every other experience is
++        compatible by default.
++      </p>
++
++      <h3 className="text-lg font-medium mb-3">
++        Incompatible Experiences
++        <span className="ml-2 text-sm text-white/50">
++          ({incompatibleIds.length})
++        </span>
++      </h3>
++
++      <input
++        value={search}
++        onChange={(e) => setSearch(e.target.value)}
++        placeholder="Search experiences..."
++        className="
++          w-full
++          rounded-xl
++          bg-black
++          border
++          border-zinc-700
++          px-4
++          py-3
++          mb-5
++          outline-none
++        "
++      />
++
++      <div
++        className="
++          max-h-[320px]
++          overflow-y-auto
++          rounded-xl
++          border
++          border-zinc-800
++        "
++      >
++
++        {filteredExperiences.map((exp) => (
++
++          <div
++            key={exp.id}
++            onClick={() => toggleExperience(exp.id)}
++            className={`
++              flex
++              items-center
++              justify-between
++              px-5
++              py-3
++              border-b last:border-b-0
++              border-zinc-800
++              cursor-pointer
++              transition-all
++
++              ${
++                incompatibleIds.includes(String(exp.id))
++                  ? "bg-white/10"
++                  : "hover:bg-white/5"
++              }
++            `}
++          >
++
++            <div>
++
++              <div className="font-medium">
++                {exp.title}
++              </div>
++
++              <div className="text-xs text-white/40">
++                {(exp.categories ?? []).join(", ")}
++              </div>
++
++            </div>
++
++            <input
++              type="checkbox"
++              checked={incompatibleIds.includes(String(exp.id))}
++              onClick={(e) => e.stopPropagation()}
++              onChange={() => toggleExperience(exp.id)}
++              className="h-6 w-6 cursor-pointer"
++            />
++
++          </div>
++
++        ))}
++
++        {filteredExperiences.length === 0 && (
++
++          <div className="py-8 text-center text-white/40">
++            No experiences found.
++          </div>
++
++        )}
++
++      </div>
++
++    </section>
++
++  );
++
++}
+diff --git a/src/app/admin/enhancements/[id]/page.tsx b/src/app/admin/enhancements/[id]/page.tsx
+index b0c4c44..41e45c6 100644
+--- a/src/app/admin/enhancements/[id]/page.tsx
++++ b/src/app/admin/enhancements/[id]/page.tsx
+@@ -12,8 +12,11 @@ import {
+   getEnhancements,
+ } from "@/lib/supabase/enhancementRepository";
+ 
++import { getExperiences } from "@/lib/supabase/experienceRepository";
++
+ import EnhancementCard from "./components/EnhancementCard";
+ import EnhancementAvailabilityCard from "./components/EnhancementAvailabilityCard";
++import IncompatibleExperiencesCard from "./components/IncompatibleExperiencesCard";
+ import SaveBar from "../../experiences/[id]/components/SaveBar";
+ 
+ import {
+@@ -40,6 +43,8 @@ export default function EnhancementEditor() {
+   const [enhancement,setEnhancement] =
+     useState<any>(null);
+ 
++  const [allExperiences, setAllExperiences] = useState<any[]>([]);
++
+   // =========================================================
+   // TRADUCI ORA — sincronizza subito la traduzione italiana per
+   // QUESTO enhancement, senza aspettare che compaia per caso in una
+@@ -99,6 +104,9 @@ export default function EnhancementEditor() {
+ 
+       setEnhancement(found);
+ 
++      const experiences = await getExperiences();
++      setAllExperiences(experiences);
++
+     }
+ 
+     load();
+@@ -202,6 +210,18 @@ export default function EnhancementEditor() {
+ 
+         />
+ 
++        <IncompatibleExperiencesCard
++
++          enhancement={enhancement}
++
++          setEnhancement={
++            setEnhancement
++          }
++
++          experiences={allExperiences}
++
++        />
++
+        <SaveBar
+ 
+   onSave={async () => {
+@@ -356,6 +376,8 @@ export default function EnhancementEditor() {
+ 
+     unselected_button_text: enhancement.unselected_button_text,
+ 
++    incompatible_experiences: enhancement.incompatible_experiences,
++
+         }
+ 
+       );
+diff --git a/src/app/admin/experiences/[id]/components/compatibilityCard.tsx b/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
+index ddb4c50..cd83687 100644
+--- a/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
++++ b/src/app/admin/experiences/[id]/components/compatibilityCard.tsx
+@@ -4,7 +4,6 @@ interface Props {
+   experience: any;
+   setExperience: (value: any) => void;
+   experiences: any[];
+-  enhancements: any[];
+ }
+ 
+ export default function CompatibilityCard({
+@@ -15,16 +14,11 @@ export default function CompatibilityCard({
+ 
+   experiences,
+ 
+-  enhancements,
+-
+ }: Props) {
+ 
+     const [experienceSearch, setExperienceSearch] =
+   useState("");
+ 
+-const [enhancementSearch, setEnhancementSearch] =
+-  useState("");
+-
+     const filteredExperiences = useMemo(() => {
+       return experiences
+ 
+@@ -61,51 +55,6 @@ function toggleExperience(id: string) {
+ 
+ }
+ 
+-// =====================================================
+-// ENHANCEMENTS — id numerici, confronto sempre come stringa
+-// per evitare mismatch di tipo con quello che torna dal DB
+-// =====================================================
+-
+-function isEnhancementIncompatible(id: number) {
+-  return (experience.incompatible_enhancements ?? [])
+-    .map(String)
+-    .includes(String(id));
+-}
+-
+-function toggleEnhancement(id: number) {
+-
+-  const current =
+-    (experience.incompatible_enhancements ?? []).map(String);
+-
+-  const idStr = String(id);
+-
+-  const updated =
+-    current.includes(idStr)
+-      ? current.filter((x: string) => x !== idStr)
+-      : [...current, idStr];
+-
+-  setExperience({
+-    ...experience,
+-    incompatible_enhancements: updated,
+-  });
+-
+-}
+-
+-const filteredEnhancements = useMemo(() => {
+-
+-  return enhancements.filter(e =>
+-    e.title
+-      .toLowerCase()
+-      .includes(
+-        enhancementSearch.toLowerCase()
+-      )
+-  );
+-
+-}, [
+-  enhancements,
+-  enhancementSearch,
+-]);
+-
+   return (
+ 
+     <div
+@@ -127,8 +76,10 @@ const filteredEnhancements = useMemo(() => {
+ 
+       <p className="text-white/50 mt-2 mb-8">
+ 
+-        Choose which experiences and enhancements
+-        cannot be combined with this experience.
++        Choose which other experiences cannot be
++        combined with this experience. Incompatible
++        enhancements are now managed from each
++        Enhancement&apos;s own page.
+ 
+       </p>
+ 
+@@ -236,104 +187,6 @@ const filteredEnhancements = useMemo(() => {
+ 
+ </div>
+ 
+-<h3 className="text-lg font-medium mt-10 mb-3">
+-  Incompatible Enhancements
+-  <span className="ml-2 text-sm text-white/50">
+-    (
+-    {experience.incompatible_enhancements?.length ?? 0}
+-    )
+-  </span>
+-</h3>
+-
+-<input
+-  value={enhancementSearch}
+-  onChange={(e) =>
+-    setEnhancementSearch(e.target.value)
+-  }
+-  placeholder="Search enhancement..."
+-  className="
+-    w-full
+-    rounded-xl
+-    bg-black
+-    border
+-    border-zinc-700
+-    px-4
+-    py-3
+-    mb-5
+-    outline-none
+-  "
+-/>
+-
+-<div
+-  className="
+-    max-h-[320px]
+-    overflow-y-auto
+-    rounded-xl
+-    border
+-    border-zinc-800
+-  "
+->
+-
+-  {filteredEnhancements.map(enh => (
+-
+-    <div
+-      key={enh.id}
+-      onClick={() => toggleEnhancement(enh.id)}
+-      className={`
+-        flex
+-        items-center
+-        justify-between
+-        px-5
+-        py-3
+-        border-b last:border-b-0
+-        border-zinc-800
+-        cursor-pointer
+-        transition-all
+-
+-        ${
+-          isEnhancementIncompatible(enh.id)
+-            ? "bg-white/10"
+-            : "hover:bg-white/5"
+-        }
+-      `}
+-    >
+-
+-      <div>
+-
+-        <div className="font-medium">
+-          {enh.title}
+-        </div>
+-
+-        <div className="text-xs text-white/40">
+-          {enh.category}
+-        </div>
+-
+-      </div>
+-
+-      <input
+-        type="checkbox"
+-        checked={isEnhancementIncompatible(enh.id)}
+-        onClick={(e) => e.stopPropagation()}
+-        onChange={() => toggleEnhancement(enh.id)}
+-        className="h-6 w-6 cursor-pointer"
+-      />
+-
+-    </div>
+-
+-  ))}
+-
+-  {filteredEnhancements.length === 0 && (
+-
+-    <div className="py-8 text-center text-white/40">
+-
+-      No enhancements found.
+-
+-    </div>
+-
+-  )}
+-
+-</div>
+-
+ </div>
+ 
+ 
+diff --git a/src/app/admin/experiences/[id]/page.tsx b/src/app/admin/experiences/[id]/page.tsx
+index 2043b39..1c25d15 100644
+--- a/src/app/admin/experiences/[id]/page.tsx
++++ b/src/app/admin/experiences/[id]/page.tsx
+@@ -13,9 +13,6 @@ import PriceTiersCard from "./components/PriceTiersCard";
+ import SeasonalPricingCard from "./components/SeasonalPricingCard";
+ import AvailabilityCard from "./components/AvailabilityCard";
+ import CollapsibleSection from "./components/CollapsibleSection";
+-import {
+-  getEnhancements,
+-} from "@/lib/supabase/enhancementRepository";
+ import CompatibilityCard
+ from "./components/compatibilityCard";
+ 
+@@ -83,7 +80,6 @@ export default function ExperienceEditor() {
+     useState<any>(null);
+ 
+   const [allExperiences, setAllExperiences] = useState<any[]>([]);
+-  const [allEnhancements, setAllEnhancements] = useState<any[]>([]);
+ 
+   useEffect(() => {
+ 
+@@ -107,11 +103,6 @@ if (!session) {
+ 
+ setAllExperiences(experiences);
+ 
+-const enhancements =
+-  await getEnhancements();
+-
+-setAllEnhancements(enhancements);
+-
+ const found =
+   experiences.find(
+     (e) => e.id === params.id
+@@ -246,8 +237,6 @@ setExperience(found);
+ 
+       experiences={allExperiences}
+ 
+-      enhancements={allEnhancements}
+-
+   />
+ </CollapsibleSection>
+ 
+@@ -784,9 +773,6 @@ for (const fact of experience.facts) {
+        incompatible_experiences:
+       experience.incompatible_experiences,
+ 
+-    incompatible_enhancements:
+-      experience.incompatible_enhancements,
+-
+   }
+ 
+ );
+@@ -921,11 +907,6 @@ for (const fact of experience.facts) {
+ const experiences = await getFullExperiences();
+ setAllExperiences(experiences);
+ 
+-const enhancements =
+-  await getEnhancements();
+-
+-setAllEnhancements(enhancements);
+-
+ const updated = experiences.find(
+   e => e.id === experience.id
+ );
+diff --git a/src/lib/proposal-engine/buildRendererData.ts b/src/lib/proposal-engine/buildRendererData.ts
+index 264f63d..e6baaf3 100644
+--- a/src/lib/proposal-engine/buildRendererData.ts
++++ b/src/lib/proposal-engine/buildRendererData.ts
+@@ -155,14 +155,18 @@ export function buildRendererData({
+     });
+ 
+   // ===================================================
+-  // ENHANCEMENTS (filtro quelli incompatibili con la
+-  // featured o con una qualsiasi delle experience incluse
+-  // — a meno che il viaggio non duri piu' di un giorno,
+-  // stessa eccezione multi-day gia' applicata sopra alle
+-  // esperienze: un enhancement "incompatibile" puo' comunque
+-  // stare nella proposal se va programmato in un giorno diverso.
+-  // Prima questo controllo mancava qui, quindi gli enhancement
+-  // restavano esclusi anche nei viaggi multi-giorno.
++  // ENHANCEMENTS (filtro quelli la cui lista
++  // incompatible_experiences contiene la featured o una
++  // qualsiasi delle experience incluse — a meno che il
++  // viaggio non duri piu' di un giorno, stessa eccezione
++  // multi-day gia' applicata sopra alle esperienze: un
++  // enhancement "incompatibile" puo' comunque stare nella
++  // proposal se va programmato in un giorno diverso.
++  //
++  // Fonte di verita': enhancement.incompatible_experiences
++  // (gestita dalla scheda Enhancement in admin), non piu'
++  // experience.incompatible_enhancements. Stesso principio
++  // "default compatibile, eccezione esplicita".
+   // ===================================================
+ 
+   const relevantExperiences = [
+@@ -170,17 +174,9 @@ export function buildRendererData({
+     ...finalIncludedExperiencesRaw,
+   ].filter(Boolean);
+ 
+-  const incompatibleEnhancementIds = new Set<string>();
+-
+-  if (!isMultiDayTrip) {
+-
+-    relevantExperiences.forEach((experience: any) => {
+-
+-      (experience.incompatible_enhancements ?? []).forEach(
+-        (id: any) => incompatibleEnhancementIds.add(String(id))
+-      );
+-    });
+-  }
++  const relevantExperienceIds = new Set(
++    relevantExperiences.map((experience: any) => String(experience.id))
++  );
+ 
+   const enhancementCards =
+     enhancements
+@@ -188,7 +184,11 @@ export function buildRendererData({
+         (item: any) => item.active
+       )
+       .filter(
+-        (item: any) => !incompatibleEnhancementIds.has(String(item.id))
++        (item: any) =>
++          isMultiDayTrip ||
++          !(item.incompatible_experiences ?? []).some(
++            (id: any) => relevantExperienceIds.has(String(id))
++          )
+       )
+       .filter(
+         (item: any) =>
+diff --git a/src/lib/supabase/experienceRepository.ts b/src/lib/supabase/experienceRepository.ts
+index 67cad39..0f9aab4 100644
+--- a/src/lib/supabase/experienceRepository.ts
++++ b/src/lib/supabase/experienceRepository.ts
+@@ -1308,9 +1308,6 @@ const localizedExperience = getLocalizedExperience(
+   incompatible_experiences:
+     experience.incompatible_experiences ?? [],
+ 
+-  incompatible_enhancements:
+-    experience.incompatible_enhancements ?? [],
+-
+   ...(score || {}),
+ 
+   ...(filter || {}),
+diff --git a/src/types/experience.ts b/src/types/experience.ts
+index ce3e885..8102d2e 100644
+--- a/src/types/experience.ts
++++ b/src/types/experience.ts
+@@ -64,8 +64,6 @@ export interface Experience {
+ 
+     incompatible_experiences: string[];
+ 
+-    incompatible_enhancements: string[];
+-
+     // NUOVI — pricing a scaglioni per numero ospiti (vedi
+     // calculatePrice.ts). pricing_type sopra resta invariato,
+     // questi sono un flag+dati a parte che lo scavalcano quando
+diff --git a/supabase-migrations/2026_enhancement_incompatible_experiences.sql b/supabase-migrations/2026_enhancement_incompatible_experiences.sql
+new file mode 100644
+index 0000000..905bdbc
+--- /dev/null
++++ b/supabase-migrations/2026_enhancement_incompatible_experiences.sql
+@@ -0,0 +1,61 @@
++-- =====================================================================
++-- Sposta la gestione dell'incompatibilita' Experience <-> Enhancement
++-- dalla scheda Experience alla scheda Enhancement.
++--
++-- Prima: experience_content.incompatible_enhancements (text[] di id
++-- enhancement), editata solo dalla scheda Experience.
++-- Dopo:  enhancement_content.incompatible_experiences (text[] di id
++-- experience), editata solo dalla scheda Enhancement.
++--
++-- Stessa tecnica (array sulla riga, nessuna tabella many-to-many),
++-- solo spostata di tabella e invertita di direzione. Il default
++-- rimane "compatibile": un id assente dall'array non e' mai
++-- incompatibile.
++-- =====================================================================
++
++alter table enhancement_content
++  add column if not exists incompatible_experiences text[] default '{}';
++
++-- ---------------------------------------------------------------------
++-- Backfill: inverte i dati esistenti senza perdita. Per ogni Experience
++-- che dichiarava un Enhancement incompatibile, aggiunge l'id della
++-- Experience nella nuova lista dell'Enhancement (dedup con l'unione di
++-- array). Racchiuso in un controllo sulla vecchia colonna cosi' la
++-- migrazione resta sicura da rieseguire anche dopo che la colonna e'
++-- gia' stata droppata (stesso standard "if exists" del resto del file).
++-- ---------------------------------------------------------------------
++
++do $$
++begin
++  if exists (
++    select 1 from information_schema.columns
++    where table_name = 'experience_content'
++      and column_name = 'incompatible_enhancements'
++  ) then
++    update enhancement_content e
++    set incompatible_experiences = (
++      select array_agg(distinct x)
++      from (
++        select unnest(e.incompatible_experiences) as x
++        union
++        select ec.id::text
++        from experience_content ec
++        where e.id::text = any (ec.incompatible_enhancements)
++      ) s
++    )
++    where exists (
++      select 1
++      from experience_content ec
++      where e.id::text = any (ec.incompatible_enhancements)
++    );
++  end if;
++end $$;
++
++-- ---------------------------------------------------------------------
++-- La vecchia colonna e' completamente superata dalla nuova: tenerla
++-- creerebbe due punti di configurazione indipendenti per la stessa
++-- relazione, che e' esattamente cio' che questa modifica vuole evitare.
++-- ---------------------------------------------------------------------
++
++alter table experience_content
++  drop column if exists incompatible_enhancements;
+-- 
+2.43.0
+

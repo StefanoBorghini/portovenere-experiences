@@ -1,0 +1,28 @@
+From 3f4ed6df657709e2cf750ef7d8f03e1c0ae7a541 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 15:44:09 +0000
+Subject: [PATCH] Left-align the featured experience description text
+
+Label, title and operator name stay centered (unchanged); only the
+description paragraph, which was inheriting text-center from its
+parent on mobile/tablet, is now explicitly left-aligned at every
+breakpoint.
+---
+ src/components/proposal/FeaturedExperience.tsx | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/components/proposal/FeaturedExperience.tsx b/src/components/proposal/FeaturedExperience.tsx
+index 2a8700c..0fba18f 100644
+--- a/src/components/proposal/FeaturedExperience.tsx
++++ b/src/components/proposal/FeaturedExperience.tsx
+@@ -259,6 +259,7 @@ export default function FeaturedExperience({
+ 
+               <div
+                 className={`
++                  text-left
+                   text-white/50
+                   text-[15px]
+                   md:text-[18px]
+-- 
+2.43.0
+

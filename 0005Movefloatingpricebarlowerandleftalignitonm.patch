@@ -1,0 +1,49 @@
+From 1db376e268c6671ff0bb4c9170c12ab1f3edb217 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 15:26:52 +0000
+Subject: [PATCH] Move floating price bar lower and left-align it on mobile
+
+On mobile the bar was centered and nearly full-width, overlapping the
+Iubenda cookie badge at the bottom-right. Moved it down (bottom-4),
+left-aligned it, and narrowed it (reserving ~6rem on the right) so it
+clears the badge instead of sitting under it. Desktop layout (centered,
+auto width) is unchanged.
+---
+ src/components/proposal/FloatingPriceBar.tsx | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/src/components/proposal/FloatingPriceBar.tsx b/src/components/proposal/FloatingPriceBar.tsx
+index 29da638..37927fd 100644
+--- a/src/components/proposal/FloatingPriceBar.tsx
++++ b/src/components/proposal/FloatingPriceBar.tsx
+@@ -109,19 +109,21 @@ export default function FloatingPriceBar({
+ 
+           className="
+             fixed
+-            bottom-14
+-            md:bottom-6
+-            left-1/2
+-            -translate-x-1/2
++            bottom-4
++            md:bottom-4
++            left-4
++            md:left-1/2
++            md:-translate-x-1/2
+             z-50
+ 
+-            w-[92vw]
++            w-[calc(100vw-6rem)]
+             max-w-sm
+             md:w-auto
+ 
+             flex
+             flex-col
+-            items-center
++            items-start
++            md:items-center
+             gap-3
+           "
+         >
+-- 
+2.43.0
+

@@ -1,0 +1,54 @@
+From f2e14748fcf50175ad7c80c97f665926e3d5c729 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 16 Aug 2026 15:59:44 +0000
+Subject: [PATCH] Enforce Enhancement<->Experience incompatibility on multi-day
+ trips too
+
+The multi-day exception (skip incompatibility so items can be scheduled
+on different days) makes sense for Experience<->Experience, but was
+also applied to the Enhancement filter -- so an enhancement marked
+incompatible with the featured experience still showed up on any
+multi-day proposal, regardless of what was configured in the
+Enhancement admin page. That's a structural incompatibility (the
+enhancement doesn't fit that experience at all), not a same-day
+scheduling conflict, so it should hold regardless of trip length.
+Experience<->Experience multi-day handling is unchanged.
+---
+ src/lib/proposal-engine/buildRendererData.ts | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/src/lib/proposal-engine/buildRendererData.ts b/src/lib/proposal-engine/buildRendererData.ts
+index e6baaf3..8e3d6b1 100644
+--- a/src/lib/proposal-engine/buildRendererData.ts
++++ b/src/lib/proposal-engine/buildRendererData.ts
+@@ -157,11 +157,14 @@ export function buildRendererData({
+   // ===================================================
+   // ENHANCEMENTS (filtro quelli la cui lista
+   // incompatible_experiences contiene la featured o una
+-  // qualsiasi delle experience incluse — a meno che il
+-  // viaggio non duri piu' di un giorno, stessa eccezione
+-  // multi-day gia' applicata sopra alle esperienze: un
+-  // enhancement "incompatibile" puo' comunque stare nella
+-  // proposal se va programmato in un giorno diverso.
++  // qualsiasi delle experience incluse. A differenza del
++  // filtro Experience<->Experience qui sopra, questo NON ha
++  // l'eccezione multi-day: un'incompatibilita' Enhancement<->
++  // Experience non e' un conflitto "stesso giorno" risolvibile
++  // programmandoli su giorni diversi, e' un'incompatibilita'
++  // strutturale con quella experience (es. l'enhancement non
++  // ha senso con quel tipo di esperienza), quindi vale sempre,
++  // a prescindere dalla durata del viaggio.
+   //
+   // Fonte di verita': enhancement.incompatible_experiences
+   // (gestita dalla scheda Enhancement in admin), non piu'
+@@ -185,7 +188,6 @@ export function buildRendererData({
+       )
+       .filter(
+         (item: any) =>
+-          isMultiDayTrip ||
+           !(item.incompatible_experiences ?? []).some(
+             (id: any) => relevantExperienceIds.has(String(id))
+           )
+-- 
+2.43.0
+
