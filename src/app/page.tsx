@@ -194,7 +194,7 @@ export default function HomePage() {
             className="block md:hidden absolute inset-0 w-full h-full object-cover"
           >
             <source
-              src="/videos/Hero/hero-mobile.mp4"
+              src="/videos/Hero/rel-hero.mp4"
               type="video/mp4"
             />
           </video>
