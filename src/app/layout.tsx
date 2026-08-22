@@ -5,6 +5,7 @@ import "./globals.css";
 import IubendaCookieSolution from "@/components/analytics/IubendaCookieSolution";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import MicrosoftClarity from "../components/analytics/MicrosoftClarity";
+import GoogleTagManager from "@/components/analytics/GoogleTagManager";
 
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -89,6 +90,25 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
 
+        {/* Google Tag Manager (noscript) — fallback statico per i
+            browser senza JS, richiesto dal setup standard GTM. A
+            differenza degli script sotto, questo iframe non passa
+            dall'autoblocking Iubenda (e' HTML puro, niente JS da
+            bloccare): carica il container a prescindere dal
+            consenso. Scelta esplicita nonostante l'incoerenza con
+            il resto dei tracker qui sotto (tutti gated). */}
+
+        {process.env.NEXT_PUBLIC_GTM_CONTAINER_ID && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_CONTAINER_ID}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
+
         {/* Iubenda + Google Analytics — qui nel root layout,
             cosi' coprono TUTTE le pagine del sito (landing,
             configuratore, proposal page) con un solo punto
@@ -99,6 +119,7 @@ export default async function RootLayout({
         <IubendaCookieSolution />
         <GoogleAnalytics />
         <MicrosoftClarity />
+        <GoogleTagManager />
 
         <NextIntlClientProvider locale={locale} messages={messages}>
 
