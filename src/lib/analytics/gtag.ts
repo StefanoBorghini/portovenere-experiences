@@ -49,6 +49,22 @@ export function trackEvent({
     value,
     ...extra,
   });
+
+  // Stesso evento anche nel dataLayer, in un formato che i trigger
+  // "Evento personalizzato" di GTM possono leggere direttamente
+  // (event: action) -- gtag() sopra scrive nel dataLayer col suo
+  // formato interno (arguments array), che GTM non intercetta come
+  // Custom Event pulito. Nessun window.dataLayer = [] qui: sia
+  // GoogleAnalytics.tsx che GoogleTagManager.tsx lo inizializzano
+  // gia' prima che questo possa girare (stesso gate window.gtag
+  // sopra -- se gtag esiste, dataLayer esiste).
+  window.dataLayer.push({
+    event: action,
+    event_category: category,
+    event_label: label,
+    value,
+    ...extra,
+  });
 }
 
 // =========================================================
