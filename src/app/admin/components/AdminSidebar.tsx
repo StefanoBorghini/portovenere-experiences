@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/experiences", label: "Experiences", icon: ExperiencesIcon },
   { href: "/admin/enhancements", label: "Enhancements", icon: EnhancementsIcon },
   { href: "/admin/leads", label: "Leads", icon: LeadsIcon },
+  { href: "/admin/affiliates", label: "Affiliates", icon: AffiliatesIcon },
 ];
 
 // =========================================================
@@ -61,6 +62,16 @@ function LeadsIcon() {
       <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" />
       <circle cx="17" cy="8" r="2.3" />
       <path d="M15.5 14.2c2.4.4 4.5 2.5 4.5 5.8" />
+    </svg>
+  );
+}
+
+function AffiliatesIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 shrink-0">
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+      <path d="M3 12h18" />
     </svg>
   );
 }
