@@ -9,6 +9,11 @@
 
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+// ID del tag Google Ads (AW-...), per le conversioni delle campagne.
+// Va impostato come env var NEXT_PUBLIC_GOOGLE_ADS_ID nel progetto
+// (es. "AW-322936404") — se assente, trackAdsConversion() non fa nulla.
+export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+
 declare global {
   interface Window {
     dataLayer: any[];
@@ -241,6 +246,51 @@ export function trackProposalSent(slug: string) {
     category: "proposal",
     label: slug,
     extra: { slug },
+  });
+}
+
+// =========================================================
+// GOOGLE ADS — conversioni per campagna. Separato da trackEvent()
+// perche' non e' un evento GA4: e' l'evento "conversion" che
+// gtag.js manda al tag Ads (AW-...), con una conversion label
+// specifica per ciascuna azione da misurare.
+// =========================================================
+
+interface TrackAdsConversionParams {
+  // Label della conversione cosi' come appare in Google Ads
+  // (Strumenti > Conversioni > [azione] > Impostazione tag),
+  // nel formato "AW-XXXXXXXXX/YYYYYYYYYYYYYYYYYYYY".
+  conversionLabel: string;
+  value?: number;
+  currency?: string;
+}
+
+export function trackAdsConversion({
+  conversionLabel,
+  value,
+  currency = "EUR",
+}: TrackAdsConversionParams) {
+  if (typeof window === "undefined" || !window.gtag) return;
+
+  window.gtag("event", "conversion", {
+    send_to: conversionLabel,
+    value,
+    currency,
+  });
+}
+
+// Conversione "Richiesta preventivo" — scatta quando l'utente invia
+// una richiesta di prenotazione/preventivo dalla pagina proposal
+// (vedi proposalClient.tsx, accanto a trackProposalSent). Le altre
+// conversioni Ads (click CTA homepage, avvio configuratore, proposta
+// generata) sono importate direttamente dai relativi eventi GA4 via
+// Google Ads > Conversioni > eventi GA4 — nessuna chiamata diretta
+// necessaria per quelle, per evitare doppio conteggio.
+export function trackQuoteRequestConversion() {
+  trackAdsConversion({
+    conversionLabel: "AW-322936404/gFuzCK6i_-UcENS8_pkB",
+    value: 1.0,
+    currency: "EUR",
   });
 }
 

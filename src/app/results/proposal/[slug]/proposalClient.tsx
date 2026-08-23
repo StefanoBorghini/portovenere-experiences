@@ -18,6 +18,7 @@ import {
     trackBookingChangesConfirmed,
     trackProposalScrollDepth,
     trackProposalHeartbeat,
+    trackQuoteRequestConversion,
 } from "@/lib/analytics/gtag";
 import SectionViewTracker from "@/components/analytics/SectionViewTracker";
 
@@ -395,6 +396,7 @@ export default function ProposalClient({
             }
 
             trackProposalSent(slug);
+            trackQuoteRequestConversion();
 
             if (data.expiresAt) {
                 setCurrentExpiresAt(data.expiresAt);
