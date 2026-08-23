@@ -13,7 +13,10 @@ import { supabase } from "@/lib/supabase";
 // il default iniziale prima di qualsiasi azione admin).
 // =========================================================
 
-export async function getPartnerPayments() {
+// Tutte le candidature, senza filtro — usata dalla Dashboard per il
+// conteggio totale Affiliates (vedi admin/page.tsx) e da
+// getPartnerPayments() sotto come base da filtrare.
+export async function getPartnerApplications() {
   if (!supabase) {
     console.error("Supabase not initialized");
     return [];
@@ -36,11 +39,16 @@ export async function getPartnerPayments() {
   const data = await response.json();
 
   if (!data.success) {
-    console.error("Error loading partner payments:", data.error);
+    console.error("Error loading partner applications:", data.error);
     return [];
   }
 
-  return (data.data || []).filter((p: any) => p.payment_status !== "pending");
+  return data.data || [];
+}
+
+export async function getPartnerPayments() {
+  const applications = await getPartnerApplications();
+  return applications.filter((p: any) => p.payment_status !== "pending");
 }
 
 // "Reset" — non cancella la candidatura, solo i campi legati al
