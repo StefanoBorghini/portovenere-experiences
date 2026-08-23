@@ -429,3 +429,72 @@ export function trackCtaVisible(slug?: string) {
     extra: { slug },
   });
 }
+
+// =========================================================
+// /become-a-partner — wizard B2B step-by-step per operatori (hotel,
+// ristoranti, noleggio privato, tour operator, altro). Categoria
+// dedicata "partners", separata da "configurator", cosi' il funnel
+// B2B resta isolabile dal funnel turistico. Stesso schema di eventi
+// step del configuratore (trackStepEntered/trackStepBack), per poter
+// confrontare i due funnel con lo stesso vocabolario.
+// =========================================================
+
+export function trackPartnerPageView() {
+  trackEvent({
+    action: "partner_page_view",
+    category: "partners",
+  });
+}
+
+export function trackPartnerStepEntered(step: string, stepIndex: number) {
+  trackEvent({
+    action: "partner_step_entered",
+    category: "partners",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
+export function trackPartnerStepBack(step: string, stepIndex: number) {
+  trackEvent({
+    action: "partner_step_back",
+    category: "partners",
+    label: step,
+    extra: { step, step_index: stepIndex },
+  });
+}
+
+export function trackPartnerTypeSelected(category: string) {
+  trackEvent({
+    action: "partner_type_selected",
+    category: "partners",
+    label: category,
+    extra: { partner_category: category },
+  });
+}
+
+export function trackPartnerPlanSelected(plan: string) {
+  trackEvent({
+    action: "partner_plan_selected",
+    category: "partners",
+    label: plan,
+    extra: { plan },
+  });
+}
+
+export function trackPartnerApplicationSubmitted(plan: string, category: string) {
+  trackEvent({
+    action: "partner_application_submitted",
+    category: "partners",
+    label: plan,
+    extra: { plan, partner_category: category },
+  });
+}
+
+export function trackPartnerApplicationError(reason: string) {
+  trackEvent({
+    action: "partner_application_error",
+    category: "partners",
+    label: reason,
+  });
+}

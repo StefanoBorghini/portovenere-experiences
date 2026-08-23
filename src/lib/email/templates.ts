@@ -420,3 +420,167 @@ export function clientChangesConfirmedTemplate(data: ProposalSummary) {
     </div>
   `;
 }
+
+// ---------------------------------------------------------
+// 6. Email al PROPRIETARIO — nuova candidatura da /become-a-partner.
+// Il wizard raccoglie 4 blocchi liberi (profile/details/booking/
+// materials, tanti campi eterogenei e facoltativi) oltre ai campi
+// fissi — jsonbSection() li rende come tabella solo se non vuoti,
+// cosi' la mail non mostra sezioni vuote per chi ha saltato dei passi.
+// ---------------------------------------------------------
+
+interface PartnerApplicationSummary {
+  companyName: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  category: string;
+  profile?: Record<string, unknown>;
+  details?: Record<string, unknown>;
+  booking?: Record<string, unknown>;
+  materials?: Record<string, unknown>;
+  consentFullName?: string;
+  planInterest: string;
+  website?: string;
+  instagram?: string;
+  message?: string;
+}
+
+function humanizeKey(key: string): string {
+  return key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[_-]/g, " ")
+    .replace(/^./, (c) => c.toUpperCase());
+}
+
+function formatJsonbValue(value: unknown): string | null {
+  if (typeof value === "string" && value.trim().length > 0) return value;
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (Array.isArray(value) && value.length > 0) return value.join(", ");
+  return null;
+}
+
+// Tabella generica chiave/valore per un blocco jsonb (profile/details/
+// booking/materials) — con un titolo di sezione sopra se ci sono righe
+// da mostrare, altrimenti stringa vuota (niente sezioni vuote in mail).
+function jsonbSection(title: string, data: Record<string, unknown> | undefined): string {
+
+  if (!data) return "";
+
+  const rows = Object.entries(data)
+    .map(([key, value]) => [key, formatJsonbValue(value)] as [string, string | null])
+    .filter(([, value]) => value !== null) as [string, string][];
+
+  if (rows.length === 0) return "";
+
+  return `
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+      <p style="color: #666; font-size: 13px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1px;">${escapeHtml(title)}</p>
+      <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+        ${rows
+          .map(
+            ([key, value]) =>
+              `<tr><td style="padding: 6px 0; color: #666; width: 45%;">${escapeHtml(humanizeKey(key))}</td><td>${escapeHtml(value)}</td></tr>`
+          )
+          .join("")}
+      </table>
+    </div>
+  `;
+}
+
+export function ownerNewPartnerApplicationTemplate(data: PartnerApplicationSummary) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
+      <h2 style="font-weight: 300;">New partner application</h2>
+      <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+        <tr><td style="padding: 6px 0; color: #666;">Business</td><td>${escapeHtml(data.companyName)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Contact</td><td>${escapeHtml(data.contactName)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Email</td><td>${escapeHtml(data.email)}</td></tr>
+        ${data.phone ? `<tr><td style="padding: 6px 0; color: #666;">Phone</td><td>${escapeHtml(data.phone)}</td></tr>` : ""}
+        <tr><td style="padding: 6px 0; color: #666;">Category</td><td>${escapeHtml(data.category)}</td></tr>
+        <tr><td style="padding: 6px 0; color: #666;">Plan interest</td><td>${escapeHtml(data.planInterest)}</td></tr>
+        ${data.website ? `<tr><td style="padding: 6px 0; color: #666;">Website</td><td>${escapeHtml(data.website)}</td></tr>` : ""}
+        ${data.instagram ? `<tr><td style="padding: 6px 0; color: #666;">Instagram/Facebook</td><td>${escapeHtml(data.instagram)}</td></tr>` : ""}
+        ${data.consentFullName ? `<tr><td style="padding: 6px 0; color: #666;">Consent signed by</td><td>${escapeHtml(data.consentFullName)}</td></tr>` : ""}
+      </table>
+
+      ${jsonbSection("Business profile", data.profile)}
+      ${jsonbSection("Category details", data.details)}
+      ${jsonbSection("Booking", data.booking)}
+      ${jsonbSection("Materials", data.materials)}
+
+      ${
+        data.message
+          ? `<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+               <p style="color: #666; font-size: 13px; margin: 0 0 8px;">Message</p>
+               <p style="font-size: 14px; white-space: pre-wrap;">${escapeHtml(data.message)}</p>
+             </div>`
+          : ""
+      }
+
+      <p style="margin: 24px 0;">
+        <a href="mailto:${escapeHtml(data.email)}" style="color: #111;">
+          Reply to ${escapeHtml(data.contactName)} →
+        </a>
+      </p>
+    </div>
+  `;
+}
+
+// ---------------------------------------------------------
+// 7. Email all'OPERATORE — invio del contratto dopo l'accettazione
+// del pagamento (vedi /admin/affiliates/[id], bottone "Invia
+// contratto"). Il PDF vero e proprio va allegato da chi chiama
+// sendEmail() (vedi API route /api/admin/send-partner-contract),
+// questo template e' solo il corpo della mail. Nessun link di
+// firma elettronica: l'accettazione e' "click-wrap" — pagare
+// l'abbonamento vale come accettazione delle condizioni allegate,
+// come da conferma esplicita del cliente.
+// ---------------------------------------------------------
+
+interface PartnerContractSummary {
+  companyName: string;
+  contactName: string;
+  planLabel: string;
+  subscriptionStart?: string;
+  subscriptionEnd?: string;
+}
+
+export function partnerContractEmailTemplate(data: PartnerContractSummary) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #111;">
+
+      <div style="text-align: center; margin-bottom: 24px;">
+        <img
+          src="${SITE_URL}/logo-white.png"
+          alt="Portovenere Experiences"
+          style="height: 36px; filter: invert(1);"
+        />
+      </div>
+
+      <h2 style="font-weight: 300;">Welcome aboard, ${escapeHtml(data.companyName)}</h2>
+      <p>Hi ${escapeHtml(data.contactName) || "there"},</p>
+      <p>
+        Thank you for joining Portovenere Experience as a partner on the
+        <strong>${escapeHtml(data.planLabel)}</strong> plan. Your subscription
+        agreement is attached to this email as a PDF.
+      </p>
+
+      ${
+        data.subscriptionStart && data.subscriptionEnd
+          ? `<table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
+               <tr><td style="padding: 6px 0; color: #666;">Subscription start</td><td>${escapeHtml(data.subscriptionStart)}</td></tr>
+               <tr><td style="padding: 6px 0; color: #666;">Subscription end</td><td>${escapeHtml(data.subscriptionEnd)}</td></tr>
+             </table>`
+          : ""
+      }
+
+      <p style="color: #666; font-size: 13px;">
+        By completing payment for your subscription, you confirm acceptance
+        of the terms outlined in the attached agreement.
+      </p>
+
+      ${contactsBlock()}
+    </div>
+  `;
+}
