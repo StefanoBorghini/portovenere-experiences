@@ -1,5 +1,9 @@
 import { jsPDF } from "jspdf";
-import { PARTNER_CONTRACT_TITLE, PARTNER_CONTRACT_CLAUSES } from "./partnerContractTerms";
+import {
+  PARTNER_CONTRACT_TITLE,
+  PARTNER_CONTRACT_CLAUSES,
+  PARTNER_CONTRACT_PROVIDER_IDENTITY,
+} from "./partnerContractTerms";
 
 // =========================================================
 // Genera il PDF del contratto compilato con i dati reali della
@@ -17,6 +21,7 @@ export interface PartnerContractData {
   email: string;
   phone?: string;
   category: string;
+  vatNumber?: string;
   planLabel: string;
   planPrice?: string;
   subscriptionStart?: string;
@@ -52,7 +57,14 @@ export function generatePartnerContractPdf(data: PartnerContractData): Buffer {
   doc.setTextColor(20);
   doc.setFont("helvetica", "bold");
   doc.text(PARTNER_CONTRACT_TITLE, MARGIN, y);
-  y += 12;
+  y += 8;
+
+  // ---- Identita' del fornitore (ragione sociale/sede/P.IVA) ----
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+  doc.setFont("helvetica", "normal");
+  doc.text(PARTNER_CONTRACT_PROVIDER_IDENTITY, MARGIN, y);
+  y += 10;
 
   // ---- Dati attivita' / abbonamento, come tabella semplice ----
   const rows: [string, string][] = [
@@ -60,6 +72,7 @@ export function generatePartnerContractPdf(data: PartnerContractData): Buffer {
     ["Referente", data.contactName],
     ["Email", data.email],
     ["Telefono", data.phone || "—"],
+    ["Partita IVA / C.F.", data.vatNumber || "—"],
     ["Categoria", data.category],
     ["Piano", data.planLabel],
     ["Corrispettivo", data.planPrice || "—"],
@@ -69,6 +82,7 @@ export function generatePartnerContractPdf(data: PartnerContractData): Buffer {
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
+  doc.setTextColor(20);
 
   rows.forEach(([label, value]) => {
     doc.setFont("helvetica", "bold");

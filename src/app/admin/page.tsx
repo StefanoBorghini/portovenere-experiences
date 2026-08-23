@@ -8,6 +8,9 @@ import { supabase } from "@/lib/supabase";
 import { getExperiences } from "@/lib/supabase/experienceRepository";
 import { getEnhancements } from "@/lib/supabase/enhancementRepository";
 import { getLeads } from "@/lib/supabase/leadRepository";
+import { getProposalPayments } from "@/lib/supabase/leadRepository";
+import { getCustomPayments } from "@/lib/supabase/customPaymentRepository";
+import { getPartnerApplications, getPartnerPayments } from "@/lib/supabase/partnerPaymentRepository";
 
 // =========================================================
 // SECTION CARDS — stessa fonte unica di NAV_ITEMS in
@@ -30,6 +33,8 @@ export default function AdminDashboardPage() {
   const [enhancementsCount, setEnhancementsCount] = useState(0);
   const [leadsCount, setLeadsCount] = useState(0);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
+  const [affiliatesCount, setAffiliatesCount] = useState(0);
+  const [paymentsCount, setPaymentsCount] = useState(0);
 
   useEffect(() => {
     async function load() {
@@ -44,10 +49,22 @@ export default function AdminDashboardPage() {
         return;
       }
 
-      const [experiences, enhancements, leads] = await Promise.all([
+      const [
+        experiences,
+        enhancements,
+        leads,
+        affiliates,
+        proposalPayments,
+        customPayments,
+        partnerPayments,
+      ] = await Promise.all([
         getExperiences(),
         getEnhancements(),
         getLeads(),
+        getPartnerApplications(),
+        getProposalPayments(),
+        getCustomPayments(),
+        getPartnerPayments(),
       ]);
 
       setExperiencesCount(experiences.length);
@@ -55,6 +72,15 @@ export default function AdminDashboardPage() {
       setLeadsCount(leads.length);
       setNewLeadsCount(
         leads.filter((lead: any) => (lead.status || "new") === "new").length
+      );
+      setAffiliatesCount(affiliates.length);
+      // Stesso conteggio della pagina "Payments": ogni pagamento
+      // davvero richiesto, dalle tre fonti (Concierge Fee, Custom,
+      // Partner) — vedi admin/payments/page.tsx.
+      setPaymentsCount(
+        (proposalPayments?.length || 0) +
+          (customPayments?.length || 0) +
+          (partnerPayments?.length || 0)
       );
 
       setLoading(false);
@@ -81,6 +107,18 @@ export default function AdminDashboardPage() {
       label: "Leads",
       description: "Requests submitted through the configurator.",
       count: leadsCount,
+    },
+    {
+      href: "/admin/affiliates",
+      label: "Affiliates",
+      description: "Applications submitted through /become-a-partner.",
+      count: affiliatesCount,
+    },
+    {
+      href: "/admin/payments",
+      label: "Payments",
+      description: "Concierge Fees, custom and partner payments.",
+      count: paymentsCount,
     },
   ];
 
@@ -115,7 +153,7 @@ export default function AdminDashboardPage() {
         </button>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {cards.map((card) => (
           <Link
             key={card.href}

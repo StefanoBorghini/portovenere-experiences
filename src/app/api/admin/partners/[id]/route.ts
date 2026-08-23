@@ -13,6 +13,8 @@ const EDITABLE_FIELDS = [
   "subscription_start_date",
   "subscription_end_date",
   "internal_notes",
+  "stripe_checkout_session_id",
+  "checkout_url",
 ] as const;
 
 function pickEditableFields(body: Record<string, unknown>) {

@@ -3,13 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
-const PLAN_LABELS: Record<string, string> = {
-  base: "Base",
-  premium: "Premium",
-  signature: "Signature",
-  not_sure: "Not sure",
-};
+import { PLAN_LABELS, PLAN_AMOUNTS } from "@/lib/config/partnerPlans";
 
 const PAYMENT_STATUS_OPTIONS = [
   { value: "pending", label: "Pending" },
@@ -72,6 +66,8 @@ export default function AffiliateDetailPage() {
   const [markingPaymentSent, setMarkingPaymentSent] = useState(false);
   const [activatingSubscription, setActivatingSubscription] = useState(false);
   const [sendingContract, setSendingContract] = useState(false);
+  const [sendingStripePayment, setSendingStripePayment] = useState(false);
+  const [customStripeAmount, setCustomStripeAmount] = useState("");
 
   async function getAccessToken() {
     if (!supabase) return "";
@@ -170,9 +166,10 @@ export default function AffiliateDetailPage() {
   }
 
   // =========================================================
-  // MARK PAYMENT SENT — non manda nessuna email (il pagamento lo
-  // gestisce l'admin manualmente fuori dal sistema, es. link Stripe
-  // condiviso a mano o bonifico), registra solo che e' stato inviato.
+  // MARK PAYMENT SENT — per quando il pagamento viene gestito del
+  // tutto fuori sistema (bonifico, contanti, ecc.): non manda nessuna
+  // email, registra solo che e' stato "inviato" a mano. Per un vero
+  // link di pagamento usa invece "Send Stripe payment" sotto.
   // =========================================================
 
   async function handleMarkPaymentSent() {
@@ -191,6 +188,63 @@ export default function AffiliateDetailPage() {
       setPartner((prev: any) => ({ ...prev, payment_status: "payment_sent", payment_sent_at: nowIso }));
     } else {
       alert("Could not update — please try again.");
+    }
+  }
+
+  // =========================================================
+  // SEND STRIPE PAYMENT — crea una Checkout Session Stripe e la
+  // manda via email all'operatore (vedi create-stripe-payment/route.ts).
+  // Al pagamento riuscito, il webhook Stripe attiva da solo
+  // l'abbonamento (payment_status=paid, date oggi -> +1 anno) — non
+  // serve poi cliccare "Activate subscription" a mano.
+  //
+  // Il piano "Signature"/"Not sure" non ha un prezzo fisso: in quel
+  // caso l'input importo sotto e' obbligatorio, altrimenti la route
+  // risponde con un errore chiaro.
+  // =========================================================
+
+  async function handleSendStripePayment() {
+
+    const fixedAmount = PLAN_AMOUNTS[partner.plan_interest];
+    const amount = fixedAmount ?? Number(customStripeAmount);
+
+    if (!amount || amount <= 0) {
+      alert("This plan has no fixed price — enter an amount first.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Send a €${amount} Stripe payment link to ${partner.email}?`
+    );
+
+    if (!confirmed) return;
+
+    setSendingStripePayment(true);
+
+    const token = await getAccessToken();
+
+    const response = await fetch(`/api/admin/partners/${partner.id}/create-stripe-payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(fixedAmount ? {} : { amount }),
+    });
+
+    const result = await response.json();
+
+    setSendingStripePayment(false);
+
+    if (result.success) {
+      setPartner((prev: any) => ({
+        ...prev,
+        payment_status: "payment_sent",
+        payment_amount: result.amount,
+      }));
+      alert("Stripe payment link sent!");
+    } else {
+      alert(result.error || "Could not create the payment — please try again.");
     }
   }
 
@@ -353,12 +407,30 @@ export default function AffiliateDetailPage() {
             ))}
           </select>
 
+          {!PLAN_AMOUNTS[partner.plan_interest] && (
+            <input
+              type="number"
+              value={customStripeAmount}
+              onChange={(e) => setCustomStripeAmount(e.target.value)}
+              placeholder="Amount (€)"
+              className="w-32 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] outline-none text-sm"
+            />
+          )}
+
+          <button
+            onClick={handleSendStripePayment}
+            disabled={sendingStripePayment}
+            className="text-xs px-3 py-2.5 rounded-full bg-white text-black font-medium hover:bg-white/90 transition-all disabled:opacity-50"
+          >
+            {sendingStripePayment ? "Sending..." : "💳 Send Stripe payment"}
+          </button>
+
           <button
             onClick={handleMarkPaymentSent}
             disabled={markingPaymentSent}
             className="text-xs px-3 py-2.5 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
           >
-            {markingPaymentSent ? "Saving..." : "✉ Mark payment sent"}
+            {markingPaymentSent ? "Saving..." : "✉ Mark payment sent (manual)"}
           </button>
 
           <button
@@ -405,6 +477,14 @@ export default function AffiliateDetailPage() {
             />
           </div>
         </div>
+
+        <p className="text-white/30 text-sm mt-4">
+          "Send Stripe payment" emails a real payment link; once the
+          operator pays, subscription dates activate automatically
+          (today → +1 year) — no need to click "Activate subscription"
+          afterwards. That button stays useful for payments handled
+          entirely outside Stripe (bank transfer, cash).
+        </p>
       </div>
 
       {/* =================================================
