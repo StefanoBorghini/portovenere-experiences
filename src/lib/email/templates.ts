@@ -1119,3 +1119,51 @@ export function ownerNewExperienceSubmissionTemplate(data: ExperienceSubmissionS
     </p>
   `, 560);
 }
+
+// ---------------------------------------------------------
+// Email all'OPERATORE — invio del contratto dopo l'accettazione
+// del pagamento (vedi /admin/affiliates/[id], bottone "Invia
+// contratto"). Il PDF vero e proprio va allegato da chi chiama
+// sendEmail() (vedi API route /api/admin/partners/[id]/send-contract),
+// questo template e' solo il corpo della mail. Nessun link di
+// firma elettronica: l'accettazione e' "click-wrap" — pagare
+// l'abbonamento vale come accettazione delle condizioni allegate.
+// ---------------------------------------------------------
+
+interface PartnerContractSummary {
+  companyName: string;
+  contactName: string;
+  planLabel: string;
+  subscriptionStart?: string;
+  subscriptionEnd?: string;
+}
+
+export function partnerContractEmailTemplate(data: PartnerContractSummary) {
+  return wrapEmail(`
+    ${logoBlock()}
+
+    <h2 style="font-weight: 300;">Welcome aboard, ${escapeHtml(data.companyName)}</h2>
+    <p>Hi ${escapeHtml(data.contactName) || "there"},</p>
+    <p>
+      Thank you for joining Portovenere Experience as a partner on the
+      <strong>${escapeHtml(data.planLabel)}</strong> plan. Your subscription
+      agreement is attached to this email as a PDF.
+    </p>
+
+    ${
+      data.subscriptionStart && data.subscriptionEnd
+        ? `<table style="width: 100%; font-size: 14px; border-collapse: collapse; margin: 20px 0;">
+             <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Subscription start</td><td>${escapeHtml(data.subscriptionStart)}</td></tr>
+             <tr><td style="padding: 6px 0; color: ${TEXT_MUTED};">Subscription end</td><td>${escapeHtml(data.subscriptionEnd)}</td></tr>
+           </table>`
+        : ""
+    }
+
+    <p style="color: ${TEXT_MUTED}; font-size: 13px;">
+      By completing payment for your subscription, you confirm acceptance
+      of the terms outlined in the attached agreement.
+    </p>
+
+    ${contactsBlock()}
+  `);
+}

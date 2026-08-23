@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { GA_MEASUREMENT_ID } from "../../lib/analytics/gtag";
+import { GA_MEASUREMENT_ID, GOOGLE_ADS_ID } from "../../lib/analytics/gtag";
 
 // =========================================================
 // Il consenso e il Consent Mode li gestisce interamente
@@ -48,8 +48,20 @@ export default function GoogleAnalytics() {
           window.gtag = gtag;
           gtag('js', new Date());
           gtag('config', '${GA_MEASUREMENT_ID}', { anonymize_ip: true });
+          ${GOOGLE_ADS_ID ? `gtag('config', '${GOOGLE_ADS_ID}');` : ""}
         `}
       </Script>
     </>
   );
 }
+
+// =========================================================
+// NOTA CONSENSO: il config Google Ads sopra e' agganciato allo
+// stesso purposes="4" (Misurazione) di GA4, per semplicita' e
+// perche' riusa lo stesso script gia' bloccato/sbloccato da
+// Iubenda. Se nella tua Cookie Solution le conversioni Ads
+// rientrano invece nella finalita' "Pubblicita'/Advertising"
+// (spesso purposes="5" in Iubenda, ma verifica il tuo numero),
+// valuta di spostare la riga 'gtag config AW-...' in un secondo
+// <Script> con quel purposes diverso.
+// =========================================================
