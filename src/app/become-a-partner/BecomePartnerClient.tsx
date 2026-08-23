@@ -13,6 +13,12 @@ import {
   trackPartnerApplicationError,
 } from "@/lib/analytics/gtag";
 import { LANGUAGE_OPTIONS } from "@/lib/config/languageOptions";
+import {
+  isValidEmail,
+  isValidPhone,
+  isValidUrl,
+  isValidVatOrTaxCode,
+} from "@/lib/validation/partnerFormValidators";
 
 // =========================================================
 // Wizard step-by-step, stesso linguaggio visivo e stessa
@@ -310,7 +316,11 @@ export default function BecomePartnerClient() {
         return (
           !!companyName.trim() &&
           !!contactPerson.trim() &&
-          /\S+@\S+\.\S+/.test(email)
+          isValidEmail(email) &&
+          isValidPhone(phone) &&
+          isValidPhone(getString(profile, "whatsapp")) &&
+          isValidVatOrTaxCode(getString(profile, "vatNumber")) &&
+          isValidUrl(website)
         );
       case "presentation":
         return !!String(getString(profile, "description")).trim();
