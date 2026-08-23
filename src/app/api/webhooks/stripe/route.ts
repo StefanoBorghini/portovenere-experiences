@@ -75,6 +75,45 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Abbonamento partner (sezione admin "Affiliates", bottone
+        // "Send Stripe payment" — vedi /api/admin/partners/[id]/
+        // create-stripe-payment). Al pagamento riuscito attiva
+        // l'abbonamento in automatico con lo stesso calcolo (oggi ->
+        // +1 anno) del bottone manuale "Activate subscription", cosi'
+        // l'admin non deve fare nulla dopo aver mandato il link.
+        if (session.metadata?.type === "partner_subscription") {
+
+          const partnerId = session.metadata?.partnerId;
+
+          if (!partnerId) {
+            console.error("stripe webhook: partner_subscription missing partnerId metadata");
+            break;
+          }
+
+          const paymentIntentId =
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id;
+
+          const start = new Date();
+          const end = new Date(start);
+          end.setFullYear(end.getFullYear() + 1);
+
+          await supabaseAdmin
+            .from("partner_applications")
+            .update({
+              payment_status: "paid",
+              subscription_start_date: start.toISOString().slice(0, 10),
+              subscription_end_date: end.toISOString().slice(0, 10),
+              stripe_payment_intent_id: paymentIntentId || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", partnerId)
+            .eq("stripe_checkout_session_id", session.id);
+
+          break;
+        }
+
         const leadId = session.metadata?.leadId;
 
         if (!leadId) {
@@ -283,6 +322,16 @@ export async function POST(req: NextRequest) {
             .update({ status: "expired" })
             .eq("stripe_checkout_session_id", session.id)
             .eq("status", "pending");
+
+          break;
+        }
+
+        if (session.metadata?.type === "partner_subscription") {
+          await supabaseAdmin
+            .from("partner_applications")
+            .update({ payment_status: "expired" })
+            .eq("stripe_checkout_session_id", session.id)
+            .eq("payment_status", "payment_sent");
 
           break;
         }

@@ -4,6 +4,7 @@ import { requireAdminSession } from "@/lib/auth/requireAdminSession";
 import { sendEmail } from "@/lib/email/sendEmail";
 import { partnerContractEmailTemplate } from "@/lib/email/templates";
 import { generatePartnerContractPdf } from "@/lib/pdf/partnerContractPdf";
+import { PLAN_LABELS, PLAN_PRICE_LABELS } from "@/lib/config/partnerPlans";
 
 // =========================================================
 // POST /api/admin/partners/[id]/send-contract
@@ -20,23 +21,6 @@ import { generatePartnerContractPdf } from "@/lib/pdf/partnerContractPdf";
 // src/lib/pdf/partnerContractTerms.ts — attualmente sono un
 // placeholder da far rivedere a un legale, NON testo vincolante.
 // =========================================================
-
-const PLAN_LABELS: Record<string, string> = {
-  base: "Base",
-  premium: "Premium",
-  signature: "Signature",
-  not_sure: "Standard",
-};
-
-// Stessi prezzi mostrati nel wizard /become-a-partner (vedi
-// PLAN_OPTIONS in BecomePartnerClient.tsx) — se li cambi li,
-// aggiornali anche qui.
-const PLAN_PRICES: Record<string, string> = {
-  base: "€120 / anno",
-  premium: "€240 / anno",
-  signature: "Su richiesta",
-  not_sure: "Da definire",
-};
 
 function formatDate(value: string | null): string | undefined {
   if (!value) return undefined;
@@ -76,7 +60,7 @@ export async function POST(
       phone: partner.phone || undefined,
       category: partner.category,
       planLabel,
-      planPrice: PLAN_PRICES[partner.plan_interest],
+      planPrice: PLAN_PRICE_LABELS[partner.plan_interest],
       subscriptionStart,
       subscriptionEnd,
     });
