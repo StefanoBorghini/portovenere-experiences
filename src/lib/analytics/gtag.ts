@@ -14,15 +14,6 @@ export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 // (es. "AW-322936404") — se assente, trackAdsConversion() non fa nulla.
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
 
-// Conversion label per ciascuna azione di campagna (formato
-// "AW-XXXXXXXXX/YYYYYYYYYYYYYYYYYYYY", da Google Ads > Strumenti
-// e impostazioni > Conversioni > [azione] > Impostazione tag).
-// Finche' l'env var non e' impostata, la relativa conversione
-// non viene inviata — nessun errore, solo nessun invio.
-const ADS_CONVERSION_HOMEPAGE_CTA = process.env.NEXT_PUBLIC_ADS_CONVERSION_HOMEPAGE_CTA;
-const ADS_CONVERSION_CONFIGURATOR_START = process.env.NEXT_PUBLIC_ADS_CONVERSION_CONFIGURATOR_START;
-const ADS_CONVERSION_PROPOSAL_GENERATED = process.env.NEXT_PUBLIC_ADS_CONVERSION_PROPOSAL_GENERATED;
-
 declare global {
   interface Window {
     dataLayer: any[];
@@ -69,15 +60,14 @@ export function trackEvent({
 // EVENTI DEL CONFIGURATORE — azioni esplicite dell'utente
 // =========================================================
 
+// La conversione Ads "Avvio Configuratore" e' importata direttamente
+// da questo evento GA4 (Google Ads > Conversioni > eventi GA4) —
+// nessuna chiamata aggiuntiva necessaria qui.
 export function trackConfiguratorStart() {
   trackEvent({
     action: "configurator_start",
     category: "configurator",
   });
-
-  if (ADS_CONVERSION_CONFIGURATOR_START) {
-    trackAdsConversion({ conversionLabel: ADS_CONVERSION_CONFIGURATOR_START });
-  }
 }
 
 export function trackConfiguratorLoaded() {
@@ -216,6 +206,8 @@ export function trackDateSelected(
   });
 }
 
+// La conversione Ads "Proposta Generata" e' importata direttamente
+// da questo evento GA4, stesso motivo di trackConfiguratorStart sopra.
 export function trackProposalGenerated(slug: string) {
   trackEvent({
     action: "proposal_generated",
@@ -223,10 +215,6 @@ export function trackProposalGenerated(slug: string) {
     label: slug,
     extra: { slug },
   });
-
-  if (ADS_CONVERSION_PROPOSAL_GENERATED) {
-    trackAdsConversion({ conversionLabel: ADS_CONVERSION_PROPOSAL_GENERATED });
-  }
 }
 
 // =========================================================
@@ -361,6 +349,8 @@ export function trackCtaViewed(ctaLabel: string) {
   });
 }
 
+// La conversione Ads "Click CTA Homepage" e' importata direttamente
+// da questo evento GA4, stesso motivo di trackConfiguratorStart sopra.
 export function trackCtaClicked(ctaLabel: string) {
   trackEvent({
     action: "cta_clicked",
@@ -368,13 +358,6 @@ export function trackCtaClicked(ctaLabel: string) {
     label: ctaLabel,
     extra: { cta: ctaLabel },
   });
-
-  // Tutte le CTA della homepage portano a /craft-your-experience,
-  // quindi contano come lo stesso segnale di intenzione a fini Ads
-  // — un'unica conversion label per tutte, non serve differenziarle.
-  if (ADS_CONVERSION_HOMEPAGE_CTA) {
-    trackAdsConversion({ conversionLabel: ADS_CONVERSION_HOMEPAGE_CTA });
-  }
 }
 
 export function trackStepTimeSpent(
