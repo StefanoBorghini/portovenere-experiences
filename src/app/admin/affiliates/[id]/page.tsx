@@ -430,9 +430,12 @@ export default function AffiliateDetailPage() {
         </div>
 
         <p className="text-white/30 text-sm mt-3">
-          Sends the static PDF from public/documents/partner-contract.pdf,
-          attached to an email at {partner.email}. Acceptance is click-wrap —
-          completing payment counts as accepting the attached terms.
+          Generates a PDF filled with this application's data (business,
+          plan, subscription dates) and emails it to {partner.email}.
+          Acceptance is click-wrap — completing payment counts as accepting
+          the attached terms. Clause text lives in
+          src/lib/pdf/partnerContractTerms.ts — currently placeholder,
+          needs legal review before real use.
         </p>
       </div>
 
