@@ -14,3 +14,8 @@
 
 alter table partner_applications add column if not exists stripe_checkout_session_id text;
 alter table partner_applications add column if not exists stripe_payment_intent_id text;
+
+-- URL della Checkout Session, salvato per poterlo ricopiare dalla
+-- pagina admin "Payments" (stesso pattern di custom_payments.checkout_url)
+-- senza dover richiamare Stripe.
+alter table partner_applications add column if not exists checkout_url text;

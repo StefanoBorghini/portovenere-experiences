@@ -93,6 +93,7 @@ export async function POST(
         payment_sent_at: new Date().toISOString(),
         payment_amount: amount,
         stripe_checkout_session_id: session.id,
+        checkout_url: session.url || null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id);

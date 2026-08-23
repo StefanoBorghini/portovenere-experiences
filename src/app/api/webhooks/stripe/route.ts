@@ -4,7 +4,17 @@ import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
 import { getStripe } from "@/lib/stripe/stripeClient";
 import { computeLeadPricingSnapshot } from "@/lib/pricing/computeLeadPricingSnapshot";
 import { sendEmail } from "@/lib/email/sendEmail";
-import { conciergeFeePaidClientTemplate, ownerConciergeFeePaidTemplate } from "@/lib/email/templates";
+import {
+  conciergeFeePaidClientTemplate,
+  ownerConciergeFeePaidTemplate,
+  partnerContractEmailTemplate,
+} from "@/lib/email/templates";
+import { generatePartnerContractPdf } from "@/lib/pdf/partnerContractPdf";
+import { PLAN_LABELS, PLAN_PRICE_LABELS } from "@/lib/config/partnerPlans";
+
+function formatItalianDate(value: string): string {
+  return new Date(value).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
+}
 
 // =========================================================
 // POST /api/webhooks/stripe
@@ -99,17 +109,78 @@ export async function POST(req: NextRequest) {
           const end = new Date(start);
           end.setFullYear(end.getFullYear() + 1);
 
-          await supabaseAdmin
+          const startDate = start.toISOString().slice(0, 10);
+          const endDate = end.toISOString().slice(0, 10);
+          const contractSentAt = new Date().toISOString();
+
+          const { data: partner, error: partnerUpdateError } = await supabaseAdmin
             .from("partner_applications")
             .update({
               payment_status: "paid",
-              subscription_start_date: start.toISOString().slice(0, 10),
-              subscription_end_date: end.toISOString().slice(0, 10),
+              subscription_start_date: startDate,
+              subscription_end_date: endDate,
               stripe_payment_intent_id: paymentIntentId || null,
-              updated_at: new Date().toISOString(),
+              contract_sent_at: contractSentAt,
+              updated_at: contractSentAt,
             })
             .eq("id", partnerId)
-            .eq("stripe_checkout_session_id", session.id);
+            .eq("stripe_checkout_session_id", session.id)
+            .select()
+            .single();
+
+          if (partnerUpdateError || !partner) {
+            console.error("stripe webhook: partner_applications update failed", partnerUpdateError);
+            break;
+          }
+
+          // Contratto mandato SOLO ora, dopo il pagamento confermato —
+          // mai prima, perche' l'accettazione e' "click-wrap" (vedi
+          // partnerContractEmailTemplate): il testo del contratto
+          // stesso presuppone che il pagamento sia gia' avvenuto.
+          const planLabel = PLAN_LABELS[partner.plan_interest] || "Standard";
+
+          try {
+
+            const contractBuffer = generatePartnerContractPdf({
+              companyName: partner.company_name,
+              contactName: partner.contact_name,
+              email: partner.email,
+              phone: partner.phone || undefined,
+              category: partner.category,
+              planLabel,
+              planPrice: PLAN_PRICE_LABELS[partner.plan_interest],
+              subscriptionStart: formatItalianDate(startDate),
+              subscriptionEnd: formatItalianDate(endDate),
+            });
+
+            await sendEmail({
+              to: partner.email,
+              subject: `Il tuo contratto Portovenere Experience — ${partner.company_name}`,
+              html: partnerContractEmailTemplate({
+                companyName: partner.company_name,
+                contactName: partner.contact_name,
+                planLabel,
+                subscriptionStart: formatItalianDate(startDate),
+                subscriptionEnd: formatItalianDate(endDate),
+              }),
+              attachments: [
+                {
+                  filename: `Contratto Portovenere Experience — ${partner.company_name}.pdf`,
+                  content: contractBuffer,
+                  contentType: "application/pdf",
+                },
+              ],
+            });
+
+          } catch (contractErr) {
+            // Il pagamento e l'attivazione dell'abbonamento sono gia'
+            // andati a buon fine sopra — un errore nella generazione/
+            // invio del contratto non deve far fallire il webhook
+            // (Stripe altrimenti ritenterebbe l'intero evento). Resta
+            // comunque disponibile "Send contract" in
+            // /admin/affiliates/[id] per rimandarlo a mano.
+            console.error("stripe webhook: contract generation/send failed", contractErr);
+          }
 
           break;
         }
