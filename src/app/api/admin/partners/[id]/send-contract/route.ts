@@ -59,6 +59,7 @@ export async function POST(
       email: partner.email,
       phone: partner.phone || undefined,
       category: partner.category,
+      vatNumber: partner.profile?.vatNumber || undefined,
       planLabel,
       planPrice: PLAN_PRICE_LABELS[partner.plan_interest],
       subscriptionStart,

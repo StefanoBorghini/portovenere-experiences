@@ -473,6 +473,11 @@ export default function BecomePartnerClient() {
               onChange={(v) => setProfileField("legalName", v)}
             />
             <TextField
+              label="Partita IVA / Codice Fiscale (per fatturazione)"
+              value={getString(profile, "vatNumber")}
+              onChange={(v) => setProfileField("vatNumber", v)}
+            />
+            <TextField
               label="Indirizzo / Località"
               value={getString(profile, "address")}
               onChange={(v) => setProfileField("address", v)}

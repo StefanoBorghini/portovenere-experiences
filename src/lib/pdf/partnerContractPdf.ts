@@ -17,6 +17,7 @@ export interface PartnerContractData {
   email: string;
   phone?: string;
   category: string;
+  vatNumber?: string;
   planLabel: string;
   planPrice?: string;
   subscriptionStart?: string;
@@ -60,6 +61,7 @@ export function generatePartnerContractPdf(data: PartnerContractData): Buffer {
     ["Referente", data.contactName],
     ["Email", data.email],
     ["Telefono", data.phone || "—"],
+    ["Partita IVA / C.F.", data.vatNumber || "—"],
     ["Categoria", data.category],
     ["Piano", data.planLabel],
     ["Corrispettivo", data.planPrice || "—"],
