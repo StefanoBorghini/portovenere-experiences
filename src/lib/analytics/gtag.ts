@@ -9,6 +9,11 @@
 
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+// ID del tag Google Ads (AW-...), per le conversioni delle campagne.
+// Va impostato come env var NEXT_PUBLIC_GOOGLE_ADS_ID nel progetto
+// (es. "AW-322936404") — se assente, trackAdsConversion() non fa nulla.
+export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+
 declare global {
   interface Window {
     dataLayer: any[];
@@ -55,6 +60,9 @@ export function trackEvent({
 // EVENTI DEL CONFIGURATORE — azioni esplicite dell'utente
 // =========================================================
 
+// La conversione Ads "Avvio Configuratore" e' importata direttamente
+// da questo evento GA4 (Google Ads > Conversioni > eventi GA4) —
+// nessuna chiamata aggiuntiva necessaria qui.
 export function trackConfiguratorStart() {
   trackEvent({
     action: "configurator_start",
@@ -198,6 +206,8 @@ export function trackDateSelected(
   });
 }
 
+// La conversione Ads "Proposta Generata" e' importata direttamente
+// da questo evento GA4, stesso motivo di trackConfiguratorStart sopra.
 export function trackProposalGenerated(slug: string) {
   trackEvent({
     action: "proposal_generated",
@@ -217,6 +227,47 @@ export function trackProposalSent(slug: string) {
     category: "proposal",
     label: slug,
     extra: { slug },
+  });
+}
+
+// =========================================================
+// GOOGLE ADS — conversioni per campagna. Separato da trackEvent()
+// perche' non e' un evento GA4: e' l'evento "conversion" che
+// gtag.js manda al tag Ads (AW-...), con una conversion label
+// specifica per ciascuna azione da misurare.
+// =========================================================
+
+interface TrackAdsConversionParams {
+  // Label della conversione cosi' come appare in Google Ads
+  // (Strumenti > Conversioni > [azione] > Impostazione tag),
+  // nel formato "AW-XXXXXXXXX/YYYYYYYYYYYYYYYYYYYY".
+  conversionLabel: string;
+  value?: number;
+  currency?: string;
+}
+
+export function trackAdsConversion({
+  conversionLabel,
+  value,
+  currency = "EUR",
+}: TrackAdsConversionParams) {
+  if (typeof window === "undefined" || !window.gtag) return;
+
+  window.gtag("event", "conversion", {
+    send_to: conversionLabel,
+    value,
+    currency,
+  });
+}
+
+// Conversione "Richiesta preventivo" — scatta quando l'utente invia
+// una richiesta di prenotazione/preventivo dalla pagina proposal
+// (vedi proposalClient.tsx, accanto a trackProposalSent).
+export function trackQuoteRequestConversion() {
+  trackAdsConversion({
+    conversionLabel: "AW-322936404/gFuzCK6i_-UcENS8_pkB",
+    value: 1.0,
+    currency: "EUR",
   });
 }
 
@@ -298,6 +349,8 @@ export function trackCtaViewed(ctaLabel: string) {
   });
 }
 
+// La conversione Ads "Click CTA Homepage" e' importata direttamente
+// da questo evento GA4, stesso motivo di trackConfiguratorStart sopra.
 export function trackCtaClicked(ctaLabel: string) {
   trackEvent({
     action: "cta_clicked",
