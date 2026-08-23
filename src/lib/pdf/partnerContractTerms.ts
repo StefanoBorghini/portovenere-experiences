@@ -10,12 +10,16 @@
 // versato, pagamento via Stripe). NON e' una certificazione legale —
 // e' un punto di partenza solido, non testo validato da un avvocato.
 // Prima di usarla su larga scala con centinaia di attivita', una
-// revisione legale anche breve resta consigliata: i punti
-// "[DA COMPLETARE]" sono dati identificativi mancanti (non termini
-// da negoziare), il resto e' gia' testo sostanziale.
+// revisione legale anche breve resta comunque consigliata.
 // =========================================================
 
 export const PARTNER_CONTRACT_TITLE = "Contratto di Abbonamento — Portovenere Experience";
+
+// Identita' del fornitore — stampata in cima al PDF, subito sotto il
+// titolo (vedi partnerContractPdf.ts), prima dei dati dell'attivita'
+// partner. Aggiorna qui se cambiano ragione sociale/sede/P.IVA.
+export const PARTNER_CONTRACT_PROVIDER_IDENTITY =
+  "Stefano Borghini Design — Via Aldo Moro 16, 19020 Follo (SP) — P.IVA 01492390115";
 
 export const PARTNER_CONTRACT_CLAUSES: string[] = [
   "1. Oggetto del contratto\nPortovenere Experience fornisce all'attivita' partner un servizio di visibilita' sulla piattaforma Portovenere Experience, con le caratteristiche corrispondenti al piano di abbonamento sottoscritto (Base, Premium o Signature) indicato sopra.",
@@ -31,6 +35,4 @@ export const PARTNER_CONTRACT_CLAUSES: string[] = [
   "6. Trattamento dei dati personali\nI dati personali forniti in fase di candidatura e sottoscrizione sono trattati da Portovenere Experience in conformita' al Regolamento (UE) 2016/679 (GDPR), secondo quanto gia' indicato in sede di candidatura su /become-a-partner.",
 
   "7. Legge applicabile e foro competente\nIl presente contratto e' regolato dalla legge italiana. Per qualsiasi controversia e' competente il foro previsto dalla legge applicabile.",
-
-  "[DA COMPLETARE] Dati identificativi di Portovenere Experience (ragione sociale, sede legale, P.IVA) da inserire in questa sezione o nell'intestazione del documento prima dell'uso con attivita' reali.",
 ];
