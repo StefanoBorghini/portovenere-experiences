@@ -4,13 +4,20 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  // sharp (usato in src/lib/social-card/toSatoriImage.ts per convertire
-  // le foto WebP in PNG per Satori) usa binari nativi specifici della
-  // piattaforma — senza questa riga il bundler serverless di Vercel puo'
-  // provare a impacchettarlo come JS puro e romperlo a runtime (500 in
-  // produzione, funziona invece in locale dove i binari sono gia'
-  // installati per la piattaforma corrente).
-  serverExternalPackages: ["sharp"],
+  // src/lib/social-card/toSatoriImage.ts (conversione WebP -> PNG
+  // per Satori) legge questi file .wasm da disco a runtime tramite
+  // un percorso costruito dinamicamente (process.cwd() + path.join),
+  // non un import statico — il tracer di Vercel potrebbe non
+  // accorgersene e lasciarli fuori dal bundle della funzione
+  // serverless (funzionerebbe in locale, dove i file sono gia' su
+  // disco, ma darebbe 500 in produzione). Inclusione esplicita,
+  // cosi' non dipende dal riuscire a essere "scoperti".
+  outputFileTracingIncludes: {
+    "/api/admin/leads/[id]/social-card/export": [
+      "./node_modules/@jsquash/webp/codec/dec/webp_dec.wasm",
+      "./node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm",
+    ],
+  },
 };
 
 export default withNextIntl(nextConfig);
