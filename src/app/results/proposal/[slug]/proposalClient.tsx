@@ -9,6 +9,8 @@ import ProposalEnhancements from "@/components/proposal/ProposalEnhancements";
 import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
 import ShareButton from "@/components/ShareButton";
+import GenerateSocialCardButton from "@/components/social-card/GenerateSocialCardButton";
+import { SocialCardData } from "@/types/socialCard";
 import { calculatePrice } from "@/lib/pricing/calculatePrice";
 import { resolveSeasonalPriceOverride } from "@/lib/pricing/resolveSeasonalPrice";
 import { useState, useEffect, useRef } from "react";
@@ -45,6 +47,7 @@ interface Props {
     dynamicClosingParagraph:string;
     finalPrice:number;
     proposalSummary: string;
+    socialCardData: SocialCardData;
     slug: string;
     leadName: string;
     leadEmail: string;
@@ -79,6 +82,7 @@ export default function ProposalClient({
     dynamicClosingParagraph,
     finalPrice,
     proposalSummary,
+    socialCardData,
     slug,
     leadName,
     leadEmail,
@@ -566,7 +570,10 @@ export default function ProposalClient({
 
     <section className="py-20 px-6 print:hidden">
         <div className="max-w-4xl mx-auto flex flex-col items-center gap-4">
-           <ShareButton slug={slug} />
+           <div className="flex flex-wrap items-center justify-center gap-4">
+               <ShareButton slug={slug} />
+               <GenerateSocialCardButton data={socialCardData} slug={slug} />
+           </div>
            <a
                 href="/craft-your-experience"
                 className="border border-white/20 px-10 py-5 rounded-full uppercase tracking-[0.25em] text-xs hover:bg-white hover:text-black transition-all duration-500"

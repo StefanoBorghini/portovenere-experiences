@@ -505,6 +505,39 @@ export function trackCtaVisible(slug?: string) {
 }
 
 // =========================================================
+// SOCIAL EXPERIENCE CARD — apertura del modale "Generate Social
+// Card" sulla proposal page, cambio formato e download (vedi
+// src/components/social-card/).
+// =========================================================
+
+export function trackSocialCardOpened(slug: string) {
+  trackEvent({
+    action: "social_card_opened",
+    category: "proposal",
+    label: slug,
+    extra: { slug },
+  });
+}
+
+export function trackSocialCardFormatChanged(slug: string, format: string) {
+  trackEvent({
+    action: "social_card_format_changed",
+    category: "proposal",
+    label: format,
+    extra: { slug, format },
+  });
+}
+
+export function trackSocialCardDownloaded(slug: string, format: string) {
+  trackEvent({
+    action: "social_card_downloaded",
+    category: "proposal",
+    label: format,
+    extra: { slug, format },
+  });
+}
+
+// =========================================================
 // /start — micro-landing per il traffico social (Instagram bio
 // e simili). Eventi dedicati (non riusiamo trackCtaClicked) cosi'
 // il funnel Instagram -> /start -> configuratore -> proposal e'

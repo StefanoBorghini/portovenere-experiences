@@ -21,6 +21,7 @@ import {
 import { getCurrentLocale } from "@/i18n/locale";
 import { getTranslations } from "next-intl/server";
 import { proposalConfig } from "@/config/proposalConfig";
+import { buildSocialCardData } from "@/lib/social-card/buildSocialCardData";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://experiences.portovenere.com";
@@ -681,6 +682,25 @@ const featuredEssentials =
     featuredExperience?.sections || [];
 
   // =======================================================
+  // SOCIAL EXPERIENCE CARD
+  // Trasformazione pura degli stessi dati gia' calcolati sopra —
+  // nessun dato duplicato, vedi buildSocialCardData.ts.
+  // =======================================================
+
+  const socialCardData = buildSocialCardData({
+    slug,
+    heroTitle,
+    heroImage,
+    featuredExperience,
+    includedExperiences,
+    galleryImages,
+    dynamicIntroParagraph: dynamicIntroParagraph ?? "",
+    finalPrice,
+    isMultiDayTrip,
+    lead,
+  });
+
+  // =======================================================
   // RENDER
   // =======================================================
 
@@ -718,6 +738,8 @@ dynamicIntroTitle={dynamicIntroTitle ?? ""}
     finalPrice={finalPrice}
 
     proposalSummary={proposalSummary}
+
+    socialCardData={socialCardData}
 
     slug={slug}
       leadName={lead.name}
