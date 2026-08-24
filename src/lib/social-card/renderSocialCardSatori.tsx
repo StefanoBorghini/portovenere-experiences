@@ -1,6 +1,7 @@
 import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
+import { toSatoriImageDataUri } from "./toSatoriImage";
 
 // =========================================================
 // buildSocialCardElement — la STESSA composizione visiva di
@@ -26,21 +27,30 @@ function toAbsoluteUrl(url: string): string {
   return url.startsWith("http") ? url : `${SITE_URL}${url}`;
 }
 
-export function buildSocialCardElement(
+export async function buildSocialCardElement(
   data: SocialCardData,
   format: SocialCardFormatConfig,
   showPrice: boolean,
   cta: string
 ) {
 
-  const primaryImage = toAbsoluteUrl(data.images[0] || "/images/default-hero.webp");
-  const logoUrl = toAbsoluteUrl(proposalConfig.brand.logo);
+  const thumbnails = data.highlights.filter((h) => h.image);
+
+  // Satori non decodifica WebP (la maggior parte delle foto del
+  // sito lo sono) — ogni immagine passa da toSatoriImageDataUri, che
+  // la ri-scarica e ri-codifica in PNG. Tutte insieme, non in serie,
+  // per non sommare le latenze di rete una dopo l'altra.
+  const [primaryImage, logoUrl, thumbnailImages] = await Promise.all([
+    toSatoriImageDataUri(toAbsoluteUrl(data.images[0] || "/images/default-hero.webp")),
+    toSatoriImageDataUri(toAbsoluteUrl(proposalConfig.brand.logo)),
+    Promise.all(
+      thumbnails.map((h) => toSatoriImageDataUri(toAbsoluteUrl(h.image!)))
+    ),
+  ]);
 
   const metaLine = [data.duration, data.travelers, data.dates]
     .filter(Boolean)
     .join("   ·   ");
-
-  const thumbnails = data.highlights.filter((h) => h.image);
 
   return (
     <div
@@ -203,7 +213,7 @@ export function buildSocialCardElement(
 
         {thumbnails.length > 0 && (
           <div style={{ display: "flex", gap: format.width * 0.015, marginBottom: 24 }}>
-            {thumbnails.map((highlight) => (
+            {thumbnails.map((highlight, index) => (
               <div
                 key={highlight.title}
                 style={{
@@ -215,7 +225,7 @@ export function buildSocialCardElement(
                 }}
               >
                 <img
-                  src={toAbsoluteUrl(highlight.image!)}
+                  src={thumbnailImages[index]}
                   width={format.width * 0.15}
                   height={format.width * 0.15}
                   style={{ objectFit: "cover" }}

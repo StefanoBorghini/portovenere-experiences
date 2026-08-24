@@ -74,7 +74,7 @@ export async function GET(
       loadGoogleFont("Inter", 500),
     ]);
 
-    const element = buildSocialCardElement(socialCardData, format, showPrice, effectiveCta);
+    const element = await buildSocialCardElement(socialCardData, format, showPrice, effectiveCta);
 
     const imageResponse = new ImageResponse(element, {
       width: format.width,
