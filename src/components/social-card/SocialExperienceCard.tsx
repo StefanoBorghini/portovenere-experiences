@@ -60,13 +60,30 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
           crossOrigin="anonymous"
         />
 
-        {/* GRAIN — stessa texture di ProposalHero.tsx */}
-        <div className="absolute inset-0 opacity-[0.05] mix-blend-soft-light pointer-events-none bg-[url('/noise.png')]" />
-
         {/* GRADIENT — leggero in alto (lascia respirare la foto),
-            marcato in basso per la leggibilita' del blocco testo */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-black" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent" style={{ height: "62%", top: "38%" }} />
+            marcato in basso per la leggibilita' del blocco testo.
+            Colori in rgba() esplicito, MAI classi Tailwind con
+            opacita' (from-black/35, via-black/10...): Tailwind v4 le
+            compila con color-mix()/oklab(), che html2canvas non sa
+            interpretare — il download falliva in silenzio con
+            "unsupported color function oklab". Stesso motivo per
+            ogni testo qui sotto (text-white/NN -> style color rgba). */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.10) 50%, rgba(0,0,0,1) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            height: "62%",
+            top: "38%",
+            background:
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0) 100%)",
+          }}
+        />
 
         {/* TOP — logo + etichetta brand, stesso linguaggio di ProposalHero */}
         <div
@@ -80,8 +97,8 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
             className="object-contain opacity-95"
           />
           <span
-            className="uppercase text-white/60"
-            style={{ fontSize: format.width * 0.011, letterSpacing: "0.35em" }}
+            className="uppercase"
+            style={{ fontSize: format.width * 0.011, letterSpacing: "0.35em", color: "rgba(255,255,255,0.6)" }}
           >
             {proposalConfig.brand.name}
           </span>
@@ -110,8 +127,8 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
           </h1>
 
           <p
-            className="uppercase text-white/70 mb-6"
-            style={{ fontSize: format.width * 0.017, letterSpacing: "0.15em" }}
+            className="uppercase mb-6"
+            style={{ fontSize: format.width * 0.017, letterSpacing: "0.15em", color: "rgba(255,255,255,0.7)" }}
           >
             {metaLine}
           </p>
@@ -121,8 +138,8 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
               {data.highlights.map((highlight) => (
                 <li
                   key={highlight.title}
-                  className="uppercase text-white/90 font-light"
-                  style={{ letterSpacing: "0.08em", lineHeight: 1.7 }}
+                  className="uppercase font-light"
+                  style={{ letterSpacing: "0.08em", lineHeight: 1.7, color: "rgba(255,255,255,0.9)" }}
                 >
                   {highlight.title}
                 </li>
@@ -160,8 +177,8 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
 
           {data.description && (
             <p
-              className="text-white/65 italic font-light mb-8"
-              style={{ fontSize: format.width * 0.019, lineHeight: 1.6, maxWidth: "88%" }}
+              className="italic font-light mb-8"
+              style={{ fontSize: format.width * 0.019, lineHeight: 1.6, maxWidth: "88%", color: "rgba(255,255,255,0.65)" }}
             >
               {data.description}
             </p>
@@ -176,8 +193,8 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
             </p>
           ) : (
             <p
-              className="uppercase text-white/50 mb-4"
-              style={{ fontSize: format.width * 0.014, letterSpacing: "0.25em" }}
+              className="uppercase mb-4"
+              style={{ fontSize: format.width * 0.014, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}
             >
               Private Experience
             </p>
@@ -194,8 +211,7 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
               {cta}
             </span>
             <span
-              className="text-white/40"
-              style={{ fontSize: format.width * 0.013, letterSpacing: "0.08em" }}
+              style={{ fontSize: format.width * 0.013, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}
             >
               portovenere.com
             </span>
