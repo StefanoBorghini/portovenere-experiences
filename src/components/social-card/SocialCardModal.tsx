@@ -84,15 +84,25 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
       const html2canvas = (await import("html2canvas")).default;
 
       // scale: 1 esplicito — il nodo e' GIA' renderizzato alla
-      // dimensione fisica esatta del formato (1080px reali nel DOM,
-      // non un elemento piccolo scalato su per la stampa). Chiedere
-      // ANCHE uno scale a html2canvas, sommato al devicePixelRatio
-      // dello schermo (che html2canvas applica di default se non lo
-      // forzi), produce una cattura doppia disallineata — il testo
-      // "sdoppiato" visto in preview/export.
+      // dimensione fisica esatta del formato (1080px reali nel DOM),
+      // nessun moltiplicatore extra necessario.
+      //
+      // foreignObjectRendering: false — per default html2canvas
+      // PROVA prima la via veloce (disegna un <foreignObject> SVG
+      // con l'HTML vero e proprio dentro), e se quel disegno viene
+      // "tainted" dal browser (capita con immagini cross-origin
+      // dentro un foreignObject, anche con crossOrigin="anonymous" —
+      // limite noto del rendering SVG, non di html2canvas) ripiega
+      // sul renderer manuale (ridisegna testo/forme nodo per nodo).
+      // Se il primo tentativo arriva a disegnare PRIMA di accorgersi
+      // del taint, il fallback si sovrappone al disegno parziale
+      // gia' fatto — e' quello il testo "sdoppiato" visto in export.
+      // Disattivando la via SVG si usa sempre e solo il renderer
+      // manuale, un unico passaggio pulito.
       const canvas = await html2canvas(captureRef.current, {
         scale: 1,
         useCORS: true,
+        foreignObjectRendering: false,
         backgroundColor: "#000000",
         width: formatConfig.width,
         height: formatConfig.height,
