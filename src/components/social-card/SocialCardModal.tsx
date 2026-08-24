@@ -92,7 +92,8 @@ export default function SocialCardModal({ data, slug, leadId, onClose }: SocialC
       );
 
       if (!response.ok) {
-        throw new Error(`export failed with status ${response.status}`);
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || `export failed with status ${response.status}`);
       }
 
       const blob = await response.blob();
@@ -107,7 +108,8 @@ export default function SocialCardModal({ data, slug, leadId, onClose }: SocialC
 
     } catch (err) {
       console.error("social card download failed:", err);
-      alert("Could not generate the file — please try again.");
+      const message = err instanceof Error ? err.message : "Could not generate the file — please try again.";
+      alert(message);
     } finally {
       setDownloading(false);
     }

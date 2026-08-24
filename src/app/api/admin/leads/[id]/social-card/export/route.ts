@@ -116,6 +116,14 @@ export async function GET(
 
     console.error("admin/leads/[id]/social-card/export error:", err);
 
-    return NextResponse.json({ success: false, error: "Could not generate the file" }, { status: 500 });
+    // Route gia' protetta da requireAdminSession — nessun rischio a
+    // esporre il messaggio reale qui, e aiuta a diagnosticare senza
+    // dover per forza guardare i log del server.
+    const message = err instanceof Error ? err.message : "Unknown error";
+
+    return NextResponse.json(
+      { success: false, error: `Could not generate the file: ${message}` },
+      { status: 500 }
+    );
   }
 }
