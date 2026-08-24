@@ -19,7 +19,17 @@ import { loadGoogleFont } from "@/lib/social-card/googleFont";
 // round-trip — accettabile, perche' l'anteprima interattiva nel
 // modale (SocialExperienceCard.tsx) resta un React normale, mai
 // catturato: solo il download passa da qui.
+//
+// maxDuration esplicito — questa route fa parecchio lavoro in una
+// sola richiesta (rigenera l'intera proposal, scarica 3 pesi di
+// font da Google, scarica e ri-codifica fino a 4 immagini): puo'
+// superare facilmente il timeout di default delle funzioni
+// serverless (10s), che uccide la funzione PRIMA che il nostro
+// try/catch possa intervenire — da cui un 500 "vuoto" senza il
+// messaggio d'errore dettagliato che il catch qui sotto produrrebbe.
 // =========================================================
+
+export const maxDuration = 60;
 
 export async function GET(
   req: NextRequest,
@@ -43,6 +53,16 @@ export async function GET(
   }
 
   try {
+
+    // I font non dipendono in alcun modo dal lead/dalla proposal —
+    // partono in parallelo con la query invece che dopo, cosi' la
+    // latenza di rete verso Google Fonts si sovrappone a quella
+    // verso Supabase invece di sommarcisi.
+    const fontsPromise = Promise.all([
+      loadGoogleFont("Inter", 300),
+      loadGoogleFont("Inter", 400),
+      loadGoogleFont("Inter", 500),
+    ]);
 
     const { data: proposal, error } = await getSupabaseAdmin()
       .from("Proposal")
@@ -68,13 +88,10 @@ export async function GET(
 
     const effectiveCta = requestedCta || socialCardData.cta;
 
-    const [fontLight, fontRegular, fontMedium] = await Promise.all([
-      loadGoogleFont("Inter", 300),
-      loadGoogleFont("Inter", 400),
-      loadGoogleFont("Inter", 500),
+    const [[fontLight, fontRegular, fontMedium], element] = await Promise.all([
+      fontsPromise,
+      buildSocialCardElement(socialCardData, format, showPrice, effectiveCta),
     ]);
-
-    const element = await buildSocialCardElement(socialCardData, format, showPrice, effectiveCta);
 
     const imageResponse = new ImageResponse(element, {
       width: format.width,
