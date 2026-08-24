@@ -4,10 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { SocialCardData, SocialCardFormatId, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
 import { SOCIAL_CARD_FORMATS, SOCIAL_CARD_FORMAT_ORDER } from "./socialCardFormats";
 import SocialExperienceCard from "./SocialExperienceCard";
-import {
-  trackSocialCardFormatChanged,
-  trackSocialCardDownloaded,
-} from "@/lib/analytics/gtag";
 
 interface SocialCardModalProps {
   data: SocialCardData;
@@ -73,7 +69,6 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
 
   function handleFormatChange(id: SocialCardFormatId) {
     setActiveFormat(id);
-    trackSocialCardFormatChanged(slug, id);
   }
 
   async function handleDownload() {
@@ -111,8 +106,6 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
         link.href = canvas.toDataURL("image/png");
         link.click();
       }
-
-      trackSocialCardDownloaded(slug, activeFormat);
 
     } catch (err) {
       console.error("social card download failed:", err);

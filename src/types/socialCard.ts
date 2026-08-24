@@ -7,6 +7,14 @@
 // solo un reshaping editoriale sintetico di quello che esiste gia'.
 // =========================================================
 
+// Un'esperienza mostrata nella card — titolo + la SUA foto
+// rappresentativa (non una foto generica pescata a caso), cosi' la
+// striscia di miniature prova visivamente cosa contiene il pacchetto.
+export interface SocialCardHighlight {
+  title: string;
+  image?: string;
+}
+
 export interface SocialCardData {
 
   title: string;
@@ -22,8 +30,9 @@ export interface SocialCardData {
   mood?: string;
 
   // Fino a 3 esperienze principali, mai la lista completa della
-  // proposal — la featured sempre prima.
-  highlights: string[];
+  // proposal — la featured sempre prima. Ognuna con la propria foto,
+  // per la striscia di miniature sotto la lista.
+  highlights: SocialCardHighlight[];
 
   // Frase editoriale breve (da dynamicIntroParagraph, gia' curato).
   description: string;

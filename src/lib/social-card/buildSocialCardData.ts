@@ -103,13 +103,21 @@ export function buildSocialCardData({
   // la card perde spazio per la riga editoriale (description) e
   // legge piu' come elenco che come momento curato — vedi il
   // confronto 3 vs 4 discusso con il cliente.
-  const highlightTitles = [
-    featuredExperience.title,
-    ...includedExperiences.map((exp) => exp.title),
-  ];
+  // Ogni highlight porta con se' la SUA foto (non una foto generica
+  // pescata dal pool), cosi' la striscia di miniature mostra
+  // davvero le esperienze coinvolte, non solo la featured.
+  const highlightCandidates = [
+    { title: featuredExperience.title, image: heroImage },
+    ...includedExperiences.map((exp) => ({ title: exp.title, image: exp.image })),
+  ].filter((item) => Boolean(item.title));
 
-  const highlights = Array.from(new Set(highlightTitles))
-    .filter(Boolean)
+  const seenTitles = new Set<string>();
+  const highlights = highlightCandidates
+    .filter((item) => {
+      if (seenTitles.has(item.title)) return false;
+      seenTitles.add(item.title);
+      return true;
+    })
     .slice(0, 3);
 
   const images = Array.from(
