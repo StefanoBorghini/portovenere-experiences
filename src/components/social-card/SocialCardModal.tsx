@@ -29,6 +29,18 @@ async function waitForImages(node: HTMLElement) {
   );
 }
 
+// Se il web font non e' ancora completamente pronto quando html2canvas
+// misura/disegna il testo, puo' farlo prima con le metriche del
+// fallback e poi ridisegnare con quelle vere — senza ripulire il
+// canvas tra i due passaggi, il risultato e' testo "sdoppiato" a un
+// piccolo scarto. document.fonts.ready garantisce che tutti i @font-face
+// della pagina siano gia' caricati prima di catturare.
+async function waitForFonts() {
+  if (typeof document !== "undefined" && "fonts" in document) {
+    await document.fonts.ready;
+  }
+}
+
 export default function SocialCardModal({ data, slug, onClose }: SocialCardModalProps) {
 
   const [activeFormat, setActiveFormat] = useState<SocialCardFormatId>("portrait");
@@ -79,7 +91,7 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
 
     try {
 
-      await waitForImages(captureRef.current);
+      await Promise.all([waitForImages(captureRef.current), waitForFonts()]);
 
       const html2canvas = (await import("html2canvas")).default;
 
