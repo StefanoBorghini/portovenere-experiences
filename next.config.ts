@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
       "./node_modules/@jsquash/webp/codec/dec/webp_dec.wasm",
       "./node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm",
     ],
+    "/api/admin/leads/[id]/social-card/send-email": [
+      "./node_modules/@jsquash/webp/codec/dec/webp_dec.wasm",
+      "./node_modules/@jsquash/png/codec/pkg/squoosh_png_bg.wasm",
+    ],
   },
 };
 

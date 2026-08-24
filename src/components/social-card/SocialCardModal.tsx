@@ -10,10 +10,11 @@ interface SocialCardModalProps {
   data: SocialCardData;
   slug: string;
   leadId: string;
+  leadEmail: string;
   onClose: () => void;
 }
 
-export default function SocialCardModal({ data, slug, leadId, onClose }: SocialCardModalProps) {
+export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose }: SocialCardModalProps) {
 
   const [activeFormat, setActiveFormat] = useState<SocialCardFormatId>("portrait");
   const [showPrice, setShowPrice] = useState(data.showPrice);
@@ -21,6 +22,8 @@ export default function SocialCardModal({ data, slug, leadId, onClose }: SocialC
   const [customCta, setCustomCta] = useState("");
   const [isCustomCta, setIsCustomCta] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const previewWrapperRef = useRef<HTMLDivElement>(null);
@@ -112,6 +115,63 @@ export default function SocialCardModal({ data, slug, leadId, onClose }: SocialC
       alert(message);
     } finally {
       setDownloading(false);
+    }
+  }
+
+  // Genera lo stesso file di handleDownload (stessa pipeline
+  // server-side) e lo allega a un'email inviata all'indirizzo del
+  // lead — azione esplicita dell'admin, mai automatica.
+  async function handleSendEmail() {
+
+    if (!supabase) {
+      alert("Supabase not configured");
+      return;
+    }
+
+    if (!leadEmail) {
+      alert("This lead has no email address on file.");
+      return;
+    }
+
+    const confirmed = window.confirm(`Send this social card to ${leadEmail}?`);
+    if (!confirmed) return;
+
+    setSendingEmail(true);
+
+    try {
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch(`/api/admin/leads/${leadId}/social-card/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+        body: JSON.stringify({
+          format: activeFormat,
+          showPrice,
+          cta: effectiveCta,
+        }),
+      });
+
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.error || `send failed with status ${response.status}`);
+      }
+
+      setEmailSent(true);
+      setTimeout(() => setEmailSent(false), 3000);
+
+    } catch (err) {
+      console.error("social card email send failed:", err);
+      const message = err instanceof Error ? err.message : "Could not send the email — please try again.";
+      alert(message);
+    } finally {
+      setSendingEmail(false);
     }
   }
 
@@ -247,6 +307,13 @@ export default function SocialCardModal({ data, slug, leadId, onClose }: SocialC
               className="flex-1 min-w-[160px] bg-white text-black px-6 py-4 rounded-xl uppercase tracking-[0.15em] text-xs font-medium hover:bg-white/90 transition-all disabled:opacity-50"
             >
               {downloading ? "Generating…" : `Download ${formatConfig.exportAs.toUpperCase()}`}
+            </button>
+            <button
+              onClick={handleSendEmail}
+              disabled={sendingEmail || !leadEmail}
+              className="flex-1 min-w-[160px] border border-white/20 text-white px-6 py-4 rounded-xl uppercase tracking-[0.15em] text-xs hover:bg-white/5 transition-all disabled:opacity-50"
+            >
+              {sendingEmail ? "Sending…" : emailSent ? "Sent ✓" : "Send via Email"}
             </button>
             <button
               onClick={handleCopyLink}

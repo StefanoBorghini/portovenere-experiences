@@ -1167,3 +1167,36 @@ export function partnerContractEmailTemplate(data: PartnerContractSummary) {
     ${contactsBlock()}
   `);
 }
+
+// ---------------------------------------------------------
+// Social Experience Card — inviata dall'admin al cliente (bottone
+// "Send via Email" nel modale, vedi
+// /api/admin/leads/[id]/social-card/send-email). Il file allegato
+// (PNG o PDF a seconda del formato scelto) e' il contenuto vero e
+// proprio del messaggio: qui serve solo una riga di contesto, non
+// un riepilogo della proposal (quello resta sulla pagina, linkata
+// sotto).
+// ---------------------------------------------------------
+
+interface SocialCardEmailSummary {
+  name: string;
+  cardTitle: string;
+  slug: string;
+}
+
+export function socialCardEmailTemplate(data: SocialCardEmailSummary) {
+  return wrapEmail(`
+    ${logoBlock()}
+
+    <h2 style="font-weight: 300;">A little something for your Riviera escape</h2>
+    <p>Hi ${escapeHtml(data.name) || "there"},</p>
+    <p>
+      We put together a keepsake for <strong>${escapeHtml(data.cardTitle)}</strong> —
+      attached to this email, ready to save or share.
+    </p>
+
+    ${primaryButton(`${SITE_URL}/results/proposal/${encodeURIComponent(data.slug)}`, "View your proposal")}
+
+    ${contactsBlock()}
+  `);
+}

@@ -2,6 +2,7 @@ import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
 import { toSatoriImageDataUri } from "./toSatoriImage";
+import { generateQrCodeDataUri } from "./generateQrCode";
 
 // =========================================================
 // buildSocialCardElement — la STESSA composizione visiva di
@@ -40,12 +41,13 @@ export async function buildSocialCardElement(
   // sito lo sono) — ogni immagine passa da toSatoriImageDataUri, che
   // la ri-scarica e ri-codifica in PNG. Tutte insieme, non in serie,
   // per non sommare le latenze di rete una dopo l'altra.
-  const [primaryImage, logoUrl, thumbnailImages] = await Promise.all([
+  const [primaryImage, logoUrl, thumbnailImages, qrCode] = await Promise.all([
     toSatoriImageDataUri(toAbsoluteUrl(data.images[0] || "/images/default-hero.webp")),
     toSatoriImageDataUri(toAbsoluteUrl(proposalConfig.brand.logo)),
     Promise.all(
       thumbnails.map((h) => toSatoriImageDataUri(toAbsoluteUrl(h.image!)))
     ),
+    generateQrCodeDataUri(toAbsoluteUrl(data.ctaUrl)),
   ]);
 
   const metaLine = [data.duration, data.travelers, data.dates]
@@ -296,20 +298,36 @@ export async function buildSocialCardElement(
               fontWeight: 500,
               fontSize: format.width * 0.021,
               letterSpacing: format.width * 0.021 * 0.12,
+              maxWidth: format.width * 0.6,
             }}
           >
             {cta}
           </span>
-          <span
+
+          <div
             style={{
               display: "flex",
-              fontSize: format.width * 0.013,
-              letterSpacing: format.width * 0.013 * 0.08,
-              color: "rgba(255,255,255,0.4)",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: format.width * 0.006,
             }}
           >
-            portovenere.com
-          </span>
+            <img
+              src={qrCode}
+              width={format.width * 0.09}
+              height={format.width * 0.09}
+            />
+            <span
+              style={{
+                display: "flex",
+                fontSize: format.width * 0.011,
+                letterSpacing: format.width * 0.011 * 0.08,
+                color: "rgba(255,255,255,0.4)",
+              }}
+            >
+              portovenere.com
+            </span>
+          </div>
         </div>
 
       </div>

@@ -838,6 +838,7 @@ export default function LeadDetailPage() {
           data={socialCardData}
           slug={proposal?.slug || lead.id}
           leadId={lead.id}
+          leadEmail={lead.email || ""}
           onClose={() => setShowSocialCardModal(false)}
         />
       )}

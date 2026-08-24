@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ImageResponse } from "next/og";
-import { jsPDF } from "jspdf";
 import { requireAdminSession } from "@/lib/auth/requireAdminSession";
 import { getSupabaseAdmin } from "@/lib/supabase/adminClient";
 import { getSocialCardDataForSlug } from "@/lib/social-card/getSocialCardDataForProposal";
-import { SOCIAL_CARD_FORMATS, SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
+import { renderSocialCardFile } from "@/lib/social-card/renderSocialCardFile";
 import { SocialCardFormatId } from "@/types/socialCard";
-import { buildSocialCardElement } from "@/lib/social-card/renderSocialCardSatori";
-import { loadGoogleFont } from "@/lib/social-card/googleFont";
 
 // =========================================================
 // GET /api/admin/leads/[id]/social-card/export?format=portrait|story|a4&showPrice=0|1&cta=...
@@ -24,7 +20,7 @@ import { loadGoogleFont } from "@/lib/social-card/googleFont";
 // sola richiesta (rigenera l'intera proposal, scarica 3 pesi di
 // font da Google, scarica e ri-codifica fino a 4 immagini): puo'
 // superare facilmente il timeout di default delle funzioni
-// serverless (10s), che uccide la funzione PRIMA che il nostro
+// serverless (10s), che ucciderebbe la funzione prima che il nostro
 // try/catch possa intervenire — da cui un 500 "vuoto" senza il
 // messaggio d'errore dettagliato che il catch qui sotto produrrebbe.
 // =========================================================
@@ -46,23 +42,7 @@ export async function GET(
   const showPrice = url.searchParams.get("showPrice") === "1";
   const requestedCta = url.searchParams.get("cta") || "";
 
-  const format: SocialCardFormatConfig | undefined = SOCIAL_CARD_FORMATS[formatId];
-
-  if (!format) {
-    return NextResponse.json({ success: false, error: "Invalid format" }, { status: 400 });
-  }
-
   try {
-
-    // I font non dipendono in alcun modo dal lead/dalla proposal —
-    // partono in parallelo con la query invece che dopo, cosi' la
-    // latenza di rete verso Google Fonts si sovrappone a quella
-    // verso Supabase invece di sommarcisi.
-    const fontsPromise = Promise.all([
-      loadGoogleFont("Inter", 300),
-      loadGoogleFont("Inter", 400),
-      loadGoogleFont("Inter", 500),
-    ]);
 
     const { data: proposal, error } = await getSupabaseAdmin()
       .from("Proposal")
@@ -88,44 +68,18 @@ export async function GET(
 
     const effectiveCta = requestedCta || socialCardData.cta;
 
-    const [[fontLight, fontRegular, fontMedium], element] = await Promise.all([
-      fontsPromise,
-      buildSocialCardElement(socialCardData, format, showPrice, effectiveCta),
-    ]);
+    const { buffer, contentType, filename } = await renderSocialCardFile(
+      socialCardData,
+      formatId,
+      showPrice,
+      effectiveCta,
+      proposal.slug
+    );
 
-    const imageResponse = new ImageResponse(element, {
-      width: format.width,
-      height: format.height,
-      fonts: [
-        { name: "Inter", data: fontLight, weight: 300, style: "normal" },
-        { name: "Inter", data: fontRegular, weight: 400, style: "normal" },
-        { name: "Inter", data: fontMedium, weight: 500, style: "normal" },
-      ],
-    });
-
-    const pngBuffer = Buffer.from(await imageResponse.arrayBuffer());
-
-    const filenameBase = `portovenere-experience-${proposal.slug}`;
-
-    if (format.exportAs === "pdf") {
-
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const dataUri = `data:image/png;base64,${pngBuffer.toString("base64")}`;
-      pdf.addImage(dataUri, "PNG", 0, 0, 210, 297);
-      const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
-
-      return new NextResponse(pdfBuffer, {
-        headers: {
-          "Content-Type": "application/pdf",
-          "Content-Disposition": `attachment; filename="${filenameBase}.pdf"`,
-        },
-      });
-    }
-
-    return new NextResponse(pngBuffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
-        "Content-Type": "image/png",
-        "Content-Disposition": `attachment; filename="${filenameBase}-${formatId}.png"`,
+        "Content-Type": contentType,
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
     });
 
