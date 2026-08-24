@@ -83,8 +83,15 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
 
       const html2canvas = (await import("html2canvas")).default;
 
+      // scale: 1 esplicito — il nodo e' GIA' renderizzato alla
+      // dimensione fisica esatta del formato (1080px reali nel DOM,
+      // non un elemento piccolo scalato su per la stampa). Chiedere
+      // ANCHE uno scale a html2canvas, sommato al devicePixelRatio
+      // dello schermo (che html2canvas applica di default se non lo
+      // forzi), produce una cattura doppia disallineata — il testo
+      // "sdoppiato" visto in preview/export.
       const canvas = await html2canvas(captureRef.current, {
-        scale: 2,
+        scale: 1,
         useCORS: true,
         backgroundColor: "#000000",
         width: formatConfig.width,
