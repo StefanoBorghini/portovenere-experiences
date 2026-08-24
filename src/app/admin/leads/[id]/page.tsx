@@ -837,6 +837,7 @@ export default function LeadDetailPage() {
         <SocialCardModal
           data={socialCardData}
           slug={proposal?.slug || lead.id}
+          leadId={lead.id}
           onClose={() => setShowSocialCardModal(false)}
         />
       )}

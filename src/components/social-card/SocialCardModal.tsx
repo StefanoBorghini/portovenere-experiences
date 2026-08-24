@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { SocialCardData, SocialCardFormatId, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
 import { SOCIAL_CARD_FORMATS, SOCIAL_CARD_FORMAT_ORDER } from "./socialCardFormats";
 import SocialExperienceCard from "./SocialExperienceCard";
@@ -8,40 +9,11 @@ import SocialExperienceCard from "./SocialExperienceCard";
 interface SocialCardModalProps {
   data: SocialCardData;
   slug: string;
+  leadId: string;
   onClose: () => void;
 }
 
-// Aspetta che tutte le <img> del nodo abbiano davvero finito di
-// caricare — senza questo, html2canvas puo' catturare un frame con
-// l'immagine di sfondo ancora bianca/vuota (soprattutto la prima
-// volta che il formato viene aperto).
-async function waitForImages(node: HTMLElement) {
-  const images = Array.from(node.querySelectorAll("img"));
-  await Promise.all(
-    images.map((img) =>
-      img.complete
-        ? Promise.resolve()
-        : new Promise<void>((resolve) => {
-            img.addEventListener("load", () => resolve(), { once: true });
-            img.addEventListener("error", () => resolve(), { once: true });
-          })
-    )
-  );
-}
-
-// Se il web font non e' ancora completamente pronto quando html2canvas
-// misura/disegna il testo, puo' farlo prima con le metriche del
-// fallback e poi ridisegnare con quelle vere — senza ripulire il
-// canvas tra i due passaggi, il risultato e' testo "sdoppiato" a un
-// piccolo scarto. document.fonts.ready garantisce che tutti i @font-face
-// della pagina siano gia' caricati prima di catturare.
-async function waitForFonts() {
-  if (typeof document !== "undefined" && "fonts" in document) {
-    await document.fonts.ready;
-  }
-}
-
-export default function SocialCardModal({ data, slug, onClose }: SocialCardModalProps) {
+export default function SocialCardModal({ data, slug, leadId, onClose }: SocialCardModalProps) {
 
   const [activeFormat, setActiveFormat] = useState<SocialCardFormatId>("portrait");
   const [showPrice, setShowPrice] = useState(data.showPrice);
@@ -51,7 +23,6 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const captureRef = useRef<HTMLDivElement>(null);
   const previewWrapperRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(0.3);
 
@@ -83,62 +54,60 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
     setActiveFormat(id);
   }
 
+  // Il file scaricato viene generato SEMPRE lato server
+  // (/api/admin/leads/[id]/social-card/export, next/og) — mai
+  // catturando il DOM nel browser. L'anteprima qui sotto resta un
+  // componente React normale (SocialExperienceCard), mai toccato da
+  // un motore di cattura: e' solo per farsi un'idea a schermo prima
+  // di scaricare, il file vero e proprio e' generato da zero dal
+  // server con gli stessi dati.
   async function handleDownload() {
 
-    if (!captureRef.current) return;
+    if (!supabase) {
+      alert("Supabase not configured");
+      return;
+    }
 
     setDownloading(true);
 
     try {
 
-      await Promise.all([waitForImages(captureRef.current), waitForFonts()]);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      const html2canvas = (await import("html2canvas")).default;
-
-      // scale: 1 esplicito — il nodo e' GIA' renderizzato alla
-      // dimensione fisica esatta del formato (1080px reali nel DOM),
-      // nessun moltiplicatore extra necessario.
-      //
-      // foreignObjectRendering: false — per default html2canvas
-      // PROVA prima la via veloce (disegna un <foreignObject> SVG
-      // con l'HTML vero e proprio dentro), e se quel disegno viene
-      // "tainted" dal browser (capita con immagini cross-origin
-      // dentro un foreignObject, anche con crossOrigin="anonymous" —
-      // limite noto del rendering SVG, non di html2canvas) ripiega
-      // sul renderer manuale (ridisegna testo/forme nodo per nodo).
-      // Se il primo tentativo arriva a disegnare PRIMA di accorgersi
-      // del taint, il fallback si sovrappone al disegno parziale
-      // gia' fatto — e' quello il testo "sdoppiato" visto in export.
-      // Disattivando la via SVG si usa sempre e solo il renderer
-      // manuale, un unico passaggio pulito.
-      const canvas = await html2canvas(captureRef.current, {
-        scale: 1,
-        useCORS: true,
-        foreignObjectRendering: false,
-        backgroundColor: "#000000",
-        width: formatConfig.width,
-        height: formatConfig.height,
+      const params = new URLSearchParams({
+        format: activeFormat,
+        showPrice: showPrice ? "1" : "0",
+        cta: effectiveCta,
       });
 
-      if (formatConfig.exportAs === "pdf") {
+      const response = await fetch(
+        `/api/admin/leads/${leadId}/social-card/export?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.access_token || ""}`,
+          },
+        }
+      );
 
-        const { jsPDF } = await import("jspdf");
-        const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
-        pdf.addImage(imgData, "JPEG", 0, 0, 210, 297);
-        pdf.save(`portovenere-experience-${slug}.pdf`);
-
-      } else {
-
-        const link = document.createElement("a");
-        link.download = `portovenere-experience-${slug}-${activeFormat}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+      if (!response.ok) {
+        throw new Error(`export failed with status ${response.status}`);
       }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `portovenere-experience-${slug}-${activeFormat}.${formatConfig.exportAs}`;
+      link.click();
+
+      URL.revokeObjectURL(blobUrl);
 
     } catch (err) {
       console.error("social card download failed:", err);
-      alert("Could not generate the image — please try again.");
+      alert("Could not generate the file — please try again.");
     } finally {
       setDownloading(false);
     }
@@ -207,7 +176,6 @@ export default function SocialCardModal({ data, slug, onClose }: SocialCardModal
               }}
             >
               <SocialExperienceCard
-                ref={captureRef}
                 data={data}
                 format={formatConfig}
                 showPrice={showPrice}

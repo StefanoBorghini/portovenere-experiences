@@ -1,14 +1,14 @@
-import { forwardRef } from "react";
 import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "./socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
 
 // =========================================================
-// SocialExperienceCard — il renderer visivo puro. Sempre montato
-// alla dimensione reale in pixel del formato (mai scalato via CSS
-// per il layout: lo scale eventuale per l'anteprima a schermo lo
-// applica il chiamante con un transform sul contenitore esterno),
-// cosi' html2canvas cattura gia' alla risoluzione corretta.
+// SocialExperienceCard — anteprima interattiva a schermo dentro
+// SocialCardModal (React normale, mai catturata da un motore
+// screenshot: il file scaricato viene generato da zero lato server,
+// vedi /api/admin/leads/[id]/social-card/export +
+// renderSocialCardSatori.tsx). Serve solo a farsi un'idea prima di
+// scaricare — stessa composizione visiva del file finale.
 //
 // Composizione: fotografia a piena pagina, blocco editoriale ancorato
 // in basso su un gradiente scuro (stessa lingua visiva di
@@ -25,22 +25,9 @@ interface SocialExperienceCardProps {
   cta: string;
 }
 
-// Le foto delle experience arrivano da Supabase Storage (dominio
-// esterno) e sono gia' visualizzate altrove nella pagina SENZA
-// crossOrigin. Se questo <img crossOrigin="anonymous"> punta allo
-// stesso URL, il browser puo' servirla dalla cache non-CORS gia'
-// presente — il canvas risulta "tainted" e l'export fallisce in
-// silenzio. Un suffisso fisso nella query string forza una richiesta
-// di rete separata, fatta stavolta in modalita' CORS.
-function withCorsCacheBust(url: string): string {
-  if (!url || url.startsWith("/")) return url; // asset locali, stesso dominio: nessun problema CORS
-  return url.includes("?") ? `${url}&social-card=1` : `${url}?social-card=1`;
-}
+export default function SocialExperienceCard({ data, format, showPrice, cta }: SocialExperienceCardProps) {
 
-const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProps>(
-  ({ data, format, showPrice, cta }, ref) => {
-
-    const primaryImage = withCorsCacheBust(data.images[0] || "/images/default-hero.webp");
+    const primaryImage = data.images[0] || "/images/default-hero.webp";
 
     const metaLine = [data.duration, data.travelers, data.dates]
       .filter(Boolean)
@@ -48,7 +35,6 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
 
     return (
       <div
-        ref={ref}
         style={{ width: format.width, height: format.height }}
         className="relative overflow-hidden bg-black text-white"
       >
@@ -57,7 +43,6 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
           src={primaryImage}
           alt={data.title}
           className="absolute inset-0 w-full h-full object-cover"
-          crossOrigin="anonymous"
         />
 
         {/* GRADIENT — leggero in alto (lascia respirare la foto),
@@ -165,10 +150,9 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
                     className="relative overflow-hidden flex-none"
                   >
                     <img
-                      src={withCorsCacheBust(highlight.image!)}
+                      src={highlight.image}
                       alt={highlight.title}
                       className="absolute inset-0 w-full h-full object-cover"
-                      crossOrigin="anonymous"
                     />
                   </div>
                 ))}
@@ -220,9 +204,4 @@ const SocialExperienceCard = forwardRef<HTMLDivElement, SocialExperienceCardProp
         </div>
       </div>
     );
-  }
-);
-
-SocialExperienceCard.displayName = "SocialExperienceCard";
-
-export default SocialExperienceCard;
+}

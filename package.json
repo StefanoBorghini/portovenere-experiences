@@ -20,7 +20,6 @@
     "@tiptap/starter-kit": "^3.27.1",
     "@translated/lara": "^1.13.0",
     "framer-motion": "^12.40.0",
-    "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.17.0",
     "next": "16.2.6",

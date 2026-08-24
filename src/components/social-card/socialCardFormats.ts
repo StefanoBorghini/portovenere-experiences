@@ -1,10 +1,10 @@
 import { SocialCardFormatId } from "@/types/socialCard";
 
 // =========================================================
-// Dimensioni reali in pixel — il componente SocialExperienceCard
-// viene sempre renderizzato a questa dimensione esatta (mai scalato
-// via CSS per il layout, solo per l'anteprima a schermo), cosi'
-// html2canvas cattura un'immagine gia' alla risoluzione giusta.
+// Dimensioni reali in pixel — usate sia dall'anteprima a schermo
+// (SocialExperienceCard, scalata via CSS solo per il display) sia
+// dal render server-side che genera il file scaricato
+// (renderSocialCardSatori.tsx), cosi' sono garantite identiche.
 //
 // "safeTop"/"safeBottom" — margine di sicurezza dai bordi per non
 // far finire testo sotto la UI di Instagram (icone, username, ecc.),
