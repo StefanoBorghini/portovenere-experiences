@@ -79,11 +79,21 @@ function datesLabel(startDate?: string, endDate?: string): string | undefined {
 
 // Titolo breve, sintetico — mai la description lunga di una singola
 // experience, che appartiene alla proposal, non alla card social.
-// Il taglio avviene SEMPRE all'ultimo spazio prima del limite, mai a
-// meta' parola (altrimenti "pace" diventa "pac…").
+// Preferisce fermarsi alla fine della prima frase (un punto) invece
+// di tagliare comunque a un numero fisso di caratteri: una frase
+// completa un po' piu' lunga legge meglio di una spezzata con "…",
+// anche quando supera leggermente maxLength. Solo se la prima frase
+// stessa e' spropositatamente lunga (nessun punto vicino) si ricade
+// sul taglio all'ultimo spazio prima del limite — mai a meta' parola
+// (altrimenti "pace" diventa "pac…").
 function shortDescription(text: string, maxLength = 140): string {
   const trimmed = text.trim();
   if (trimmed.length <= maxLength) return trimmed;
+
+  const firstSentence = trimmed.match(/^[^.!?]*[.!?]/)?.[0].trim();
+  if (firstSentence && firstSentence.length <= maxLength * 1.3) {
+    return firstSentence;
+  }
 
   const sliced = trimmed.slice(0, maxLength);
   const lastSpace = sliced.lastIndexOf(" ");
