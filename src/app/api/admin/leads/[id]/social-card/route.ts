@@ -12,6 +12,8 @@ import { getSocialCardDataForSlug } from "@/lib/social-card/getSocialCardDataFor
 // strumento marketing che usa Stefano, non una feature del wizard.
 // =========================================================
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

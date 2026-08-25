@@ -92,6 +92,7 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
           headers: {
             Authorization: `Bearer ${session?.access_token || ""}`,
           },
+          cache: "no-store",
         }
       );
 

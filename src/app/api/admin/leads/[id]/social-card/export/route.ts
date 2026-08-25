@@ -27,6 +27,14 @@ import { SocialCardFormatId } from "@/types/socialCard";
 
 export const maxDuration = 60;
 
+// Route GET dinamica: senza questo, Vercel/il browser possono
+// mettere in cache la risposta per la combinazione
+// URL+querystring (stesso lead+format+showPrice+cta) e continuare a
+// servire un file vecchio anche dopo un redeploy — esattamente il
+// sintomo "ho corretto il bug ma il file scaricato e' sempre quello
+// di prima" visto in test.
+export const dynamic = "force-dynamic";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -80,6 +88,7 @@ export async function GET(
       headers: {
         "Content-Type": contentType,
         "Content-Disposition": `attachment; filename="${filename}"`,
+        "Cache-Control": "no-store",
       },
     });
 
