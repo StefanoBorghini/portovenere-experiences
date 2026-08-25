@@ -118,7 +118,7 @@ export default function SocialExperienceStoryCard({ data, format, showPrice, cta
         </p>
 
         {data.highlights.length > 0 && (
-          <ul style={{ fontSize: contentWidth * 0.037, marginBottom: 44 }}>
+          <ul style={{ fontSize: contentWidth * 0.037, marginBottom: 36 }}>
             {data.highlights.map((highlight) => (
               <li
                 key={highlight.title}
@@ -130,6 +130,43 @@ export default function SocialExperienceStoryCard({ data, format, showPrice, cta
             ))}
           </ul>
         )}
+
+        {/* STRISCIA MINIATURE — stessa logica del Post: dimensione
+            calcolata sul numero effettivo di esperienze, mai piu'
+            larga dello spazio disponibile. */}
+        {data.highlights.some((h) => h.image) && (() => {
+          const thumbCount = data.highlights.filter((h) => h.image).length;
+          const thumbGap = contentWidth * 0.02;
+          const maxThumbSize = contentWidth * 0.2;
+          const thumbSize = Math.min(
+            maxThumbSize,
+            (contentWidth - thumbGap * (thumbCount - 1)) / thumbCount
+          );
+
+          return (
+            <div className="flex" style={{ gap: thumbGap, marginBottom: 44 }}>
+              {data.highlights
+                .filter((h) => h.image)
+                .map((highlight) => (
+                  <div
+                    key={highlight.title}
+                    style={{
+                      width: thumbSize,
+                      height: thumbSize,
+                      border: "1px solid rgba(255,255,255,0.3)",
+                    }}
+                    className="relative overflow-hidden flex-none"
+                  >
+                    <img
+                      src={highlight.image}
+                      alt={highlight.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+            </div>
+          );
+        })()}
 
         {showPrice && data.price ? (
           <p

@@ -52,7 +52,7 @@ export interface SocialCardData {
   proposalUrl: string;
 }
 
-export type SocialCardFormatId = "portrait" | "story" | "a4";
+export type SocialCardFormatId = "portrait" | "story";
 
 export const SOCIAL_CARD_CTA_PRESETS = [
   "BUILD YOUR OWN EXPERIENCE →",

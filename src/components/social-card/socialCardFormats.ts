@@ -18,7 +18,6 @@ export interface SocialCardFormatConfig {
   height: number;
   safeTop: number;
   safeBottom: number;
-  exportAs: "png" | "pdf";
 }
 
 export const SOCIAL_CARD_FORMATS: Record<SocialCardFormatId, SocialCardFormatConfig> = {
@@ -29,7 +28,6 @@ export const SOCIAL_CARD_FORMATS: Record<SocialCardFormatId, SocialCardFormatCon
     height: 1350,
     safeTop: 64,
     safeBottom: 64,
-    exportAs: "png",
   },
   story: {
     id: "story",
@@ -38,17 +36,7 @@ export const SOCIAL_CARD_FORMATS: Record<SocialCardFormatId, SocialCardFormatCon
     height: 1920,
     safeTop: 220,
     safeBottom: 260,
-    exportAs: "png",
-  },
-  a4: {
-    id: "a4",
-    label: "A4 (PDF)",
-    width: 1240,
-    height: 1754,
-    safeTop: 90,
-    safeBottom: 90,
-    exportAs: "pdf",
   },
 };
 
-export const SOCIAL_CARD_FORMAT_ORDER: SocialCardFormatId[] = ["portrait", "story", "a4"];
+export const SOCIAL_CARD_FORMAT_ORDER: SocialCardFormatId[] = ["portrait", "story"];

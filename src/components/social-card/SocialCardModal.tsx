@@ -105,7 +105,7 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
 
       const link = document.createElement("a");
       link.href = blobUrl;
-      link.download = `portovenere-experience-${slug}-${activeFormat}.${formatConfig.exportAs}`;
+      link.download = `portovenere-experience-${slug}-${activeFormat}.png`;
       link.click();
 
       URL.revokeObjectURL(blobUrl);
@@ -316,7 +316,7 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
               disabled={downloading}
               className="flex-1 min-w-[160px] bg-white text-black px-6 py-4 rounded-xl uppercase tracking-[0.15em] text-xs font-medium hover:bg-white/90 transition-all disabled:opacity-50"
             >
-              {downloading ? "Generating…" : `Download ${formatConfig.exportAs.toUpperCase()}`}
+              {downloading ? "Generating…" : "Download PNG"}
             </button>
             <button
               onClick={handleSendEmail}

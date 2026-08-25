@@ -6,7 +6,7 @@ import { renderSocialCardFile } from "@/lib/social-card/renderSocialCardFile";
 import { SocialCardFormatId } from "@/types/socialCard";
 
 // =========================================================
-// GET /api/admin/leads/[id]/social-card/export?format=portrait|story|a4&showPrice=0|1&cta=...
+// GET /api/admin/leads/[id]/social-card/export?format=portrait|story&showPrice=0|1&cta=...
 // Genera il file finale — SEMPRE lato server (next/og, basato su
 // Satori), mai nel browser dell'admin: elimina l'intera categoria di
 // bug del rendering client-side via html2canvas (font non ancora

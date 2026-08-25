@@ -7,13 +7,13 @@ import { SOCIAL_CARD_QR_CODE_IMAGE } from "./qrCodeImage";
 // =========================================================
 // buildSocialStoryElement — composizione AUTONOMA per il formato
 // Story/Reel (9:16), non una versione rimpicciolita di
-// renderSocialCardSatori.tsx (quello resta invariato, usato per
-// Feed/A4). Stessa identita' visiva (fotografia piena pagina,
-// gradiente scuro in basso, stesso logo/branding, stesso QR) ma
-// MENO contenuto e MOLTO piu' grande: niente striscia miniature,
-// niente paragrafo descrittivo — solo titolo, meta, highlight in
-// elenco, prezzo/CTA. La Story va letta in un colpo d'occhio sullo
-// schermo di un telefono, non studiata come il Post.
+// renderSocialCardSatori.tsx (quello resta invariato, usato per il
+// Feed). Stessa identita' visiva (fotografia piena pagina, gradiente
+// scuro in basso, stesso logo/branding, stessa striscia miniature,
+// stesso QR) ma MENO contenuto e MOLTO piu' grande: niente paragrafo
+// descrittivo — solo titolo, meta, highlight in elenco con le
+// rispettive foto, prezzo/CTA. La Story va letta in un colpo
+// d'occhio sullo schermo di un telefono, non studiata come il Post.
 // =========================================================
 
 const SITE_URL =
@@ -31,10 +31,13 @@ export async function buildSocialStoryElement(
   cta: string
 ) {
 
-  const [primaryImage, logoUrl, qrCode] = await Promise.all([
+  const thumbnails = data.highlights.filter((h) => h.image);
+
+  const [primaryImage, logoUrl, qrCode, thumbnailImages] = await Promise.all([
     toSatoriImageDataUri(toAbsoluteUrl(data.images[0] || "/images/default-hero.webp")),
     toSatoriImageDataUri(toAbsoluteUrl(proposalConfig.brand.logo)),
     toSatoriImageDataUri(toAbsoluteUrl(SOCIAL_CARD_QR_CODE_IMAGE)),
+    Promise.all(thumbnails.map((h) => toSatoriImageDataUri(toAbsoluteUrl(h.image!)))),
   ]);
 
   const metaLine = [data.duration, data.travelers, data.dates]
@@ -46,6 +49,14 @@ export async function buildSocialStoryElement(
   // condividendo la stessa format.width, quindi il testo va
   // dimensionato sullo spazio REALMENTE disponibile.
   const contentWidth = format.width - format.safeTop * 2;
+
+  // Dimensione miniature — stessa logica del Post: mai piu' larghe
+  // dello spazio realmente disponibile, a prescindere dal numero.
+  const thumbGap = contentWidth * 0.02;
+  const maxThumbSize = contentWidth * 0.2;
+  const thumbSize = thumbnails.length > 0
+    ? Math.min(maxThumbSize, (contentWidth - thumbGap * (thumbnails.length - 1)) / thumbnails.length)
+    : 0;
 
   return (
     <div
@@ -188,7 +199,7 @@ export async function buildSocialStoryElement(
         </span>
 
         {data.highlights.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", marginBottom: 44 }}>
+          <div style={{ display: "flex", flexDirection: "column", marginBottom: 36 }}>
             {data.highlights.map((highlight) => (
               <span
                 key={highlight.title}
@@ -204,6 +215,30 @@ export async function buildSocialStoryElement(
               >
                 {highlight.title}
               </span>
+            ))}
+          </div>
+        )}
+
+        {thumbnails.length > 0 && (
+          <div style={{ display: "flex", gap: thumbGap, marginBottom: 44 }}>
+            {thumbnails.map((highlight, index) => (
+              <div
+                key={highlight.title}
+                style={{
+                  display: "flex",
+                  width: thumbSize,
+                  height: thumbSize,
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  src={thumbnailImages[index]}
+                  width={thumbSize}
+                  height={thumbSize}
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
             ))}
           </div>
         )}
