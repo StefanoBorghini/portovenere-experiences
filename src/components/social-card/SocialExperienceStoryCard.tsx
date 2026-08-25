@@ -80,7 +80,7 @@ export default function SocialExperienceStoryCard({ data, format, showPrice, cta
         />
         <span
           className="uppercase"
-          style={{ fontSize: contentWidth * 0.018, letterSpacing: "0.3em", color: "rgba(255,255,255,0.75)" }}
+          style={{ fontSize: contentWidth * 0.018, lineHeight: 1, letterSpacing: "0.3em", color: "rgba(255,255,255,0.75)" }}
         >
           {proposalConfig.brand.name}
         </span>

@@ -149,6 +149,7 @@ export async function buildSocialCardElement(
             display: "flex",
             textTransform: "uppercase",
             fontSize: contentWidth * 0.018,
+            lineHeight: 1,
             letterSpacing: contentWidth * 0.018 * 0.3,
             color: "rgba(255,255,255,0.75)",
           }}
