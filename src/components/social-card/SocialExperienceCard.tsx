@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "./socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
-import { generateQrCodeDataUri } from "@/lib/social-card/generateQrCode";
+import { SOCIAL_CARD_QR_CODE_IMAGE } from "@/lib/social-card/qrCodeImage";
 
 // =========================================================
 // SocialExperienceCard — anteprima interattiva a schermo dentro
@@ -32,23 +31,6 @@ interface SocialExperienceCardProps {
 export default function SocialExperienceCard({ data, format, showPrice, cta }: SocialExperienceCardProps) {
 
     const primaryImage = data.images[0] || "/images/default-hero.webp";
-
-    // QR verso il configuratore (data.ctaUrl) — utile a chi vede la
-    // card stampata o su Instagram senza poter cliccare un link.
-    const [qrCode, setQrCode] = useState<string | null>(null);
-
-    useEffect(() => {
-      let cancelled = false;
-      const target = typeof window !== "undefined"
-        ? `${window.location.origin}${data.ctaUrl}`
-        : data.ctaUrl;
-
-      generateQrCodeDataUri(target).then((uri) => {
-        if (!cancelled) setQrCode(uri);
-      });
-
-      return () => { cancelled = true; };
-    }, [data.ctaUrl]);
 
     const metaLine = [data.duration, data.travelers, data.dates]
       .filter(Boolean)
@@ -217,13 +199,11 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
             </span>
 
             <div className="flex flex-col items-center flex-none" style={{ gap: format.width * 0.006 }}>
-              {qrCode && (
-                <img
-                  src={qrCode}
-                  alt="Scan to build your own experience"
-                  style={{ width: format.width * 0.09, height: format.width * 0.09 }}
-                />
-              )}
+              <img
+                src={SOCIAL_CARD_QR_CODE_IMAGE}
+                alt="Scan to build your own experience"
+                style={{ width: format.width * 0.09, height: format.width * 0.09 }}
+              />
               <span
                 style={{ fontSize: format.width * 0.011, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}
               >

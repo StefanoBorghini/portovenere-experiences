@@ -2,7 +2,7 @@ import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
 import { toSatoriImageDataUri } from "./toSatoriImage";
-import { generateQrCodeDataUri } from "./generateQrCode";
+import { SOCIAL_CARD_QR_CODE_IMAGE } from "./qrCodeImage";
 
 // =========================================================
 // buildSocialCardElement — la STESSA composizione visiva di
@@ -47,7 +47,7 @@ export async function buildSocialCardElement(
     Promise.all(
       thumbnails.map((h) => toSatoriImageDataUri(toAbsoluteUrl(h.image!)))
     ),
-    generateQrCodeDataUri(toAbsoluteUrl(data.ctaUrl)),
+    toSatoriImageDataUri(toAbsoluteUrl(SOCIAL_CARD_QR_CODE_IMAGE)),
   ]);
 
   const metaLine = [data.duration, data.travelers, data.dates]
