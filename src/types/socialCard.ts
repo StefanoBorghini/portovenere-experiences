@@ -29,9 +29,9 @@ export interface SocialCardData {
 
   mood?: string;
 
-  // Fino a 3 esperienze principali, mai la lista completa della
-  // proposal — la featured sempre prima. Ognuna con la propria foto,
-  // per la striscia di miniature sotto la lista.
+  // Tutte le esperienze realmente presenti in questa proposal (2, 3
+  // o 4 a seconda del caso) — la featured sempre prima. Ognuna con
+  // la propria foto, per la striscia di miniature sotto la lista.
   highlights: SocialCardHighlight[];
 
   // Frase editoriale breve (da dynamicIntroParagraph, gia' curato).

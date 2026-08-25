@@ -115,11 +115,13 @@ export function buildSocialCardData({
   lead,
 }: BuildSocialCardDataParams): SocialCardData {
 
-  // Mai la lista completa: la featured experience sempre prima,
-  // poi le incluse — dedup per titolo, cap a 3. Con un 4° elemento
-  // la card perde spazio per la riga editoriale (description) e
-  // legge piu' come elenco che come momento curato — vedi il
-  // confronto 3 vs 4 discusso con il cliente.
+  // Tutte le esperienze REALMENTE presenti in questa proposal — la
+  // featured sempre prima, poi le incluse, dedup per titolo. Nessun
+  // cap fisso: se la proposal ne contiene 2, la card ne mostra 2; se
+  // ne contiene 4, ne mostra 4 (il massimo possibile, dato che
+  // buildRendererData.ts include al piu' 3 esperienze oltre alla
+  // featured). Decisione esplicita del cliente — mostrare sempre il
+  // conteggio reale, non un teaser tagliato.
   // Ogni highlight porta con se' la SUA foto (non una foto generica
   // pescata dal pool), cosi' la striscia di miniature mostra
   // davvero le esperienze coinvolte, non solo la featured.
@@ -129,13 +131,11 @@ export function buildSocialCardData({
   ].filter((item) => Boolean(item.title));
 
   const seenTitles = new Set<string>();
-  const highlights = highlightCandidates
-    .filter((item) => {
-      if (seenTitles.has(item.title)) return false;
-      seenTitles.add(item.title);
-      return true;
-    })
-    .slice(0, 3);
+  const highlights = highlightCandidates.filter((item) => {
+    if (seenTitles.has(item.title)) return false;
+    seenTitles.add(item.title);
+    return true;
+  });
 
   const images = Array.from(
     new Set(

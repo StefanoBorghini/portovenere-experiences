@@ -62,6 +62,16 @@ export async function buildSocialCardElement(
   // meta' parola in Story.
   const contentWidth = format.width - format.safeTop * 2;
 
+  // Dimensione delle miniature calcolata sul numero effettivo di
+  // esperienze (2, 3 o 4): mai piu' larghe dello spazio realmente
+  // disponibile, altrimenti in Story (margini piu' larghi) 4
+  // miniature a dimensione fissa avrebbero sforato il bordo.
+  const thumbGap = contentWidth * 0.02;
+  const maxThumbSize = contentWidth * 0.2;
+  const thumbSize = thumbnails.length > 0
+    ? Math.min(maxThumbSize, (contentWidth - thumbGap * (thumbnails.length - 1)) / thumbnails.length)
+    : 0;
+
   return (
     <div
       style={{
@@ -222,22 +232,22 @@ export async function buildSocialCardElement(
         )}
 
         {thumbnails.length > 0 && (
-          <div style={{ display: "flex", gap: format.width * 0.015, marginBottom: 24 }}>
+          <div style={{ display: "flex", gap: thumbGap, marginBottom: 24 }}>
             {thumbnails.map((highlight, index) => (
               <div
                 key={highlight.title}
                 style={{
                   display: "flex",
-                  width: format.width * 0.15,
-                  height: format.width * 0.15,
+                  width: thumbSize,
+                  height: thumbSize,
                   border: "1px solid rgba(255,255,255,0.3)",
                   overflow: "hidden",
                 }}
               >
                 <img
                   src={thumbnailImages[index]}
-                  width={format.width * 0.15}
-                  height={format.width * 0.15}
+                  width={thumbSize}
+                  height={thumbSize}
                   style={{ objectFit: "cover" }}
                 />
               </div>

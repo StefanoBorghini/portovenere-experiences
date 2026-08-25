@@ -17,8 +17,9 @@ import { SOCIAL_CARD_QR_CODE_IMAGE } from "@/lib/social-card/qrCodeImage";
 // in basso su un gradiente scuro (stessa lingua visiva di
 // ProposalHero.tsx — overlay nero + grana), logo/etichetta in alto.
 // Nessun impaginato "a griglia rigida": la quantita' di spazio dato
-// al testo si adatta al contenuto reale (titolo lungo/corto, 1-3
-// highlight, descrizione presente o assente), non un template fisso.
+// al testo si adatta al contenuto reale (titolo lungo/corto, numero
+// di highlight variabile, descrizione presente o assente), non un
+// template fisso.
 // =========================================================
 
 interface SocialExperienceCardProps {
@@ -146,18 +147,33 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           )}
 
           {/* STRISCIA MINIATURE — una foto per esperienza coinvolta
-              (featured + incluse), prova visiva di cosa contiene il
-              pacchetto oltre alla sola foto principale di sfondo. */}
-          {data.highlights.some((h) => h.image) && (
-            <div className="flex mb-6" style={{ gap: format.width * 0.015 }}>
+              (featured + incluse, TUTTE, non un sottoinsieme fisso),
+              prova visiva di cosa contiene il pacchetto oltre alla
+              sola foto principale di sfondo. Dimensione calcolata sul
+              numero effettivo: con 2 esperienze le miniature sono
+              piu' grandi, con 4 si stringono — mai piu' larghe dello
+              spazio realmente disponibile (contentWidth), a
+              differenza di una dimensione fissa che in Story, con
+              margini piu' larghi, avrebbe potuto uscire dal bordo. */}
+          {data.highlights.some((h) => h.image) && (() => {
+            const thumbCount = data.highlights.filter((h) => h.image).length;
+            const thumbGap = contentWidth * 0.02;
+            const maxThumbSize = contentWidth * 0.2;
+            const thumbSize = Math.min(
+              maxThumbSize,
+              (contentWidth - thumbGap * (thumbCount - 1)) / thumbCount
+            );
+
+            return (
+            <div className="flex mb-6" style={{ gap: thumbGap }}>
               {data.highlights
                 .filter((h) => h.image)
                 .map((highlight) => (
                   <div
                     key={highlight.title}
                     style={{
-                      width: format.width * 0.15,
-                      height: format.width * 0.15,
+                      width: thumbSize,
+                      height: thumbSize,
                       border: "1px solid rgba(255,255,255,0.3)",
                     }}
                     className="relative overflow-hidden flex-none"
@@ -170,7 +186,8 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
                   </div>
                 ))}
             </div>
-          )}
+            );
+          })()}
 
           {data.description && (
             <p
