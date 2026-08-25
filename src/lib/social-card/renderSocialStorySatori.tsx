@@ -2,7 +2,7 @@ import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
 import { toSatoriImageDataUri } from "./toSatoriImage";
-import { SOCIAL_CARD_QR_CODE_IMAGE } from "./qrCodeImage";
+import { SOCIAL_CARD_QR_CODE_IMAGE, SOCIAL_CARD_LOGO_IMAGE, SOCIAL_CARD_LOGO_ASPECT_RATIO } from "./qrCodeImage";
 
 // =========================================================
 // buildSocialStoryElement — composizione AUTONOMA per il formato
@@ -35,7 +35,7 @@ export async function buildSocialStoryElement(
 
   const [primaryImage, logoUrl, qrCode, thumbnailImages] = await Promise.all([
     toSatoriImageDataUri(toAbsoluteUrl(data.images[0] || "/images/default-hero.webp")),
-    toSatoriImageDataUri(toAbsoluteUrl(proposalConfig.brand.logo)),
+    toSatoriImageDataUri(toAbsoluteUrl(SOCIAL_CARD_LOGO_IMAGE)),
     toSatoriImageDataUri(toAbsoluteUrl(SOCIAL_CARD_QR_CODE_IMAGE)),
     Promise.all(thumbnails.map((h) => toSatoriImageDataUri(toAbsoluteUrl(h.image!)))),
   ]);
@@ -126,7 +126,7 @@ export async function buildSocialStoryElement(
       >
         <img
           src={logoUrl}
-          width={format.width * 0.055 * 3.4}
+          width={format.width * 0.055 * SOCIAL_CARD_LOGO_ASPECT_RATIO}
           height={format.width * 0.055}
           style={{ objectFit: "contain" }}
         />

@@ -3,7 +3,7 @@
 import { SocialCardData } from "@/types/socialCard";
 import { SocialCardFormatConfig } from "./socialCardFormats";
 import { proposalConfig } from "@/config/proposalConfig";
-import { SOCIAL_CARD_QR_CODE_IMAGE } from "@/lib/social-card/qrCodeImage";
+import { SOCIAL_CARD_QR_CODE_IMAGE, SOCIAL_CARD_LOGO_IMAGE } from "@/lib/social-card/qrCodeImage";
 
 // =========================================================
 // SocialExperienceCard — anteprima interattiva a schermo dentro
@@ -90,7 +90,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           style={{ top: format.safeTop, left: format.safeTop, right: format.safeTop }}
         >
           <img
-            src={proposalConfig.brand.logo}
+            src={SOCIAL_CARD_LOGO_IMAGE}
             alt={proposalConfig.brand.name}
             style={{ height: format.width * 0.055 }}
             className="object-contain opacity-95"
