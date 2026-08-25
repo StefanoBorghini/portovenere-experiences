@@ -130,17 +130,17 @@ export async function buildSocialCardElement(
       >
         <img
           src={logoUrl}
-          width={format.width * 0.032 * 3.4}
-          height={format.width * 0.032}
+          width={format.width * 0.055 * 3.4}
+          height={format.width * 0.055}
           style={{ objectFit: "contain" }}
         />
         <span
           style={{
             display: "flex",
             textTransform: "uppercase",
-            fontSize: contentWidth * 0.011,
-            letterSpacing: contentWidth * 0.011 * 0.35,
-            color: "rgba(255,255,255,0.6)",
+            fontSize: contentWidth * 0.018,
+            letterSpacing: contentWidth * 0.018 * 0.3,
+            color: "rgba(255,255,255,0.75)",
           }}
         >
           {proposalConfig.brand.name}

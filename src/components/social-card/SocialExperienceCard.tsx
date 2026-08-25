@@ -81,7 +81,9 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           }}
         />
 
-        {/* TOP — logo + etichetta brand, stesso linguaggio di ProposalHero */}
+        {/* TOP — logo + etichetta brand. Dimensione pensata per
+            restare leggibile a schermo intero su Instagram (non solo
+            in anteprima grande), non solo come firma discreta. */}
         <div
           className="absolute inset-x-0 flex items-center gap-3"
           style={{ top: format.safeTop, left: format.safeTop, right: format.safeTop }}
@@ -89,12 +91,12 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           <img
             src={proposalConfig.brand.logo}
             alt={proposalConfig.brand.name}
-            style={{ height: format.width * 0.032 }}
+            style={{ height: format.width * 0.055 }}
             className="object-contain opacity-95"
           />
           <span
             className="uppercase"
-            style={{ fontSize: contentWidth * 0.011, letterSpacing: "0.35em", color: "rgba(255,255,255,0.6)" }}
+            style={{ fontSize: contentWidth * 0.018, letterSpacing: "0.3em", color: "rgba(255,255,255,0.75)" }}
           >
             {proposalConfig.brand.name}
           </span>
