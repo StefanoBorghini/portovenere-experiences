@@ -32,6 +32,14 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
 
     const primaryImage = data.images[0] || "/images/default-hero.webp";
 
+    // Le Story hanno margini di sicurezza molto piu' larghi delle
+    // Feed (per non finire sotto l'interfaccia di Instagram), pur
+    // avendo la stessa format.width — dimensionare il testo sulla
+    // larghezza REALMENTE disponibile (non su tutta format.width)
+    // evita che un titolo che sta comodo in Feed vada in overflow o
+    // si spezzi a meta' parola in Story.
+    const contentWidth = format.width - format.safeTop * 2;
+
     const metaLine = [data.duration, data.travelers, data.dates]
       .filter(Boolean)
       .join("   ·   ");
@@ -86,7 +94,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           />
           <span
             className="uppercase"
-            style={{ fontSize: format.width * 0.011, letterSpacing: "0.35em", color: "rgba(255,255,255,0.6)" }}
+            style={{ fontSize: contentWidth * 0.011, letterSpacing: "0.35em", color: "rgba(255,255,255,0.6)" }}
           >
             {proposalConfig.brand.name}
           </span>
@@ -101,7 +109,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           {data.mood && (
             <span
               className="uppercase text-[#d6c6a5] mb-3"
-              style={{ fontSize: format.width * 0.013, letterSpacing: "0.3em" }}
+              style={{ fontSize: contentWidth * 0.013, letterSpacing: "0.3em" }}
             >
               {data.mood}
             </span>
@@ -109,20 +117,20 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
 
           <h1
             className="font-light leading-[0.95] tracking-tight mb-4"
-            style={{ fontSize: format.width * 0.082 }}
+            style={{ fontSize: contentWidth * 0.082 }}
           >
             {data.title}
           </h1>
 
           <p
             className="uppercase mb-6"
-            style={{ fontSize: format.width * 0.017, letterSpacing: "0.15em", color: "rgba(255,255,255,0.7)" }}
+            style={{ fontSize: contentWidth * 0.017, letterSpacing: "0.15em", color: "rgba(255,255,255,0.7)" }}
           >
             {metaLine}
           </p>
 
           {data.highlights.length > 0 && (
-            <ul className="mb-4" style={{ fontSize: format.width * 0.02 }}>
+            <ul className="mb-4" style={{ fontSize: contentWidth * 0.02 }}>
               {data.highlights.map((highlight) => (
                 <li
                   key={highlight.title}
@@ -165,7 +173,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           {data.description && (
             <p
               className="italic font-light mb-8"
-              style={{ fontSize: format.width * 0.019, lineHeight: 1.6, maxWidth: "88%", color: "rgba(255,255,255,0.65)" }}
+              style={{ fontSize: contentWidth * 0.019, lineHeight: 1.6, maxWidth: "88%", color: "rgba(255,255,255,0.65)" }}
             >
               {data.description}
             </p>
@@ -174,14 +182,14 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           {showPrice && data.price ? (
             <p
               className="uppercase text-white mb-4"
-              style={{ fontSize: format.width * 0.016, letterSpacing: "0.2em" }}
+              style={{ fontSize: contentWidth * 0.016, letterSpacing: "0.2em" }}
             >
               From €{Math.round(data.price).toLocaleString("en-US")}
             </p>
           ) : (
             <p
               className="uppercase mb-4"
-              style={{ fontSize: format.width * 0.014, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}
+              style={{ fontSize: contentWidth * 0.014, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}
             >
               Private Experience
             </p>
@@ -193,7 +201,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
           >
             <span
               className="uppercase font-medium"
-              style={{ fontSize: format.width * 0.021, letterSpacing: "0.12em", maxWidth: "70%" }}
+              style={{ fontSize: contentWidth * 0.021, letterSpacing: "0.12em", maxWidth: "70%" }}
             >
               {cta}
             </span>
@@ -205,7 +213,7 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
                 style={{ width: format.width * 0.09, height: format.width * 0.09 }}
               />
               <span
-                style={{ fontSize: format.width * 0.011, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}
+                style={{ fontSize: contentWidth * 0.011, letterSpacing: "0.08em", color: "rgba(255,255,255,0.4)" }}
               >
                 portovenere.com
               </span>

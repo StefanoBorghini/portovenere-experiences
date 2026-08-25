@@ -54,6 +54,14 @@ export async function buildSocialCardElement(
     .filter(Boolean)
     .join("   ·   ");
 
+  // Le Story hanno margini di sicurezza molto piu' larghi delle Feed
+  // (per non finire sotto l'interfaccia di Instagram), pur avendo la
+  // stessa format.width — dimensionare il testo sulla larghezza
+  // REALMENTE disponibile (non su tutta format.width) evita che un
+  // titolo che sta comodo in Feed vada in overflow o si spezzi a
+  // meta' parola in Story.
+  const contentWidth = format.width - format.safeTop * 2;
+
   return (
     <div
       style={{
@@ -130,8 +138,8 @@ export async function buildSocialCardElement(
           style={{
             display: "flex",
             textTransform: "uppercase",
-            fontSize: format.width * 0.011,
-            letterSpacing: format.width * 0.011 * 0.35,
+            fontSize: contentWidth * 0.011,
+            letterSpacing: contentWidth * 0.011 * 0.35,
             color: "rgba(255,255,255,0.6)",
           }}
         >
@@ -156,8 +164,8 @@ export async function buildSocialCardElement(
             style={{
               display: "flex",
               textTransform: "uppercase",
-              fontSize: format.width * 0.013,
-              letterSpacing: format.width * 0.013 * 0.3,
+              fontSize: contentWidth * 0.013,
+              letterSpacing: contentWidth * 0.013 * 0.3,
               color: "#d6c6a5",
               marginBottom: 12,
             }}
@@ -169,10 +177,10 @@ export async function buildSocialCardElement(
         <div
           style={{
             display: "flex",
-            fontSize: format.width * 0.082,
+            fontSize: contentWidth * 0.082,
             lineHeight: 0.95,
             fontWeight: 300,
-            letterSpacing: -(format.width * 0.082 * 0.01),
+            letterSpacing: -(contentWidth * 0.082 * 0.01),
             marginBottom: 16,
           }}
         >
@@ -183,8 +191,8 @@ export async function buildSocialCardElement(
           style={{
             display: "flex",
             textTransform: "uppercase",
-            fontSize: format.width * 0.017,
-            letterSpacing: format.width * 0.017 * 0.15,
+            fontSize: contentWidth * 0.017,
+            letterSpacing: contentWidth * 0.017 * 0.15,
             color: "rgba(255,255,255,0.7)",
             marginBottom: 24,
           }}
@@ -201,8 +209,8 @@ export async function buildSocialCardElement(
                   display: "flex",
                   textTransform: "uppercase",
                   fontWeight: 300,
-                  fontSize: format.width * 0.02,
-                  letterSpacing: format.width * 0.02 * 0.08,
+                  fontSize: contentWidth * 0.02,
+                  letterSpacing: contentWidth * 0.02 * 0.08,
                   lineHeight: 1.7,
                   color: "rgba(255,255,255,0.9)",
                 }}
@@ -243,9 +251,9 @@ export async function buildSocialCardElement(
               display: "flex",
               fontStyle: "italic",
               fontWeight: 300,
-              fontSize: format.width * 0.019,
+              fontSize: contentWidth * 0.019,
               lineHeight: 1.6,
-              maxWidth: format.width * 0.88,
+              maxWidth: contentWidth * 0.88,
               color: "rgba(255,255,255,0.65)",
               marginBottom: 32,
             }}
@@ -259,8 +267,8 @@ export async function buildSocialCardElement(
             style={{
               display: "flex",
               textTransform: "uppercase",
-              fontSize: format.width * 0.016,
-              letterSpacing: format.width * 0.016 * 0.2,
+              fontSize: contentWidth * 0.016,
+              letterSpacing: contentWidth * 0.016 * 0.2,
               color: "#ffffff",
               marginBottom: 16,
             }}
@@ -272,8 +280,8 @@ export async function buildSocialCardElement(
             style={{
               display: "flex",
               textTransform: "uppercase",
-              fontSize: format.width * 0.014,
-              letterSpacing: format.width * 0.014 * 0.25,
+              fontSize: contentWidth * 0.014,
+              letterSpacing: contentWidth * 0.014 * 0.25,
               color: "rgba(255,255,255,0.5)",
               marginBottom: 16,
             }}
@@ -296,9 +304,9 @@ export async function buildSocialCardElement(
               display: "flex",
               textTransform: "uppercase",
               fontWeight: 500,
-              fontSize: format.width * 0.021,
-              letterSpacing: format.width * 0.021 * 0.12,
-              maxWidth: format.width * 0.6,
+              fontSize: contentWidth * 0.021,
+              letterSpacing: contentWidth * 0.021 * 0.12,
+              maxWidth: contentWidth * 0.55,
             }}
           >
             {cta}
@@ -320,8 +328,8 @@ export async function buildSocialCardElement(
             <span
               style={{
                 display: "flex",
-                fontSize: format.width * 0.011,
-                letterSpacing: format.width * 0.011 * 0.08,
+                fontSize: contentWidth * 0.011,
+                letterSpacing: contentWidth * 0.011 * 0.08,
                 color: "rgba(255,255,255,0.4)",
               }}
             >
