@@ -79,10 +79,17 @@ function datesLabel(startDate?: string, endDate?: string): string | undefined {
 
 // Titolo breve, sintetico — mai la description lunga di una singola
 // experience, che appartiene alla proposal, non alla card social.
+// Il taglio avviene SEMPRE all'ultimo spazio prima del limite, mai a
+// meta' parola (altrimenti "pace" diventa "pac…").
 function shortDescription(text: string, maxLength = 140): string {
   const trimmed = text.trim();
   if (trimmed.length <= maxLength) return trimmed;
-  return `${trimmed.slice(0, maxLength).trimEnd()}…`;
+
+  const sliced = trimmed.slice(0, maxLength);
+  const lastSpace = sliced.lastIndexOf(" ");
+  const safeSlice = lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
+
+  return `${safeSlice.trimEnd()}…`;
 }
 
 export function buildSocialCardData({
