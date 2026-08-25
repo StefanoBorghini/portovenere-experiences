@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { SocialCardData, SocialCardFormatId, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
 import { SOCIAL_CARD_FORMATS, SOCIAL_CARD_FORMAT_ORDER } from "./socialCardFormats";
 import SocialExperienceCard from "./SocialExperienceCard";
+import SocialExperienceStoryCard from "./SocialExperienceStoryCard";
 
 interface SocialCardModalProps {
   data: SocialCardData;
@@ -237,12 +238,21 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
                 transform: `scale(${previewScale})`,
               }}
             >
-              <SocialExperienceCard
-                data={data}
-                format={formatConfig}
-                showPrice={showPrice}
-                cta={effectiveCta}
-              />
+              {activeFormat === "story" ? (
+                <SocialExperienceStoryCard
+                  data={data}
+                  format={formatConfig}
+                  showPrice={showPrice}
+                  cta={effectiveCta}
+                />
+              ) : (
+                <SocialExperienceCard
+                  data={data}
+                  format={formatConfig}
+                  showPrice={showPrice}
+                  cta={effectiveCta}
+                />
+              )}
             </div>
           </div>
 

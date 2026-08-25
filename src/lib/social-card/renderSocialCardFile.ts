@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import { SocialCardData, SocialCardFormatId } from "@/types/socialCard";
 import { SOCIAL_CARD_FORMATS, SocialCardFormatConfig } from "@/components/social-card/socialCardFormats";
 import { buildSocialCardElement } from "./renderSocialCardSatori";
+import { buildSocialStoryElement } from "./renderSocialStorySatori";
 import { loadGoogleFont } from "./googleFont";
 
 // =========================================================
@@ -39,9 +40,15 @@ export async function renderSocialCardFile(
     loadGoogleFont("Inter", 500),
   ]);
 
+  // La Story e' una composizione autonoma (meno contenuto, testo
+  // molto piu' grande), non una versione rimpicciolita del Feed —
+  // vedi renderSocialStorySatori.tsx. Feed e A4 continuano a usare
+  // lo stesso layout condiviso di sempre.
   const [[fontLight, fontRegular, fontMedium], element] = await Promise.all([
     fontsPromise,
-    buildSocialCardElement(socialCardData, format, showPrice, cta),
+    formatId === "story"
+      ? buildSocialStoryElement(socialCardData, format, showPrice, cta)
+      : buildSocialCardElement(socialCardData, format, showPrice, cta),
   ]);
 
   const imageResponse = new ImageResponse(element, {
