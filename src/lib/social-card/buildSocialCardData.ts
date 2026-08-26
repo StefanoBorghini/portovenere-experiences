@@ -1,0 +1,170 @@
+import { Experience } from "@/types/experience";
+import { ProposalExperienceCard } from "@/types/proposal";
+import { SocialCardData, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
+
+// =========================================================
+// buildSocialCardData — trasformazione pura, NON un secondo motore
+// di generazione. Prende esattamente i dati gia' calcolati da
+// generateProposal()/buildRendererData() in
+// results/proposal/[slug]/page.tsx e li riduce a un formato
+// editoriale sintetico per la Social Experience Card. Se cambia la
+// configurazione a monte, questi dati cambiano di conseguenza senza
+// bisogno di toccare questo file.
+// =========================================================
+
+interface BuildSocialCardDataParams {
+  slug: string;
+  heroTitle: string;
+  heroImage: string;
+  featuredExperience: Experience;
+  includedExperiences: ProposalExperienceCard[];
+  galleryImages: string[];
+  dynamicIntroParagraph: string;
+  finalPrice: number;
+  isMultiDayTrip: boolean;
+  lead: {
+    guests?: string | number;
+    children?: string | number;
+    start_date?: string;
+    end_date?: string;
+    moods?: string[];
+  };
+}
+
+const NUMBER_WORDS: Record<number, string> = {
+  1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five",
+  6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten",
+};
+
+function travelersLabel(guests?: string | number, children?: string | number): string {
+  const adults = Number(guests) || 2;
+  const kids = Number(children) || 0;
+  const total = adults + kids;
+  const word = NUMBER_WORDS[total] || String(total);
+  return `${word} ${total === 1 ? "Person" : "People"}`;
+}
+
+function durationLabel(
+  isMultiDayTrip: boolean,
+  startDate?: string,
+  endDate?: string
+): string {
+  if (!isMultiDayTrip) return "One Day";
+
+  if (startDate && endDate) {
+    const days = Math.max(
+      1,
+      Math.round(
+        (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+          (1000 * 60 * 60 * 24)
+      ) + 1
+    );
+    const word = NUMBER_WORDS[days] || String(days);
+    return `${word} Day${days === 1 ? "" : "s"}`;
+  }
+
+  return "Multi-Day Escape";
+}
+
+function datesLabel(startDate?: string, endDate?: string): string | undefined {
+  if (!startDate) return undefined;
+
+  const format = (d: string) =>
+    new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+  return endDate && endDate !== startDate
+    ? `${format(startDate)} – ${format(endDate)}`
+    : format(startDate);
+}
+
+// Titolo breve, sintetico — mai la description lunga di una singola
+// experience, che appartiene alla proposal, non alla card social.
+// Preferisce fermarsi alla fine della prima frase (un punto) invece
+// di tagliare comunque a un numero fisso di caratteri: una frase
+// completa un po' piu' lunga legge meglio di una spezzata con "…",
+// anche quando supera leggermente maxLength. Solo se la prima frase
+// stessa e' spropositatamente lunga (nessun punto vicino) si ricade
+// sul taglio all'ultimo spazio prima del limite — mai a meta' parola
+// (altrimenti "pace" diventa "pac…").
+function shortDescription(text: string, maxLength = 140): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= maxLength) return trimmed;
+
+  const firstSentence = trimmed.match(/^[^.!?]*[.!?]/)?.[0].trim();
+  if (firstSentence && firstSentence.length <= maxLength * 1.3) {
+    return firstSentence;
+  }
+
+  const sliced = trimmed.slice(0, maxLength);
+  const lastSpace = sliced.lastIndexOf(" ");
+  const safeSlice = lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
+
+  return `${safeSlice.trimEnd()}…`;
+}
+
+export function buildSocialCardData({
+  slug,
+  heroTitle,
+  heroImage,
+  featuredExperience,
+  includedExperiences,
+  galleryImages,
+  dynamicIntroParagraph,
+  finalPrice,
+  isMultiDayTrip,
+  lead,
+}: BuildSocialCardDataParams): SocialCardData {
+
+  // Tutte le esperienze REALMENTE presenti in questa proposal — la
+  // featured sempre prima, poi le incluse, dedup per titolo. Nessun
+  // cap fisso: se la proposal ne contiene 2, la card ne mostra 2; se
+  // ne contiene 4, ne mostra 4 (il massimo possibile, dato che
+  // buildRendererData.ts include al piu' 3 esperienze oltre alla
+  // featured). Decisione esplicita del cliente — mostrare sempre il
+  // conteggio reale, non un teaser tagliato.
+  // Ogni highlight porta con se' la SUA foto (non una foto generica
+  // pescata dal pool), cosi' la striscia di miniature mostra
+  // davvero le esperienze coinvolte, non solo la featured.
+  const highlightCandidates = [
+    { title: featuredExperience.title, image: heroImage },
+    ...includedExperiences.map((exp) => ({ title: exp.title, image: exp.image })),
+  ].filter((item) => Boolean(item.title));
+
+  const seenTitles = new Set<string>();
+  const highlights = highlightCandidates.filter((item) => {
+    if (seenTitles.has(item.title)) return false;
+    seenTitles.add(item.title);
+    return true;
+  });
+
+  const images = Array.from(
+    new Set(
+      [
+        heroImage,
+        featuredExperience.hero_image,
+        featuredExperience.image,
+        featuredExperience.detail_image,
+        ...galleryImages,
+      ].filter((img): img is string => Boolean(img))
+    )
+  );
+
+  return {
+    title: heroTitle,
+    destination: "Portovenere, Italian Riviera",
+    duration: durationLabel(isMultiDayTrip, lead.start_date, lead.end_date),
+    travelers: travelersLabel(lead.guests, lead.children),
+    dates: datesLabel(lead.start_date, lead.end_date),
+    mood: lead.moods?.[0],
+    highlights,
+    description: shortDescription(dynamicIntroParagraph || featuredExperience.short_description || ""),
+    images,
+    price: finalPrice,
+    // Di default nascosto — la card social e' pensata come teaser
+    // editoriale, non come preventivo. Puo' essere attivato nel modale.
+    showPrice: false,
+    cta: SOCIAL_CARD_CTA_PRESETS[0],
+    ctaUrl: "/craft-your-experience",
+    proposalUrl: `/results/proposal/${slug}`,
+  };
+}

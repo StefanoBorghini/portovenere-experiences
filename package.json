@@ -12,6 +12,8 @@
     "count:characters": "node src/scripts/count-characters.mjs"
   },
   "dependencies": {
+    "@jsquash/png": "^3.1.1",
+    "@jsquash/webp": "^1.5.0",
     "@next/third-parties": "^16.2.10",
     "@sparticuz/chromium": "^149.0.0",
     "@supabase/ssr": "^0.10.3",
@@ -20,7 +22,6 @@
     "@tiptap/starter-kit": "^3.27.1",
     "@translated/lara": "^1.13.0",
     "framer-motion": "^12.40.0",
-    "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.17.0",
     "next": "16.2.6",

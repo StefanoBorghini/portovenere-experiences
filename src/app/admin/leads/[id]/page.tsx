@@ -24,6 +24,8 @@ import {
 } from "@/lib/supabase/conciergeRepository";
 
 import { formatBudgetLabel } from "@/lib/config/experienceTaxonomy";
+import SocialCardModal from "@/components/social-card/SocialCardModal";
+import { SocialCardData } from "@/types/socialCard";
 
 // Etichette solo-admin per le esigenze di accessibilita' (stesso
 // trattamento di ACCESSIBILITY_ADMIN_LABELS in FiltersCard.tsx —
@@ -71,6 +73,14 @@ export default function LeadDetailPage() {
   // Stato separato per il bottone "Request Payment" — stesso
   // principio di restartingTimer/sendingReminder.
   const [requestingPayment, setRequestingPayment] = useState(false);
+
+  // Stato per il bottone "Generate Social Card" — solo admin, mai
+  // esposto sulla proposal page pubblica (vedi
+  // /api/admin/leads/[id]/social-card). La card viene ricalcolata
+  // live a ogni apertura, non salvata.
+  const [socialCardData, setSocialCardData] = useState<SocialCardData | null>(null);
+  const [loadingSocialCard, setLoadingSocialCard] = useState(false);
+  const [showSocialCardModal, setShowSocialCardModal] = useState(false);
 
   // Righe di concierge_operator_status per questo lead — caricate solo
   // a Concierge Fee pagata (vedi load() sotto), editate nella sezione
@@ -350,6 +360,47 @@ export default function LeadDetailPage() {
   }
 
   // =========================================================
+  // GENERATE SOCIAL CARD — ricalcola live i dati della card
+  // (/api/admin/leads/[id]/social-card) e apre il modale di
+  // export. Solo admin: il cliente non ha accesso a questo bottone.
+  // =========================================================
+
+  async function handleGenerateSocialCard() {
+    if (!proposal || !supabase) return;
+
+    setLoadingSocialCard(true);
+
+    try {
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch(`/api/admin/leads/${lead.id}/social-card`, {
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
+      });
+
+      const data = await response.json();
+
+      setLoadingSocialCard(false);
+
+      if (data.success) {
+        setSocialCardData(data.socialCardData);
+        setShowSocialCardModal(true);
+      } else {
+        alert(data.error || "Could not generate the social card — please try again.");
+      }
+
+    } catch (err) {
+      console.error("generate social card failed:", err);
+      setLoadingSocialCard(false);
+      alert("Could not generate the social card — please try again.");
+    }
+  }
+
+  // =========================================================
   // OPERATOR COORDINATION — aggiorna una riga di
   // concierge_operator_status (stato/operatore/note) dalla sezione
   // omonima piu' sotto, visibile solo a Concierge Fee pagata. Salvataggio
@@ -553,6 +604,16 @@ export default function LeadDetailPage() {
                     : ""}
                 </span>
               )}
+
+              {/* GENERATE SOCIAL CARD — solo admin, mai visibile al
+                  cliente. Ricalcola live la card da questa proposal. */}
+              <button
+                onClick={handleGenerateSocialCard}
+                disabled={loadingSocialCard}
+                className="text-xs px-3 py-1.5 rounded-full border border-white/15 text-white/70 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+              >
+                {loadingSocialCard ? "Generating..." : "🖼 Generate Social Card"}
+              </button>
             </div>
 
             {/* SELECTED EXPERIENCES */}
@@ -771,6 +832,16 @@ export default function LeadDetailPage() {
           {saving ? "Saving..." : "Save changes"}
         </button>
       </div>
+
+      {showSocialCardModal && socialCardData && (
+        <SocialCardModal
+          data={socialCardData}
+          slug={proposal?.slug || lead.id}
+          leadId={lead.id}
+          leadEmail={lead.email || ""}
+          onClose={() => setShowSocialCardModal(false)}
+        />
+      )}
     </div>
   );
 }
