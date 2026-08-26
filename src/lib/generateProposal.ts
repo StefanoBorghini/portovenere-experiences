@@ -52,10 +52,6 @@ import {
 import { isCompatibleWithDateRange } from "@/lib/availability/resolveAvailability";
 
 import {
-  experienceCompatibility,
-} from "./experienceCompatibility";
-
-import {
   MOODS,
   BUDGET_TIERS,
   ACCESSIBILITY_NEEDS,
@@ -158,9 +154,8 @@ function experienceExceedsBudgetCeiling(
 //
 // Calibrazione (fascia 500-1000, ampiezza 500): totale 950 (nel tetto)
 // -> +60; 1050 (+10% dell'ampiezza sopra il tetto) -> +57; 1400 (+80%)
-// -> +17; 2500 (+300%) -> pavimento a -90. Stessi pesi di ordine di
-// grandezza delle altre penalita' dello scoring (idealGuests -100,
-// accessibilita' -70).
+// -> +17; 2500 (+300%) -> pavimento a -90. Stesso ordine di grandezza
+// delle altre penalita' dello scoring (accessibilita' -70).
 const BUDGET_IN_RANGE_BONUS = 60;
 const BUDGET_OVER_PENALTY_RATE = 30;
 const BUDGET_SCORE_FLOOR = -90;
@@ -521,25 +516,6 @@ const matchesGuests =
         let score = 0;
 
         // =====================================================
-        // IDEAL GUESTS
-        // =====================================================
-
-        if (
-
-          experience.idealGuests?.includes(
-            guests
-          )
-
-        ) {
-
-          score += 80;
-
-        } else {
-
-          score -= 100;
-        }
-
-        // =====================================================
         // LUXURY PRIORITY
         // =====================================================
 
@@ -689,7 +665,9 @@ if (!bestExperience) {
     if (totalGuestCount === 2) return experience.guest_2;
     if (totalGuestCount >= 3 && totalGuestCount <= 4) return experience.guest_3_4;
     if (totalGuestCount >= 5 && totalGuestCount <= 7) return experience.guest_5_7;
-    if (totalGuestCount >= 8) return experience.guest_8_plus;
+    if (totalGuestCount >= 8 && totalGuestCount <= 12) return experience.guest_8_12;
+    if (totalGuestCount >= 13 && totalGuestCount <= 20) return experience.guest_13_20;
+    if (totalGuestCount > 20) return experience.guest_20_plus;
     return true;
   });
 
@@ -700,7 +678,6 @@ if (!bestExperience) {
     featuredExperience: null,
     scoredExperiences: [],
     includedSections: [],
-    compatibilityData: null,
 
     noMatchDebug: {
       categorySelected: safeExperiencesSelected,
@@ -920,7 +897,7 @@ const dynamicClosingParagraph =
 
   if (
   safeExperiencesSelected.length === 1 &&
-  safeMoodsSelected.length === 2
+  safeMoodsSelected.length === 1
 ){
 
     const key =
@@ -947,7 +924,7 @@ const dynamicClosingParagraph =
 
   if (
   safeExperiencesSelected.length === 1 &&
-  safeMoodsSelected.length === 1
+  safeMoodsSelected.length === 2
 ) {
 
     const sortedMood =
@@ -956,7 +933,7 @@ const dynamicClosingParagraph =
 
     const key =
 
-      `${experiencesSelected[0]}-${sortedMood[0]}-${sortedMood[1]}`;
+      `${safeExperiencesSelected[0]}-${sortedMood[0]}-${sortedMood[1]}`;
 
     const combinationHero =
 
@@ -1019,7 +996,7 @@ const orderedCategories =
 
    const key =
 
-  `${orderedCategories[0]}-${orderedCategories[1]}-${safeMoodsSelected[0]}`;
+  `${orderedCategories[0]}-${orderedCategories[1]}-${sortedMood[0]}-${sortedMood[1]}`;
 
     const combinationHero =
 
@@ -1033,32 +1010,6 @@ const orderedCategories =
       heroImage =
         combinationHero;
     }
-  }
-
-  // =========================================================
-  // COMPATIBILITY
-  // =========================================================
-
-  let compatibilityData = null;
-
-  if (
-
-   safeExperiencesSelected.length >= 2
-
-  ) {
-
-const orderedCategories =
-  safeExperiencesSelected;
-
-    const compatibilityKey =
-
-     `${orderedCategories[0]}-${orderedCategories[1]}-${safeMoodsSelected[0]}`;
-
-    compatibilityData =
-
-      experienceCompatibility[
-        compatibilityKey as keyof typeof experienceCompatibility
-      ] || null;
   }
 
   // =========================================================
@@ -1113,8 +1064,6 @@ const orderedCategories =
       sortedExperiences,
 
     includedSections,
-
-    compatibilityData,
 
     suggestedAddOns,
   };

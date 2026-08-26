@@ -102,7 +102,7 @@ const INTRO_STEP = -1;
 
 // I valori sopra (label di CATEGORIES/MOODS, formData.experiences/
 // moods, incompatibleExperiences) restano identificatori interni in inglese —
-// usati per il matching con generateProposal/experienceCompatibility e salvati
+// usati per il matching con generateProposal e salvati
 // cosi' su Supabase. Le label mostrate all'utente passano invece dalle mappe
 // condivise sotto (riusate anche dal riepilogo dinamico della proposal), cosi'
 // vengono tradotte come il resto del wizard.
