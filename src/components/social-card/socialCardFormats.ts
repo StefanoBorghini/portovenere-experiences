@@ -23,14 +23,11 @@ export interface SocialCardFormatConfig {
 export const SOCIAL_CARD_FORMATS: Record<SocialCardFormatId, SocialCardFormatConfig> = {
   portrait: {
     id: "portrait",
-    label: "Instagram 1:1",
-    width: 1800,
-    height: 1800,
-    // Margine di sicurezza scalato proporzionalmente rispetto al
-    // vecchio 64/1080 (5.93% della larghezza) — stesso rapporto
-    // visivo di prima, solo su una tela piu' grande.
-    safeTop: 107,
-    safeBottom: 107,
+    label: "Instagram 4:5",
+    width: 1080,
+    height: 1350,
+    safeTop: 64,
+    safeBottom: 64,
   },
   story: {
     id: "story",
