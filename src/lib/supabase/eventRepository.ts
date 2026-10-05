@@ -240,3 +240,80 @@ export async function getSuggestedEvents(
 
   return suggestions.sort((a, b) => a.date.localeCompare(b.date));
 }
+
+function toISODate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export interface PublicEventFeedItem {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  date: string;
+  link: string;
+}
+
+// =========================================================
+// getPublicEventFeed — stesso principio di getSuggestedEvents (una
+// card per evento, solo la prossima occorrenza), ma non scoperta a
+// un cliente/date specifiche: e' il feed pubblico usato dal widget
+// embeddabile sul sito WordPress (vedi /api/events/feed e
+// public/widget/events-widget.js). Finestra fissa da oggi a un anno
+// in avanti, stesso limite di sicurezza di resolveEventOccurrences.
+//
+// `link` qui non e' mai null: un evento senza link_default/override
+// usa /events/[id] (la pagina auto-generata) come fallback, perche'
+// il widget vive su un dominio esterno e ogni card deve poter
+// linkare da qualche parte.
+// =========================================================
+
+export async function getPublicEventFeed(
+  limit: number = 20,
+  siteUrl: string = "https://experiences.portovenere.com"
+): Promise<PublicEventFeedItem[]> {
+
+  const today = new Date();
+  const oneYearOut = new Date(today);
+  oneYearOut.setFullYear(oneYearOut.getFullYear() + 1);
+
+  const { data, error } = await getSupabaseAdmin()
+    .from("events")
+    .select("*, event_availability_weekdays(weekday), event_availability_dates(date, status, link_override)")
+    .eq("active", true);
+
+  if (error) throw error;
+
+  const feed: PublicEventFeedItem[] = [];
+
+  for (const event of data || []) {
+
+    const occurrences = resolveEventOccurrences(
+      {
+        link_default: event.link_default,
+        weekdays: event.event_availability_weekdays || [],
+        dates: event.event_availability_dates || [],
+      },
+      toISODate(today),
+      toISODate(oneYearOut)
+    );
+
+    if (occurrences.length === 0) continue;
+
+    const next = occurrences[0];
+
+    feed.push({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      image_url: event.image_url,
+      date: next.date,
+      link: next.link || `${siteUrl}/events/${event.id}`,
+    });
+  }
+
+  return feed.sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
+}
