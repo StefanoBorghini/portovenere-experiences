@@ -184,16 +184,19 @@ export interface SuggestedEvent {
 
 // =========================================================
 // getSuggestedEvents — usata dalla proposal page (pubblica, non
-// admin): eventi attivi la cui prossima occorrenza cade nelle date
-// scelte dal cliente. Usa comunque il client service-role (come il
-// resto di questo file) perche' `events` non ha policy RLS
-// pubbliche, stesso trattamento di operators/partner_applications —
-// sicuro perche' chiamata solo da codice server (mai da un
-// componente "use client").
+// admin): eventi attivi con almeno un'occorrenza nelle date scelte
+// dal cliente. Usa comunque il client service-role (come il resto di
+// questo file) perche' `events` non ha policy RLS pubbliche, stesso
+// trattamento di operators/partner_applications — sicuro perche'
+// chiamata solo da codice server (mai da un componente "use client").
 //
-// Un evento = una sola card (la SUA prossima occorrenza nel periodo),
-// mai un elenco di tutte le date che vi cadono — stesso principio
-// della pagina dettaglio auto-generata.
+// Una card per OGNI occorrenza nel soggiorno (non solo la prima):
+// un evento che ricorre piu' volte nelle date del cliente compare
+// una volta per ciascuna data. Diverso dalla pagina dettaglio
+// auto-generata, che invece elenca tutte le occorrenze FUTURE
+// indipendentemente da un soggiorno specifico — qui il concetto di
+// "una per data" si applica gia' perche' il filtro e' il periodo
+// del cliente, non serve un ulteriore riepilogo.
 // =========================================================
 
 export async function getSuggestedEvents(
@@ -224,18 +227,20 @@ export async function getSuggestedEvents(
       endDate
     );
 
-    if (occurrences.length === 0) continue;
-
-    const next = occurrences[0];
-
-    suggestions.push({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      image_url: event.image_url,
-      date: next.date,
-      link: next.link,
-    });
+    // Una card per OGNI occorrenza nel soggiorno, non solo la prossima
+    // — un evento che ricorre piu' volte nelle date del cliente (es.
+    // martedi' E mercoledi' durante un soggiorno di una settimana)
+    // deve comparire una volta per ciascuna data, non una sola volta.
+    for (const occurrence of occurrences) {
+      suggestions.push({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        image_url: event.image_url,
+        date: occurrence.date,
+        link: occurrence.link,
+      });
+    }
   }
 
   return suggestions.sort((a, b) => a.date.localeCompare(b.date));

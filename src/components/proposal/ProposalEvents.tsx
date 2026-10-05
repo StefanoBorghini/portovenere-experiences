@@ -94,12 +94,17 @@ export default function ProposalEvents({ events }: ProposalEventsProps) {
             const className =
               "group text-left overflow-hidden flex flex-col justify-start rounded-[32px] border border-white/10 bg-white/[0.03] hover:border-white/30 transition-all duration-500 p-0";
 
+            // key include la data: lo stesso evento puo' comparire piu'
+            // volte (una card per occorrenza nel soggiorno), event.id da
+            // solo non sarebbe univoco.
+            const cardKey = `${event.id}-${event.date}`;
+
             return event.link ? (
-              <a key={event.id} href={event.link} target="_blank" rel="noopener noreferrer" className={className}>
+              <a key={cardKey} href={event.link} target="_blank" rel="noopener noreferrer" className={className}>
                 {card}
               </a>
             ) : (
-              <a key={event.id} href={`/events/${event.id}`} className={className}>
+              <a key={cardKey} href={`/events/${event.id}`} className={className}>
                 {card}
               </a>
             );
