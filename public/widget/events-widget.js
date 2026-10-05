@@ -110,7 +110,7 @@
   function formatDate(iso, locale) {
     try {
       var d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString(DATE_LOCALES[locale] || DATE_LOCALES.en, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+      return d.toLocaleDateString(DATE_LOCALES[locale] || DATE_LOCALES.en, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
     } catch (e) {
       return iso;
     }
