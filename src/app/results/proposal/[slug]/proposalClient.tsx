@@ -6,6 +6,7 @@ import ProposalNarrative from "@/components/proposal/ProposalNarrative";
 import FeaturedExperience from "@/components/proposal/FeaturedExperience";
 import IncludedExperiences from "@/components/proposal/IncludedExperiences";
 import ProposalEnhancements from "@/components/proposal/ProposalEnhancements";
+import ProposalEvents from "@/components/proposal/ProposalEvents";
 import CinematicGallery from "@/components/proposal/CinematicGallery";
 import ReservationSection from "@/components/proposal/ReservationSection";
 import ShareButton from "@/components/ShareButton";
@@ -37,6 +38,7 @@ interface Props {
     includedExperiences:any[];
     includedExperiencesPreSelected:boolean;
     enhancements:any[];
+    suggestedEvents:any[];
     galleryImages:any[];
     expiresAt:any;
     whatsappUrl:string;
@@ -71,6 +73,7 @@ export default function ProposalClient({
     includedExperiences,
     includedExperiencesPreSelected,
     enhancements,
+    suggestedEvents,
     galleryImages,
     expiresAt,
     whatsappUrl,
@@ -556,6 +559,12 @@ export default function ProposalClient({
             setSelectedEnhancements={setSelectedEnhancements}
         />
     </SectionViewTracker>
+
+    {suggestedEvents.length > 0 && (
+        <SectionViewTracker name="events" slug={slug}>
+            <ProposalEvents events={suggestedEvents} />
+        </SectionViewTracker>
+    )}
 
     <SectionViewTracker name="gallery" slug={slug}>
         <CinematicGallery

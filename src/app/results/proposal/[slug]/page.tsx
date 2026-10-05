@@ -18,6 +18,9 @@ import {
 import {
   getBookableExperiences,
 } from "@/lib/supabase/experienceRepository";
+import {
+  getSuggestedEvents,
+} from "@/lib/supabase/eventRepository";
 import { getCurrentLocale } from "@/i18n/locale";
 import { getTranslations } from "next-intl/server";
 import { proposalConfig } from "@/config/proposalConfig";
@@ -288,6 +291,9 @@ const resolvedSearchParams =
 
   const dynamicEnhancements =
   await getBookableEnhancements(locale);
+
+  const suggestedEvents =
+  await getSuggestedEvents(lead?.start_date, lead?.end_date);
 
   // =======================================================
   // RENDERER DATA
@@ -701,6 +707,8 @@ const featuredEssentials =
     includedExperiencesPreSelected={includedExperiencesPreSelected}
 
     enhancements={enhancements}
+
+    suggestedEvents={suggestedEvents}
 
     galleryImages={galleryImages}
 

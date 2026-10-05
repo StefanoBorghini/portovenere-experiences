@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "./adminClient";
+import { resolveEventOccurrences } from "@/lib/events/resolveEventOccurrences";
 
 // =========================================================
 // eventRepository — CRUD per la sezione "Eventi", separata da
@@ -170,4 +171,72 @@ export async function deleteEventDate(eventId: string, date: string): Promise<vo
     .eq("date", date);
 
   if (error) throw error;
+}
+
+export interface SuggestedEvent {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  date: string; // prossima occorrenza reale nell'intervallo richiesto
+  link: string | null;
+}
+
+// =========================================================
+// getSuggestedEvents — usata dalla proposal page (pubblica, non
+// admin): eventi attivi la cui prossima occorrenza cade nelle date
+// scelte dal cliente. Usa comunque il client service-role (come il
+// resto di questo file) perche' `events` non ha policy RLS
+// pubbliche, stesso trattamento di operators/partner_applications —
+// sicuro perche' chiamata solo da codice server (mai da un
+// componente "use client").
+//
+// Un evento = una sola card (la SUA prossima occorrenza nel periodo),
+// mai un elenco di tutte le date che vi cadono — stesso principio
+// della pagina dettaglio auto-generata.
+// =========================================================
+
+export async function getSuggestedEvents(
+  startDate?: string | null,
+  endDate?: string | null
+): Promise<SuggestedEvent[]> {
+
+  if (!startDate || !endDate) return [];
+
+  const { data, error } = await getSupabaseAdmin()
+    .from("events")
+    .select("*, event_availability_weekdays(weekday), event_availability_dates(date, status, link_override)")
+    .eq("active", true);
+
+  if (error) throw error;
+
+  const suggestions: SuggestedEvent[] = [];
+
+  for (const event of data || []) {
+
+    const occurrences = resolveEventOccurrences(
+      {
+        link_default: event.link_default,
+        weekdays: event.event_availability_weekdays || [],
+        dates: event.event_availability_dates || [],
+      },
+      startDate,
+      endDate
+    );
+
+    if (occurrences.length === 0) continue;
+
+    const next = occurrences[0];
+
+    suggestions.push({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      image_url: event.image_url,
+      date: next.date,
+      link: next.link,
+    });
+  }
+
+  return suggestions.sort((a, b) => a.date.localeCompare(b.date));
 }
