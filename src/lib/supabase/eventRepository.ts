@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from "./adminClient";
 import { resolveEventOccurrences } from "@/lib/events/resolveEventOccurrences";
+import { buildEventLink } from "@/lib/events/buildEventLink";
 
 // =========================================================
 // eventRepository — CRUD per la sezione "Eventi", separata da
@@ -238,7 +239,7 @@ export async function getSuggestedEvents(
         description: event.description,
         image_url: event.image_url,
         date: occurrence.date,
-        link: occurrence.link,
+        link: occurrence.link ? buildEventLink(occurrence.link, event.title) : occurrence.link,
       });
     }
   }
@@ -317,7 +318,9 @@ export async function getPublicEventFeed(
         description: event.description,
         image_url: event.image_url,
         date: occurrence.date,
-        link: occurrence.link || `${siteUrl}/events/${event.id}`,
+        link: occurrence.link
+          ? buildEventLink(occurrence.link, event.title)
+          : `${siteUrl}/events/${event.id}`,
       });
     }
   }

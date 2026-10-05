@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getEvent } from "@/lib/supabase/eventRepository";
 import { resolveEventOccurrences } from "@/lib/events/resolveEventOccurrences";
+import { buildEventLink } from "@/lib/events/buildEventLink";
 
 // =========================================================
 // Pagina pubblica auto-generata per un evento — usata come link di
@@ -85,7 +86,7 @@ export default async function EventDetailPage({
                 <span>{formatEventDate(occurrence.date)}</span>
                 {occurrence.link && (
                   <a
-                    href={occurrence.link}
+                    href={buildEventLink(occurrence.link, event.title)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm uppercase tracking-[0.15em] text-white/70 hover:text-white"
