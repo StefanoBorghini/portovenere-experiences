@@ -30,6 +30,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   const [experiencesCount, setExperiencesCount] = useState(0);
+  const [eventsCount, setEventsCount] = useState(0);
   const [enhancementsCount, setEnhancementsCount] = useState(0);
   const [leadsCount, setLeadsCount] = useState(0);
   const [newLeadsCount, setNewLeadsCount] = useState(0);
@@ -51,6 +52,7 @@ export default function AdminDashboardPage() {
 
       const [
         experiences,
+        events,
         enhancements,
         leads,
         affiliates,
@@ -59,6 +61,11 @@ export default function AdminDashboardPage() {
         partnerPayments,
       ] = await Promise.all([
         getExperiences(),
+        fetch("/api/admin/events", {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+          .then((res) => res.json())
+          .then((data) => (data.success ? data.events : [])),
         getEnhancements(),
         getLeads(),
         getPartnerApplications(),
@@ -68,6 +75,7 @@ export default function AdminDashboardPage() {
       ]);
 
       setExperiencesCount(experiences.length);
+      setEventsCount(events.length);
       setEnhancementsCount(enhancements.length);
       setLeadsCount(leads.length);
       setNewLeadsCount(
@@ -95,6 +103,12 @@ export default function AdminDashboardPage() {
       label: "Experiences",
       description: "Manage experiences, galleries and proposal engine data.",
       count: experiencesCount,
+    },
+    {
+      href: "/admin/events",
+      label: "Events",
+      description: "Recurring and one-off events shown on proposal pages.",
+      count: eventsCount,
     },
     {
       href: "/admin/enhancements",
@@ -153,7 +167,7 @@ export default function AdminDashboardPage() {
         </button>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-5">
         {cards.map((card) => (
           <Link
             key={card.href}
