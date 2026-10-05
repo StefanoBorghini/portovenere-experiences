@@ -305,11 +305,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
         <div className="border-t border-white/[0.08] pt-10">
 
           <h2 className="text-xl mb-1">
-            {isRecurring ? "Overrides / cancellations" : "Occurrence dates"}
+            {isRecurring ? "Specific dates" : "Occurrence dates"}
           </h2>
           <p className="text-white/40 text-sm mb-6">
             {isRecurring
-              ? "Add a row here only to cancel a specific occurrence, or to give it a different link than the default."
+              ? "Use \"Add date\" for three things: schedule a one-off occurrence on a date outside the weekly recurrence above, cancel a specific occurrence that the recurrence would otherwise create (use \"Cancel\" below), or give one occurrence a different link than the default."
               : "This event has no weekly recurrence — each date below is an actual occurrence."}
           </p>
 
