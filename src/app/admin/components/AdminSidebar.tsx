@@ -15,6 +15,7 @@ import { supabase } from "@/lib/supabase";
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: DashboardIcon, exact: true },
   { href: "/admin/experiences", label: "Experiences", icon: ExperiencesIcon },
+  { href: "/admin/events", label: "Events", icon: EventsIcon },
   { href: "/admin/enhancements", label: "Enhancements", icon: EnhancementsIcon },
   { href: "/admin/leads", label: "Leads", icon: LeadsIcon },
   { href: "/admin/affiliates", label: "Affiliates", icon: AffiliatesIcon },
@@ -48,6 +49,15 @@ function ExperiencesIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 shrink-0">
       <circle cx="12" cy="12" r="9" />
       <path d="M15 9l-2 5-5 2 2-5 5-2z" />
+    </svg>
+  );
+}
+
+function EventsIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 shrink-0">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M3 9h18M8 3v4M16 3v4" />
     </svg>
   );
 }
