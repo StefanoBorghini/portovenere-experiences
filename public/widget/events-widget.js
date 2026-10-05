@@ -11,10 +11,14 @@
  *   data-limit  — max number of events to show (default: 20, capped at 50 server-side)
  *
  * Read-only: fetches /api/events/feed (CORS-open, no auth) and renders
- * a horizontally scrolling row of cards, each linking out (no booking
- * flow, no cross-site API calls beyond this one GET). Self-contained
- * styles (scoped via the pv-events- prefix) so it doesn't depend on
- * — or clash with — the host site's theme CSS.
+ * a carousel — 3 cards visible at a time on desktop (2 on tablet, ~1
+ * on mobile), with left/right arrow buttons that page through the
+ * rest. Native touch/trackpad swipe still works (scroll-snap), the
+ * arrows are just an explicit, discoverable alternative — a desktop
+ * visitor with a plain mouse has no obvious way to swipe. Each card
+ * links out (no booking flow, no cross-site API calls beyond this one
+ * GET). Self-contained styles (scoped via the pv-events- prefix) so
+ * it doesn't depend on — or clash with — the host site's theme CSS.
  */
 (function () {
 
@@ -40,17 +44,25 @@
     var style = document.createElement("style");
     style.id = STYLE_ID;
     style.textContent = [
-      ".pv-events-row{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 16px;-webkit-overflow-scrolling:touch;}",
-      ".pv-events-row::-webkit-scrollbar{height:6px;}",
-      ".pv-events-row::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.2);border-radius:3px;}",
-      ".pv-events-card{flex:0 0 auto;width:260px;scroll-snap-align:start;border-radius:20px;overflow:hidden;background:#0a0a0a;color:#fff;text-decoration:none;display:block;box-shadow:0 2px 12px rgba(0,0,0,0.15);transition:transform .3s ease;}",
+      ".pv-events-widget{position:relative;}",
+      ".pv-events-viewport{overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;}",
+      ".pv-events-viewport::-webkit-scrollbar{display:none;}",
+      ".pv-events-row{display:flex;gap:16px;padding:4px 2px 4px;}",
+      ".pv-events-card{flex:0 0 calc((100% - 32px)/3);min-width:0;scroll-snap-align:start;border-radius:20px;overflow:hidden;background:#0a0a0a;color:#fff;text-decoration:none;display:block;box-shadow:0 2px 12px rgba(0,0,0,0.15);transition:transform .3s ease;}",
+      "@media (max-width:900px){.pv-events-card{flex-basis:calc((100% - 16px)/2);}}",
+      "@media (max-width:560px){.pv-events-card{flex-basis:88%;}}",
       ".pv-events-card:hover{transform:translateY(-4px);}",
       ".pv-events-card-image{width:100%;height:150px;object-fit:cover;display:block;background:#1a1a1a;}",
       ".pv-events-card-body{padding:16px;}",
       ".pv-events-card-date{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8a888;margin:0 0 8px;}",
       ".pv-events-card-title{font-size:17px;font-weight:500;margin:0 0 6px;line-height:1.25;}",
       ".pv-events-card-desc{font-size:13px;color:rgba(255,255,255,0.6);margin:0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}",
-      ".pv-events-empty{color:#888;font-size:14px;padding:8px 2px;}"
+      ".pv-events-empty{color:#888;font-size:14px;padding:8px 2px;}",
+      ".pv-events-arrow{position:absolute;top:calc(50% - 20px);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.25);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;z-index:2;transition:opacity .2s,background .2s;padding:0;}",
+      ".pv-events-arrow:hover{background:rgba(0,0,0,0.9);}",
+      ".pv-events-arrow:disabled{opacity:0;pointer-events:none;}",
+      ".pv-events-arrow-prev{left:4px;}",
+      ".pv-events-arrow-next{right:4px;}"
     ].join("");
 
     document.head.appendChild(style);
@@ -100,6 +112,15 @@
     return div.innerHTML;
   }
 
+  function createArrow(direction) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pv-events-arrow pv-events-arrow-" + direction;
+    btn.setAttribute("aria-label", direction === "prev" ? "Previous events" : "Next events");
+    btn.textContent = direction === "prev" ? "‹" : "›";
+    return btn;
+  }
+
   function mount(container) {
 
     var apiBase = container.getAttribute("data-api") || (DEFAULT_API_ORIGIN + "/api/events/feed");
@@ -116,6 +137,12 @@
           return;
         }
 
+        var widget = document.createElement("div");
+        widget.className = "pv-events-widget";
+
+        var viewport = document.createElement("div");
+        viewport.className = "pv-events-viewport";
+
         var row = document.createElement("div");
         row.className = "pv-events-row";
 
@@ -123,8 +150,35 @@
           row.appendChild(renderCard(event));
         });
 
+        viewport.appendChild(row);
+
+        var prevBtn = createArrow("prev");
+        var nextBtn = createArrow("next");
+
+        widget.appendChild(viewport);
+        widget.appendChild(prevBtn);
+        widget.appendChild(nextBtn);
+
         container.innerHTML = "";
-        container.appendChild(row);
+        container.appendChild(widget);
+
+        function scrollByPage(direction) {
+          viewport.scrollBy({ left: direction * viewport.clientWidth, behavior: "smooth" });
+        }
+
+        function updateArrows() {
+          var maxScroll = viewport.scrollWidth - viewport.clientWidth;
+          prevBtn.disabled = viewport.scrollLeft <= 4;
+          nextBtn.disabled = maxScroll <= 4 || viewport.scrollLeft >= maxScroll - 4;
+        }
+
+        prevBtn.addEventListener("click", function () { scrollByPage(-1); });
+        nextBtn.addEventListener("click", function () { scrollByPage(1); });
+
+        viewport.addEventListener("scroll", updateArrows);
+        window.addEventListener("resize", updateArrows);
+
+        updateArrows();
       })
       .catch(function () {
         // Fallisce in silenzio sul sito esterno — un widget rotto non
