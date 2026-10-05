@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPublicEventFeed } from "@/lib/supabase/eventRepository";
+import { SUPPORTED_TARGET_LOCALES } from "@/lib/translations/lara";
 
 // =========================================================
 // GET /api/events/feed — endpoint pubblico (nessun requireAdminSession,
@@ -35,9 +36,18 @@ export async function GET(req: NextRequest) {
 
   const siteUrl = `${url.protocol}//${url.host}`;
 
+  // Il widget vive su un sito esterno (nessun cookie/locale di
+  // next-intl da leggere) — passa ?locale=it esplicitamente se il
+  // sito ospitante non e' in inglese. Default "en", e un valore non
+  // supportato ricade comunque su "en" invece di un errore.
+  const localeParam = url.searchParams.get("locale") || "en";
+  const locale = (SUPPORTED_TARGET_LOCALES as readonly string[]).includes(localeParam)
+    ? localeParam
+    : "en";
+
   try {
 
-    const events = await getPublicEventFeed(limit, siteUrl);
+    const events = await getPublicEventFeed(limit, siteUrl, locale);
 
     return NextResponse.json(
       { success: true, events },

@@ -1,6 +1,33 @@
 import { getSupabaseAdmin } from "./adminClient";
 import { resolveEventOccurrences } from "@/lib/events/resolveEventOccurrences";
 import { buildEventLink } from "@/lib/events/buildEventLink";
+import { getLocalizedExperience, TranslationRow } from "@/lib/translations/getLocalizedField";
+
+// Carica le traduzioni (title/description) per un locale non-inglese,
+// per tutti gli event id passati — una sola query, mai per l'inglese
+// stesso (che e' gia' la colonna sorgente). Centralizzata qui perche'
+// sia getSuggestedEvents che getPublicEventFeed ne hanno bisogno.
+async function loadEventTranslations(
+  eventIds: string[],
+  locale: string
+): Promise<Map<string, TranslationRow>> {
+
+  const byEventId = new Map<string, TranslationRow>();
+
+  if (locale === "en" || eventIds.length === 0) return byEventId;
+
+  const { data } = await getSupabaseAdmin()
+    .from("event_translations")
+    .select("event_id, title, description, translation_status")
+    .eq("locale", locale)
+    .in("event_id", eventIds);
+
+  for (const row of data || []) {
+    byEventId.set(row.event_id, row as unknown as TranslationRow);
+  }
+
+  return byEventId;
+}
 
 // =========================================================
 // eventRepository — CRUD per la sezione "Eventi", separata da
@@ -202,7 +229,8 @@ export interface SuggestedEvent {
 
 export async function getSuggestedEvents(
   startDate?: string | null,
-  endDate?: string | null
+  endDate?: string | null,
+  locale: string = "en"
 ): Promise<SuggestedEvent[]> {
 
   if (!startDate || !endDate) return [];
@@ -214,9 +242,14 @@ export async function getSuggestedEvents(
 
   if (error) throw error;
 
+  const events = data || [];
+  const translations = await loadEventTranslations(events.map((e) => e.id), locale);
+
   const suggestions: SuggestedEvent[] = [];
 
-  for (const event of data || []) {
+  for (const event of events) {
+
+    const localized = getLocalizedExperience(event, translations.get(event.id), ["title", "description"]);
 
     const occurrences = resolveEventOccurrences(
       {
@@ -235,11 +268,11 @@ export async function getSuggestedEvents(
     for (const occurrence of occurrences) {
       suggestions.push({
         id: event.id,
-        title: event.title,
-        description: event.description,
+        title: localized.title,
+        description: localized.description,
         image_url: event.image_url,
         date: occurrence.date,
-        link: occurrence.link ? buildEventLink(occurrence.link, event.title) : occurrence.link,
+        link: occurrence.link ? buildEventLink(occurrence.link, localized.title) : occurrence.link,
       });
     }
   }
@@ -283,7 +316,8 @@ export interface PublicEventFeedItem {
 
 export async function getPublicEventFeed(
   limit: number = 20,
-  siteUrl: string = "https://experiences.portovenere.com"
+  siteUrl: string = "https://experiences.portovenere.com",
+  locale: string = "en"
 ): Promise<PublicEventFeedItem[]> {
 
   const today = new Date();
@@ -297,9 +331,14 @@ export async function getPublicEventFeed(
 
   if (error) throw error;
 
+  const events = data || [];
+  const translations = await loadEventTranslations(events.map((e) => e.id), locale);
+
   const feed: PublicEventFeedItem[] = [];
 
-  for (const event of data || []) {
+  for (const event of events) {
+
+    const localized = getLocalizedExperience(event, translations.get(event.id), ["title", "description"]);
 
     const occurrences = resolveEventOccurrences(
       {
@@ -314,16 +353,36 @@ export async function getPublicEventFeed(
     for (const occurrence of occurrences) {
       feed.push({
         id: event.id,
-        title: event.title,
-        description: event.description,
+        title: localized.title,
+        description: localized.description,
         image_url: event.image_url,
         date: occurrence.date,
         link: occurrence.link
-          ? buildEventLink(occurrence.link, event.title)
+          ? buildEventLink(occurrence.link, localized.title)
           : `${siteUrl}/events/${event.id}`,
       });
     }
   }
 
   return feed.sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
+}
+
+// Usata da /events/[id] (pagina pubblica auto-generata): una sola
+// riga di traduzione per un singolo evento, stesso formato di
+// loadEventTranslations ma senza bisogno di un batch.
+export async function getEventTranslation(
+  eventId: string,
+  locale: string
+): Promise<TranslationRow | null> {
+
+  if (locale === "en") return null;
+
+  const { data } = await getSupabaseAdmin()
+    .from("event_translations")
+    .select("event_id, title, description, translation_status")
+    .eq("event_id", eventId)
+    .eq("locale", locale)
+    .maybeSingle();
+
+  return (data as unknown as TranslationRow) || null;
 }

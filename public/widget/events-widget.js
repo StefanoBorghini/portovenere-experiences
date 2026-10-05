@@ -9,6 +9,7 @@
  * Optional attributes on the container div:
  *   data-api    — override the feed URL (default: same origin as this script, /api/events/feed)
  *   data-limit  — max number of events to show (default: 20, capped at 50 server-side)
+ *   data-locale — language for event titles/descriptions: it, fr, de, es, ru, zh, ja (default: en)
  *
  * Read-only: fetches /api/events/feed (CORS-open, no auth) and renders
  * a carousel — 3 cards visible at a time on desktop (2 on tablet, ~1
@@ -134,8 +135,12 @@
 
     var apiBase = container.getAttribute("data-api") || (DEFAULT_API_ORIGIN + "/api/events/feed");
     var limit = container.getAttribute("data-limit") || "20";
+    var locale = container.getAttribute("data-locale");
 
     var url = apiBase + (apiBase.indexOf("?") === -1 ? "?" : "&") + "limit=" + encodeURIComponent(limit);
+    if (locale) {
+      url += "&locale=" + encodeURIComponent(locale);
+    }
 
     fetch(url)
       .then(function (res) { return res.json(); })

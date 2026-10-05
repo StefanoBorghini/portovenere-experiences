@@ -293,7 +293,7 @@ const resolvedSearchParams =
   await getBookableEnhancements(locale);
 
   const suggestedEvents =
-  await getSuggestedEvents(lead?.start_date, lead?.end_date);
+  await getSuggestedEvents(lead?.start_date, lead?.end_date, locale);
 
   // =======================================================
   // RENDERER DATA

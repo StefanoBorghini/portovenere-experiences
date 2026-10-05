@@ -34,6 +34,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [translateStatus, setTranslateStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
 
   // Campi del form, scollegati da `event` finche' non si salva —
   // stesso pattern gia' usato altrove in admin (es. AvailabilityCard),
@@ -119,6 +120,26 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
     } else {
       alert(data.error || "Could not save");
     }
+  }
+
+  // Non automatica ad ogni Save — chiamate Lara per 7 lingue
+  // rallenterebbero il salvataggio principale senza bisogno (l'inglese
+  // e' gia' idoneo per gran parte di questo tempo). syncAllEventTranslations
+  // e' idempotente per hash: richiamarla su un evento invariato non
+  // consuma mai quota Lara in piu'.
+  async function handleTranslateNow() {
+
+    setTranslateStatus("loading");
+
+    const response = await fetch("/api/admin/translate-event", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await authHeader()) },
+      body: JSON.stringify({ eventId: id }),
+    });
+
+    const data = await response.json();
+
+    setTranslateStatus(data.success ? "done" : "error");
   }
 
   async function handleAddDate() {
@@ -336,13 +357,29 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
 
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-4 rounded-xl bg-white text-black font-medium disabled:opacity-50 mb-12"
-        >
-          {saving ? "Saving…" : "Save"}
-        </button>
+        <div className="flex gap-3 mb-12">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-4 rounded-xl bg-white text-black font-medium disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Save"}
+          </button>
+
+          <button
+            onClick={handleTranslateNow}
+            disabled={translateStatus === "loading"}
+            className="px-5 py-4 rounded-xl border border-white/10 hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {translateStatus === "loading"
+              ? "Translating…"
+              : translateStatus === "done"
+              ? "Translated ✓"
+              : translateStatus === "error"
+              ? "Failed — retry"
+              : "Translate now"}
+          </button>
+        </div>
 
         {/* DATES */}
         <div className="border-t border-white/[0.08] pt-10">

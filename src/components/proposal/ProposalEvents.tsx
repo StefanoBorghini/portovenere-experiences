@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
 
 import Section from "@/components/layout/Section";
 import SectionContainer from "@/components/layout/SectionContainer";
@@ -13,11 +14,11 @@ import { fadeReveal } from "@/lib/motion/fadeReveal";
 // che linkano fuori (pagina evento dedicata, o un link
 // personalizzato impostato in admin). Mostrata solo se ci sono
 // eventi la cui prossima occorrenza cade nelle date scelte dal
-// cliente — vedi getSuggestedEvents in eventRepository.ts.
-//
-// NOTA: testo in inglese fisso, non ancora passato dal sistema di
-// traduzioni (site_copy) usato dal resto della proposal — da
-// aggiungere quando la sezione sara' validata in produzione.
+// cliente — vedi getSuggestedEvents in eventRepository.ts, che ora
+// passa gia' title/description nella lingua corrente (fallback
+// automatico all'inglese se la traduzione non e' pronta/riuscita).
+// Le etichette fisse di questa sezione (label/title/CTA) passano
+// invece da site_copy, come il resto della proposal.
 // =========================================================
 
 export interface SuggestedEventCard {
@@ -33,12 +34,34 @@ interface ProposalEventsProps {
   events: SuggestedEventCard[];
 }
 
-function formatEventDate(dateIso: string): string {
+// Stessa mappa di buildProposalSummary.ts/craft-your-experience —
+// duplicata qui per lo stesso motivo (file piccolo, nessun modulo
+// condiviso esistente per questa costante nel progetto).
+const DATE_LOCALES: Record<string, string> = {
+  en: "en-US",
+  it: "it-IT",
+  fr: "fr-FR",
+  de: "de-DE",
+  es: "es-ES",
+  ru: "ru-RU",
+  zh: "zh-CN",
+  ja: "ja-JP",
+};
+
+function formatEventDate(dateIso: string, locale: string): string {
   const date = new Date(`${dateIso}T00:00:00`);
-  return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  return date.toLocaleDateString(DATE_LOCALES[locale] ?? DATE_LOCALES.en, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default function ProposalEvents({ events }: ProposalEventsProps) {
+
+  const t = useTranslations("proposal");
+  const locale = useLocale();
 
   if (events.length === 0) return null;
 
@@ -56,8 +79,8 @@ export default function ProposalEvents({ events }: ProposalEventsProps) {
           transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
         >
           <SectionHeader
-            label="During your stay"
-            title="Events happening while you're here"
+            label={t("events.label")}
+            title={t("events.title")}
           />
         </motion.div>
 
@@ -77,7 +100,7 @@ export default function ProposalEvents({ events }: ProposalEventsProps) {
 
                 <div className="p-8">
                   <p className="text-[12px] uppercase tracking-[0.25em] text-zinc-500 mb-3">
-                    {formatEventDate(event.date)}
+                    {formatEventDate(event.date, locale)}
                   </p>
 
                   <h3 className="text-2xl md:text-3xl font-light tracking-tight mb-4">
@@ -89,7 +112,7 @@ export default function ProposalEvents({ events }: ProposalEventsProps) {
                   )}
 
                   <span className="text-[11px] uppercase tracking-[0.2em] text-white/80">
-                    Details →
+                    {t("events.details")}
                   </span>
                 </div>
               </>
