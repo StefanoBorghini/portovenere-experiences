@@ -9,7 +9,9 @@
  * Optional attributes on the container div:
  *   data-api    — override the feed URL (default: same origin as this script, /api/events/feed)
  *   data-limit  — max number of events to show (default: 20, capped at 50 server-side)
- *   data-locale — language for event titles/descriptions: it, fr, de, es, ru, zh, ja (default: en)
+ *   data-locale — language for the whole widget (titles/descriptions,
+ *                 date format, "Details" label, empty-state message):
+ *                 it, fr, de, es, ru, zh, ja (default: en)
  *
  * Read-only: fetches /api/events/feed (CORS-open, no auth) and renders
  * a carousel — 3 cards visible at a time on desktop (2 on tablet, ~1
@@ -76,16 +78,40 @@
     document.head.appendChild(style);
   }
 
-  function formatDate(iso) {
+  // Stessa mappa usata lato Next.js (ProposalEvents.tsx/buildProposalSummary.ts),
+  // duplicata qui perche' il widget e' uno script statico indipendente,
+  // senza accesso al next-intl/site_copy del sito principale.
+  var DATE_LOCALES = {
+    en: "en-US", it: "it-IT", fr: "fr-FR", de: "de-DE",
+    es: "es-ES", ru: "ru-RU", zh: "zh-CN", ja: "ja-JP"
+  };
+
+  // Solo l'etichetta del CTA e' fissa nel widget (titolo/descrizione
+  // arrivano gia' tradotti dal feed, vedi data-locale) — una manciata
+  // di parole, non vale la pena tirare in ballo un sistema di
+  // traduzione completo per uno script embeddabile esterno.
+  var CTA_LABELS = {
+    en: "Details", it: "Dettagli", fr: "Détails", de: "Details",
+    es: "Detalles", ru: "Подробнее", zh: "详情", ja: "詳細"
+  };
+
+  var EMPTY_LABELS = {
+    en: "No upcoming events right now.", it: "Nessun evento in programma al momento.",
+    fr: "Aucun événement à venir pour le moment.", de: "Derzeit keine anstehenden Veranstaltungen.",
+    es: "No hay eventos próximos por ahora.", ru: "Сейчас нет ближайших событий.",
+    zh: "目前没有即将举行的活动。", ja: "現在予定されているイベントはありません。"
+  };
+
+  function formatDate(iso, locale) {
     try {
       var d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+      return d.toLocaleDateString(DATE_LOCALES[locale] || DATE_LOCALES.en, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
     } catch (e) {
       return iso;
     }
   }
 
-  function renderCard(event) {
+  function renderCard(event, locale) {
 
     var a = document.createElement("a");
     a.className = "pv-events-card";
@@ -100,14 +126,14 @@
     }
 
     html += '<div class="pv-events-card-body">';
-    html += '<p class="pv-events-card-date">' + escapeHtml(formatDate(event.date)) + '</p>';
+    html += '<p class="pv-events-card-date">' + escapeHtml(formatDate(event.date, locale)) + '</p>';
     html += '<h3 class="pv-events-card-title">' + escapeHtml(event.title) + '</h3>';
 
     if (event.description) {
       html += '<p class="pv-events-card-desc">' + escapeHtml(event.description) + '</p>';
     }
 
-    html += '<span class="pv-events-card-cta">Details &rarr;</span>';
+    html += '<span class="pv-events-card-cta">' + escapeHtml(CTA_LABELS[locale] || CTA_LABELS.en) + ' &rarr;</span>';
 
     html += '</div>';
 
@@ -137,6 +163,8 @@
     var limit = container.getAttribute("data-limit") || "20";
     var locale = container.getAttribute("data-locale");
 
+    var displayLocale = locale || "en";
+
     var url = apiBase + (apiBase.indexOf("?") === -1 ? "?" : "&") + "limit=" + encodeURIComponent(limit);
     if (locale) {
       url += "&locale=" + encodeURIComponent(locale);
@@ -147,7 +175,7 @@
       .then(function (data) {
 
         if (!data || !data.success || !Array.isArray(data.events) || data.events.length === 0) {
-          container.innerHTML = '<p class="pv-events-empty">No upcoming events right now.</p>';
+          container.innerHTML = '<p class="pv-events-empty">' + escapeHtml(EMPTY_LABELS[displayLocale] || EMPTY_LABELS.en) + '</p>';
           return;
         }
 
@@ -161,7 +189,7 @@
         row.className = "pv-events-row";
 
         data.events.forEach(function (event) {
-          row.appendChild(renderCard(event));
+          row.appendChild(renderCard(event, displayLocale));
         });
 
         viewport.appendChild(row);
