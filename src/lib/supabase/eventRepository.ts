@@ -359,7 +359,13 @@ export async function getPublicEventFeed(
         date: occurrence.date,
         link: occurrence.link
           ? buildEventLink(occurrence.link, localized.title)
-          : `${siteUrl}/events/${event.id}`,
+          // ?locale= cosi' la pagina si apre nella stessa lingua del
+          // widget/pagina WordPress che ha generato il link, invece
+          // di affidarsi al solo Accept-Language del visitatore (che
+          // su un sito multilingua tipo TranslatePress puo' non
+          // combaciare con la lingua che stava effettivamente
+          // guardando).
+          : `${siteUrl}/events/${event.id}${locale !== "en" ? `?locale=${locale}` : ""}`,
       });
     }
   }

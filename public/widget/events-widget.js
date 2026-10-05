@@ -11,8 +11,13 @@
  *   data-limit  — max number of events to show (default: 20, capped at 50 server-side)
  *   data-locale — language for the whole widget (titles/descriptions,
  *                 date format, "Details" label, empty-state message):
- *                 it, fr, de, es, ru, zh, ja (default: en)
+ *                 it, fr, de, es, ru, zh, ja (default: en). Optional —
+ *                 if omitted, auto-detected from the page's own
+ *                 <html lang="..."> (e.g. set by TranslatePress), so
+ *                 the same embed code works unmodified on every
+ *                 language version of the WordPress page.
  *
+
  * Read-only: fetches /api/events/feed (CORS-open, no auth) and renders
  * a carousel — 3 cards visible at a time on desktop (2 on tablet, ~1
  * on mobile), with left/right arrow buttons that page through the
@@ -157,11 +162,26 @@
     return btn;
   }
 
+  var SUPPORTED_LOCALES = ["en", "it", "fr", "de", "es", "ru", "zh", "ja"];
+
+  // Rileva la lingua della pagina ospitante (es. "it-IT" -> "it") da
+  // <html lang="...">, che TranslatePress (e in pratica ogni plugin
+  // multilingua WordPress) imposta correttamente su ogni versione
+  // linguistica della pagina — cosi' lo stesso identico blocco HTML
+  // mostra la lingua giusta su entrambe le versioni del sito, senza
+  // doverlo duplicare con un data-locale diverso per pagina.
+  function detectPageLocale() {
+    var lang = (document.documentElement.lang || "").split("-")[0].toLowerCase();
+    return SUPPORTED_LOCALES.indexOf(lang) !== -1 ? lang : null;
+  }
+
   function mount(container) {
 
     var apiBase = container.getAttribute("data-api") || (DEFAULT_API_ORIGIN + "/api/events/feed");
     var limit = container.getAttribute("data-limit") || "20";
-    var locale = container.getAttribute("data-locale");
+    // data-locale esplicito vince sempre; altrimenti si rileva dalla
+    // pagina, altrimenti inglese.
+    var locale = container.getAttribute("data-locale") || detectPageLocale();
 
     var displayLocale = locale || "en";
 

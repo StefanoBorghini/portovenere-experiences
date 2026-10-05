@@ -19,6 +19,13 @@ import { getCurrentLocale } from "@/i18n/locale";
 // Nessuna route /[locale]/... qui: la lingua si risolve come nel
 // resto del sito, via cookie/Accept-Language (getCurrentLocale) —
 // stesso meccanismo gia' usato da results/proposal/[slug]/page.tsx.
+//
+// ECCEZIONE: ?locale=.. in query string, se presente, vince sempre.
+// Usato dal link di fallback generato in getPublicEventFeed() per i
+// widget esterni (es. su un sito WordPress con TranslatePress) — li'
+// il visitatore arriva da una pagina la cui lingua e' gia' nota (quella
+// del widget), che puo' non combaciare col suo Accept-Language/cookie
+// su QUESTO dominio.
 // =========================================================
 
 // Stessa mappa duplicata in ProposalEvents.tsx/buildProposalSummary.ts
@@ -53,11 +60,14 @@ function formatEventDate(dateIso: string, locale: string): string {
 
 export default async function EventDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ locale?: string }>;
 }) {
 
   const { id } = await params;
+  const { locale: localeParam } = await searchParams;
 
   const event = await getEvent(id);
 
@@ -65,8 +75,11 @@ export default async function EventDetailPage({
     notFound();
   }
 
-  const locale = await getCurrentLocale();
-  const t = await getTranslations("eventsPage");
+  const cookieLocale = await getCurrentLocale();
+  const locale =
+    localeParam && localeParam in DATE_LOCALES ? localeParam : cookieLocale;
+
+  const t = await getTranslations({ locale, namespace: "eventsPage" });
 
   const translation = await getEventTranslation(id, locale);
   // event arriva da getEvent() con un tipo stretto (EventWithAvailability) —
