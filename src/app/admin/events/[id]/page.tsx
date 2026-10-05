@@ -3,6 +3,7 @@
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { uploadImage } from "@/lib/supabase/experienceRepository";
 
 interface EventDate {
   id: string;
@@ -32,6 +33,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // Campi del form, scollegati da `event` finche' non si salva —
   // stesso pattern gia' usato altrove in admin (es. AvailabilityCard),
@@ -242,12 +244,53 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-[0.15em] text-white/40 mb-2">Image URL</label>
+            <label className="block text-xs uppercase tracking-[0.15em] text-white/40 mb-2">Image</label>
+
+            {imageUrl && (
+              <div className="rounded-2xl overflow-hidden border border-white/10 bg-black mb-3">
+                <img src={imageUrl} alt="" className="w-full h-[180px] object-cover" />
+              </div>
+            )}
+
+            <div className="flex gap-3 items-center mb-3">
+              <label className="px-5 py-3 rounded-xl bg-white text-black text-sm font-medium cursor-pointer hover:opacity-90 transition">
+                {uploading ? "Uploading…" : "Upload image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={async (e) => {
+
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    setUploading(true);
+
+                    const uploadedUrl = await uploadImage(file, "events");
+
+                    setUploading(false);
+
+                    if (!uploadedUrl) {
+                      alert("Upload failed");
+                      return;
+                    }
+
+                    setImageUrl(uploadedUrl);
+                  }}
+                />
+              </label>
+            </div>
+
+            {/* URL manuale, per chi vuole collegare un'immagine
+                esterna gia' ospitata altrove invece di caricarne
+                una nuova — stessa doppia via gia' disponibile per
+                il link_default sotto (auto-generato o personalizzato). */}
             <input
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="/images/events/..."
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white outline-none"
+              placeholder="or paste an image URL"
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm outline-none"
             />
           </div>
 

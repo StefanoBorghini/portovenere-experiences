@@ -10,10 +10,16 @@ import { getPublicEventFeed } from "@/lib/supabase/eventRepository";
 // sola lettura, non un'azione: nessuna sessione/cookie coinvolti,
 // stesso principio di un RSS feed pubblico.
 //
-// Cache breve lato CDN (Vercel/Next rispettano Cache-Control anche su
-// route dinamiche): il feed cambia raramente, non serve ricalcolarlo
-// a ogni singola richiesta da ogni widget embeddato nel mondo.
+// Nessuna cache (no-store): un admin che aggiunge/modifica un evento
+// si aspetta di vederlo riflesso subito nel widget, non entro 5-10
+// minuti. Il traffico su questo endpoint e' basso (un widget per
+// pagina, non virale), quindi il costo di ricalcolarlo a ogni
+// richiesta e' trascurabile rispetto al beneficio di freschezza —
+// stesso principio gia' applicato altrove nel progetto quando una
+// cache ha fatto sembrare "non funzionante" una modifica appena fatta.
 // =========================================================
+
+export const dynamic = "force-dynamic";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -38,7 +44,7 @@ export async function GET(req: NextRequest) {
       {
         headers: {
           ...CORS_HEADERS,
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+          "Cache-Control": "no-store",
         },
       }
     );
