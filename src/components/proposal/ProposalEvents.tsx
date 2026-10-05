@@ -35,7 +35,7 @@ interface ProposalEventsProps {
 
 function formatEventDate(dateIso: string): string {
   const date = new Date(`${dateIso}T00:00:00`);
-  return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long" });
+  return date.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 export default function ProposalEvents({ events }: ProposalEventsProps) {
@@ -85,8 +85,12 @@ export default function ProposalEvents({ events }: ProposalEventsProps) {
                   </h3>
 
                   {event.description && (
-                    <p className="text-zinc-400 leading-relaxed">{event.description}</p>
+                    <p className="text-zinc-400 leading-relaxed mb-5">{event.description}</p>
                   )}
+
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-white/80">
+                    Details →
+                  </span>
                 </div>
               </>
             );

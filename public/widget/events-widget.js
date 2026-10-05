@@ -54,9 +54,16 @@
       ".pv-events-card:hover{transform:translateY(-4px);}",
       ".pv-events-card-image{width:100%;height:150px;object-fit:cover;display:block;background:#1a1a1a;}",
       ".pv-events-card-body{padding:16px;}",
-      ".pv-events-card-date{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8a888;margin:0 0 8px;}",
-      ".pv-events-card-title{font-size:17px;font-weight:500;margin:0 0 6px;line-height:1.25;}",
-      ".pv-events-card-desc{font-size:13px;color:rgba(255,255,255,0.6);margin:0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}",
+      // color qui e' esplicito con !important: il tema WordPress che
+      // ospita il widget definisce spesso le sue regole per h3/p
+      // dentro al contenuto (es. .entry-content h3{color:...}) con
+      // specificita' piu' alta del solo nome-classe — senza
+      // !important il titolo puo' finire scuro su scuro e sparire,
+      // esattamente il bug osservato in produzione.
+      ".pv-events-card-date{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8a888!important;margin:0 0 8px;}",
+      ".pv-events-card-title{font-size:17px;font-weight:500;margin:0 0 6px;line-height:1.25;color:#fff!important;}",
+      ".pv-events-card-desc{font-size:13px;color:rgba(255,255,255,0.6)!important;margin:0 0 14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}",
+      ".pv-events-card-cta{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#fff!important;opacity:.85;}",
       ".pv-events-empty{color:#888;font-size:14px;padding:8px 2px;}",
       ".pv-events-arrow{position:absolute;top:calc(50% - 20px);width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.25);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;z-index:2;transition:opacity .2s,background .2s;padding:0;}",
       ".pv-events-arrow:hover{background:rgba(0,0,0,0.9);}",
@@ -71,7 +78,7 @@
   function formatDate(iso) {
     try {
       var d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
+      return d.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
     } catch (e) {
       return iso;
     }
@@ -98,6 +105,8 @@
     if (event.description) {
       html += '<p class="pv-events-card-desc">' + escapeHtml(event.description) + '</p>';
     }
+
+    html += '<span class="pv-events-card-cta">Details &rarr;</span>';
 
     html += '</div>';
 
