@@ -263,12 +263,16 @@ export interface PublicEventFeedItem {
 }
 
 // =========================================================
-// getPublicEventFeed — stesso principio di getSuggestedEvents (una
-// card per evento, solo la prossima occorrenza), ma non scoperta a
-// un cliente/date specifiche: e' il feed pubblico usato dal widget
-// embeddabile sul sito WordPress (vedi /api/events/feed e
-// public/widget/events-widget.js). Finestra fissa da oggi a un anno
-// in avanti, stesso limite di sicurezza di resolveEventOccurrences.
+// getPublicEventFeed — feed pubblico usato dal widget embeddabile sul
+// sito WordPress (vedi /api/events/feed e
+// public/widget/events-widget.js), non scoperto a un cliente/date
+// specifiche. Finestra fissa da oggi a un anno in avanti, stesso
+// limite di sicurezza di resolveEventOccurrences.
+//
+// Una card per OGNI occorrenza nella finestra (non solo la prossima
+// per evento) — stesso principio applicato a getSuggestedEvents: un
+// evento ricorrente compare una volta per ciascuna data futura,
+// fino al limite richiesto.
 //
 // `link` qui non e' mai null: un evento senza link_default/override
 // usa /events/[id] (la pagina auto-generata) come fallback, perche'
@@ -306,18 +310,16 @@ export async function getPublicEventFeed(
       toISODate(oneYearOut)
     );
 
-    if (occurrences.length === 0) continue;
-
-    const next = occurrences[0];
-
-    feed.push({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      image_url: event.image_url,
-      date: next.date,
-      link: next.link || `${siteUrl}/events/${event.id}`,
-    });
+    for (const occurrence of occurrences) {
+      feed.push({
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        image_url: event.image_url,
+        date: occurrence.date,
+        link: occurrence.link || `${siteUrl}/events/${event.id}`,
+      });
+    }
   }
 
   return feed.sort((a, b) => a.date.localeCompare(b.date)).slice(0, limit);
