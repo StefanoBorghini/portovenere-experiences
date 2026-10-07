@@ -265,7 +265,7 @@ export default function CraftYourExperience() {
   });
 
   const minimumBookingDate = new Date();
-  minimumBookingDate.setDate(minimumBookingDate.getDate() + 1);
+  minimumBookingDate.setDate(minimumBookingDate.getDate() + 5);
 
   // =======================================================
   // INLINE CALENDAR — tap-to-select date range
