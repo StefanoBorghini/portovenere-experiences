@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 interface AvailabilityCardProps {
 
   experience: any;
@@ -16,20 +20,24 @@ interface AvailabilityCardProps {
 //
 // Stesso pattern "lista in stato locale + isNew" di
 // SeasonalPricingCard.tsx/PriceTiersCard.tsx per seasonal rules e
-// date rules; i weekday rules usano invece una UI a modalita' (nessun
-// vincolo / solo questi giorni / tranne questi giorni) perche' un
-// weekday rule set misto available+unavailable e' ambiguo da
-// interpretare — vedi resolveAvailability.ts.
+// date rules; i weekday rules restano un set (available XOR
+// unavailable, mai misto, vedi resolveAvailability.ts) ma la UI e' un
+// unico widget "giorni esclusi" (status='unavailable') — la modalita'
+// whitelist ("only_these") resta supportata sotto per dati gia'
+// esistenti configurati cosi', ma non e' piu' esposta come scelta
+// esplicita: nessuna esperienza nel progetto la usa, e aggiungeva un
+// secondo click prima di poter flaggare i giorni (vedi bug sotto).
+//
+// BUG corretto qui: prima la "modalita'" (none/only_these/except_these)
+// era derivata da weekdayRules.length — cliccando "except_these" con
+// zero giorni ancora selezionati, l'array restava vuoto, quindi al
+// render successivo la modalita' ricalcolata tornava "none" e i
+// checkbox sparivano: il bottone sembrava "non cliccabile". Ora lo
+// stato di modalita' e' locale (useState), persiste finche' non viene
+// esplicitamente cambiato.
 // =========================================================
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-type WeekdayMode = "none" | "only_these" | "except_these";
-
-function getWeekdayMode(weekdayRules: any[]): WeekdayMode {
-  if (weekdayRules.length === 0) return "none";
-  return weekdayRules.some((r) => r.status === "available") ? "only_these" : "except_these";
-}
 
 export default function AvailabilityCard({
 
@@ -43,7 +51,14 @@ export default function AvailabilityCard({
   const weekdayRules = experience.availability_weekdays || [];
   const dateRules = experience.availability_dates || [];
 
-  const weekdayMode = getWeekdayMode(weekdayRules);
+  // Whitelist ("only_these") e' un formato legacy: se l'esperienza ne
+  // ha gia' uno salvato, lo rispettiamo com'e' invece di convertirlo
+  // silenziosamente — ma il widget sotto flagga sempre ed esclusivamente
+  // in modalita' "escludi questi giorni".
+  const isLegacyWhitelist = weekdayRules.some((r: any) => r.status === "available");
+
+  const [restrictDays, setRestrictDays] = useState(weekdayRules.length > 0);
+
   const selectedWeekdays = new Set(weekdayRules.map((r: any) => r.weekday));
 
   // -------------------------------------------------------
@@ -87,51 +102,37 @@ export default function AvailabilityCard({
   }
 
   // -------------------------------------------------------
-  // WEEKDAY RULES — modalita' invece di righe libere: cambiare
-  // modalita' o giorno selezionato ricostruisce l'intera lista con lo
-  // status coerente per tutte le righe (mai un mix
-  // available/unavailable nello stesso set, vedi commento in testa).
+  // WEEKDAY RULES — un solo checkbox "Restrict by weekday" che mostra
+  // il widget dei 7 giorni; ogni giorno flaggato viene escluso
+  // (status='unavailable'). restrictDays e' stato locale apposta (non
+  // derivato da weekdayRules.length) cosi' il widget resta visibile
+  // anche quando l'admin l'ha appena aperto e non ha ancora flaggato
+  // nessun giorno — vedi commento in testa sul bug precedente.
   // -------------------------------------------------------
 
-  function setWeekdayMode(mode: WeekdayMode) {
-    if (mode === "none") {
+  function setRestrictDaysEnabled(enabled: boolean) {
+    setRestrictDays(enabled);
+    if (!enabled) {
       setExperience({ ...experience, availability_weekdays: [] });
-      return;
     }
-
-    const status = mode === "only_these" ? "available" : "unavailable";
-
-    setExperience({
-      ...experience,
-      availability_weekdays: Array.from(selectedWeekdays).map((weekday) => ({
-        id: `new-avail-weekday-${weekday}-${Date.now()}`,
-        experience_id: experience.id,
-        status,
-        weekday,
-        isNew: true,
-      })),
-    });
   }
 
   function toggleWeekday(weekday: number) {
 
-    if (weekdayMode === "none") return;
-
-    const status = weekdayMode === "only_these" ? "available" : "unavailable";
     const isSelected = selectedWeekdays.has(weekday);
     // toggleWeekday e' invocata solo da onClick (mai durante il render,
-    // stesso identico schema di addSeason/addDateRule/setWeekdayMode
-    // sopra, che infatti non scatenano questo warning) — falso
-    // positivo della regola react-hooks/purity su questa specifica
-    // forma sintattica (Date.now() dentro il ramo "else" di un
-    // ternario che ritorna un nuovo array).
+    // stesso identico schema di addSeason/addDateRule sopra, che infatti
+    // non scatenano questo warning) — falso positivo della regola
+    // react-hooks/purity su questa specifica forma sintattica
+    // (Date.now() dentro il ramo "else" di un ternario che ritorna un
+    // nuovo array).
     // eslint-disable-next-line react-hooks/purity
     const newId = `new-avail-weekday-${weekday}-${Date.now()}`;
 
     const newRule = {
       id: newId,
       experience_id: experience.id,
-      status,
+      status: "unavailable",
       weekday,
       isNew: true,
     };
@@ -329,48 +330,59 @@ export default function AvailabilityCard({
           Weekday rules
         </h3>
 
-        <div className="flex flex-wrap gap-3 mb-4">
+        {isLegacyWhitelist ? (
 
-          {(
-            [
-              ["none", "No restriction"],
-              ["only_these", "Only available on selected days"],
-              ["except_these", "Not available on selected days"],
-            ] as [WeekdayMode, string][]
-          ).map(([mode, label]) => (
+          // Dato esistente in modalita' whitelist (status='available') —
+          // non convertito silenziosamente, vedi commento in testa.
+          <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-4 text-xs text-amber-200/80">
+            Questa esperienza ha una regola "disponibile SOLO in questi
+            giorni" configurata in precedenza. Per passare al nuovo
+            widget "giorni esclusi" svuota prima la selezione.
             <button
-              key={mode}
               type="button"
-              onClick={() => setWeekdayMode(mode)}
-              className={`rounded-full border px-4 py-2 text-xs ${
-                weekdayMode === mode
-                  ? "border-white bg-white text-black"
-                  : "border-white/10 text-white/60 hover:text-white hover:border-white/30"
-              }`}
+              onClick={() => setRestrictDaysEnabled(false)}
+              className="block mt-3 rounded-lg border border-amber-400/30 px-3 py-2 text-amber-100 hover:border-amber-400/60"
             >
-              {label}
+              Clear and switch to "exclude days" mode
             </button>
-          ))}
-
-        </div>
-
-        {weekdayMode !== "none" && (
-          <div className="flex flex-wrap gap-2">
-            {WEEKDAY_LABELS.map((label, weekday) => (
-              <button
-                key={weekday}
-                type="button"
-                onClick={() => toggleWeekday(weekday)}
-                className={`rounded-lg border px-3 py-2 text-xs ${
-                  selectedWeekdays.has(weekday)
-                    ? "border-white bg-white text-black"
-                    : "border-white/10 text-white/60 hover:text-white hover:border-white/30"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
           </div>
+
+        ) : (
+
+          <>
+            <label className="flex items-center gap-3 cursor-pointer mb-4">
+              <input
+                type="checkbox"
+                checked={restrictDays}
+                onChange={(e) => setRestrictDaysEnabled(e.target.checked)}
+              />
+              <span className="text-sm text-white/70">
+                Restrict by weekday (flagga i giorni in cui questa
+                esperienza NON e&apos; disponibile — nessun giorno
+                flaggato = sempre disponibile)
+              </span>
+            </label>
+
+            {restrictDays && (
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAY_LABELS.map((label, weekday) => (
+                  <button
+                    key={weekday}
+                    type="button"
+                    onClick={() => toggleWeekday(weekday)}
+                    className={`rounded-lg border px-3 py-2 text-xs ${
+                      selectedWeekdays.has(weekday)
+                        ? "border-white bg-white text-black"
+                        : "border-white/10 text-white/60 hover:text-white hover:border-white/30"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+
         )}
 
       </div>
