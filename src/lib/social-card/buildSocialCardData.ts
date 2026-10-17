@@ -124,9 +124,16 @@ export function buildSocialCardData({
   // conteggio reale, non un teaser tagliato.
   // Ogni highlight porta con se' la SUA foto (non una foto generica
   // pescata dal pool), cosi' la striscia di miniature mostra
-  // davvero le esperienze coinvolte, non solo la featured.
+  // davvero le esperienze coinvolte, non solo la featured. Per la
+  // featured, mai heroImage: e' gia' lo sfondo dell'intera card
+  // (images[0], vedi sotto) — usare la stessa foto anche in miniatura
+  // la rende invisibile/ridondante. detail_image e' una foto diversa
+  // della stessa experience, pensata apposta per questo.
   const highlightCandidates = [
-    { title: featuredExperience.title, image: heroImage },
+    {
+      title: featuredExperience.title,
+      image: featuredExperience.detail_image || featuredExperience.image || heroImage,
+    },
     ...includedExperiences.map((exp) => ({ title: exp.title, image: exp.image })),
   ].filter((item) => Boolean(item.title));
 
