@@ -337,11 +337,14 @@ const resolvedSearchParams =
 
   "/images/default-hero.webp";
 
- // introTitles/closingParagraphs vengono da site_copy (tradotti una
- // volta sola, non per-proposal — sono solo 5+4 varianti fisse, non
- // testo dinamico): peschiamo per indice invece di usare la stringa
- // inglese di generateProposal, che resta solo come fallback per il
- // caso "nessuna esperienza trovata" (indice non disponibile).
+ // introTitles/introParagraphs/closingParagraphs vengono da site_copy
+ // (tradotti una volta sola, non per-proposal — sono solo 5+4+4
+ // varianti fisse, non testo dinamico): peschiamo per indice invece
+ // di usare la stringa inglese di generateProposal, che resta solo
+ // come fallback per il caso "nessuna esperienza trovata" (indice non
+ // disponibile). dynamicIntroParagraph in precedenza NON passava da
+ // qui (bug: usava sempre la stringa inglese fissa, a differenza dei
+ // suoi due "fratelli" sopra/sotto) — corretto per essere coerente.
  // (t dichiarato in cima alla funzione, disponibile qui.)
 
  const dynamicIntroTitle =
@@ -352,7 +355,11 @@ const resolvedSearchParams =
       "Curated Riviera Experience";
 
   const dynamicIntroParagraph =
-    generatedProposal.dynamicIntroParagraph;
+
+  generatedProposal.dynamicIntroParagraphIndex !== undefined
+    ? t(`proposal.introParagraphs.${generatedProposal.dynamicIntroParagraphIndex}`)
+    : generatedProposal.dynamicIntroParagraph ||
+      "Every experience within your proposal has been carefully selected to balance atmosphere, elegance and emotional coherence across your Riviera journey.";
 
   const dynamicClosingParagraph =
 

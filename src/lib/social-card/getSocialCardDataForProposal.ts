@@ -100,7 +100,16 @@ export async function getSocialCardDataForSlug(
 
   const heroTitle = generatedProposal.heroTitle || "Mediterranean Escape";
   const heroImage = generatedProposal.heroImage || "/images/default-hero.webp";
-  const dynamicIntroParagraph = generatedProposal.dynamicIntroParagraph || "";
+
+  // Stesso fix di results/proposal/[slug]/page.tsx: pesca per indice
+  // da site_copy (proposal.introParagraphs.<indice>) invece della
+  // stringa inglese fissa — stesso identico bug, stessa identica
+  // soluzione, perche' la social card e' una sintesi della STESSA
+  // proposal, mai un secondo motore di traduzione.
+  const dynamicIntroParagraph =
+    generatedProposal.dynamicIntroParagraphIndex !== undefined
+      ? t(`proposal.introParagraphs.${generatedProposal.dynamicIntroParagraphIndex}`)
+      : generatedProposal.dynamicIntroParagraph || "";
 
   return buildSocialCardData({
     slug,

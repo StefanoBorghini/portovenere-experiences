@@ -864,14 +864,11 @@ const dynamicIntroTitleIndex =
 const dynamicIntroTitle =
   introTitles[dynamicIntroTitleIndex];
 
-const dynamicIntroParagraph =
+const dynamicIntroParagraphIndex =
+  Math.floor(Math.random() * introParagraphs.length);
 
-  introParagraphs[
-    Math.floor(
-      Math.random() *
-      introParagraphs.length
-    )
-  ];
+const dynamicIntroParagraph =
+  introParagraphs[dynamicIntroParagraphIndex];
 
 // =========================================================
 // DYNAMIC CLOSING COPY
@@ -1036,6 +1033,8 @@ const orderedCategories =
     dynamicIntroTitleIndex,
 
     dynamicIntroParagraph,
+
+    dynamicIntroParagraphIndex,
 
     dynamicClosingParagraph,
 
