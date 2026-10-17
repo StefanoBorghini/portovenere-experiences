@@ -203,14 +203,14 @@ export default function SocialExperienceCard({ data, format, showPrice, cta }: S
               className="uppercase text-white mb-4"
               style={{ fontSize: contentWidth * 0.016, letterSpacing: "0.2em" }}
             >
-              From €{Math.round(data.price).toLocaleString("en-US")}
+              {data.fromLabel} €{Math.round(data.price).toLocaleString("en-US")}
             </p>
           ) : (
             <p
               className="uppercase mb-4"
               style={{ fontSize: contentWidth * 0.014, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)" }}
             >
-              Private Experience
+              {data.privateExperienceLabel}
             </p>
           )}
 

@@ -173,14 +173,14 @@ export default function SocialExperienceStoryCard({ data, format, showPrice, cta
             className="uppercase text-white"
             style={{ fontSize: contentWidth * 0.028, letterSpacing: "0.2em", marginBottom: 24 }}
           >
-            From €{Math.round(data.price).toLocaleString("en-US")}
+            {data.fromLabel} €{Math.round(data.price).toLocaleString("en-US")}
           </p>
         ) : (
           <p
             className="uppercase"
             style={{ fontSize: contentWidth * 0.024, letterSpacing: "0.25em", color: "rgba(255,255,255,0.5)", marginBottom: 24 }}
           >
-            Private Experience
+            {data.privateExperienceLabel}
           </p>
         )}
 

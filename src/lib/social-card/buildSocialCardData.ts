@@ -1,6 +1,7 @@
 import { Experience } from "@/types/experience";
 import { ProposalExperienceCard } from "@/types/proposal";
 import { SocialCardData, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
+import { MOOD_NAME_KEYS } from "@/lib/config/experienceTaxonomy";
 
 // =========================================================
 // buildSocialCardData — trasformazione pura, NON un secondo motore
@@ -10,6 +11,16 @@ import { SocialCardData, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
 // editoriale sintetico per la Social Experience Card. Se cambia la
 // configurazione a monte, questi dati cambiano di conseguenza senza
 // bisogno di toccare questo file.
+//
+// `t` (next-intl, gia' risolto sul locale corrente dal chiamante,
+// stesso identico `t` passato a buildRendererData.ts) traduce ogni
+// etichetta FISSA generata qui — durata, numero di persone,
+// destinazione, mood, "Private Experience", prefisso prezzo. Il
+// titolo/descrizione/i nomi delle esperienze arrivano gia' localizzati
+// da getBookableExperiences(locale)/generateProposal, non c'e' nulla
+// da tradurre qui per quelli. Chiavi in site_copy sotto il namespace
+// "socialCard" (vedi site_copy_socialcard.sql) — stesso pattern di
+// "eventsPage"/"proposal.events".
 // =========================================================
 
 interface BuildSocialCardDataParams {
@@ -29,27 +40,26 @@ interface BuildSocialCardDataParams {
     end_date?: string;
     moods?: string[];
   };
+  locale: string;
+  t: any;
 }
 
-const NUMBER_WORDS: Record<number, string> = {
-  1: "One", 2: "Two", 3: "Three", 4: "Four", 5: "Five",
-  6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten",
-};
-
-function travelersLabel(guests?: string | number, children?: string | number): string {
+function travelersLabel(guests: string | number | undefined, children: string | number | undefined, t: any): string {
   const adults = Number(guests) || 2;
   const kids = Number(children) || 0;
   const total = adults + kids;
-  const word = NUMBER_WORDS[total] || String(total);
-  return `${word} ${total === 1 ? "Person" : "People"}`;
+  return total === 1
+    ? t("socialCard.onePerson", { count: total })
+    : t("socialCard.people", { count: total });
 }
 
 function durationLabel(
   isMultiDayTrip: boolean,
-  startDate?: string,
-  endDate?: string
+  startDate: string | undefined,
+  endDate: string | undefined,
+  t: any
 ): string {
-  if (!isMultiDayTrip) return "One Day";
+  if (!isMultiDayTrip) return t("socialCard.oneDay", { count: 1 });
 
   if (startDate && endDate) {
     const days = Math.max(
@@ -59,18 +69,28 @@ function durationLabel(
           (1000 * 60 * 60 * 24)
       ) + 1
     );
-    const word = NUMBER_WORDS[days] || String(days);
-    return `${word} Day${days === 1 ? "" : "s"}`;
+    return days === 1
+      ? t("socialCard.oneDay", { count: days })
+      : t("socialCard.days", { count: days });
   }
 
-  return "Multi-Day Escape";
+  return t("socialCard.multiDayEscape");
 }
 
-function datesLabel(startDate?: string, endDate?: string): string | undefined {
+// Stessa mappa usata altrove nel progetto (ProposalEvents.tsx,
+// events-widget.js) per formattare le date secondo il locale del
+// sito invece del fisso "en-GB" precedente (es. "15 Apr" restava
+// inglese anche per un visitatore italiano).
+const DATE_LOCALES: Record<string, string> = {
+  en: "en-GB", it: "it-IT", fr: "fr-FR", de: "de-DE",
+  es: "es-ES", ru: "ru-RU", zh: "zh-CN", ja: "ja-JP",
+};
+
+function datesLabel(startDate: string | undefined, endDate: string | undefined, locale: string): string | undefined {
   if (!startDate) return undefined;
 
   const format = (d: string) =>
-    new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    new Date(d).toLocaleDateString(DATE_LOCALES[locale] || DATE_LOCALES.en, { day: "numeric", month: "short", year: "numeric" });
 
   return endDate && endDate !== startDate
     ? `${format(startDate)} – ${format(endDate)}`
@@ -113,6 +133,8 @@ export function buildSocialCardData({
   finalPrice,
   isMultiDayTrip,
   lead,
+  locale,
+  t,
 }: BuildSocialCardDataParams): SocialCardData {
 
   // Tutte le esperienze REALMENTE presenti in questa proposal — la
@@ -156,13 +178,15 @@ export function buildSocialCardData({
     )
   );
 
+  const moodKey = lead.moods?.[0] ? MOOD_NAME_KEYS[lead.moods[0]] : undefined;
+
   return {
     title: heroTitle,
-    destination: "Portovenere, Italian Riviera",
-    duration: durationLabel(isMultiDayTrip, lead.start_date, lead.end_date),
-    travelers: travelersLabel(lead.guests, lead.children),
-    dates: datesLabel(lead.start_date, lead.end_date),
-    mood: lead.moods?.[0],
+    destination: t("socialCard.destination"),
+    duration: durationLabel(isMultiDayTrip, lead.start_date, lead.end_date, t),
+    travelers: travelersLabel(lead.guests, lead.children, t),
+    dates: datesLabel(lead.start_date, lead.end_date, locale),
+    mood: moodKey ? t(`configurator.moodNames.${moodKey}`) : lead.moods?.[0],
     highlights,
     description: shortDescription(dynamicIntroParagraph || featuredExperience.short_description || ""),
     images,
@@ -170,6 +194,8 @@ export function buildSocialCardData({
     // Di default nascosto — la card social e' pensata come teaser
     // editoriale, non come preventivo. Puo' essere attivato nel modale.
     showPrice: false,
+    fromLabel: t("socialCard.from"),
+    privateExperienceLabel: t("socialCard.privateExperience"),
     cta: SOCIAL_CARD_CTA_PRESETS[0],
     ctaUrl: "/craft-your-experience",
     proposalUrl: `/results/proposal/${slug}`,

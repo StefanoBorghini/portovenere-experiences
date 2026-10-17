@@ -45,6 +45,13 @@ export interface SocialCardData {
 
   showPrice: boolean;
 
+  // Etichette gia' tradotte lato server (stesso locale di
+  // title/mood/highlights) — i renderer (React preview + satori) le
+  // usano cosi' come sono, senza dover sapere nulla di i18n.
+  fromLabel: string;
+
+  privateExperienceLabel: string;
+
   cta: string;
 
   ctaUrl: string;

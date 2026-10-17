@@ -113,5 +113,7 @@ export async function getSocialCardDataForSlug(
     finalPrice,
     isMultiDayTrip,
     lead,
+    locale,
+    t,
   });
 }

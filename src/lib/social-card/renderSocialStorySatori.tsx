@@ -255,7 +255,7 @@ export async function buildSocialStoryElement(
               marginBottom: 24,
             }}
           >
-            {`From €${Math.round(data.price).toLocaleString("en-US")}`}
+            {`${data.fromLabel} €${Math.round(data.price).toLocaleString("en-US")}`}
           </span>
         ) : (
           <span
@@ -268,7 +268,7 @@ export async function buildSocialStoryElement(
               marginBottom: 24,
             }}
           >
-            Private Experience
+            {data.privateExperienceLabel}
           </span>
         )}
 
