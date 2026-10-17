@@ -70,7 +70,7 @@ function datesLabel(startDate?: string, endDate?: string): string | undefined {
   if (!startDate) return undefined;
 
   const format = (d: string) =>
-    new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
   return endDate && endDate !== startDate
     ? `${format(startDate)} – ${format(endDate)}`
