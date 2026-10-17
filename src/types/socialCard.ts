@@ -52,7 +52,17 @@ export interface SocialCardData {
 
   privateExperienceLabel: string;
 
+  // Etichetta baked nell'immagine finale — di default la prima di
+  // ctaPresets sotto, gia' tradotta; l'admin puo' cambiarla dal
+  // modale (altro preset o testo libero, in qualsiasi lingua).
   cta: string;
+
+  // Opzioni del dropdown CTA nel modale admin, gia' tradotte lato
+  // server nello stesso locale di tutto il resto — vedi
+  // SOCIAL_CARD_CTA_PRESET_IDS/buildSocialCardData.ts. Mai una
+  // stringa fissa in inglese: il testo finisce dentro l'immagine
+  // mostrata al lead, deve essere nella SUA lingua.
+  ctaPresets: { id: SocialCardCtaPresetId; label: string }[];
 
   ctaUrl: string;
 
@@ -61,9 +71,14 @@ export interface SocialCardData {
 
 export type SocialCardFormatId = "portrait" | "story";
 
-export const SOCIAL_CARD_CTA_PRESETS = [
-  "BUILD YOUR OWN EXPERIENCE →",
-  "DISCOVER THIS EXPERIENCE →",
-  "CREATE YOUR ITALIAN ESCAPE →",
-  "START YOUR EXPERIENCE →",
+// ID stabili (mai il testo stesso) per le 4 opzioni di CTA — il testo
+// mostrato/baked arriva da t(`socialCard.cta.${id}`), vedi
+// buildSocialCardData.ts e site_copy_socialcard_cta.sql.
+export const SOCIAL_CARD_CTA_PRESET_IDS = [
+  "buildYourOwn",
+  "discoverExperience",
+  "createEscape",
+  "startExperience",
 ] as const;
+
+export type SocialCardCtaPresetId = (typeof SOCIAL_CARD_CTA_PRESET_IDS)[number];

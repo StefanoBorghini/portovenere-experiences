@@ -1,6 +1,6 @@
 import { Experience } from "@/types/experience";
 import { ProposalExperienceCard } from "@/types/proposal";
-import { SocialCardData, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
+import { SocialCardData, SOCIAL_CARD_CTA_PRESET_IDS } from "@/types/socialCard";
 import { MOOD_NAME_KEYS } from "@/lib/config/experienceTaxonomy";
 
 // =========================================================
@@ -180,6 +180,11 @@ export function buildSocialCardData({
 
   const moodKey = lead.moods?.[0] ? MOOD_NAME_KEYS[lead.moods[0]] : undefined;
 
+  const ctaPresets = SOCIAL_CARD_CTA_PRESET_IDS.map((id) => ({
+    id,
+    label: t(`socialCard.cta.${id}`),
+  }));
+
   return {
     title: heroTitle,
     destination: t("socialCard.destination"),
@@ -196,7 +201,8 @@ export function buildSocialCardData({
     showPrice: false,
     fromLabel: t("socialCard.from"),
     privateExperienceLabel: t("socialCard.privateExperience"),
-    cta: SOCIAL_CARD_CTA_PRESETS[0],
+    cta: ctaPresets[0].label,
+    ctaPresets,
     ctaUrl: "/craft-your-experience",
     proposalUrl: `/results/proposal/${slug}`,
   };

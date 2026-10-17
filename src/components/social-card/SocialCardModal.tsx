@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { SocialCardData, SocialCardFormatId, SOCIAL_CARD_CTA_PRESETS } from "@/types/socialCard";
+import { SocialCardData, SocialCardFormatId } from "@/types/socialCard";
 import { SOCIAL_CARD_FORMATS, SOCIAL_CARD_FORMAT_ORDER } from "./socialCardFormats";
 import SocialExperienceCard from "./SocialExperienceCard";
 import SocialExperienceStoryCard from "./SocialExperienceStoryCard";
@@ -31,7 +31,7 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
   const [previewScale, setPreviewScale] = useState(0.3);
 
   const formatConfig = SOCIAL_CARD_FORMATS[activeFormat];
-  const effectiveCta = isCustomCta ? (customCta || SOCIAL_CARD_CTA_PRESETS[0]) : cta;
+  const effectiveCta = isCustomCta ? (customCta || data.ctaPresets[0]?.label || "") : cta;
 
   // Ricalcola la scala dell'anteprima quando cambia formato o
   // dimensione del contenitore — la card e' SEMPRE renderizzata a
@@ -292,9 +292,9 @@ export default function SocialCardModal({ data, slug, leadId, leadEmail, onClose
                 }}
                 className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm outline-none"
               >
-                {SOCIAL_CARD_CTA_PRESETS.map((preset) => (
-                  <option key={preset} value={preset} className="bg-black">
-                    {preset}
+                {data.ctaPresets.map((preset) => (
+                  <option key={preset.id} value={preset.label} className="bg-black">
+                    {preset.label}
                   </option>
                 ))}
                 <option value="custom" className="bg-black">Custom…</option>
